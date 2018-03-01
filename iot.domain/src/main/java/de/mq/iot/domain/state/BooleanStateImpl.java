@@ -51,5 +51,7 @@ class BooleanStateImpl implements State<Boolean>{
 		// TODO Auto-generated method stub
 		
 	}
+	
+	
 
 }
