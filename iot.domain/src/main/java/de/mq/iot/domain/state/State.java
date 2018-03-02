@@ -1,6 +1,6 @@
 package de.mq.iot.domain.state;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 /**
  * One state of a finite state machine.
  * @author Admin
@@ -32,7 +32,7 @@ public interface State<T> {
 	 * Last changed date. 
 	 * @return time last changed
 	 */
-	ZonedDateTime lastupdate();
+	LocalDateTime lastupdate();
 	
 	/**
 	 * Change the state value
