@@ -2,6 +2,8 @@ package de.mq.iot.domain.state;
 
 import java.time.LocalDateTime;
 
+
+
 import org.springframework.util.Assert;
 
 class BooleanStateImpl implements State<Boolean>{
@@ -10,6 +12,7 @@ class BooleanStateImpl implements State<Boolean>{
 	private final String name;
 	private final LocalDateTime lastupdate;
 	private boolean value; 
+	
 	
 	BooleanStateImpl(final long id, final String name, boolean value,  final LocalDateTime lastupdate) {
 		Assert.hasText(name, "Name is mandatory.");

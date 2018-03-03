@@ -19,7 +19,7 @@
 		<junit-platform-surefire-provider-version>1.0.1</junit-platform-surefire-provider-version>
 		<junit-launcher-version>1.0.1</junit-launcher-version>
 		<junit-jupiter-version>5.0.2</junit-jupiter-version>
-		<spring.version>5.0.1.RELEASE</spring.version>
+		<spring.version>5.0.4.RELEASE</spring.version>
 	</properties>
 
 	<dependencies>
@@ -55,10 +55,19 @@
 			<artifactId>spring-expression</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
+	
+		
+		
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-web -->
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-web-reactive -->
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-web-reactive -->
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
+<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-rest-core -->
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-web -->
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
 
 
-	</dependencies>
-
+</dependencies>
 
 
 	<build>
