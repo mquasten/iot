@@ -12,7 +12,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
-import org.springframework.util.StringUtils;
 import org.springframework.xml.xpath.Jaxp13XPathTemplate;
 import org.springframework.xml.xpath.XPathOperations;
 import org.w3c.dom.Node;
@@ -52,9 +51,7 @@ class HomematicXmlApiStateRepositoryImpl {
 			
 			System.out.println(var);
 			HomematicState result  = (HomematicState) marshaller.unmarshal(new StreamSource(new StringReader(var)));
-			if (! StringUtils.hasText(node.getAttributes().getNamedItem("min").getNodeValue() )) {
-				//node.getAttributes().getNamedItem("min").setNodeValue("0.0");
-			}
+			
 		
 			System.out.println(result.getId()+ "," + result.getName()+ "," + result.getMin());
 			return null;
