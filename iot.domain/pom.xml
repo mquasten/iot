@@ -58,6 +58,37 @@
 	
 		
 		
+		
+		  
+<dependency>
+    <groupId>io.projectreactor.ipc</groupId>
+    <artifactId>reactor-netty</artifactId>
+    <version>0.7.3.RELEASE</version>
+</dependency>
+       	
+      
+      <!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-webflux</artifactId>
+    <version>${spring.version}</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-core -->
+<dependency>
+    <groupId>io.projectreactor</groupId>
+    <artifactId>reactor-core</artifactId>
+    <version>3.1.4.RELEASE</version>
+</dependency>
+
+
+<!-- https://mvnrepository.com/artifact/io.projectreactor.spring/reactor-spring-core -->
+
+		
+		<!-- https://mvnrepository.com/artifact/io.projectreactor.spring/reactor-spring-core -->
+
+		
+		
 <!-- https://mvnrepository.com/artifact/org.springframework/spring-web -->
 <!-- https://mvnrepository.com/artifact/org.springframework/spring-web-reactive -->
 <!-- https://mvnrepository.com/artifact/org.springframework/spring-web-reactive -->

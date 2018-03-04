@@ -16,6 +16,7 @@ class StateRepositoryTest {
 	
 	@Test
 	void findStates() throws UnirestException {
+	
 		stateRepository.findStates();
 	
 	}

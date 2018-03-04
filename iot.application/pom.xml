@@ -59,6 +59,9 @@
 			<version>1.4.9</version>
 		</dependency>
 		
+		
+	
+		
 			<!-- https://mvnrepository.com/artifact/org.springframework.ws/spring-ws-core -->
 <dependency>
     <groupId>org.springframework.ws</groupId>

@@ -1,23 +1,11 @@
 package de.mq.iot.state;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Collection;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
-import org.springframework.xml.xpath.Jaxp13XPathTemplate;
-import org.springframework.xml.xpath.XPathOperations;
-import org.w3c.dom.Node;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import de.mq.iot.domain.state.State;
@@ -26,7 +14,7 @@ import de.mq.iot.domain.state.State;
 class HomematicXmlApiStateRepositoryImpl {
 	
 	
-
+	
 	
 	Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
 	
@@ -38,13 +26,25 @@ class HomematicXmlApiStateRepositoryImpl {
 		
 		marshaller.setMappedClass(HomematicState.class);
 		
-		HttpResponse<String> response = Unirest.get("http://{host}/addons/xmlapi/sysvarlist.cgi").routeParam("host", "192.168.2.104").asString();
+		//HttpResponse<String> response = Unirest.get("http://{host}/addons/xmlapi/sysvarlist.cgi").routeParam("host", "192.168.2.104").asString();
 		
 		
-		System.out.println(response.getBody());
+		//System.out.println(response.getBody());
 		
+		
+		
+		ResponseEntity<String>  res = WebClient.builder().build().get().uri("http://{host}/addons/xmlapi/sysvarlist.cgi",  "192.168.2.104").exchange().block().toEntity(String.class).block();
+		
+		System.out.println(res.getBody());
+		
+		
+		//final String response = WebClient.create("http://192.168.2.104/addons/xmlapi/sysvarlist.cgix"  ).get().retrieve().bodyToMono(String.class).block();
+		
+		
+		
+/*		
 		final XPathOperations  xPathOperations  = new Jaxp13XPathTemplate();
-		xPathOperations.evaluate("/systemVariables/systemVariable", new StreamSource(new StringReader(response.getBody())), (node, num) -> {
+		xPathOperations.evaluate("/systemVariables/systemVariable", new StreamSource(new StringReader(response)), (node, num) -> {
 			
 			
 			String var = nodeToString(node);
@@ -59,27 +59,13 @@ class HomematicXmlApiStateRepositoryImpl {
 		return null;
 		
 		
-		
+		*/
+		return null;
 		
 		
 	}
 	
 	
 
-	private  String nodeToString(Node node)  {
-	   
-		try {
-			final StringWriter buf = new StringWriter();
-		    
-			final Transformer xform = TransformerFactory.newInstance().newTransformer();
-			xform.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-			xform.transform(new DOMSource(node), new StreamResult(buf));
-			return buf.toString();
-		} catch (Exception ex) {
-			 throw new IllegalArgumentException(ex);
-		} 
-	   
-	   
-	}
 
 }
