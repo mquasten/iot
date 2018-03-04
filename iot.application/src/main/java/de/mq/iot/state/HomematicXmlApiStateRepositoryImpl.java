@@ -4,7 +4,9 @@ import java.util.Collection;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
@@ -35,6 +37,14 @@ class HomematicXmlApiStateRepositoryImpl {
 		
 		ResponseEntity<String>  res = WebClient.builder().build().get().uri("http://{host}/addons/xmlapi/sysvarlist.cgi",  "192.168.2.104").exchange().block().toEntity(String.class).block();
 		
+		if( res.getStatusCode().is4xxClientError() || res.getStatusCode().is5xxServerError() ) {
+			
+			throw new HttpStatusCodeException(res.getStatusCode(), res.getStatusCode().getReasonPhrase()) {
+
+				private static final long serialVersionUID = 1L;
+			};
+			
+		}
 		System.out.println(res.getBody());
 		
 		
