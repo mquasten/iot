@@ -53,29 +53,28 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>com.mashape.unirest</groupId>
-			<artifactId>unirest-java</artifactId>
-			<version>1.4.9</version>
-		</dependency>
-		
-		
-	
-		
-			<!-- https://mvnrepository.com/artifact/org.springframework.ws/spring-ws-core -->
-<dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.ws/spring-ws-core -->
+<!-- dependency>
     <groupId>org.springframework.ws</groupId>
     <artifactId>spring-ws-core</artifactId>
     <version>3.0.0.RELEASE</version>
+</dependency-->
+
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+    <version>${spring-version}</version>
 </dependency>
 
 
-		<!-- https://mvnrepository.com/artifact/org.springframework.ws/spring-oxm -->
-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-oxm -->
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
 <dependency>
     <groupId>org.springframework</groupId>
-    <artifactId>spring-oxm</artifactId>
+    <artifactId>spring-test</artifactId>
     <version>${spring-version}</version>
+    <scope>test</scope>
 </dependency>
 
 	</dependencies>
