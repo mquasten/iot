@@ -61,12 +61,6 @@
     <version>3.0.0.RELEASE</version>
 </dependency-->
 
-<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
-<dependency>
-    <groupId>org.springframework</groupId>
-    <artifactId>spring-context</artifactId>
-    <version>${spring-version}</version>
-</dependency>
 
 
 <!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
