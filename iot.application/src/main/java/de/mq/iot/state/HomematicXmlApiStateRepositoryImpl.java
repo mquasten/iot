@@ -21,29 +21,25 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import de.mq.iot.resource.ResourceIdentifier;
+
 @Repository
 abstract class HomematicXmlApiStateRepositoryImpl {
 
-	Collection<Map<String, String>> findStates() {
+	Collection<Map<String, String>> findStates(final ResourceIdentifier uniformResourceIdentifier) {
 
-		// http://mq65.ddns.net:2000/addons/xmlapi/sysvarlist.cgi{}
+		final ResponseEntity<String> res = webClientBuilder().build().get().uri(uniformResourceIdentifier.uri(), uniformResourceIdentifier.parameters()).exchange().block().toEntity(String.class).block();
 
-		final ResponseEntity<String> res = webClientBuilder().build().get()
-				.uri("http://{host}:{port}/addons/xmlapi/sysvarlist.cgi", "mq65.ddns.net", 2000).exchange().block()
-				.toEntity(String.class).block();
 		httpStatusGuard(res);
 
 		final NodeList nodes = evaluate(res);
-
-		return IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes()))
-				.collect(Collectors.toList());
+		return IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes())).collect(Collectors.toList());
 
 	}
 
 	private NodeList evaluate(final ResponseEntity<String> res) {
 		try {
-			return (NodeList) xpath().evaluate("/systemVariables/systemVariable",
-					new InputSource(new StringReader(res.getBody())), XPathConstants.NODESET);
+			return (NodeList) xpath().evaluate("/systemVariables/systemVariable", new InputSource(new StringReader(res.getBody())), XPathConstants.NODESET);
 		} catch (XPathExpressionException ex) {
 			throw new IllegalStateException("Unable to evalualte xpath expression", ex);
 
@@ -62,9 +58,7 @@ abstract class HomematicXmlApiStateRepositoryImpl {
 	}
 
 	private Map<String, String> attributesToMap(final NamedNodeMap nodeMap) {
-		final Map<String, String> attributes = IntStream.range(0, nodeMap.getLength())
-				.mapToObj(j -> new AbstractMap.SimpleImmutableEntry<String, String>(nodeMap.item(j).getNodeName(),
-						nodeMap.item(j).getNodeValue()))
+		final Map<String, String> attributes = IntStream.range(0, nodeMap.getLength()).mapToObj(j -> new AbstractMap.SimpleImmutableEntry<String, String>(nodeMap.item(j).getNodeName(), nodeMap.item(j).getNodeValue()))
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		return attributes;
 	}

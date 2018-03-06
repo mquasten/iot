@@ -1,83 +1,52 @@
 package de.mq.iot.state;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.Mockito;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { TestConfiguration.class })
+import reactor.core.publisher.Mono;
+
 class StateRepositoryTest {
+	
+	private HomematicXmlApiStateRepositoryImpl stateRepository = Mockito.mock(HomematicXmlApiStateRepositoryImpl.class, Mockito.CALLS_REAL_METHODS);
 
-	private static final String ATTRIBUTE_VALUE = "value";
-	private static final String TYPE_BOOLEAN = "2";
-	private static final String ATTRIBUTE_ID = "ise_id";
-	private static final String ATTRIBUTE_TYPE = "type";
-	private static final String ATTRIBUTE_NAME = "name";
-	private static final String NAME_WORKINGDAY = "Workingday";
-	@Autowired
-	private HomematicXmlApiStateRepositoryImpl stateRepository;
+	 private final WebClient.Builder webClientBuilder = Mockito.mock(WebClient.Builder.class);
+	
 
+	@BeforeEach
+	void setup() {
+		@SuppressWarnings("unchecked")
+		final Map<String,String> uriVariables = Mockito.mock(Map.class);
+		Mockito.doReturn(webClientBuilder).when(stateRepository).webClientBuilder();
+		final WebClient webClient = Mockito.mock(WebClient.class);
+		Mockito.doReturn(webClient).when(webClientBuilder).build();
+		final RequestHeadersUriSpec<?>  requestHeadersUriSpec = Mockito.mock(RequestHeadersUriSpec.class);
+		Mockito.doReturn(requestHeadersUriSpec).when(webClient).get();
+		final RequestHeadersSpec<?> requestHeadersSpec = Mockito.mock(RequestHeadersSpec.class);
+		Mockito.doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri("uri", uriVariables);
+		@SuppressWarnings("unchecked")
+		final Mono<ClientResponse>  mono = Mockito.mock(Mono.class);
+		Mockito.doReturn(mono).when(requestHeadersSpec).exchange();
+		final ClientResponse clientResponse = Mockito.mock(ClientResponse.class);
+		Mockito.doReturn(clientResponse).when(mono).block();
+		@SuppressWarnings("unchecked")
+		final Mono<ResponseEntity<String>> monoResponseEntity = Mockito.mock(Mono.class);
+		Mockito.doReturn(monoResponseEntity).when(clientResponse).toEntity(String.class);
+		Mockito.doReturn("<xml>").when(monoResponseEntity).block();
+		//block();
+		
+	}
+	
 	@Test
-
-	void findStates() {
-		final Collection<Map<String, String>> results = stateRepository.findStates();
-		assertFalse(results.isEmpty());
-
-		final Map<String, String> result = singleUniqueResult(
-				results.stream().filter(entry -> entry.get(ATTRIBUTE_NAME).equalsIgnoreCase(NAME_WORKINGDAY))
-						.collect(Collectors.toList()));
-
-		assertEquals(NAME_WORKINGDAY, result.get(ATTRIBUTE_NAME));
-		assertEquals(TYPE_BOOLEAN, result.get(ATTRIBUTE_TYPE));
-		assertNotNull(result.get(ATTRIBUTE_ID));
-		Integer.parseInt(result.get(ATTRIBUTE_ID));
-		assertTrue(Arrays.asList("true", "false").contains(result.get(ATTRIBUTE_VALUE)));
-		assertTrue(2017 < LocalDateTime
-				.ofInstant(Instant.ofEpochSecond(Long.parseLong(result.get("timestamp"))), ZoneOffset.UTC).getYear());
+	final void findStates() {
+		
+		
 	}
-
-	<T> T singleUniqueResult(final Collection<T> values) {
-		assertEquals(1, values.size());
-		return values.stream().findAny().orElseThrow(() -> new IllegalStateException("Result is mandatory."));
-	}
-}
-
-@Configuration
-@ComponentScan(basePackages = "de.mq.iot.state")
-class TestConfiguration {
-	@Bean
-	@Scope(scopeName = "prototype")
-	WebClient.Builder webClientBuilder() {
-		return WebClient.builder();
-	}
-
-	@Bean
-	@Scope(scopeName = "prototype")
-	XPath xpath() {
-		return XPathFactory.newInstance().newXPath();
-	}
-
 }
