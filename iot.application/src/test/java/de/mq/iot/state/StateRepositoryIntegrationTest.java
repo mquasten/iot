@@ -18,6 +18,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -58,6 +59,7 @@ class StateRepositoryIntegrationTest {
 	}
 
 	@Test
+	@Disabled
 	void findStates() {
 
 		final Collection<Map<String, String>> results = stateRepository.findStates(resourceIdentifier);

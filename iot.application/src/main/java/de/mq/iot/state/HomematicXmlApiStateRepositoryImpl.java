@@ -28,6 +28,7 @@ abstract class HomematicXmlApiStateRepositoryImpl {
 
 	Collection<Map<String, String>> findStates(final ResourceIdentifier uniformResourceIdentifier) {
 
+		
 		final ResponseEntity<String> res = webClientBuilder().build().get().uri(uniformResourceIdentifier.uri(), uniformResourceIdentifier.parameters()).exchange().block().toEntity(String.class).block();
 
 		httpStatusGuard(res);
@@ -47,7 +48,7 @@ abstract class HomematicXmlApiStateRepositoryImpl {
 	}
 
 	private void httpStatusGuard(final ResponseEntity<String> res) {
-		if (res.getStatusCode().is4xxClientError() || res.getStatusCode().is5xxServerError()) {
+		if (! res.getStatusCode().is2xxSuccessful()) {
 
 			throw new HttpStatusCodeException(res.getStatusCode(), res.getStatusCode().getReasonPhrase()) {
 
