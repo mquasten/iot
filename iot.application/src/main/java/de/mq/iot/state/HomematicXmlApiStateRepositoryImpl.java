@@ -28,7 +28,6 @@ abstract class HomematicXmlApiStateRepositoryImpl {
 
 	Collection<Map<String, String>> findStates(final ResourceIdentifier uniformResourceIdentifier) {
 
-		
 		final ResponseEntity<String> res = webClientBuilder().build().get().uri(uniformResourceIdentifier.uri(), uniformResourceIdentifier.parameters()).exchange().block().toEntity(String.class).block();
 
 		httpStatusGuard(res);
