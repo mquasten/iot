@@ -1,4 +1,4 @@
-package de.mq.iot.domain.state.support;
+package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
-import de.mq.iot.domain.state.support.BooleanStateImpl;
-import de.mq.iot.domain.state.support.State;
+import de.mq.iot.state.support.BooleanStateImpl;
+import de.mq.iot.state.support.State;
 
 class BooleanStateTest {
 

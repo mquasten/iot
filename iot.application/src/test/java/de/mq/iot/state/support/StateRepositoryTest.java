@@ -39,16 +39,6 @@ class StateRepositoryTest {
 
 	private static final String URI = "uri";
 
-	private static final String NAME_KEY = "name";
-
-	private static final String VALUE_KEY = "value";
-
-	private static final String TYPE_KEY = "type";
-
-	private static final String TIMESTAMP_KEY = "timestamp";
-
-	private static final String ID_KEY = "ise_id";
-
 	private HomematicXmlApiStateRepositoryImpl stateRepository = Mockito.mock(HomematicXmlApiStateRepositoryImpl.class, Mockito.CALLS_REAL_METHODS);
 
 	private final WebClient.Builder webClientBuilder = Mockito.mock(WebClient.Builder.class);
@@ -89,7 +79,7 @@ class StateRepositoryTest {
 		Mockito.doReturn(resonseEntity).when(monoResponseEntity).block();
 		Mockito.doReturn(HttpStatus.OK).when(resonseEntity).getStatusCode();
 		
-		String xml = XML.replaceFirst("\\$" + NAME_KEY, WORKINGDAY).replaceFirst("\\$" + VALUE_KEY, "" + true).replaceFirst("\\$" + TYPE_KEY, BOOLEAN_TYPE).replaceFirst("\\$" + TIMESTAMP_KEY, TIMESTAMP).replaceFirst("\\$" + ID_KEY, ID);
+		String xml = XML.replaceFirst("\\$" + StateConverter.KEY_NAME, WORKINGDAY).replaceFirst("\\$" + StateConverter.KEY_VALUE, "" + true).replaceFirst("\\$" + StateConverter.KEY_TYPE, BOOLEAN_TYPE).replaceFirst("\\$" + StateConverter.KEY_TIMESTAMP, TIMESTAMP).replaceFirst("\\$" + StateConverter.KEY_ID, ID);
 		Mockito.doReturn(xml).when(resonseEntity).getBody();
 	
 	}
@@ -100,10 +90,12 @@ class StateRepositoryTest {
 
 		assertEquals(1, results.size());
 		final Map<String, String> result = results.stream().findAny().get();
-		assertEquals(ID, result.get(ID_KEY));
-		assertEquals(WORKINGDAY, result.get(NAME_KEY));
-		assertEquals(BOOLEAN_TYPE, result.get(TYPE_KEY));
-		assertEquals(Boolean.TRUE.toString(), result.get(VALUE_KEY));
+		assertEquals(ID, result.get(StateConverter.KEY_ID));
+		assertEquals(WORKINGDAY, result.get(StateConverter.KEY_NAME));
+		assertEquals(BOOLEAN_TYPE, result.get(StateConverter.KEY_TYPE));
+		assertEquals(Boolean.TRUE.toString(), result.get(StateConverter.KEY_VALUE));
+		assertEquals(TIMESTAMP, result.get(StateConverter.KEY_TIMESTAMP));
+		
 
 	}
 

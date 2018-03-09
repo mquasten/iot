@@ -38,12 +38,8 @@ import de.mq.iot.state.support.HomematicXmlApiStateRepositoryImpl;
 @ContextConfiguration(classes = { TestConfiguration.class })
 class StateRepositoryIntegrationTest {
 
-	private static final String ATTRIBUTE_TIMESTAMP = "timestamp";
-	private static final String ATTRIBUTE_VALUE = "value";
+	
 	private static final String TYPE_BOOLEAN = "2";
-	private static final String ATTRIBUTE_ID = "ise_id";
-	private static final String ATTRIBUTE_TYPE = "type";
-	private static final String ATTRIBUTE_NAME = "name";
 	private static final String NAME_WORKINGDAY = "Workingday";
 	@Autowired
 	private HomematicXmlApiStateRepositoryImpl stateRepository;
@@ -69,14 +65,14 @@ class StateRepositoryIntegrationTest {
 		final Collection<Map<String, String>> results = stateRepository.findStates(resourceIdentifier);
 		assertFalse(results.isEmpty());
 
-		final Map<String, String> result = singleUniqueResult(results.stream().filter(entry -> entry.get(ATTRIBUTE_NAME).equalsIgnoreCase(NAME_WORKINGDAY)).collect(Collectors.toList()));
+		final Map<String, String> result = singleUniqueResult(results.stream().filter(entry -> entry.get(StateConverter.KEY_NAME).equalsIgnoreCase(NAME_WORKINGDAY)).collect(Collectors.toList()));
 
-		assertEquals(NAME_WORKINGDAY, result.get(ATTRIBUTE_NAME));
-		assertEquals(TYPE_BOOLEAN, result.get(ATTRIBUTE_TYPE));
-		assertNotNull(result.get(ATTRIBUTE_ID));
-		Integer.parseInt(result.get(ATTRIBUTE_ID));
-		assertTrue(Arrays.asList("true", "false").contains(result.get(ATTRIBUTE_VALUE)));
-		assertTrue(2017 < LocalDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(result.get(ATTRIBUTE_TIMESTAMP))), ZoneOffset.UTC).getYear());
+		assertEquals(NAME_WORKINGDAY, result.get(StateConverter.KEY_NAME));
+		assertEquals(TYPE_BOOLEAN, result.get(StateConverter.KEY_TYPE));
+		assertNotNull(result.get(StateConverter.KEY_ID));
+		Integer.parseInt(result.get(StateConverter.KEY_ID));
+		assertTrue(Arrays.asList("true", "false").contains(result.get(StateConverter.KEY_VALUE)));
+		assertTrue(2017 < LocalDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(result.get(StateConverter.KEY_TIMESTAMP))), ZoneOffset.UTC).getYear());
 	}
 
 	<T> T singleUniqueResult(final Collection<T> values) {
