@@ -17,7 +17,7 @@ class BooleanStateTest {
 
 	private static final String NAME = "WorkingDay";
 	private static final long ID = 19680528L;
-	private final State<Boolean> state = new BooleanStateImpl(ID, NAME, true, LocalDateTime.now());
+	private final State<Boolean> state = new BooleanStateImpl(ID, NAME, LocalDateTime.now());
 
 	@Test
 	final void id() {
@@ -30,15 +30,16 @@ class BooleanStateTest {
 	}
 
 	@Test
-	final void value() {
-		assertTrue(state.value());
+	final void valueDefault() {
+		
+		assertFalse(state.value());
 	}
 
 	@Test
 	final void assignValue() {
-		state.assign(false);
+		state.assign(true);
 
-		assertFalse(state.value());
+		assertTrue(state.value());
 	}
 
 	@Test
@@ -48,6 +49,6 @@ class BooleanStateTest {
 
 	@Test()
 	public final void wrongId() {
-		assertThrows(IllegalArgumentException.class, () -> new BooleanStateImpl(ID * -1, NAME, true, LocalDateTime.now()));
+		assertThrows(IllegalArgumentException.class, () -> new BooleanStateImpl(ID * -1, NAME, LocalDateTime.now()));
 	}
 }

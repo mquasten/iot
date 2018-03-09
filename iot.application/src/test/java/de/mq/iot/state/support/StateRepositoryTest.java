@@ -31,7 +31,7 @@ class StateRepositoryTest {
 	private final static String XML = "<systemVariables><systemVariable name=\"$name\" variable=\"0\" value=\"$value\" value_list=\"\" ise_id=\"$ise_id\" min=\"\" max=\"\" unit=\"\" type=\"$type\" subtype=\"2\" logged=\"false\" visible=\"true\" timestamp=\"$timestamp\" value_name_0=\"ist falsch\" value_name_1=\"ist wahr\" /></systemVariables>";
 	private static final String ID = "4711";
 
-	private static final String TIMESTAMP = "" + new Date().getTime() * 1000;
+	private static final String TIMESTAMP = "" + new Date().getTime() /1000;
 
 	private static final String BOOLEAN_TYPE = "2";
 
