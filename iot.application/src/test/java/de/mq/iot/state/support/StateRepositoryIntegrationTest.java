@@ -54,8 +54,11 @@ class StateRepositoryIntegrationTest {
 	void setup() {
 		Mockito.doReturn("http://{host}:{port}/addons/xmlapi/sysvarlist.cgi").when(resourceIdentifier).uri();
 		final Map<String, String> parameters = new HashMap<>();
-		parameters.put("host", "mq65.ddns.net");
-		parameters.put("port", "2000");
+		//parameters.put("host", "mq65.ddns.net");
+		//parameters.put("port", "2000");
+		
+		parameters.put("host", "homematic-ccu2");
+		parameters.put("port", "80");
 		Mockito.doReturn(parameters).when(resourceIdentifier).parameters();
 	}
 
