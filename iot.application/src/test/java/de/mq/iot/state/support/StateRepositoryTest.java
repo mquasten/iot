@@ -1,4 +1,4 @@
-package de.mq.iot.state;
+package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,6 +23,7 @@ import org.springframework.web.reactive.function.client.WebClient.RequestHeaders
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec;
 
 import de.mq.iot.resource.ResourceIdentifier;
+import de.mq.iot.state.support.HomematicXmlApiStateRepositoryImpl;
 import reactor.core.publisher.Mono;
 
 class StateRepositoryTest {

@@ -1,4 +1,4 @@
-package de.mq.iot.state;
+package de.mq.iot.state.support;
 
 import java.io.StringReader;
 import java.util.AbstractMap;

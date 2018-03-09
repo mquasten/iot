@@ -1,4 +1,4 @@
-package de.mq.iot.state;
+package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -32,6 +32,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import de.mq.iot.resource.ResourceIdentifier;
+import de.mq.iot.state.support.HomematicXmlApiStateRepositoryImpl;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { TestConfiguration.class })
