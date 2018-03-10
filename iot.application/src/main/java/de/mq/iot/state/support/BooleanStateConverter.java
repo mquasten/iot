@@ -1,6 +1,6 @@
 package de.mq.iot.state.support;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 
 class BooleanStateConverter  extends AbstractStateConverter<Boolean>{
 
@@ -10,11 +10,16 @@ class BooleanStateConverter  extends AbstractStateConverter<Boolean>{
 	}
 
 	@Override
-	State<Boolean> createState(final Long id, final LocalDateTime lastupdate, final String name, final String  valueAsString) {
-		final State<Boolean> state = new BooleanStateImpl(id, name, lastupdate);
-		final Boolean value = conversionService().convert(valueAsString, Boolean.class);
+	State<Boolean> createState(final State<Boolean> state, final Map<String,String> values) {
+	
+		final Boolean value = conversionService().convert(values.get(StateConverter.KEY_VALUE), Boolean.class);
 		state.assign(value);
 		return state;
+	}
+
+	@Override
+	Class<? extends State<Boolean>> target() {
+		return BooleanStateImpl.class;
 	}
 
 }

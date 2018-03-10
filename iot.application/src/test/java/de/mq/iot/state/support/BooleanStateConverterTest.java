@@ -48,4 +48,8 @@ class BooleanStateConverterTest {
 	}
 	
 
+	@Test
+	final void target() {
+		assertEquals(BooleanStateImpl.class, converter.target());
+	}
 }
