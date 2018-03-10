@@ -47,8 +47,18 @@ class BooleanStateTest {
 		assertTrue(Math.abs(Duration.between(LocalDateTime.now(), state.lastupdate()).toMillis()) < 5);
 	}
 
-	@Test()
-	public final void wrongId() {
+	@Test
+	final void wrongId() {
 		assertThrows(IllegalArgumentException.class, () -> new BooleanStateImpl(ID * -1, NAME, LocalDateTime.now()));
+	}
+	
+	@Test
+	final void assignNull() {
+		state.assign(true);
+		assertTrue(state.value());
+		
+		state.assign(null);
+		
+		assertFalse(state.value());
 	}
 }

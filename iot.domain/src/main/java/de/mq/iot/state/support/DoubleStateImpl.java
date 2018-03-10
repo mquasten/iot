@@ -2,11 +2,11 @@ package de.mq.iot.state.support;
 
 import java.time.LocalDateTime;
 
-class DoubleState extends AbstractState<Double> {
+class DoubleStateImpl extends AbstractState<Double> {
 
 	private  double value=0d;
 	
-	DoubleState(final long id, final String name, final LocalDateTime lastupdate) {
+	DoubleStateImpl(final long id, final String name, final LocalDateTime lastupdate) {
 		super(id, name, lastupdate);
 	}
 
@@ -19,6 +19,10 @@ class DoubleState extends AbstractState<Double> {
 
 	@Override
 	public void assign(final Double value) {
+		if( ! validate(value)) {
+			throw new IllegalArgumentException("Value is invalid.");
+		}
+		
 		this.value=value!=null?value:0d;
 	}
 

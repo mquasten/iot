@@ -1,6 +1,9 @@
 package de.mq.iot.state.support;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.function.Predicate;
 
 import org.springframework.util.Assert;
 
@@ -10,6 +13,7 @@ abstract   class AbstractState<T> implements State<T> {
 	private final String name;
 	private final LocalDateTime lastupdate;
 	
+	private final Collection<Predicate<T>> validators = new ArrayList<>();; 
 	
 	
 	AbstractState(final long id, final String name,   final LocalDateTime lastupdate) {
@@ -19,6 +23,7 @@ abstract   class AbstractState<T> implements State<T> {
 		this.id = id;
 		this.name = name;
 		this.lastupdate = lastupdate;
+		
 	}
 	
 
@@ -50,7 +55,21 @@ abstract   class AbstractState<T> implements State<T> {
 		return lastupdate;
 	}
 
-
-
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.State#validate(java.lang.Object)
+	 */
+	@Override
+	public final boolean validate(T value ) {
+		 return validators.stream().map(validator -> validator.test(value)).filter(v -> !v ).findAny().orElseGet(() -> true) ;
+	}
+	
+	/**
+	 * assign a validator 
+	 * @param validator a validator to test if the value is within the range
+	 */
+	final void assign(final Predicate<T> validator) {
+		validators.add(validator);
+	}
 	
 }

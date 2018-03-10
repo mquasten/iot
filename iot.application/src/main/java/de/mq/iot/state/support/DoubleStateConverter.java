@@ -11,13 +11,13 @@ public class DoubleStateConverter extends AbstractStateConverter<Double> {
 
 	@Override
 	State<Double> createState(State<Double> state , final Map<String,String> values) {
-		state.assign(conversionService().convert(values, Double.class));
+		state.assign(conversionService().convert(values.get(StateConverter.KEY_VALUE), Double.class));
 		return state;
 	}
 
 	@Override
 	Class<? extends State<Double>> target() {
-		return DoubleState.class;
+		return DoubleStateImpl.class;
 	}
 
 }

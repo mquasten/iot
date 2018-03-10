@@ -21,5 +21,7 @@ class BooleanStateConverter  extends AbstractStateConverter<Boolean>{
 	Class<? extends State<Boolean>> target() {
 		return BooleanStateImpl.class;
 	}
+	
+	
 
 }

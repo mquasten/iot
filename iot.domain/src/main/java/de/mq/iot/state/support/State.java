@@ -39,5 +39,9 @@ public interface State<T> {
 	 * @param value the value to that the state should be changed
 	 */
 	void assign(T value);
+	
+
+	boolean validate(T value); 
+	
 
 }

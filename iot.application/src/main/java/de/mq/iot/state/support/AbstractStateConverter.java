@@ -36,14 +36,11 @@ abstract class AbstractStateConverter<T>  implements StateConverter<T> {
 		Assert.hasText(values.get(StateConverter.KEY_VALUE), "Value is mandatory");
 		Assert.hasText(values.get(StateConverter.KEY_TIMESTAMP), "Timestamp is mandatory");
 		Assert.hasText(values.get(StateConverter.KEY_TYPE), "Type is mandatory");
-		final Long id = conversionService.convert(values.get(StateConverter.KEY_ID), Long.class);
+		final Long id = conversionService().convert(values.get(StateConverter.KEY_ID), Long.class);
 		final LocalDateTime lastupdate = LocalDateTime.ofInstant(Instant.ofEpochMilli(1000*Long.valueOf(values.get(StateConverter.KEY_TIMESTAMP))), TimeZone.getDefault().toZoneId());
 		final String name = values.get(StateConverter.KEY_NAME);
 		
 		return createState((State<T>) BeanUtils.instantiateClass(constructor(), id, name, lastupdate), Collections.unmodifiableMap(values) ); 
-		
-		
-		
 	}
 
 	 abstract State<T> createState(final State<T> state, final Map<String,String> values );
