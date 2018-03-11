@@ -6,6 +6,7 @@ package de.mq.iot.state.support;
 
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -16,6 +17,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 
 
 
@@ -57,4 +59,11 @@ abstract class AbstractStateConverter<T>  implements StateConverter<T> {
 			throw new IllegalStateException();
 		}
 	 }
+	 
+	 void setStateField(final String name, final State<Double> state, final Double min) {
+			final Field field = ReflectionUtils.findField(target(), name);
+			Assert.notNull(field , String.format("Field '%s' is required in '%s'.", name, state.getClass().getName()));
+			field.setAccessible(true);
+			ReflectionUtils.setField(field, state, min);
+		}
 }

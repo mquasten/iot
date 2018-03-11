@@ -2,7 +2,7 @@ package de.mq.iot.state.support;
 
 import java.util.Map;
 
-class BooleanStateConverter  extends AbstractStateConverter<Boolean>{
+class BooleanStateConverterImpl  extends AbstractStateConverter<Boolean>{
 
 	@Override
 	public String key() {

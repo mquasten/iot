@@ -1,6 +1,8 @@
 package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -13,9 +15,13 @@ import org.junit.jupiter.api.Test;
 
 class DoubleStateConverterTest {
 
+	private static final Double MAX_VALUE = 10d;
+
+	private static final Double MIN_VALUE = -10d;
+
 	private static final Double VALUE = Double.valueOf(47.11);
 
-	private final AbstractStateConverter<Double> converter = new DoubleStateConverter();
+	private final AbstractStateConverter<Double> converter = new DoubleStateConverterImpl();
 
 	private static final String ID = "4711";
 	private static final String NAME = "DoubleValue";
@@ -35,6 +41,30 @@ class DoubleStateConverterTest {
 		assertEquals(NAME, state.name());
 		assertEquals(VALUE, state.value());
 		assertEquals(expectedTime(), state.lastupdate());
+
+	}
+	
+	@Test
+	void validators() {
+		assertEquals(DoubleStateImpl.class, converter.target());
+
+		final Map<String, String> values = valuesMap();
+		values.put(StateConverter.KEY_MIN, ""+ MIN_VALUE);
+		values.put(StateConverter.KEY_MAX, ""+MAX_VALUE);
+		final State<Double> state = converter.convert(values);
+		final double value = 10d; 
+		final double delta = 1e-12; 
+		assertTrue(state.validate(value));
+		assertFalse(state.validate(value+delta));
+		
+		assertTrue(state.validate(-value));
+		assertFalse(state.validate(-value-delta));
+		
+		assertTrue(((MinMaxRange)state).getMin().isPresent());
+		assertTrue(((MinMaxRange)state).getMax().isPresent());
+	
+		assertEquals(MIN_VALUE, ((MinMaxRange)state).getMin().get());
+		assertEquals(MAX_VALUE, ((MinMaxRange)state).getMax().get());
 
 	}
 

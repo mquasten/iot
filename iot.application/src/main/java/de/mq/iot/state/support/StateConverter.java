@@ -14,6 +14,9 @@ interface StateConverter<T>  extends Converter<Map<String,String> , State<T>>{
 	static final String KEY_NAME = "name";
 	static final String KEY_ID = "ise_id";
 	
+	static final String KEY_MIN = "min";
+	static final String KEY_MAX = "max";
+	
 	 String key(); 
 
 }

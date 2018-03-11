@@ -19,7 +19,7 @@ import org.springframework.core.convert.support.DefaultConversionService;
 class BooleanStateConverterTest {
 
 	
-	private final BooleanStateConverter converter = new BooleanStateConverter();
+	private final BooleanStateConverterImpl converter = new BooleanStateConverterImpl();
 	private static final String ID = "4711";
 	private static final String WORKINGDAY = "Workingday";
 	private static final String TIMESTAMP = "" + new Date().getTime() / 1000;
