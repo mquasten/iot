@@ -35,13 +35,14 @@ class DoubleStateConverterTest {
 	@Test
 	void target() {
 		assertEquals(DoubleStateImpl.class, converter.target());
-
+	}
+	@Test
+	void convert() {
 		final State<Double> state = converter.convert(valuesMap());
 		assertEquals(Long.valueOf(ID), Long.valueOf(state.id()));
 		assertEquals(NAME, state.name());
 		assertEquals(VALUE, state.value());
 		assertEquals(expectedTime(), state.lastupdate());
-
 	}
 	
 	@Test
