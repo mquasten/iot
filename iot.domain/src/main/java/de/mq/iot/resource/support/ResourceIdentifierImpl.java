@@ -15,8 +15,6 @@ class ResourceIdentifierImpl implements ResourceIdentifier{
 	@Id
 	private String resourceIdentifier; 
 	
-	
-
 	private String uri; 
 	
 	private final  Map<String,String> parameters = new HashMap<>();
