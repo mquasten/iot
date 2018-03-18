@@ -44,7 +44,7 @@ class BooleanStateTest {
 
 	@Test
 	final void lastUpdate() throws InterruptedException {
-		assertTrue(Math.abs(Duration.between(LocalDateTime.now(), state.lastupdate()).toMillis()) < 10);
+		assertTrue(Math.abs(Duration.between(LocalDateTime.now(), state.lastupdate()).toMillis()) < 50);
 	}
 
 	@Test

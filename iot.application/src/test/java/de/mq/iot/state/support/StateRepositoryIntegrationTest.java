@@ -37,8 +37,6 @@ import de.mq.iot.state.support.HomematicXmlApiStateRepositoryImpl;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { TestConfiguration.class })
 class StateRepositoryIntegrationTest {
-
-	
 	private static final String TYPE_BOOLEAN = "2";
 	private static final String NAME_WORKINGDAY = "Workingday";
 	@Autowired

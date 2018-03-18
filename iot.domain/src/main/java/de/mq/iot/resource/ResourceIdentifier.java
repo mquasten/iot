@@ -8,10 +8,12 @@ public interface ResourceIdentifier {
 		XmlApiSysVarlist
 	}
 	
-	ResourceIdentifier id();
+	ResourceType id();
 	
 	String uri();
 	
 	Map<String,String> parameters();
+	
+	void assign(final Map<String,String> parameters);
 
 }

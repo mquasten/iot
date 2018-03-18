@@ -1,4 +1,4 @@
-package de.mq.iot.state.support;
+package de.mq.iot.resource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
