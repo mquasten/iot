@@ -13,14 +13,19 @@ class ResourceIdentifierImpl implements ResourceIdentifier{
 
 	
 	@Id
-	private String resourceIdentifier; 
+	private String id; 
 	
 	private String uri; 
 	
 	private final  Map<String,String> parameters = new HashMap<>();
 	
+	@SuppressWarnings("unused")
+	private ResourceIdentifierImpl() {
+		
+	}
+	
 	ResourceIdentifierImpl(final ResourceType resourceType, final String uri) {
-		this.resourceIdentifier = resourceType.name();
+		this.id = resourceType.name();
 		this.uri = uri;
 	}
 
@@ -28,7 +33,7 @@ class ResourceIdentifierImpl implements ResourceIdentifier{
 	
 	@Override
 	public ResourceType id() {
-		return this.resourceIdentifier==null ? null : ResourceIdentifier.ResourceType.valueOf(this.resourceIdentifier);
+		return this.id==null ? null : ResourceIdentifier.ResourceType.valueOf(this.id);
 		
 	}
 
