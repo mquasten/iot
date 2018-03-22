@@ -14,28 +14,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import de.mq.iot.resource.ResourceIdentifier;
-import de.mq.iot.state.support.HomematicXmlApiStateRepositoryImpl;
+import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { TestConfiguration.class })
+@ContextConfiguration(classes = { ApplicationConfiguration.class })
+@Disabled
 class StateRepositoryIntegrationTest {
 	private static final String TYPE_BOOLEAN = "2";
 	private static final String NAME_WORKINGDAY = "Workingday";
@@ -57,7 +50,7 @@ class StateRepositoryIntegrationTest {
 	}
 
 	@Test
-	@Disabled
+
 	void findStates() {
 
 		final Collection<Map<String, String>> results = stateRepository.findStates(resourceIdentifier);
@@ -79,19 +72,3 @@ class StateRepositoryIntegrationTest {
 	}
 }
 
-@Configuration
-@ComponentScan(basePackages = "de.mq.iot.state")
-class TestConfiguration {
-	@Bean
-	@Scope(scopeName = "prototype")
-	WebClient.Builder webClientBuilder() {
-		return WebClient.builder();
-	}
-
-	@Bean
-	@Scope(scopeName = "prototype")
-	XPath xpath() {
-		return XPathFactory.newInstance().newXPath();
-	}
-
-}

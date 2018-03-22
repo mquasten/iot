@@ -10,22 +10,17 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.mongodb.reactivestreams.client.MongoClients;
-
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
+import de.mq.iot.support.ApplicationConfiguration;
 
 
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { TestConfiguration.class })
+@ContextConfiguration(classes = { ApplicationConfiguration.class })
 @Disabled
 class ResourceIdentifierIntegrationTest {
 	
@@ -52,19 +47,4 @@ class ResourceIdentifierIntegrationTest {
 
 }
 
-@EnableReactiveMongoRepositories(basePackages= {"de.mq.iot.resource.support"})
-class TestConfiguration {
-	
-	/*@Bean
-	MongoOperations mongoTemplate() {
-		return new MongoTemplate(new SimpleMongoDbFactory(new MongoClient("127.0.0.1", 27017), "iot"));
-	} */
-	
-	
-	@Bean
-	ReactiveMongoOperations reactiveMongoTemplate() {
-		 return new ReactiveMongoTemplate( MongoClients.create(String.format("mongodb://localhost:%d", 27017)), "iot");
-	}
-	
-	
-}
+
