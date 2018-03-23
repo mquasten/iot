@@ -27,6 +27,7 @@ public class ApplicationConfiguration {
 	private @Value( "${mongo.db:iot}" ) String dbName; 
 	@Bean
 	ReactiveMongoOperations reactiveMongoTemplate() {
+		
 		 return new ReactiveMongoTemplate( MongoClients.create(mongoUrl), dbName);
 	}
 	
