@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 
 @RepositoryDefinition(domainClass = ResourceIdentifierImpl.class, idClass = ResourceType.class)
-interface ResourceIdentifierRepository   {
+public interface ResourceIdentifierRepository   {
 
 	Mono<ResourceIdentifier> findById(final ResourceType resourceType );
 	

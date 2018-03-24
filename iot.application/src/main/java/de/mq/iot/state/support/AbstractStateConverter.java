@@ -35,7 +35,6 @@ abstract class AbstractStateConverter<T>  implements StateConverter<T> {
 	public State<T> convert(final Map<String, String> values) {
 		Assert.hasText(values.get(StateConverter.KEY_ID), "Id is mandatory."); 
 		Assert.hasText(values.get(StateConverter.KEY_NAME), "Name is mandatory.");
-		Assert.hasText(values.get(StateConverter.KEY_VALUE), "Value is mandatory");
 		Assert.hasText(values.get(StateConverter.KEY_TIMESTAMP), "Timestamp is mandatory");
 		Assert.hasText(values.get(StateConverter.KEY_TYPE), "Type is mandatory");
 		final Long id = conversionService().convert(values.get(StateConverter.KEY_ID), Long.class);

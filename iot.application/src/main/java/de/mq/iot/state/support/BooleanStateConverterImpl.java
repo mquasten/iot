@@ -2,6 +2,9 @@ package de.mq.iot.state.support;
 
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
+
+@Component
 class BooleanStateConverterImpl  extends AbstractStateConverter<Boolean>{
 
 	@Override

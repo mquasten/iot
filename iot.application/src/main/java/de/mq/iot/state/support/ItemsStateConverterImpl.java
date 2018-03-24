@@ -9,10 +9,11 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
+@Component
 class ItemsStateConverterImpl extends AbstractStateConverter<Integer> {
 
 	private static final String DELIMITER_PATTERN = "[;]";

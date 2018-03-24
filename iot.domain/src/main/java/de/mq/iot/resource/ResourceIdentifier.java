@@ -5,8 +5,7 @@ import java.util.Map;
 public interface ResourceIdentifier {
 	
 	public enum ResourceType{
-		XmlApiSysVarlist,
-		Test
+		XmlApiSysVarlist
 	}
 	
 	ResourceType id();
