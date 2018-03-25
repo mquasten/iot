@@ -7,9 +7,11 @@ import org.springframework.stereotype.Component;
 @Component
 class BooleanStateConverterImpl  extends AbstractStateConverter<Boolean>{
 
+	static final String BOOLEN_STATE_TYPE = "2";
+
 	@Override
 	public String key() {
-		return "2";
+		return BOOLEN_STATE_TYPE;
 	}
 
 	@Override
