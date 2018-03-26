@@ -41,7 +41,6 @@ class StateServiceImpl implements StateService {
 	 */
 	public Collection<State<?>> states() {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifierRepository.findById(ResourceType.XmlApiSysVarlist).blockOptional(timeout).orElseThrow(() -> new EmptyResultDataAccessException(String.format("ResourceType: %s not found in Database.", ResourceType.XmlApiSysVarlist), 1));
-		System.out.println(resourceIdentifier);
 		
 		return stateRepository.findStates(resourceIdentifier).stream().map(this::mapToState).collect(Collectors.toList());
 
@@ -51,8 +50,6 @@ class StateServiceImpl implements StateService {
 
 		Assert.isTrue(stateMap.containsKey(StateConverter.KEY_TYPE), "Type must be specified.");
 		final String type = stateMap.get(StateConverter.KEY_TYPE);
-		System.out.println(stateConverters);
-		
 		
 		Assert.isTrue(stateConverters.containsKey(type), "No Converter found vor type " + type + ".");
 		final StateConverter<?> converter = stateConverters.get(type);

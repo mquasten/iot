@@ -33,7 +33,7 @@ class StateRepositoryIntegrationTest {
 	private static final String TYPE_BOOLEAN = "2";
 	private static final String NAME_WORKINGDAY = "Workingday";
 	@Autowired
-	private HomematicXmlApiStateRepositoryImpl stateRepository;
+	private AbstractHomematicXmlApiStateRepository stateRepository;
 
 	private final ResourceIdentifier resourceIdentifier = Mockito.mock(ResourceIdentifier.class);
 

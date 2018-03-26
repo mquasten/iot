@@ -2,6 +2,7 @@ package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -14,6 +15,7 @@ import javax.xml.xpath.XPathFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -23,7 +25,6 @@ import org.springframework.web.reactive.function.client.WebClient.RequestHeaders
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec;
 
 import de.mq.iot.resource.ResourceIdentifier;
-import de.mq.iot.state.support.HomematicXmlApiStateRepositoryImpl;
 import reactor.core.publisher.Mono;
 
 class StateRepositoryTest {
@@ -39,7 +40,7 @@ class StateRepositoryTest {
 
 	private static final String URI = "uri";
 
-	private HomematicXmlApiStateRepositoryImpl stateRepository = Mockito.mock(HomematicXmlApiStateRepositoryImpl.class, Mockito.CALLS_REAL_METHODS);
+	private AbstractHomematicXmlApiStateRepository stateRepository = Mockito.mock(AbstractHomematicXmlApiStateRepository.class, Mockito.CALLS_REAL_METHODS);
 
 	private final WebClient.Builder webClientBuilder = Mockito.mock(WebClient.Builder.class);
 
@@ -112,4 +113,10 @@ class StateRepositoryTest {
 
 		assertThrows(IllegalStateException.class, () -> stateRepository.findStates(resourceIdentifier));
 	}
+	
+	@Test
+	final void create() {
+		assertTrue(BeanUtils.instantiateClass(stateRepository.getClass()) instanceof AbstractHomematicXmlApiStateRepository) ;
+	}
+	
 }

@@ -24,7 +24,7 @@ import org.xml.sax.InputSource;
 import de.mq.iot.resource.ResourceIdentifier;
 
 @Repository
-abstract class HomematicXmlApiStateRepositoryImpl implements StateRepository {
+abstract class AbstractHomematicXmlApiStateRepository implements StateRepository {
 
 	public Collection<Map<String, String>> findStates(final ResourceIdentifier uniformResourceIdentifier) {
 

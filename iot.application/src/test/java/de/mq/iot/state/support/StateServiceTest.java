@@ -1,6 +1,7 @@
 package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
@@ -62,6 +64,13 @@ class StateServiceTest {
 		Mockito.verify(resourceIdentifierRepository).findById(ResourceType.XmlApiSysVarlist);
 		Mockito.verify(stateRepository).findStates(resourceIdentifier);
 		Mockito.verify(booleanStateConverter).convert(booleanStateMap);
+	}
+	
+	@Test
+	void statesResourceIdentifierNotFound() {
+		Mockito.doReturn(Optional.empty()).when(mongoMono).blockOptional(Duration.ofMillis(TIMEOUT));
+		
+		assertThrows(EmptyResultDataAccessException.class, () -> stateService.states());
 	}
 
 }
