@@ -2,6 +2,7 @@ package de.mq.iot.support;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.stream.IntStream;
 
 class SimpleSunDownCalculationServiceImpl implements SunDownCalculationService {
 	
@@ -36,16 +37,41 @@ private final double  latitude;
 		
 		
 		double result = 12d + timeDelta-timeOffset-longitude/15+timeZoneOffsetInHours;
-		System.out.println(">>>"+(int) result +":"  +Math.round(60 * (result % 1)) );
+	//	System.out.println(">>>"+(int) result +":"  +Math.round(60 * (result % 1)) );
 		
 		
-		LocalDate date = LocalDate.of(2018, Month.MARCH, 26);
-		System.out.println(date.getDayOfYear());
+	//	LocalDate date = LocalDate.of(2018, Month.MARCH, 26);
 		
-		System.out.println(result);
 		return result;
 		
 	}
+	
+	
+	public final double sunDownTime(final Month month, final int timeZoneOffsetInHours ) {
+		LocalDate firstDay = LocalDate.of(18, month, 01);
+		
+		
+		final int daysInMonth = firstDay.lengthOfMonth();
+		
+		return  IntStream.rangeClosed(1, daysInMonth).mapToDouble(i -> {
+	
+			final LocalDate localDate = LocalDate.of(18, month, i);
+			
+			//System.out.println( localDate + "=" + localDate.getDayOfYear());
+			
+			return sunDownTime(localDate.getDayOfYear() , timeZoneOffsetInHours);
+			
+			
+		}).sum()/daysInMonth;
+				
+	
+		
+		
+	}
+		
+		
+		
+
 	
 	
 
