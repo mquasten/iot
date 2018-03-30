@@ -59,9 +59,9 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		final ResponseEntity<String> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.Sysvarlist.parameters(resourceIdentifier)).exchange().block().toEntity(String.class).block();
 		httpStatusGuard(res);
 
-		final NodeList nodes = evaluate(res, "/systemVariables/systemVariable");
+    	final NodeList nodes = evaluate(res, "/systemVariables/systemVariable");
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes())).collect(Collectors.toList());
-
+		
 	}
 
 	

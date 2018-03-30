@@ -43,8 +43,9 @@ class StateRepositoryIntegrationTest {
 		final Map<String, String> parameters = new HashMap<>();
 		//parameters.put("host", "mq65.ddns.net");
 		//parameters.put("port", "2000");
+	
+		parameters.put("host", "homematic-ccu2");
 		
-		parameters.put("host", "192.168.2.103");
 		parameters.put("port", "80");
 		Mockito.doReturn(parameters).when(resourceIdentifier).parameters();
 	}
