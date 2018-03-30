@@ -57,6 +57,8 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		Assert.notNull(resourceIdentifier, "ResourceIdentifier is mandatory.");
 		
 		final ResponseEntity<String> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.Sysvarlist.parameters(resourceIdentifier)).exchange().block().toEntity(String.class).block();
+	//	System.out.println(res.getStatusCodeValue());
+		
 		httpStatusGuard(res);
 
     	final NodeList nodes = evaluate(res, "/systemVariables/systemVariable");
