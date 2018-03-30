@@ -13,8 +13,10 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.reactive.function.client.WebClient.Builder;
 import org.w3c.dom.NamedNodeMap;
@@ -25,21 +27,48 @@ import de.mq.iot.resource.ResourceIdentifier;
 
 @Repository
 abstract class AbstractHomematicXmlApiStateRepository implements StateRepository {
+	static final String VALUE_PARAMETER_NAME = "value";
+	static final String ID_PARAMETER_NAME = "id";
+	static final String STATE_CHANGE_URL_PARAMETER = String.format("?ise_id={id}&new_value={value}", ID_PARAMETER_NAME, VALUE_PARAMETER_NAME);
 
-	public Collection<Map<String, String>> findStates(final ResourceIdentifier uniformResourceIdentifier) {
 
-		final ResponseEntity<String> res = webClientBuilder().build().get().uri(uniformResourceIdentifier.uri(), uniformResourceIdentifier.parameters()).exchange().block().toEntity(String.class).block();
+	enum XmlApiParameters {
+		Sysvarlist("sysvarlist.cgi"),
+		
+		ChangeSysvar("statechange.cgi");
+		
+		static final String RESOURCE_PARAMETER_NAME = "resource";
+		private final String resource;
+		
+		private XmlApiParameters(final String resource) {
+			this.resource = resource;
+		}
 
+		Map<String, String> parameters(final ResourceIdentifier uniformResourceIdentifier) {
+			final Map<String,String> parameters =  uniformResourceIdentifier.parameters();
+			parameters.put(RESOURCE_PARAMETER_NAME, resource);
+			return parameters; 
+		}
+	}
+	
+
+	@Override
+	public Collection<Map<String, String>> findStates(final ResourceIdentifier resourceIdentifier) {
+		Assert.notNull(resourceIdentifier, "ResourceIdentifier is mandatory.");
+		
+		final ResponseEntity<String> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.Sysvarlist.parameters(resourceIdentifier)).exchange().block().toEntity(String.class).block();
 		httpStatusGuard(res);
 
-		final NodeList nodes = evaluate(res);
+		final NodeList nodes = evaluate(res, "/systemVariables/systemVariable");
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes())).collect(Collectors.toList());
 
 	}
 
-	private NodeList evaluate(final ResponseEntity<String> res) {
+	
+
+	private NodeList evaluate(final ResponseEntity<String> res, final String path) {
 		try {
-			return (NodeList) xpath().evaluate("/systemVariables/systemVariable", new InputSource(new StringReader(res.getBody())), XPathConstants.NODESET);
+			return (NodeList) xpath().evaluate(path, new InputSource(new StringReader(res.getBody())), XPathConstants.NODESET);
 		} catch (XPathExpressionException ex) {
 			throw new IllegalStateException("Unable to evalualte xpath expression", ex);
 
@@ -48,19 +77,59 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 
 	private void httpStatusGuard(final ResponseEntity<String> res) {
 		if (! res.getStatusCode().is2xxSuccessful()) {
-
-			throw new HttpStatusCodeException(res.getStatusCode(), res.getStatusCode().getReasonPhrase()) {
-
-				private static final long serialVersionUID = 1L;
-			};
-
+			throwHttpStatusCodeException(res.getStatusCode(), res.getStatusCode().getReasonPhrase());
 		}
 	}
 
 	private Map<String, String> attributesToMap(final NamedNodeMap nodeMap) {
-		final Map<String, String> attributes = IntStream.range(0, nodeMap.getLength()).mapToObj(j -> new AbstractMap.SimpleImmutableEntry<String, String>(nodeMap.item(j).getNodeName(), nodeMap.item(j).getNodeValue()))
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-		return attributes;
+		return  IntStream.range(0, nodeMap.getLength()).mapToObj(j -> new AbstractMap.SimpleImmutableEntry<String, String>(nodeMap.item(j).getNodeName(), nodeMap.item(j).getNodeValue())).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+	}
+	
+	@Override
+	public void changeState(final ResourceIdentifier resourceIdentifier, final State<?> state) {
+		Assert.notNull(state, "State is mandatory.");
+		Assert.notNull(state.value(), "State value is mandatiory.");
+		Assert.notNull(resourceIdentifier, "ResourceIdentifier is mandatory.");
+		
+		final Map<String,String> parameter = XmlApiParameters.ChangeSysvar.parameters(resourceIdentifier);
+		final String uri = resourceIdentifier.uri() + STATE_CHANGE_URL_PARAMETER;
+		parameter.put(ID_PARAMETER_NAME,  "" + state.id());
+		parameter.put(VALUE_PARAMETER_NAME, String.valueOf(state.value()) );
+	
+		final ResponseEntity<String> res =  webClientBuilder().build().put().uri(uri, parameter).exchange().block().toEntity(String.class).block();
+		
+		
+		httpStatusGuard(res);
+		resultChangedGuard(evaluate(res, "/result/*"));
+	}
+
+
+
+	private void resultChangedGuard(final NodeList nodeList) {
+		
+		if( nodeList.getLength()!=1) {
+			throwHttpStatusCodeException(HttpStatus.BAD_REQUEST, "Result expected.");
+		}
+	
+		final String result = nodeList.item(0).getNodeName();	;
+		if( result.equalsIgnoreCase("changed")) {
+			return; 
+		}
+		
+		if( result.equalsIgnoreCase("not_found")) {
+			throwHttpStatusCodeException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase());
+		}
+		
+		throwHttpStatusCodeException(HttpStatus.BAD_REQUEST, result);
+	}
+
+
+
+	private void throwHttpStatusCodeException(final HttpStatus status, final String result) {
+		throw new HttpStatusCodeException(HttpStatus.BAD_REQUEST, result) {
+			private static final long serialVersionUID = 1L;
+			
+		};
 	}
 
 	@Lookup

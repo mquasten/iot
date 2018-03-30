@@ -45,7 +45,7 @@ class StateServiceTest {
 	
 		Mockito.doReturn(BooleanStateConverterImpl.BOOLEN_STATE_TYPE).when(booleanStateConverter).key();
 		Mockito.doReturn(Optional.of(resourceIdentifier)).when(mongoMono).blockOptional(Duration.ofMillis(TIMEOUT));
-		Mockito.doReturn(mongoMono).when(resourceIdentifierRepository).findById(ResourceType.XmlApiSysVarlist);
+		Mockito.doReturn(mongoMono).when(resourceIdentifierRepository).findById(ResourceType.XmlApi);
 		
 		booleanStateMap.put(StateConverter.KEY_TYPE, BooleanStateConverterImpl.BOOLEN_STATE_TYPE);
 		
@@ -61,7 +61,7 @@ class StateServiceTest {
 		assertEquals(1, states.size());
 		assertEquals(booleanState, states.stream().findAny().orElseThrow(() -> new IllegalArgumentException(("Single result expected.") )));
 		
-		Mockito.verify(resourceIdentifierRepository).findById(ResourceType.XmlApiSysVarlist);
+		Mockito.verify(resourceIdentifierRepository).findById(ResourceType.XmlApi);
 		Mockito.verify(stateRepository).findStates(resourceIdentifier);
 		Mockito.verify(booleanStateConverter).convert(booleanStateMap);
 	}

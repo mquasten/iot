@@ -7,6 +7,11 @@ import de.mq.iot.resource.ResourceIdentifier;
 
 interface StateRepository {
 	
+	
+	
 	Collection<Map<String, String>> findStates(final ResourceIdentifier resourceIdentifier);
+
+
+	void changeState(final ResourceIdentifier resourceIdentifier, State<?> state);
 
 }

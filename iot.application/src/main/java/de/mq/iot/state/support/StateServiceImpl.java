@@ -40,7 +40,7 @@ class StateServiceImpl implements StateService {
 	 * @see de.mq.iot.state.StateService#states()
 	 */
 	public Collection<State<?>> states() {
-		final ResourceIdentifier resourceIdentifier = resourceIdentifierRepository.findById(ResourceType.XmlApiSysVarlist).blockOptional(timeout).orElseThrow(() -> new EmptyResultDataAccessException(String.format("ResourceType: %s not found in Database.", ResourceType.XmlApiSysVarlist), 1));
+		final ResourceIdentifier resourceIdentifier = resourceIdentifierRepository.findById(ResourceType.XmlApi).blockOptional(timeout).orElseThrow(() -> new EmptyResultDataAccessException(String.format("ResourceType: %s not found in Database.", ResourceType.XmlApi), 1));
 		
 		return stateRepository.findStates(resourceIdentifier).stream().map(this::mapToState).collect(Collectors.toList());
 

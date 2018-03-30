@@ -30,7 +30,7 @@ class ResourceIdentifierIntegrationTest {
 	
 	@Test
 	final void save() {
-		final ResourceIdentifier resourceIdentifier = new ResourceIdentifierImpl(ResourceType.XmlApiSysVarlist, "http://{host}:{port}/addons/xmlapi/sysvarlist.cgi") ; 
+		final ResourceIdentifier resourceIdentifier = new ResourceIdentifierImpl(ResourceType.XmlApi, "http://{host}:{port}/addons/xmlapi/:{resource}") ; 
 		final Map<String,String> parameters = new HashMap<>();
 		parameters.put("host", "192.168.2.103");
 		parameters.put("port", "80");
@@ -41,7 +41,7 @@ class ResourceIdentifierIntegrationTest {
 		final Duration duration = Duration.ofMillis(500);
 		resourceIdentifierRepository.save(resourceIdentifier).block(duration);
 		
-		assertTrue(resourceIdentifierRepository.findById(ResourceType.XmlApiSysVarlist).blockOptional(duration).isPresent());
+		assertTrue(resourceIdentifierRepository.findById(ResourceType.XmlApi).blockOptional(duration).isPresent());
 		
 	}
 

@@ -39,7 +39,7 @@ class StateRepositoryIntegrationTest {
 
 	@BeforeEach
 	void setup() {
-		Mockito.doReturn("http://{host}:{port}/addons/xmlapi/sysvarlist.cgi").when(resourceIdentifier).uri();
+		Mockito.doReturn("http://{host}:{port}/addons/xmlapi/{resource}").when(resourceIdentifier).uri();
 		final Map<String, String> parameters = new HashMap<>();
 		//parameters.put("host", "mq65.ddns.net");
 		//parameters.put("port", "2000");
@@ -50,7 +50,7 @@ class StateRepositoryIntegrationTest {
 	}
 
 	@Test
-
+	@Disabled
 	void findStates() {
 
 		final Collection<Map<String, String>> results = stateRepository.findStates(resourceIdentifier);
@@ -69,6 +69,15 @@ class StateRepositoryIntegrationTest {
 	<T> T singleUniqueResult(final Collection<T> values) {
 		assertEquals(1, values.size());
 		return values.stream().findAny().orElseThrow(() -> new IllegalStateException("Result is mandatory."));
+	}
+	@Test
+	@Disabled
+	void changeState() {
+		final State<?> state = Mockito.mock(State.class);
+		Mockito.when(state.id()).thenReturn(2261L);
+		Mockito.doReturn(Boolean.FALSE).when(state).value();
+		
+		stateRepository.changeState(resourceIdentifier, state);
 	}
 }
 
