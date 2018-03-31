@@ -1,8 +1,10 @@
 package de.mq.iot.state.support;
 
 import java.io.StringReader;
+import java.time.Duration;
 import java.util.AbstractMap;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -12,7 +14,10 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
@@ -31,42 +36,50 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	static final String ID_PARAMETER_NAME = "id";
 	static final String STATE_CHANGE_URL_PARAMETER = String.format("?ise_id={id}&new_value={value}", ID_PARAMETER_NAME, VALUE_PARAMETER_NAME);
 
-
 	enum XmlApiParameters {
 		Sysvarlist("sysvarlist.cgi"),
-		
+
 		ChangeSysvar("statechange.cgi");
-		
 		static final String RESOURCE_PARAMETER_NAME = "resource";
 		private final String resource;
-		
+
 		private XmlApiParameters(final String resource) {
 			this.resource = resource;
 		}
 
-		Map<String, String> parameters(final ResourceIdentifier uniformResourceIdentifier) {
-			final Map<String,String> parameters =  uniformResourceIdentifier.parameters();
+		final Map<String, String> parameters(final ResourceIdentifier uniformResourceIdentifier) {
+			final Map<String, String> parameters = new HashMap<>();
+			parameters.putAll(uniformResourceIdentifier.parameters());
 			parameters.put(RESOURCE_PARAMETER_NAME, resource);
-			return parameters; 
+			return parameters;
+		}
+
+		final String resource() {
+			return resource;
 		}
 	}
-	
+
+	private final Duration timeout;
+	private final ConversionService conversionService;
+
+	@Autowired
+	AbstractHomematicXmlApiStateRepository(final ConversionService conversionService, @Value("${mongo.webclient:500}") final Long timeout) {
+		this.timeout = Duration.ofMillis(timeout);
+		this.conversionService = conversionService;
+	}
 
 	@Override
 	public Collection<Map<String, String>> findStates(final ResourceIdentifier resourceIdentifier) {
 		Assert.notNull(resourceIdentifier, "ResourceIdentifier is mandatory.");
-		
-		final ResponseEntity<String> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.Sysvarlist.parameters(resourceIdentifier)).exchange().block().toEntity(String.class).block();
-	//	System.out.println(res.getStatusCodeValue());
-		
+
+		final ResponseEntity<String> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.Sysvarlist.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(String.class).block(timeout);
+
 		httpStatusGuard(res);
 
-    	final NodeList nodes = evaluate(res, "/systemVariables/systemVariable");
+		final NodeList nodes = evaluate(res, "/systemVariables/systemVariable");
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes())).collect(Collectors.toList());
-		
-	}
 
-	
+	}
 
 	private NodeList evaluate(final ResponseEntity<String> res, final String path) {
 		try {
@@ -78,59 +91,55 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	}
 
 	private void httpStatusGuard(final ResponseEntity<String> res) {
-		if (! res.getStatusCode().is2xxSuccessful()) {
+		if (!res.getStatusCode().is2xxSuccessful()) {
 			throwHttpStatusCodeException(res.getStatusCode(), res.getStatusCode().getReasonPhrase());
 		}
 	}
 
 	private Map<String, String> attributesToMap(final NamedNodeMap nodeMap) {
-		return  IntStream.range(0, nodeMap.getLength()).mapToObj(j -> new AbstractMap.SimpleImmutableEntry<String, String>(nodeMap.item(j).getNodeName(), nodeMap.item(j).getNodeValue())).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		return IntStream.range(0, nodeMap.getLength()).mapToObj(j -> new AbstractMap.SimpleImmutableEntry<String, String>(nodeMap.item(j).getNodeName(), nodeMap.item(j).getNodeValue())).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
-	
+
 	@Override
 	public void changeState(final ResourceIdentifier resourceIdentifier, final State<?> state) {
 		Assert.notNull(state, "State is mandatory.");
 		Assert.notNull(state.value(), "State value is mandatiory.");
 		Assert.notNull(resourceIdentifier, "ResourceIdentifier is mandatory.");
-		
-		final Map<String,String> parameter = XmlApiParameters.ChangeSysvar.parameters(resourceIdentifier);
+
+		final Map<String, String> parameter = XmlApiParameters.ChangeSysvar.parameters(resourceIdentifier);
 		final String uri = resourceIdentifier.uri() + STATE_CHANGE_URL_PARAMETER;
-		parameter.put(ID_PARAMETER_NAME,  "" + state.id());
-		parameter.put(VALUE_PARAMETER_NAME, String.valueOf(state.value()) );
-	
-		final ResponseEntity<String> res =  webClientBuilder().build().put().uri(uri, parameter).exchange().block().toEntity(String.class).block();
-		
-		
+		parameter.put(ID_PARAMETER_NAME, "" + state.id());
+		parameter.put(VALUE_PARAMETER_NAME, conversionService.convert(state.value(), String.class));
+
+		final ResponseEntity<String> res = webClientBuilder().build().put().uri(uri, parameter).exchange().block(timeout).toEntity(String.class).block(timeout);
+
 		httpStatusGuard(res);
 		resultChangedGuard(evaluate(res, "/result/*"));
 	}
 
-
-
 	private void resultChangedGuard(final NodeList nodeList) {
-		
-		if( nodeList.getLength()!=1) {
+
+		if (nodeList.getLength() != 1) {
 			throwHttpStatusCodeException(HttpStatus.BAD_REQUEST, "Result expected.");
 		}
-	
-		final String result = nodeList.item(0).getNodeName();	;
-		if( result.equalsIgnoreCase("changed")) {
-			return; 
+
+		final String result = nodeList.item(0).getNodeName();
+		;
+		if (result.equalsIgnoreCase("changed")) {
+			return;
 		}
-		
-		if( result.equalsIgnoreCase("not_found")) {
+
+		if (result.equalsIgnoreCase("not_found")) {
 			throwHttpStatusCodeException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase());
 		}
-		
+
 		throwHttpStatusCodeException(HttpStatus.BAD_REQUEST, result);
 	}
-
-
 
 	private void throwHttpStatusCodeException(final HttpStatus status, final String result) {
 		throw new HttpStatusCodeException(HttpStatus.BAD_REQUEST, result) {
 			private static final long serialVersionUID = 1L;
-			
+
 		};
 	}
 

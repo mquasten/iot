@@ -2,10 +2,15 @@ package de.mq.iot.state.support;
 
 import java.util.Map;
 
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
 
 @Component
 class StringStateConverterImpl extends AbstractStateConverter<String> {
+
+	StringStateConverterImpl(final ConversionService conversionService) {
+		super(conversionService);
+	}
 
 	@Override
 	public String key() {

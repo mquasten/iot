@@ -15,14 +15,17 @@ import java.util.TimeZone;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 
 
 abstract class AbstractStateConverter<T>  implements StateConverter<T> {
-	private final ConversionService conversionService = new  DefaultConversionService() ; 
+	private final ConversionService conversionService;
+	
+	AbstractStateConverter(final ConversionService conversionService) {
+		this.conversionService=conversionService;
+	}
 	
 	
 	ConversionService conversionService() {

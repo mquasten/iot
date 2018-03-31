@@ -2,10 +2,17 @@ package de.mq.iot.state.support;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
 
 @Component
 class BooleanStateConverterImpl  extends AbstractStateConverter<Boolean>{
+
+	@Autowired
+	BooleanStateConverterImpl(final ConversionService conversionService) {
+		super(conversionService);
+	}
 
 	static final String BOOLEN_STATE_TYPE = "2";
 

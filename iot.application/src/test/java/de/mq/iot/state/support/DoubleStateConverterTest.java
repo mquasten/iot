@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 class DoubleStateConverterTest {
 
@@ -20,8 +22,8 @@ class DoubleStateConverterTest {
 	private static final Double MIN_VALUE = -10d;
 
 	private static final Double VALUE = Double.valueOf(47.11);
-
-	private final AbstractStateConverter<Double> converter = new DoubleStateConverterImpl();
+	private final ConversionService conversionService = new DefaultConversionService();
+	private final AbstractStateConverter<Double> converter = new DoubleStateConverterImpl(conversionService);
 
 	private static final String ID = "4711";
 	private static final String NAME = "DoubleValue";

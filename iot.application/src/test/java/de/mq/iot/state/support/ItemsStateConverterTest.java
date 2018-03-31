@@ -16,13 +16,15 @@ import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 class ItemsStateConverterTest {
 
 	private static final String VALUE1 = "Value1";
 	private static final String VALUE2 = "Value2";
-
-	ItemsStateConverterImpl converter = new ItemsStateConverterImpl();
+	private final ConversionService conversionService = new DefaultConversionService();
+	private final ItemsStateConverterImpl converter = new ItemsStateConverterImpl(conversionService);
 
 	private static final String ID = "4711";
 	private static final String NAME = "ItemListValue";

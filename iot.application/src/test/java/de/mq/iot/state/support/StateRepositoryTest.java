@@ -2,22 +2,30 @@ package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.BeanUtils;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -25,14 +33,19 @@ import org.springframework.web.reactive.function.client.WebClient.RequestHeaders
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec;
 
 import de.mq.iot.resource.ResourceIdentifier;
+import de.mq.iot.state.support.AbstractHomematicXmlApiStateRepository.XmlApiParameters;
 import reactor.core.publisher.Mono;
 
 class StateRepositoryTest {
 
+	private static final String PORT = "80";
+	private static final String HOST = "kylie.com";
+	private static final String PORT_PARAMETER = "port";
+	private static final String HOST_PARMETER = "host";
 	private final static String XML = "<systemVariables><systemVariable name=\"$name\" variable=\"0\" value=\"$value\" value_list=\"\" ise_id=\"$ise_id\" min=\"\" max=\"\" unit=\"\" type=\"$type\" subtype=\"2\" logged=\"false\" visible=\"true\" timestamp=\"$timestamp\" value_name_0=\"ist falsch\" value_name_1=\"ist wahr\" /></systemVariables>";
 	private static final String ID = "4711";
 
-	private static final String TIMESTAMP = "" + new Date().getTime() /1000;
+	private static final String TIMESTAMP = "" + new Date().getTime() / 1000;
 
 	private static final String BOOLEAN_TYPE = "2";
 
@@ -49,17 +62,32 @@ class StateRepositoryTest {
 	@SuppressWarnings("unchecked")
 	private final ResponseEntity<String> resonseEntity = Mockito.mock(ResponseEntity.class);
 
+	private final Duration duration = Duration.ofMillis(500);
+
+	private ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
+	@SuppressWarnings("unchecked")
+	private ArgumentCaptor<Map<String, String>> parameterCaptor = ArgumentCaptor.forClass(Map.class);
+	final Map<Class<?>, Object> dependencies = new HashMap<>();
+
 	@BeforeEach
 	void setup() throws IOException {
+
+		dependencies.put(ConversionService.class, new DefaultConversionService());
+
+		dependencies.put(Duration.class, duration);
+		Arrays.asList(AbstractHomematicXmlApiStateRepository.class.getDeclaredFields()).stream().filter(field -> dependencies.containsKey(field.getType())).forEach(field -> ReflectionTestUtils.setField(stateRepository, field.getName(), dependencies.get(field.getType())));
+
+		final Map<String, String> parameter = new HashMap<>();
+		parameter.put(HOST_PARMETER, HOST);
+		parameter.put(PORT_PARAMETER, PORT);
+
+		Mockito.doReturn(parameter).when(resourceIdentifier).parameters();
 
 		final XPath xpath = XPathFactory.newInstance().newXPath();
 
 		Mockito.doReturn(xpath).when(stateRepository).xpath();
-		@SuppressWarnings("unchecked")
-		final Map<String, String> uriVariables = Mockito.mock(Map.class);
 
 		Mockito.doReturn(URI).when(resourceIdentifier).uri();
-		Mockito.doReturn(uriVariables).when(resourceIdentifier).parameters();
 
 		Mockito.doReturn(webClientBuilder).when(stateRepository).webClientBuilder();
 		final WebClient webClient = Mockito.mock(WebClient.class);
@@ -67,22 +95,23 @@ class StateRepositoryTest {
 		final RequestHeadersUriSpec<?> requestHeadersUriSpec = Mockito.mock(RequestHeadersUriSpec.class);
 		Mockito.doReturn(requestHeadersUriSpec).when(webClient).get();
 		final RequestHeadersSpec<?> requestHeadersSpec = Mockito.mock(RequestHeadersSpec.class);
-		Mockito.doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri(URI, uriVariables);
+		Mockito.doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri(uriCaptor.capture(), parameterCaptor.capture());
 		@SuppressWarnings("unchecked")
 		final Mono<ClientResponse> mono = Mockito.mock(Mono.class);
 		Mockito.doReturn(mono).when(requestHeadersSpec).exchange();
 		final ClientResponse clientResponse = Mockito.mock(ClientResponse.class);
-		Mockito.doReturn(clientResponse).when(mono).block();
+		Mockito.doReturn(clientResponse).when(mono).block(duration);
 		@SuppressWarnings("unchecked")
 		final Mono<ResponseEntity<String>> monoResponseEntity = Mockito.mock(Mono.class);
 		Mockito.doReturn(monoResponseEntity).when(clientResponse).toEntity(String.class);
 
-		Mockito.doReturn(resonseEntity).when(monoResponseEntity).block();
+		Mockito.doReturn(resonseEntity).when(monoResponseEntity).block(duration);
 		Mockito.doReturn(HttpStatus.OK).when(resonseEntity).getStatusCode();
-		
-		String xml = XML.replaceFirst("\\$" + StateConverter.KEY_NAME, WORKINGDAY).replaceFirst("\\$" + StateConverter.KEY_VALUE, "" + true).replaceFirst("\\$" + StateConverter.KEY_TYPE, BOOLEAN_TYPE).replaceFirst("\\$" + StateConverter.KEY_TIMESTAMP, TIMESTAMP).replaceFirst("\\$" + StateConverter.KEY_ID, ID);
+
+		String xml = XML.replaceFirst("\\$" + StateConverter.KEY_NAME, WORKINGDAY).replaceFirst("\\$" + StateConverter.KEY_VALUE, "" + true).replaceFirst("\\$" + StateConverter.KEY_TYPE, BOOLEAN_TYPE).replaceFirst("\\$" + StateConverter.KEY_TIMESTAMP, TIMESTAMP)
+				.replaceFirst("\\$" + StateConverter.KEY_ID, ID);
 		Mockito.doReturn(xml).when(resonseEntity).getBody();
-	
+
 	}
 
 	@Test
@@ -96,7 +125,11 @@ class StateRepositoryTest {
 		assertEquals(BOOLEAN_TYPE, result.get(StateConverter.KEY_TYPE));
 		assertEquals(Boolean.TRUE.toString(), result.get(StateConverter.KEY_VALUE));
 		assertEquals(TIMESTAMP, result.get(StateConverter.KEY_TIMESTAMP));
-		
+
+		assertEquals(URI, uriCaptor.getValue());
+		assertEquals(HOST, parameterCaptor.getValue().get(HOST_PARMETER));
+		assertEquals(PORT, parameterCaptor.getValue().get(PORT_PARAMETER));
+		assertEquals(XmlApiParameters.Sysvarlist.resource(), parameterCaptor.getValue().get(XmlApiParameters.RESOURCE_PARAMETER_NAME));
 
 	}
 
@@ -113,10 +146,17 @@ class StateRepositoryTest {
 
 		assertThrows(IllegalStateException.class, () -> stateRepository.findStates(resourceIdentifier));
 	}
-	
+
 	@Test
-	final void create() {
-		assertTrue(BeanUtils.instantiateClass(stateRepository.getClass()) instanceof AbstractHomematicXmlApiStateRepository) ;
+	final void create() throws NoSuchMethodException, SecurityException {
+
+		final Constructor<?> con = stateRepository.getClass().getDeclaredConstructor(ConversionService.class, Long.class);
+		final Object stateRepository = BeanUtils.instantiateClass(con, dependencies.get(ConversionService.class), Long.valueOf(((Duration) dependencies.get(Duration.class)).toMillis()));
+
+		final Map<Class<?>, ?> dependencyMap = Arrays.asList(AbstractHomematicXmlApiStateRepository.class.getDeclaredFields()).stream().filter(field -> dependencies.containsKey(field.getType()))
+				.collect(Collectors.toMap(field -> field.getType(), field -> ReflectionTestUtils.getField(stateRepository, field.getName())));
+		assertEquals(2, dependencyMap.size());
+		assertEquals(dependencies, dependencyMap);
 	}
-	
+
 }

@@ -10,12 +10,14 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 class StringStateConverterTest {
 	
 	private static final String VALUE = "KylieIsNiceAnd...";
-
-	private final StringStateConverterImpl converter = new StringStateConverterImpl();
+	private final ConversionService conversionService = new DefaultConversionService();
+	private final StringStateConverterImpl converter = new StringStateConverterImpl(conversionService);
 	
 	private static final String ID = "4711";
 	private static final String NAME = "StringValue";

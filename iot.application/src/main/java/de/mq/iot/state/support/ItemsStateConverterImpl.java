@@ -9,12 +9,20 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
-import org.springframework.test.util.ReflectionTestUtils;
+
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 @Component
 class ItemsStateConverterImpl extends AbstractStateConverter<Integer> {
+
+	@Autowired
+	ItemsStateConverterImpl(final ConversionService conversionService) {
+		super(conversionService);
+	}
 
 	private static final String DELIMITER_PATTERN = "[;]";
 
@@ -40,7 +48,7 @@ class ItemsStateConverterImpl extends AbstractStateConverter<Integer> {
 
 	private void assignItems(final State<Integer> state, final Field field, final Map<Integer, String> items) {
 		field.setAccessible(true);
-		ReflectionTestUtils.setField(state, field.getName(), items);
+		ReflectionUtils.setField(field, state, items);
 	}
 
 	@Override

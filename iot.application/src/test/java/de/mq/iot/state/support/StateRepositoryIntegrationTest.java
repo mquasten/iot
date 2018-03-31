@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import de.mq.iot.resource.ResourceIdentifier;
@@ -41,17 +42,12 @@ class StateRepositoryIntegrationTest {
 	void setup() {
 		Mockito.doReturn("http://{host}:{port}/addons/xmlapi/{resource}").when(resourceIdentifier).uri();
 		final Map<String, String> parameters = new HashMap<>();
-		//parameters.put("host", "mq65.ddns.net");
-		//parameters.put("port", "2000");
-	
 		parameters.put("host", "homematic-ccu2");
-		
 		parameters.put("port", "80");
 		Mockito.doReturn(parameters).when(resourceIdentifier).parameters();
 	}
 
 	@Test
-	@Disabled
 	void findStates() {
 
 		final Collection<Map<String, String>> results = stateRepository.findStates(resourceIdentifier);
@@ -72,7 +68,6 @@ class StateRepositoryIntegrationTest {
 		return values.stream().findAny().orElseThrow(() -> new IllegalStateException("Result is mandatory."));
 	}
 	@Test
-	@Disabled
 	void changeState() {
 		final State<?> state = Mockito.mock(State.class);
 		Mockito.when(state.id()).thenReturn(2261L);
