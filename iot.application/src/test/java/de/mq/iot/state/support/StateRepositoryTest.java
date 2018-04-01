@@ -2,6 +2,7 @@ package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -26,9 +27,12 @@ import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
+
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec;
+import org.springframework.web.reactive.function.client.WebClient.RequestBodyUriSpec;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec;
 
@@ -93,12 +97,20 @@ class StateRepositoryTest {
 		final WebClient webClient = Mockito.mock(WebClient.class);
 		Mockito.doReturn(webClient).when(webClientBuilder).build();
 		final RequestHeadersUriSpec<?> requestHeadersUriSpec = Mockito.mock(RequestHeadersUriSpec.class);
+		RequestBodyUriSpec requestBodyUriSpec = Mockito.mock(RequestBodyUriSpec.class);
+		Mockito.doReturn(requestBodyUriSpec).when(webClient).put();
 		Mockito.doReturn(requestHeadersUriSpec).when(webClient).get();
+		
+		final RequestBodySpec requestBodySpec = Mockito.mock(RequestBodySpec.class);
 		final RequestHeadersSpec<?> requestHeadersSpec = Mockito.mock(RequestHeadersSpec.class);
 		Mockito.doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri(uriCaptor.capture(), parameterCaptor.capture());
+		
+		Mockito.doReturn(requestBodySpec).when(requestBodyUriSpec).uri(uriCaptor.capture(), parameterCaptor.capture());
 		@SuppressWarnings("unchecked")
 		final Mono<ClientResponse> mono = Mockito.mock(Mono.class);
 		Mockito.doReturn(mono).when(requestHeadersSpec).exchange();
+		
+		Mockito.doReturn(mono).when(requestBodySpec).exchange();
 		final ClientResponse clientResponse = Mockito.mock(ClientResponse.class);
 		Mockito.doReturn(clientResponse).when(mono).block(duration);
 		@SuppressWarnings("unchecked")
@@ -108,14 +120,17 @@ class StateRepositoryTest {
 		Mockito.doReturn(resonseEntity).when(monoResponseEntity).block(duration);
 		Mockito.doReturn(HttpStatus.OK).when(resonseEntity).getStatusCode();
 
-		String xml = XML.replaceFirst("\\$" + StateConverter.KEY_NAME, WORKINGDAY).replaceFirst("\\$" + StateConverter.KEY_VALUE, "" + true).replaceFirst("\\$" + StateConverter.KEY_TYPE, BOOLEAN_TYPE).replaceFirst("\\$" + StateConverter.KEY_TIMESTAMP, TIMESTAMP)
-				.replaceFirst("\\$" + StateConverter.KEY_ID, ID);
-		Mockito.doReturn(xml).when(resonseEntity).getBody();
-
+		
 	}
 
 	@Test
 	final void findStates() {
+		
+		String xml = XML.replaceFirst("\\$" + StateConverter.KEY_NAME, WORKINGDAY).replaceFirst("\\$" + StateConverter.KEY_VALUE, "" + true).replaceFirst("\\$" + StateConverter.KEY_TYPE, BOOLEAN_TYPE).replaceFirst("\\$" + StateConverter.KEY_TIMESTAMP, TIMESTAMP)
+				.replaceFirst("\\$" + StateConverter.KEY_ID, ID);
+		Mockito.doReturn(xml).when(resonseEntity).getBody();
+
+		
 		final Collection<Map<String, String>> results = stateRepository.findStates(resourceIdentifier);
 
 		assertEquals(1, results.size());
@@ -157,6 +172,76 @@ class StateRepositoryTest {
 				.collect(Collectors.toMap(field -> field.getType(), field -> ReflectionTestUtils.getField(stateRepository, field.getName())));
 		assertEquals(2, dependencyMap.size());
 		assertEquals(dependencies, dependencyMap);
+	}
+	
+	@Test
+	final void changeState() {
+		
+		final String xml = "<result><changed/></result>";
+		Mockito.doReturn(xml).when(resonseEntity).getBody();
+
+		
+		final State<?> state = Mockito.mock(State.class);
+		Mockito.doReturn(Boolean.TRUE).when(state).value();
+		
+		stateRepository.changeState(resourceIdentifier, state);
+		
+		assertEquals(URI+AbstractHomematicXmlApiStateRepository.STATE_CHANGE_URL_PARAMETER, uriCaptor.getValue());
+		assertEquals(HOST, parameterCaptor.getValue().get(HOST_PARMETER));
+		assertEquals(PORT, parameterCaptor.getValue().get(PORT_PARAMETER));
+		assertEquals(XmlApiParameters.ChangeSysvar.resource(), parameterCaptor.getValue().get(XmlApiParameters.RESOURCE_PARAMETER_NAME));
+	}
+	
+	@Test
+	final void changeStateNotFound() {
+		final String xml = "<result><not_found/></result>";
+		Mockito.doReturn(xml).when(resonseEntity).getBody();
+		
+		final State<?> state = Mockito.mock(State.class);
+		Mockito.doReturn(Boolean.TRUE).when(state).value();
+	
+		assertHttpExceptionIsThrown(state, HttpStatus.NOT_FOUND);
+	
+		
+	}
+
+	private void assertHttpExceptionIsThrown(final State<?> state, HttpStatus expectedHttpStatusCode) {
+		try {
+		
+	       stateRepository.changeState(resourceIdentifier, state);
+	   	fail(HttpStatusCodeException.class.getName() + " should be thrown.");
+		} catch (final HttpStatusCodeException e) {
+			assertEquals(expectedHttpStatusCode, e.getStatusCode());
+		}
+	}
+	
+	@Test
+	final void changeStateUnkownResult() {
+		final String xml = "<result><unkown/></result>";
+		Mockito.doReturn(xml).when(resonseEntity).getBody();
+		
+		final State<?> state = Mockito.mock(State.class);
+		Mockito.doReturn(Boolean.TRUE).when(state).value();
+	
+		assertHttpExceptionIsThrown(state, HttpStatus.BAD_REQUEST);
+	
+		
+	}
+	
+	@Test
+	final void changeStateMissingResult() {
+		final State<?> state = Mockito.mock(State.class);
+		Mockito.doReturn(Boolean.TRUE).when(state).value();
+		assertHttpExceptionIsThrown(state, HttpStatus.BAD_REQUEST);
+	}
+	@Test
+	final void changeStateEmptyResult() {
+		final String xml = "<result/>";
+		Mockito.doReturn(xml).when(resonseEntity).getBody();
+		
+		final State<?> state = Mockito.mock(State.class);
+		Mockito.doReturn(Boolean.TRUE).when(state).value();
+		assertHttpExceptionIsThrown(state, HttpStatus.BAD_REQUEST);
 	}
 
 }

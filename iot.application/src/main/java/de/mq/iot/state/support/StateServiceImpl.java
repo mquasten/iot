@@ -30,7 +30,7 @@ class StateServiceImpl implements StateService {
 	StateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository, final StateRepository stateRepository, final Collection<StateConverter<?>> stateConverters, @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.resourceIdentifierRepository = resourceIdentifierRepository;
 		this.stateRepository = stateRepository;
-		this.stateConverters.putAll((Map<String, ? extends StateConverter<State<?>>>) stateConverters.stream().collect(Collectors.toMap(StateConverter::key, stateConverter -> stateConverter)));
+		this.stateConverters.putAll((Map<? extends String, ? extends StateConverter<State<?>>> ) stateConverters.stream().collect(Collectors.toMap(StateConverter::key, stateConverter -> stateConverter)));
 		this.timeout = Duration.ofMillis(timeout);
 	}
 	

@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.reactive.function.client.WebClient.Builder;
 import org.w3c.dom.NamedNodeMap;
@@ -76,6 +77,7 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 
 		httpStatusGuard(res);
 
+		
 		final NodeList nodes = evaluate(res, "/systemVariables/systemVariable");
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes())).collect(Collectors.toList());
 
@@ -91,9 +93,10 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	}
 
 	private void httpStatusGuard(final ResponseEntity<String> res) {
-		if (!res.getStatusCode().is2xxSuccessful()) {
-			throwHttpStatusCodeException(res.getStatusCode(), res.getStatusCode().getReasonPhrase());
+		if (res.getStatusCode().is2xxSuccessful()) {
+			return;
 		}
+		throw newHttpStatusCodeException(res.getStatusCode(), res.getStatusCode().getReasonPhrase());
 	}
 
 	private Map<String, String> attributesToMap(final NamedNodeMap nodeMap) {
@@ -112,15 +115,18 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		parameter.put(VALUE_PARAMETER_NAME, conversionService.convert(state.value(), String.class));
 
 		final ResponseEntity<String> res = webClientBuilder().build().put().uri(uri, parameter).exchange().block(timeout).toEntity(String.class).block(timeout);
-
+		if( ! StringUtils.hasText(res.getBody())) {
+			throw newHttpStatusCodeException(HttpStatus.BAD_REQUEST, "Result expected." ) ;
+		}
+	
 		httpStatusGuard(res);
+		
 		resultChangedGuard(evaluate(res, "/result/*"));
 	}
 
 	private void resultChangedGuard(final NodeList nodeList) {
-
 		if (nodeList.getLength() != 1) {
-			throwHttpStatusCodeException(HttpStatus.BAD_REQUEST, "Result expected.");
+			throw newHttpStatusCodeException(HttpStatus.BAD_REQUEST, "Result expected.");
 		}
 
 		final String result = nodeList.item(0).getNodeName();
@@ -130,14 +136,14 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		}
 
 		if (result.equalsIgnoreCase("not_found")) {
-			throwHttpStatusCodeException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase());
+			throw newHttpStatusCodeException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase());
 		}
 
-		throwHttpStatusCodeException(HttpStatus.BAD_REQUEST, result);
+		throw newHttpStatusCodeException(HttpStatus.BAD_REQUEST, result);
 	}
 
-	private void throwHttpStatusCodeException(final HttpStatus status, final String result) {
-		throw new HttpStatusCodeException(HttpStatus.BAD_REQUEST, result) {
+	private  HttpStatusCodeException newHttpStatusCodeException(final HttpStatus status, final String result) {
+		return new HttpStatusCodeException(status, result) {
 			private static final long serialVersionUID = 1L;
 
 		};
