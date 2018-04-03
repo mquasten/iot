@@ -14,6 +14,7 @@ import org.springframework.util.Assert;
 
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
+
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
 import de.mq.iot.state.StateService;
 
@@ -27,30 +28,29 @@ class StateServiceImpl implements StateService {
 
 	@SuppressWarnings("unchecked")
 	@Autowired
-	StateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository, final StateRepository stateRepository, final Collection<StateConverter<?>> stateConverters, @Value("${mongo.timeout:500}") final Integer timeout) {
+	StateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository, final StateRepository stateRepository, final Collection<StateConverter<?>> stateConverters2, @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.resourceIdentifierRepository = resourceIdentifierRepository;
 		this.stateRepository = stateRepository;
-		this.stateConverters.putAll((Map<? extends String, ? extends StateConverter<State<?>>> ) stateConverters.stream().collect(Collectors.toMap(StateConverter::key, stateConverter -> stateConverter)));
+		this.stateConverters.putAll((Map<? extends String, ? extends StateConverter<State<?>>>) (Map<?, ?>) stateConverters2.stream().collect(Collectors.toMap(StateConverter::key, stateConverter -> stateConverter)));
 		this.timeout = Duration.ofMillis(timeout);
 	}
-	
+
 	@Override
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.state.StateService#states()
 	 */
 	public Collection<State<?>> states() {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifierRepository.findById(ResourceType.XmlApi).blockOptional(timeout).orElseThrow(() -> new EmptyResultDataAccessException(String.format("ResourceType: %s not found in Database.", ResourceType.XmlApi), 1));
-		
 		return stateRepository.findStates(resourceIdentifier).stream().map(this::mapToState).collect(Collectors.toList());
-
 	}
 
 	private State<?> mapToState(Map<String, String> stateMap) {
 
 		Assert.isTrue(stateMap.containsKey(StateConverter.KEY_TYPE), "Type must be specified.");
 		final String type = stateMap.get(StateConverter.KEY_TYPE);
-		
+
 		Assert.isTrue(stateConverters.containsKey(type), "No Converter found vor type " + type + ".");
 		final StateConverter<?> converter = stateConverters.get(type);
 		return converter.convert(stateMap);

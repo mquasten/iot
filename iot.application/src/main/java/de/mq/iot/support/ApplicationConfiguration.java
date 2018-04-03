@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.ConversionService;
@@ -26,9 +27,11 @@ public class ApplicationConfiguration {
 	
 	 
 	@Bean
+	@Lazy
 	ReactiveMongoOperations reactiveMongoTemplate(@Value( "${mongo.url:mongodb://localhost:27017}" ) String mongoUrl, @Value( "${mongo.db:iot}" ) String dbName ) {
-		
+	
 		 return new ReactiveMongoTemplate( MongoClients.create(mongoUrl), dbName);
+		
 	}
 	
 	@Bean
