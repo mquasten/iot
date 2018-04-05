@@ -27,11 +27,15 @@ import de.mq.iot.state.StateService;
 class SystemVariablesView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
-	private final Grid<State<?>> grid = new Grid<>();
+	
 
 	@Autowired
 	SystemVariablesView(StateService stateService) {
-
+	
+		
+		final Grid<State<?>> grid = new Grid<>(50);
+		final HorizontalLayout layout = new HorizontalLayout(grid);
+		grid.getElement().getStyle().set("overflow", "auto");
 		final FormLayout formLayout = new FormLayout();
 
 		final TextField name = new TextField();
@@ -64,18 +68,33 @@ class SystemVariablesView extends VerticalLayout {
 		editorLayout.setVerticalComponentAlignment(Alignment.CENTER, buttonLayout);
 
 		editorLayout.setSizeFull();
-
+		
+		
 		grid.addColumn((ValueProvider<State<?>, Long>) state -> state.id()).setVisible(false);
 		grid.addColumn((ValueProvider<State<?>, String>) state -> state.name()).setHeader("Name").setResizable(true);
 		grid.addColumn((ValueProvider<State<?>, String>) state -> String.valueOf(state.value())).setHeader("Wert").setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		
-		add(grid, info, editorLayout);
+		add(layout, info, editorLayout);
 		setHorizontalComponentAlignment(Alignment.CENTER, info);
-		grid.setHeightByRows(true);
-
+	
+		
+		layout.setSizeFull();
+	
+		setHorizontalComponentAlignment(Alignment.CENTER, layout);
+	
+	
+		grid.setHeight("50vH");
+		
+		
+	
 		grid.setItems(stateService.states());
+		
+		
 
+
+	
+		
 	}
 
 }
