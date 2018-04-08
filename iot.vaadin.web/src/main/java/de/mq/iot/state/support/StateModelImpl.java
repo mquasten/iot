@@ -2,6 +2,8 @@ package de.mq.iot.state.support;
 
 import java.util.Optional;
 
+import org.springframework.core.convert.ConversionService;
+
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
@@ -13,9 +15,11 @@ class StateModelImpl implements StateModel {
 	private Optional<State<?>> selectedState  = Optional.empty();
 	
 	
-
-	StateModelImpl(final Subject<Events, StateModel> subject) {
+	private final ConversionService conversionService;
+	
+	StateModelImpl(final Subject<Events, StateModel> subject, final ConversionService conversionService) {
 		this.subject = subject;
+		this.conversionService = conversionService;
 	}
 
 	@Override
@@ -39,6 +43,12 @@ class StateModelImpl implements StateModel {
 	@Override
 	public Optional<State<?>> selectedState() {
 		return selectedState;
+	}
+
+	@Override
+	public Optional<String> selectedStateValueAsString() {
+		return selectedState.map(state -> conversionService.convert(state.value(), String.class));
+	
 	}
 	
 	

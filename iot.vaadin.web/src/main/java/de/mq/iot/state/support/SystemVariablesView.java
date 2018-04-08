@@ -1,7 +1,12 @@
 package de.mq.iot.state.support;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -29,24 +34,72 @@ class SystemVariablesView extends VerticalLayout {
 	private final TextField nameTextField = new TextField();
 	private final TextField lastUpdateTextField = new TextField();
 	private final TextField valueTextField = new TextField();
-	private final ComboBox<Integer> valueComboBox = new ComboBox<>();
+	private final ComboBox<Object> valueComboBox = new ComboBox<>();
 	private  final Button resetButton = new Button();
 	private  final Button saveButton = new Button();
 	private  final Label stateInfoLabel = new Label();
 	
 	private FormItem textFieldFormItem ; 
 	private FormItem comboBoxFormItem ; 
-	
-	private final Map<Class<? extends State<?>>,String> stateNameKeys = new HashMap<>();
+	private final Grid<State<?>> grid = new Grid<>();
+	private final Map<Class<? extends State<?>>, Consumer<StateModel>> stateCommands = new HashMap<>();
 	final FormLayout formLayout = new FormLayout();
+	
+	private String stateInfoLabelPattern="";
 
 	SystemVariablesView(StateService stateService, StateModel stateModel) {
-	
+		createUI(stateService);	
+		grid.asSingleSelect().addValueChangeListener(selectionEvent -> stateModel.assign(selectionEvent.getValue()));
+		stateModel.register(StateModel.Events.AssignState, () ->  assignState(stateModel));	
+		initStateCommands(stateModel);
+		grid.setItems(stateService.states());
+	}
+
+	private void initStateCommands(StateModel stateModel) {
+		stateInfoLabelPattern = "%s-Variable id=%s ändern";
+		stateCommands.put(BooleanStateImpl.class, model -> initBooleanValueField(stateModel));
+		stateCommands.put(ItemsStateImpl.class, model -> initListValueField(stateModel));
+	}
+
+	private void initListValueField(StateModel stateModel) {
+		comboBoxFormItem.setVisible(true);	
+		textFieldFormItem.setVisible(false);
+		comboBoxFormItem.getElement().getStyle().set("width", "100%");
+		comboBoxFormItem.getElement().getStyle().set("margin", "0");
+		final ItemsStateImpl itemState = (ItemsStateImpl) stateModel.selectedState().get();
+		final Map<Integer, String> items = itemState.items().stream().collect(Collectors.toMap( Entry::getKey,  Entry::getValue));
+		valueComboBox.setItems(items.keySet().stream().sorted().collect(Collectors.toList()));
+		valueComboBox.setItemLabelGenerator( value -> items.get(value));
+		valueComboBox.setValue(itemState.value());
+		stateInfoLabel.setText(String.format(stateInfoLabelPattern, "List", itemState.id()));
+	}
+
+	private void initBooleanValueField(StateModel stateModel) {
+		comboBoxFormItem.setVisible(true);	
+		textFieldFormItem.setVisible(false);
+		comboBoxFormItem.getElement().getStyle().set("width", "100%");
+		comboBoxFormItem.getElement().getStyle().set("margin", "0");
+		valueComboBox.setItems(Arrays.asList(Boolean.FALSE, Boolean.TRUE));
+		valueComboBox.setItemLabelGenerator( value  ->  value.toString());
+		valueComboBox.setValue(stateModel.selectedState().get().value());
+		stateInfoLabel.setText(String.format(stateInfoLabelPattern, "Boolean", stateModel.selectedState().get().id()));
+	}
+
+	private void initTextValueField(final StateModel stateModel) {
+		textFieldFormItem.setVisible(true);
+		comboBoxFormItem.setVisible(false);	
+		valueTextField.setReadOnly(false);
+		final String variableName = stateModel.selectedState().get().value().getClass().getSimpleName();
+		valueTextField.setValue(stateModel.selectedStateValueAsString().get());
+		stateInfoLabel.setText(String.format(stateInfoLabelPattern,variableName, stateModel.selectedState().get().id()));
+	}
+
+	private void createUI(StateService stateService) {
 		saveButton.setText("speichern");
 		resetButton.setText("verwerfen");
 		saveButton.setEnabled(false);
 		resetButton.setEnabled(false);
-		final Grid<State<?>> grid = new Grid<>(50);
+		
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
 		
@@ -104,52 +157,19 @@ class SystemVariablesView extends VerticalLayout {
 		
 		
 	
-		grid.setItems(stateService.states());
-		
-		
-		grid.asSingleSelect().addValueChangeListener(selectionEvent -> stateModel.assign(selectionEvent.getValue()));
-
 	
-		stateModel.register(StateModel.Events.AssignState, () ->  assignState(stateModel));
-		
-		stateNameKeys.put(BooleanStateImpl.class, "Boolean");
-		stateNameKeys.put(DoubleStateImpl.class, "Double");
-		stateNameKeys.put(ItemsStateImpl.class, "Text");
-		stateNameKeys.put(StringStateImpl.class, "List");
-		
 		
 	}
 	
 	private void assignState(final StateModel stateModel) {
 		if(stateModel.selectedState().isPresent()) {
-			
 			nameTextField.setValue(stateModel.selectedState().get().name());
 			lastUpdateTextField.setValue(stateModel.selectedState().get().lastupdate().toString());
-			
-		
-			//valueComboBox.setSizeFull();
-		
-			textFieldFormItem.setVisible(false);
-			comboBoxFormItem.setVisible(true);	
-			
-			comboBoxFormItem.getElement().getStyle().set("width", "100%");
-			comboBoxFormItem.getElement().getStyle().set("margin", "0");
-				
-		
-			valueTextField.setValue(stateModel.selectedState().get().value().toString());
-			
-			formLayout.setSizeFull();
-			valueTextField.setReadOnly(false);
-			valueComboBox.setReadOnly(false);
-		
-			
-		
-		
-		//	
+			final Optional<Consumer<StateModel>> consumer = Optional.ofNullable(stateCommands.get(stateModel.selectedState().get().getClass()));
 			
 			
-			stateInfoLabel.setText(String.format("%s-Variable id=%s ändern", stateNameKeys.get(stateModel.selectedState().get().getClass()), stateModel.selectedState().get().id()));
-		
+			
+			consumer.orElse( value -> initTextValueField(stateModel)).accept(stateModel);
 			
 			saveButton.setEnabled(true);
 			resetButton.setEnabled(true);

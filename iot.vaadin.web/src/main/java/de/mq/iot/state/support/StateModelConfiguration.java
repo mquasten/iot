@@ -2,6 +2,7 @@ package de.mq.iot.state.support;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.ConversionService;
 
 import com.vaadin.flow.spring.annotation.UIScope;
 
@@ -20,8 +21,8 @@ class StateConfiguration {
 
 	@Bean
 	@UIScope
-	StateModel stateModel(final Subject<StateModel.Events, StateModel> subject) {
-		return new StateModelImpl(subject);
+	StateModel stateModel(final Subject<StateModel.Events, StateModel> subject, final ConversionService conversionService) {
+		return new StateModelImpl(subject,conversionService);
 		
 	}
 	
