@@ -8,6 +8,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.convert.converter.Converter;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -47,7 +50,11 @@ class SystemVariablesView extends VerticalLayout {
 	
 	private String stateInfoLabelPattern="";
 
-	SystemVariablesView(StateService stateService, StateModel stateModel) {
+	private final Converter<State<?>, String> stateValueConverter;
+	
+	
+	SystemVariablesView(final StateService stateService, final StateModel stateModel, @Qualifier("stateValueConverter") final Converter<State<?>, String> stateValueConverter ) {
+		this.stateValueConverter=stateValueConverter;
 		createUI(stateService);	
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> stateModel.assign(selectionEvent.getValue()));
 		stateModel.register(StateModel.Events.AssignState, () ->  assignState(stateModel));	
@@ -90,7 +97,7 @@ class SystemVariablesView extends VerticalLayout {
 		comboBoxFormItem.setVisible(false);	
 		valueTextField.setReadOnly(false);
 		final String variableName = stateModel.selectedState().get().value().getClass().getSimpleName();
-		valueTextField.setValue(stateModel.selectedStateValueAsString().get());
+		valueTextField.setValue( stateValueConverter.convert(stateModel.selectedState().get()));
 		stateInfoLabel.setText(String.format(stateInfoLabelPattern,variableName, stateModel.selectedState().get().id()));
 	}
 
@@ -141,7 +148,7 @@ class SystemVariablesView extends VerticalLayout {
 		
 		grid.addColumn((ValueProvider<State<?>, Long>) state -> state.id()).setVisible(false);
 		grid.addColumn((ValueProvider<State<?>, String>) state -> state.name()).setHeader("Name").setResizable(true);
-		grid.addColumn((ValueProvider<State<?>, String>) state -> String.valueOf(state.value())).setHeader("Wert").setResizable(true);
+		grid.addColumn((ValueProvider<State<?>, String>) state -> stateValueConverter.convert(state)).setHeader("Wert").setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		
 		add(layout, stateInfoLabel, editorLayout);

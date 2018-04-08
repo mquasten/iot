@@ -16,7 +16,5 @@ interface StateModel extends Subject<StateModel.Events, StateModel> {
 
 	Optional<State<?>> selectedState();
 	
-	Optional<String> selectedStateValueAsString(); 
-	
 
 }
