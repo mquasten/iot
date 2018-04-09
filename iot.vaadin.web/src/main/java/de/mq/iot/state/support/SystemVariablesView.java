@@ -13,14 +13,18 @@ import org.springframework.core.convert.converter.Converter;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcons;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
@@ -46,7 +50,7 @@ class SystemVariablesView extends VerticalLayout {
 	private FormItem comboBoxFormItem ; 
 	private final Grid<State<?>> grid = new Grid<>();
 	private final Map<Class<? extends State<?>>, Consumer<StateModel>> stateCommands = new HashMap<>();
-	final FormLayout formLayout = new FormLayout();
+	private final FormLayout formLayout = new FormLayout();
 	
 	private String stateInfoLabelPattern="";
 
@@ -59,7 +63,42 @@ class SystemVariablesView extends VerticalLayout {
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> stateModel.assign(selectionEvent.getValue()));
 		stateModel.register(StateModel.Events.AssignState, () ->  assignState(stateModel));	
 		initStateCommands(stateModel);
+		
+		saveButton.addClickListener(event -> stateModel.selectedState().ifPresent(state ->updateState(state)));
+		
 		grid.setItems(stateService.states());
+		
+		
+		
+	}
+
+	private  void updateState(State<?> state) {
+		System.out.println(state);
+		
+		
+		final TextArea  textArea =new TextArea();
+		textArea.setReadOnly(true);
+		textArea.setInvalid(true);
+		Icon icon =  VaadinIcons.WARNING.create();
+	
+		final Button close = new Button("ok");
+		HorizontalLayout layout = new HorizontalLayout(icon, textArea);
+		VerticalLayout root = new VerticalLayout(layout,close);
+		root.setHorizontalComponentAlignment(Alignment.CENTER, close);
+		textArea.setValue("Fehlermeldung, lang , länger am längsten...");
+		textArea.setSizeFull();
+		
+		final Dialog notification = new Dialog(root);
+		notification.setCloseOnEsc(false);
+		notification.setCloseOnOutsideClick(false);
+		notification.setCloseOnEsc(true);
+		notification.setCloseOnOutsideClick(true);
+		close.addClickListener(event -> notification.close());
+		close.setAutofocus(true);
+		
+		
+		notification.open();
+		
 	}
 
 	private void initStateCommands(StateModel stateModel) {
@@ -107,6 +146,8 @@ class SystemVariablesView extends VerticalLayout {
 		saveButton.setEnabled(false);
 		resetButton.setEnabled(false);
 		
+		
+		
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
 		
@@ -139,6 +180,8 @@ class SystemVariablesView extends VerticalLayout {
 
 		final VerticalLayout buttonLayout = new VerticalLayout(resetButton, saveButton);
 
+		
+		
 		final HorizontalLayout editorLayout = new HorizontalLayout(formLayout, buttonLayout);
 
 		editorLayout.setVerticalComponentAlignment(Alignment.CENTER, buttonLayout);
@@ -150,6 +193,8 @@ class SystemVariablesView extends VerticalLayout {
 		grid.addColumn((ValueProvider<State<?>, String>) state -> state.name()).setHeader("Name").setResizable(true);
 		grid.addColumn((ValueProvider<State<?>, String>) state -> stateValueConverter.convert(state)).setHeader("Wert").setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
+		
+		
 		
 		add(layout, stateInfoLabel, editorLayout);
 		setHorizontalComponentAlignment(Alignment.CENTER, stateInfoLabel);
