@@ -14,7 +14,9 @@ interface StateModel extends Subject<StateModel.Events, StateModel> {
 	
 	void assign(final State<?> selectedState);
 
-	Optional<State<?>> selectedState();
+	Optional<State<? extends Object>> selectedState();
+
+	boolean validate(Object value);
 	
 
 }

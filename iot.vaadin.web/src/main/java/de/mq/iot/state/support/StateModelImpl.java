@@ -39,7 +39,12 @@ class StateModelImpl implements StateModel {
 	public Optional<State<?>> selectedState() {
 		return selectedState;
 	}
-	
-	
+	@Override
+	public boolean validate(final Object value ) {
+		@SuppressWarnings({ "unchecked" })
+		final State<Object> state = (State<Object>) selectedState.orElseThrow(() -> new IllegalArgumentException("State must be selected."));
+		return state.validate(value);
+		
+	}
 
 }

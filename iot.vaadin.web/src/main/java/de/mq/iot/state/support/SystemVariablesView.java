@@ -6,25 +6,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcons;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
@@ -35,7 +33,7 @@ import de.mq.iot.state.StateService;
 
 @Route("")
 @Theme(Lumo.class)
-class SystemVariablesView extends VerticalLayout {
+class  SystemVariablesView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	private final TextField nameTextField = new TextField();
@@ -49,8 +47,11 @@ class SystemVariablesView extends VerticalLayout {
 	private FormItem textFieldFormItem ; 
 	private FormItem comboBoxFormItem ; 
 	private final Grid<State<?>> grid = new Grid<>();
-	private final Map<Class<? extends State<?>>, Consumer<StateModel>> stateCommands = new HashMap<>();
+	private final Map<Class<? extends State<? extends Object>>, Consumer<StateModel>> stateCommands = new HashMap<>();
+	private final Map<Class<? extends State<? extends Object>>, Supplier<Object>> supplier = new HashMap<>();
+	
 	private final FormLayout formLayout = new FormLayout();
+	
 	
 	private String stateInfoLabelPattern="";
 
@@ -63,8 +64,8 @@ class SystemVariablesView extends VerticalLayout {
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> stateModel.assign(selectionEvent.getValue()));
 		stateModel.register(StateModel.Events.AssignState, () ->  assignState(stateModel));	
 		initStateCommands(stateModel);
-		
-		saveButton.addClickListener(event -> stateModel.selectedState().ifPresent(state ->updateState(state)));
+		initSuppliers();
+		saveButton.addClickListener(event -> stateModel.selectedState().ifPresent(state ->updateState(stateModel)));
 		
 		grid.setItems(stateService.states());
 		
@@ -72,39 +73,48 @@ class SystemVariablesView extends VerticalLayout {
 		
 	}
 
-	private  void updateState(State<?> state) {
-		System.out.println(state);
-		
-		
-		final TextArea  textArea =new TextArea();
-		textArea.setReadOnly(true);
-		textArea.setInvalid(true);
-		Icon icon =  VaadinIcons.WARNING.create();
+	private  void updateState(StateModel model) {
 	
-		final Button close = new Button("ok");
-		HorizontalLayout layout = new HorizontalLayout(icon, textArea);
-		VerticalLayout root = new VerticalLayout(layout,close);
-		root.setHorizontalComponentAlignment(Alignment.CENTER, close);
-		textArea.setValue("Fehlermeldung, lang , länger am längsten...");
-		textArea.setSizeFull();
-		
-		final Dialog notification = new Dialog(root);
-		notification.setCloseOnEsc(false);
-		notification.setCloseOnOutsideClick(false);
-		notification.setCloseOnEsc(true);
-		notification.setCloseOnOutsideClick(true);
-		close.addClickListener(event -> notification.close());
-		close.setAutofocus(true);
+		if( ! model.selectedState().isPresent()) {
+			return ; 
+		}
 		
 		
-		notification.open();
+		final Object newValue = supplier.get(model.selectedState().get().getClass()).get();
+		
+		
+		System.out.println(newValue);
+		
+		//final SimpleNotificationDialog notification = notification();
+		
+		//notification.showError("Eine Fehlermeldung");
+		
+		
 		
 	}
+
+	SimpleNotificationDialog notification() {
+		return new SimpleNotificationDialog();
+	}
+	
+	
 
 	private void initStateCommands(StateModel stateModel) {
 		stateInfoLabelPattern = "%s-Variable id=%s ändern";
 		stateCommands.put(BooleanStateImpl.class, model -> initBooleanValueField(stateModel));
 		stateCommands.put(ItemsStateImpl.class, model -> initListValueField(stateModel));
+	}
+	
+	private void initSuppliers() {
+	
+		supplier.put(BooleanStateImpl.class, () -> valueComboBox.getValue() );
+		supplier.put(ItemsStateImpl.class, () -> valueComboBox.getValue());
+		supplier.put(DoubleStateImpl.class, () -> emptyTextAsNull());
+		supplier.put(StringStateImpl.class, () -> emptyTextAsNull());
+	}
+
+	private Object emptyTextAsNull() {
+		return StringUtils.hasText(valueTextField.getValue()) ? valueTextField.getValue().trim() : null;
 	}
 
 	private void initListValueField(StateModel stateModel) {
