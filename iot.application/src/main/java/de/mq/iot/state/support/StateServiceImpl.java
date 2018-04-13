@@ -42,8 +42,12 @@ class StateServiceImpl implements StateService {
 	 * @see de.mq.iot.state.StateService#states()
 	 */
 	public Collection<State<?>> states() {
-		final ResourceIdentifier resourceIdentifier = resourceIdentifierRepository.findById(ResourceType.XmlApi).blockOptional(timeout).orElseThrow(() -> new EmptyResultDataAccessException(String.format("ResourceType: %s not found in Database.", ResourceType.XmlApi), 1));
+		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
 		return stateRepository.findStates(resourceIdentifier).stream().map(this::mapToState).collect(Collectors.toList());
+	}
+
+	protected ResourceIdentifier resourceIdentifier() {
+		return resourceIdentifierRepository.findById(ResourceType.XmlApi).blockOptional(timeout).orElseThrow(() -> new EmptyResultDataAccessException(String.format("ResourceType: %s not found in Database.", ResourceType.XmlApi), 1));
 	}
 
 	private State<?> mapToState(Map<String, String> stateMap) {
@@ -54,5 +58,15 @@ class StateServiceImpl implements StateService {
 		Assert.isTrue(stateConverters.containsKey(type), "No Converter found vor type " + type + ".");
 		final StateConverter<?> converter = stateConverters.get(type);
 		return converter.convert(stateMap);
+	}
+	
+	@Override
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.StateService#update(de.mq.iot.state.support.State)
+	 */
+	public void update(final State<?> state) {
+		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
+		stateRepository.changeState(resourceIdentifier, state);
 	}
 }

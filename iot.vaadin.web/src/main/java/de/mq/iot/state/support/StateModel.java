@@ -11,12 +11,18 @@ interface StateModel extends Subject<StateModel.Events, StateModel> {
 	enum Events {
 		AssignState
 	}
+	enum ValidationErrors {
+		Ok,
+		Mandatory,
+		Invalid,
+		NotChanged;
+	}
 	
 	void assign(final State<?> selectedState);
 
 	Optional<State<? extends Object>> selectedState();
 
-	boolean validate(Object value);
+	ValidationErrors validate(Object value);
 	
-
+	Object convert(Object value); 
 }

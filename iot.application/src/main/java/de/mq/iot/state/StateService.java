@@ -17,4 +17,6 @@ public interface StateService {
 	 */
 	Collection<State<?>> states();
 
+	void update(State<?> state);
+
 }

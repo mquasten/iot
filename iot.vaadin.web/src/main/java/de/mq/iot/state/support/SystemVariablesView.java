@@ -1,5 +1,7 @@
 package de.mq.iot.state.support;
 
+import java.lang.reflect.Constructor;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.StringUtils;
@@ -30,6 +33,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import de.mq.iot.state.StateService;
+import de.mq.iot.state.support.StateModel.ValidationErrors;
 
 @Route("")
 @Theme(Lumo.class)
@@ -48,7 +52,7 @@ class  SystemVariablesView extends VerticalLayout {
 	private FormItem comboBoxFormItem ; 
 	private final Grid<State<?>> grid = new Grid<>();
 	private final Map<Class<? extends State<? extends Object>>, Consumer<StateModel>> stateCommands = new HashMap<>();
-	private final Map<Class<? extends State<? extends Object>>, Supplier<Object>> supplier = new HashMap<>();
+	private final Map<Class<? extends State<? extends Object>>, Supplier<Object>> stateValueSuppliers = new HashMap<>();
 	
 	private final FormLayout formLayout = new FormLayout();
 	
@@ -57,9 +61,10 @@ class  SystemVariablesView extends VerticalLayout {
 
 	private final Converter<State<?>, String> stateValueConverter;
 	
-	
+	private final StateService stateService; 
 	SystemVariablesView(final StateService stateService, final StateModel stateModel, @Qualifier("stateValueConverter") final Converter<State<?>, String> stateValueConverter ) {
 		this.stateValueConverter=stateValueConverter;
+		this.stateService=stateService;
 		createUI(stateService);	
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> stateModel.assign(selectionEvent.getValue()));
 		stateModel.register(StateModel.Events.AssignState, () ->  assignState(stateModel));	
@@ -73,18 +78,49 @@ class  SystemVariablesView extends VerticalLayout {
 		
 	}
 
-	private  void updateState(StateModel model) {
+	private  void updateState(StateModel model)  {
 	
 		if( ! model.selectedState().isPresent()) {
 			return ; 
 		}
 		
 		
-		final Object newValue = supplier.get(model.selectedState().get().getClass()).get();
+		final Object newValue = stateValueSuppliers.get(model.selectedState().get().getClass()).get();
 		
 		
-		System.out.println(newValue);
 		
+		
+		final SimpleNotificationDialog notification = notification();
+	
+		 final ValidationErrors validationErrors = model.validate(newValue);
+		 if( validationErrors != ValidationErrors.Ok) {
+			 notification.showError(validationErrors.toString());
+			 return;
+		 }
+		final  State state = model.selectedState().get();
+	
+		
+		
+			try {
+				 Constructor<State<?>> 	constructor = (Constructor<State<?>>) state.getClass().getDeclaredConstructor(long.class, String.class, LocalDateTime.class);
+			 State<Object> newState = (State<Object>) BeanUtils.instantiateClass(constructor, state.id(), state.name(), state.lastupdate());
+				newState.assign(model.convert(newValue));
+				System.out.println(">>>" + newState.value());
+				stateService.update(newState);
+				grid.setItems(stateService.states());
+				
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		 
+		// stateService.update(state);
+		 
 		//final SimpleNotificationDialog notification = notification();
 		
 		//notification.showError("Eine Fehlermeldung");
@@ -107,10 +143,10 @@ class  SystemVariablesView extends VerticalLayout {
 	
 	private void initSuppliers() {
 	
-		supplier.put(BooleanStateImpl.class, () -> valueComboBox.getValue() );
-		supplier.put(ItemsStateImpl.class, () -> valueComboBox.getValue());
-		supplier.put(DoubleStateImpl.class, () -> emptyTextAsNull());
-		supplier.put(StringStateImpl.class, () -> emptyTextAsNull());
+		stateValueSuppliers.put(BooleanStateImpl.class, () -> valueComboBox.getValue() );
+		stateValueSuppliers.put(ItemsStateImpl.class, () -> valueComboBox.getValue());
+		stateValueSuppliers.put(DoubleStateImpl.class, () -> emptyTextAsNull());
+		stateValueSuppliers.put(StringStateImpl.class, () -> emptyTextAsNull());
 	}
 
 	private Object emptyTextAsNull() {
@@ -252,6 +288,8 @@ class  SystemVariablesView extends VerticalLayout {
 	
 	}
 	
+	
+		
 	
 
 

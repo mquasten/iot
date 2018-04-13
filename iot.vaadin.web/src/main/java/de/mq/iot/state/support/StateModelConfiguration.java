@@ -27,8 +27,8 @@ class StateConfiguration {
 
 	@Bean
 	@UIScope
-	StateModel stateModel(final Subject<StateModel.Events, StateModel> subject) {
-		return new StateModelImpl(subject);
+	StateModel stateModel(final Subject<StateModel.Events, StateModel> subject, ConversionService conversionService) {
+		return new StateModelImpl(subject, conversionService);
 		
 	}
 	
