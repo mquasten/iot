@@ -19,10 +19,11 @@ interface StateModel extends Subject<StateModel.Events, StateModel> {
 	}
 	
 	void assign(final State<?> selectedState);
+	void reset();
 
 	Optional<State<? extends Object>> selectedState();
 
 	ValidationErrors validate(Object value);
 	
-	Object convert(Object value); 
+	<T>  State<T> convert(Object value); 
 }

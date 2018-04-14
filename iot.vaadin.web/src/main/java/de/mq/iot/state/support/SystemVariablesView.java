@@ -1,7 +1,5 @@
 package de.mq.iot.state.support;
 
-import java.lang.reflect.Constructor;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +9,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.StringUtils;
@@ -70,25 +67,17 @@ class  SystemVariablesView extends VerticalLayout {
 		stateModel.register(StateModel.Events.AssignState, () ->  assignState(stateModel));	
 		initStateCommands(stateModel);
 		initSuppliers();
-		saveButton.addClickListener(event -> stateModel.selectedState().ifPresent(state ->updateState(stateModel)));
-		
+		saveButton.addClickListener(event -> stateModel.selectedState().ifPresent(state -> updateState(stateModel)));
+		resetButton.addClickListener(event -> stateModel.selectedState().ifPresent(state -> stateModel.reset()));
 		grid.setItems(stateService.states());
 		
 		
 		
 	}
 
-	private  void updateState(StateModel model)  {
 	
-		if( ! model.selectedState().isPresent()) {
-			return ; 
-		}
-		
-		
+	private  void updateState(StateModel model)  {
 		final Object newValue = stateValueSuppliers.get(model.selectedState().get().getClass()).get();
-		
-		
-		
 		
 		final SimpleNotificationDialog notification = notification();
 	
@@ -97,35 +86,13 @@ class  SystemVariablesView extends VerticalLayout {
 			 notification.showError(validationErrors.toString());
 			 return;
 		 }
-		final  State state = model.selectedState().get();
-	
 		
-		
-			try {
-				 Constructor<State<?>> 	constructor = (Constructor<State<?>>) state.getClass().getDeclaredConstructor(long.class, String.class, LocalDateTime.class);
-			 State<Object> newState = (State<Object>) BeanUtils.instantiateClass(constructor, state.id(), state.name(), state.lastupdate());
-				newState.assign(model.convert(newValue));
-				System.out.println(">>>" + newState.value());
-				stateService.update(newState);
-				grid.setItems(stateService.states());
-				
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		 
-		// stateService.update(state);
-		 
-		//final SimpleNotificationDialog notification = notification();
-		
-		//notification.showError("Eine Fehlermeldung");
-		
-		
+		try {		
+			stateService.update(model.convert(newValue));
+			grid.setItems(stateService.states());	
+		} catch (final Exception ex) {
+			notification.showError(ex.getMessage());
+		} 
 		
 	}
 
@@ -192,8 +159,8 @@ class  SystemVariablesView extends VerticalLayout {
 		saveButton.setEnabled(false);
 		resetButton.setEnabled(false);
 		
-		
-		
+		valueComboBox.setRequired(true);
+		valueTextField.setRequired(true);
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
 		
@@ -213,9 +180,6 @@ class  SystemVariablesView extends VerticalLayout {
 		textFieldFormItem=formLayout.addFormItem(valueTextField, "Wert");
 		comboBoxFormItem=formLayout.addFormItem(valueComboBox, "Wert");
 		comboBoxFormItem.setVisible(false);
-		// valueTextField.setErrorMessage("sucks");
-		 //valueTextField.setInvalid(true);
-
 		
 
 		formLayout.setSizeFull();

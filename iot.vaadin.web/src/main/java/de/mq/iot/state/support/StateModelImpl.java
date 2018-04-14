@@ -1,9 +1,12 @@
 package de.mq.iot.state.support;
 
+import java.lang.reflect.Constructor;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.ConversionService;
 
 import de.mq.iot.model.Observer;
@@ -43,6 +46,11 @@ class StateModelImpl implements StateModel {
 		notifyObservers(Events.AssignState);
 
 	}
+	
+	@Override
+	public void reset() {
+		notifyObservers(Events.AssignState);
+	}
 
 	@Override
 	public Optional<State<?>> selectedState() {
@@ -78,16 +86,34 @@ class StateModelImpl implements StateModel {
 	}
 
 	@SuppressWarnings("unchecked")
-	private State<Object> state() {
-		return (State<Object>) selectedState.orElseThrow(() -> new IllegalStateException("State must be selected."));
+	private <T> State<T> state() {
+		return (State<T>) selectedState.orElseThrow(() -> new IllegalStateException("State must be selected."));
 	}
 
 	@Override
-	public final Object convert(final Object value) {
-		final State<Object> state = state();
+	public final <T>  State<T> convert(final Object value) {
+		final State<T> state = state();
 
-		final Class<?> valueType = targetTypes.containsKey(state.getClass()) ? targetTypes.get(state.getClass()) : value.getClass();
-		return conversionService.convert(value, valueType);
+		@SuppressWarnings("unchecked")
+		final Class<T> valueType = targetTypes.containsKey(state.getClass()) ? (Class<T>) targetTypes.get(state.getClass()) : (Class<T>) value.getClass();
+		
+		final T newValue =  (T) conversionService.convert(value, valueType);
+		
+		
+		final Constructor<State<T>> 	constructor =  constructor(state);
+		final State<T> newState = BeanUtils.instantiateClass(constructor, state.id(), state.name(), state.lastupdate());
+		newState.assign(newValue);
+		
+		return newState;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> Constructor<State<T>> constructor(final State<T> state)  {
+		try {
+			return  (Constructor<State<T>>) state.getClass().getDeclaredConstructor(long.class, String.class, LocalDateTime.class);
+		} catch (final Exception ex) {
+			throw new IllegalStateException(ex);
+		} 
 	}
 
 	private boolean canConvert(final Object value, final Class<?> valueType) {
@@ -98,5 +124,7 @@ class StateModelImpl implements StateModel {
 			return false;
 		}
 	}
+
+	
 
 }
