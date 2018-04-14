@@ -9,7 +9,8 @@ import de.mq.iot.model.Subject;
 interface StateModel extends Subject<StateModel.Events, StateModel> {
 	
 	enum Events {
-		AssignState
+		AssignState,
+		ChangeLocale;
 	}
 	enum ValidationErrors {
 		Ok,

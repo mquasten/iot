@@ -2,6 +2,7 @@ package de.mq.iot.state.support;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.StringUtils;
 
@@ -29,22 +31,43 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import de.mq.iot.model.I18NKey;
+import de.mq.iot.model.LocalizeView;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.support.StateModel.ValidationErrors;
 
 @Route("")
 @Theme(Lumo.class)
-class  SystemVariablesView extends VerticalLayout {
+@I18NKey("systemvariables_")
+class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 
 	private static final long serialVersionUID = 1L;
+	@I18NKey("name")
+	private final Label nameLabel = new Label(); 
 	private final TextField nameTextField = new TextField();
+	@I18NKey("date")
+	private final Label dateLabel = new Label(); 
 	private final TextField lastUpdateTextField = new TextField();
 	private final TextField valueTextField = new TextField();
 	private final ComboBox<Object> valueComboBox = new ComboBox<>();
+	@I18NKey("reset")
 	private  final Button resetButton = new Button();
+	@I18NKey("save")
 	private  final Button saveButton = new Button();
 	private  final Label stateInfoLabel = new Label();
 	
+	@I18NKey("value")
+	private final Label textValueLabel = new Label();
+	
+	@I18NKey("value")
+	private final Label listValueLabel = new Label();
+	
+	@I18NKey("name_column")
+	private final Label nameColumnLabel = new Label();
+	
+	
+	@I18NKey("value_column")
+	private final Label valueColumnLabel = new Label();
 	private FormItem textFieldFormItem ; 
 	private FormItem comboBoxFormItem ; 
 	private final Grid<State<?>> grid = new Grid<>();
@@ -59,7 +82,7 @@ class  SystemVariablesView extends VerticalLayout {
 	private final Converter<State<?>, String> stateValueConverter;
 	
 	private final StateService stateService; 
-	SystemVariablesView(final StateService stateService, final StateModel stateModel, @Qualifier("stateValueConverter") final Converter<State<?>, String> stateValueConverter ) {
+	SystemVariablesView(final StateService stateService, final StateModel stateModel, @Qualifier("stateValueConverter") final Converter<State<?>, String> stateValueConverter, final MessageSource messageSource ) {
 		this.stateValueConverter=stateValueConverter;
 		this.stateService=stateService;
 		createUI(stateService);	
@@ -72,6 +95,15 @@ class  SystemVariablesView extends VerticalLayout {
 		grid.setItems(stateService.states());
 		
 		
+		stateModel.register(StateModel.Events.ChangeLocale, () -> {
+			
+			 localize(messageSource, Locale.GERMAN);
+			
+			
+		});
+		
+		
+		stateModel.notifyObservers(StateModel.Events.ChangeLocale);
 		
 	}
 
@@ -154,8 +186,7 @@ class  SystemVariablesView extends VerticalLayout {
 	}
 
 	private void createUI(StateService stateService) {
-		saveButton.setText("speichern");
-		resetButton.setText("verwerfen");
+				
 		saveButton.setEnabled(false);
 		resetButton.setEnabled(false);
 		
@@ -175,10 +206,10 @@ class  SystemVariablesView extends VerticalLayout {
 		valueTextField.setSizeFull();
 		valueComboBox.setSizeFull();
 		valueTextField.setReadOnly(true);
-		formLayout.addFormItem(nameTextField, "Name");
-		formLayout.addFormItem(lastUpdateTextField, "Änderungsdatum");
-		textFieldFormItem=formLayout.addFormItem(valueTextField, "Wert");
-		comboBoxFormItem=formLayout.addFormItem(valueComboBox, "Wert");
+		formLayout.addFormItem(nameTextField, nameLabel);
+		formLayout.addFormItem(lastUpdateTextField, dateLabel);
+		textFieldFormItem=formLayout.addFormItem(valueTextField, textValueLabel);
+		comboBoxFormItem=formLayout.addFormItem(valueComboBox, listValueLabel);
 		comboBoxFormItem.setVisible(false);
 		
 
@@ -200,8 +231,8 @@ class  SystemVariablesView extends VerticalLayout {
 		
 		
 		grid.addColumn((ValueProvider<State<?>, Long>) state -> state.id()).setVisible(false);
-		grid.addColumn((ValueProvider<State<?>, String>) state -> state.name()).setHeader("Name").setResizable(true);
-		grid.addColumn((ValueProvider<State<?>, String>) state -> stateValueConverter.convert(state)).setHeader("Wert").setResizable(true);
+		grid.addColumn((ValueProvider<State<?>, String>) state -> state.name()).setHeader(nameColumnLabel).setResizable(true);
+		grid.addColumn((ValueProvider<State<?>, String>) state -> stateValueConverter.convert(state)).setHeader(valueColumnLabel).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		
 		
@@ -217,9 +248,6 @@ class  SystemVariablesView extends VerticalLayout {
 	
 		grid.setHeight("50vH");
 		
-		
-	
-	
 		
 	}
 	
