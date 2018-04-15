@@ -26,5 +26,7 @@ interface StateModel extends Subject<StateModel.Events, StateModel> {
 
 	ValidationErrors validate(Object value);
 	
-	<T>  State<T> convert(Object value); 
+	<T>  State<T> convert(Object value);
+	
+	String[] stateInfoParameters(); 
 }

@@ -41,6 +41,7 @@ import de.mq.iot.state.support.StateModel.ValidationErrors;
 @I18NKey("systemvariables_")
 class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 
+	private static final String INFO_LABEL_PATTERN = "systemvariables_info";
 	private static final long serialVersionUID = 1L;
 	@I18NKey("name")
 	private final Label nameLabel = new Label(); 
@@ -54,6 +55,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	private  final Button resetButton = new Button();
 	@I18NKey("save")
 	private  final Button saveButton = new Button();
+	
 	private  final Label stateInfoLabel = new Label();
 	
 	@I18NKey("value")
@@ -76,15 +78,17 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	
 	private final FormLayout formLayout = new FormLayout();
 	
-	
-	private String stateInfoLabelPattern="";
+	//private String[] info
+
 
 	private final Converter<State<?>, String> stateValueConverter;
 	
+	private final MessageSource messageSource;
 	private final StateService stateService; 
 	SystemVariablesView(final StateService stateService, final StateModel stateModel, @Qualifier("stateValueConverter") final Converter<State<?>, String> stateValueConverter, final MessageSource messageSource ) {
 		this.stateValueConverter=stateValueConverter;
 		this.stateService=stateService;
+		this.messageSource=messageSource;
 		createUI(stateService);	
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> stateModel.assign(selectionEvent.getValue()));
 		stateModel.register(StateModel.Events.AssignState, () ->  assignState(stateModel));	
@@ -98,7 +102,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		stateModel.register(StateModel.Events.ChangeLocale, () -> {
 			
 			 localize(messageSource, Locale.GERMAN);
-			
+			 loacalizeStateInfoLabel(stateModel, Locale.GERMAN);
 			
 		});
 		
@@ -123,6 +127,9 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 			stateService.update(model.convert(newValue));
 			grid.setItems(stateService.states());	
 		} catch (final Exception ex) {
+			
+			System.out.println("*******************************************");
+			
 			notification.showError(ex.getMessage());
 		} 
 		
@@ -135,7 +142,6 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	
 
 	private void initStateCommands(StateModel stateModel) {
-		stateInfoLabelPattern = "%s-Variable id=%s ändern";
 		stateCommands.put(BooleanStateImpl.class, model -> initBooleanValueField(stateModel));
 		stateCommands.put(ItemsStateImpl.class, model -> initListValueField(stateModel));
 	}
@@ -162,7 +168,15 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		valueComboBox.setItems(items.keySet().stream().sorted().collect(Collectors.toList()));
 		valueComboBox.setItemLabelGenerator( value -> items.get(value));
 		valueComboBox.setValue(itemState.value());
-		stateInfoLabel.setText(String.format(stateInfoLabelPattern, "List", itemState.id()));
+		loacalizeStateInfoLabel(stateModel, Locale.GERMAN);
+	}
+
+
+	protected void loacalizeStateInfoLabel(final StateModel stateModel, final Locale locale) {
+		stateInfoLabel.setText("");
+		if( stateModel.selectedState().isPresent()) {
+			stateInfoLabel.setText(messageSource.getMessage(INFO_LABEL_PATTERN, stateModel.stateInfoParameters(),"???",  locale));
+		}
 	}
 
 	private void initBooleanValueField(StateModel stateModel) {
@@ -173,16 +187,19 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		valueComboBox.setItems(Arrays.asList(Boolean.FALSE, Boolean.TRUE));
 		valueComboBox.setItemLabelGenerator( value  ->  value.toString());
 		valueComboBox.setValue(stateModel.selectedState().get().value());
-		stateInfoLabel.setText(String.format(stateInfoLabelPattern, "Boolean", stateModel.selectedState().get().id()));
+		
+		loacalizeStateInfoLabel(stateModel, Locale.GERMAN);
 	}
 
 	private void initTextValueField(final StateModel stateModel) {
 		textFieldFormItem.setVisible(true);
 		comboBoxFormItem.setVisible(false);	
 		valueTextField.setReadOnly(false);
-		final String variableName = stateModel.selectedState().get().value().getClass().getSimpleName();
+		
 		valueTextField.setValue( stateValueConverter.convert(stateModel.selectedState().get()));
-		stateInfoLabel.setText(String.format(stateInfoLabelPattern,variableName, stateModel.selectedState().get().id()));
+		
+		loacalizeStateInfoLabel(stateModel, Locale.GERMAN);
+		
 	}
 
 	private void createUI(StateService stateService) {

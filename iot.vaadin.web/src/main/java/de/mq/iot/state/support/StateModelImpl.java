@@ -1,13 +1,16 @@
 package de.mq.iot.state.support;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.util.ReflectionUtils;
 
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
@@ -19,14 +22,10 @@ class StateModelImpl implements StateModel {
 	private Optional<State<?>> selectedState = Optional.empty();
 	private final ConversionService conversionService;
 
-	private Map<Class<? extends State<?>>, Class<?>> targetTypes = new HashMap<>();
 
 	StateModelImpl(final Subject<Events, StateModel> subject, final ConversionService conversionService) {
 		this.subject = subject;
 		this.conversionService = conversionService;
-
-		targetTypes.put(DoubleStateImpl.class, Double.class);
-		targetTypes.put(StringStateImpl.class, String.class);
 	}
 
 	@Override
@@ -68,7 +67,8 @@ class StateModelImpl implements StateModel {
 		
 		
 		
-		final Class<?> valueType = targetTypes.containsKey(state.getClass()) ? targetTypes.get(state.getClass()) : value.getClass();
+		final Class<?> valueType = state.value().getClass();
+				
 
 		if (!canConvert(value, valueType)) {
 			return ValidationErrors.Invalid;
@@ -95,13 +95,25 @@ class StateModelImpl implements StateModel {
 		final State<T> state = state();
 
 		@SuppressWarnings("unchecked")
-		final Class<T> valueType = targetTypes.containsKey(state.getClass()) ? (Class<T>) targetTypes.get(state.getClass()) : (Class<T>) value.getClass();
+		final Class<T> valueType = (Class<T>) state.value().getClass();
 		
 		final T newValue =  (T) conversionService.convert(value, valueType);
 		
 		
 		final Constructor<State<T>> 	constructor =  constructor(state);
 		final State<T> newState = BeanUtils.instantiateClass(constructor, state.id(), state.name(), state.lastupdate());
+		
+		if (newState instanceof ItemsStateImpl) {
+			
+			final Field field = ReflectionUtils.findField(ItemsStateImpl.class, "items");
+			field.setAccessible(true);
+			@SuppressWarnings("unchecked")
+			final Map<Integer, String> items  = (Map<Integer, String>) ReflectionUtils.getField(field, newState);
+			items.putAll(((ItemsStateImpl) state).items().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+			
+		}
+		
+		
 		newState.assign(newValue);
 		
 		return newState;
@@ -125,6 +137,20 @@ class StateModelImpl implements StateModel {
 		}
 	}
 
-	
+	@Override
+	public String[] stateInfoParameters() {
+		final State<?> state = selectedState.orElseThrow(() -> new IllegalStateException("State must be selected"));
+		StringBuilder builder = new StringBuilder();
+		if (state instanceof MinMaxRange) {
+			
+			builder.append("[");
+			builder.append(((DoubleStateImpl) state).getMin().map(min -> "" + min).orElse(""+(char) 236));
+			builder.append(" ... ");	
+			builder.append(((DoubleStateImpl) state).getMax().map(max -> "" + max).orElse(""+(char) 236));
+			builder.append("]");
+		}
+		
+		return new String[] {state.value().getClass().getSimpleName(),  "" + state.id() , builder.toString()}; 
+	}
 
 }
