@@ -4,9 +4,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcons;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 
 public class SimpleNotificationDialog {
@@ -15,8 +14,8 @@ public class SimpleNotificationDialog {
 	private final Button close = new Button();
 	private final Icon warningsIcon =  VaadinIcons.WARNING.create();
 	private final Icon infoIcon =  VaadinIcons.INFO.create();
-	private final HorizontalLayout layout = new HorizontalLayout(warningsIcon, infoIcon, textArea);
-	private final VerticalLayout root = new VerticalLayout(layout,close);
+
+	private final VerticalLayout root = new VerticalLayout(warningsIcon, infoIcon, textArea,close);
 	
 	private final Dialog notification = new Dialog(root);
 	
@@ -26,9 +25,15 @@ public class SimpleNotificationDialog {
 	
 		close.setText("ok");
 		root.setHorizontalComponentAlignment(Alignment.CENTER, close);
+		root.setSizeUndefined();
 		textArea.setSizeFull();
+		//layout.setSizeFull();
+		
 		notification.setCloseOnEsc(true);
 		notification.setCloseOnOutsideClick(true);
+		root.setWidth("40vh");
+	
+		
 		close.addClickListener(event -> notification.close());
 
 	}

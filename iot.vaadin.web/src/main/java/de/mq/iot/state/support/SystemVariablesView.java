@@ -41,7 +41,11 @@ import de.mq.iot.state.support.StateModel.ValidationErrors;
 @I18NKey("systemvariables_")
 class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 
-	private static final String INFO_LABEL_PATTERN = "systemvariables_info";
+	private static final String I18N_INFO_LABEL_PATTERN = "systemvariables_info";
+	private static final String I18N_VALUE_NOT_CHANGED = "systemvariables_notchanged";
+	private static final String I18N_VALUE_MANDATORY = "systemvariables_mandatory";
+	private static final String I18N_VALUE_INVALID = "systemvariables_invalid";
+	private static final String I18N_ERROR = "systemvariables_error";
 	private static final long serialVersionUID = 1L;
 	@I18NKey("name")
 	private final Label nameLabel = new Label(); 
@@ -78,8 +82,8 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	
 	private final FormLayout formLayout = new FormLayout();
 	
-	//private String[] info
-
+	
+	private final Map<ValidationErrors, String> dialogMessageKeys = new HashMap<>() ;
 
 	private final Converter<State<?>, String> stateValueConverter;
 	
@@ -105,9 +109,18 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 			 loacalizeStateInfoLabel(stateModel, Locale.GERMAN);
 			
 		});
-		
+		initDialogMessageKeys();
 		
 		stateModel.notifyObservers(StateModel.Events.ChangeLocale);
+		
+	}
+
+
+	private void initDialogMessageKeys() {
+		dialogMessageKeys.put(ValidationErrors.NotChanged, I18N_VALUE_NOT_CHANGED);
+		dialogMessageKeys.put(ValidationErrors.Mandatory, I18N_VALUE_MANDATORY);
+		dialogMessageKeys.put(ValidationErrors.Invalid, I18N_VALUE_INVALID);
+		
 		
 	}
 
@@ -115,11 +128,15 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	private  void updateState(StateModel model)  {
 		final Object newValue = stateValueSuppliers.get(model.selectedState().get().getClass()).get();
 		
+		
+		
 		final SimpleNotificationDialog notification = notification();
 	
 		 final ValidationErrors validationErrors = model.validate(newValue);
 		 if( validationErrors != ValidationErrors.Ok) {
-			 notification.showError(validationErrors.toString());
+			 
+			 final String key =dialogMessageKeys.get(validationErrors);
+			 notification.showError(message(key));
 			 return;
 		 }
 		
@@ -127,12 +144,14 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 			stateService.update(model.convert(newValue));
 			grid.setItems(stateService.states());	
 		} catch (final Exception ex) {
-			
-			System.out.println("*******************************************");
-			
-			notification.showError(ex.getMessage());
+			notification.showError(messageSource.getMessage(I18N_ERROR, new String[] {ex.getMessage()},"???",  Locale.GERMAN));
 		} 
 		
+	}
+
+
+	private String message(final String key) {
+		return messageSource.getMessage(key, null,"???",  Locale.GERMAN);
 	}
 
 	SimpleNotificationDialog notification() {
@@ -175,7 +194,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	protected void loacalizeStateInfoLabel(final StateModel stateModel, final Locale locale) {
 		stateInfoLabel.setText("");
 		if( stateModel.selectedState().isPresent()) {
-			stateInfoLabel.setText(messageSource.getMessage(INFO_LABEL_PATTERN, stateModel.stateInfoParameters(),"???",  locale));
+			stateInfoLabel.setText(messageSource.getMessage(I18N_INFO_LABEL_PATTERN, stateModel.stateInfoParameters(),"???",  locale));
 		}
 	}
 
