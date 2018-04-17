@@ -2,7 +2,6 @@ package de.mq.iot.state.support;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -105,8 +104,8 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		
 		stateModel.register(StateModel.Events.ChangeLocale, () -> {
 			
-			 localize(messageSource, Locale.GERMAN);
-			 loacalizeStateInfoLabel(stateModel, Locale.GERMAN);
+			 localize(messageSource, stateModel.locale());
+			 loacalizeStateInfoLabel(stateModel);
 			
 		});
 		initDialogMessageKeys();
@@ -136,7 +135,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		 if( validationErrors != ValidationErrors.Ok) {
 			 
 			 final String key =dialogMessageKeys.get(validationErrors);
-			 notification.showError(message(key));
+			 notification.showError(message1(model, key));
 			 return;
 		 }
 		
@@ -144,14 +143,14 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 			stateService.update(model.convert(newValue));
 			grid.setItems(stateService.states());	
 		} catch (final Exception ex) {
-			notification.showError(messageSource.getMessage(I18N_ERROR, new String[] {ex.getMessage()},"???",  Locale.GERMAN));
+			notification.showError(messageSource.getMessage(I18N_ERROR, new String[] {ex.getMessage()},"???",  model.locale()));
 		} 
 		
 	}
 
 
-	private String message(final String key) {
-		return messageSource.getMessage(key, null,"???",  Locale.GERMAN);
+	private String message1(final StateModel stateModel, final String key) {
+		return messageSource.getMessage(key, null,"???",  stateModel.locale());
 	}
 
 	SimpleNotificationDialog notification() {
@@ -187,14 +186,14 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		valueComboBox.setItems(items.keySet().stream().sorted().collect(Collectors.toList()));
 		valueComboBox.setItemLabelGenerator( value -> items.get(value));
 		valueComboBox.setValue(itemState.value());
-		loacalizeStateInfoLabel(stateModel, Locale.GERMAN);
+		loacalizeStateInfoLabel(stateModel);
 	}
 
 
-	protected void loacalizeStateInfoLabel(final StateModel stateModel, final Locale locale) {
+	protected void loacalizeStateInfoLabel(final StateModel stateModel) {
 		stateInfoLabel.setText("");
 		if( stateModel.selectedState().isPresent()) {
-			stateInfoLabel.setText(messageSource.getMessage(I18N_INFO_LABEL_PATTERN, stateModel.stateInfoParameters(),"???",  locale));
+			stateInfoLabel.setText(messageSource.getMessage(I18N_INFO_LABEL_PATTERN, stateModel.stateInfoParameters(),"???",  stateModel.locale()));
 		}
 	}
 
@@ -207,7 +206,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		valueComboBox.setItemLabelGenerator( value  ->  value.toString());
 		valueComboBox.setValue(stateModel.selectedState().get().value());
 		
-		loacalizeStateInfoLabel(stateModel, Locale.GERMAN);
+		loacalizeStateInfoLabel(stateModel);
 	}
 
 	private void initTextValueField(final StateModel stateModel) {
@@ -217,7 +216,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		
 		valueTextField.setValue( stateValueConverter.convert(stateModel.selectedState().get()));
 		
-		loacalizeStateInfoLabel(stateModel, Locale.GERMAN);
+		loacalizeStateInfoLabel(stateModel);
 		
 	}
 

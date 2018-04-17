@@ -3,6 +3,7 @@ package de.mq.iot.state.support;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -149,8 +150,15 @@ class StateModelImpl implements StateModel {
 			builder.append(((DoubleStateImpl) state).getMax().map(max -> "" + max).orElse(""+(char) 236));
 			builder.append("]");
 		}
-		
 		return new String[] {state.value().getClass().getSimpleName(),  "" + state.id() , builder.toString()}; 
 	}
+
+	@Override
+	public Locale locale() {
+		
+		return Locale.GERMAN;
+	}
+	
+	
 
 }
