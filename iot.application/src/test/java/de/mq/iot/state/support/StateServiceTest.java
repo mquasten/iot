@@ -72,5 +72,13 @@ class StateServiceTest {
 		
 		assertThrows(EmptyResultDataAccessException.class, () -> stateService.states());
 	}
+	
+	@Test
+	void update() {
+		final State<?> state = Mockito.mock(State.class);
+		stateService.update(state);
+		
+		Mockito.verify(stateRepository).changeState(resourceIdentifier, state);
+	}
 
 }
