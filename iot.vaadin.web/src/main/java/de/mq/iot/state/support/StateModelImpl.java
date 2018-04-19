@@ -23,7 +23,6 @@ class StateModelImpl implements StateModel {
 	private Optional<State<?>> selectedState = Optional.empty();
 	private final ConversionService conversionService;
 
-
 	StateModelImpl(final Subject<Events, StateModel> subject, final ConversionService conversionService) {
 		this.subject = subject;
 		this.conversionService = conversionService;
@@ -46,7 +45,7 @@ class StateModelImpl implements StateModel {
 		notifyObservers(Events.AssignState);
 
 	}
-	
+
 	@Override
 	public void reset() {
 		notifyObservers(Events.AssignState);
@@ -65,22 +64,16 @@ class StateModelImpl implements StateModel {
 		}
 
 		final State<Object> state = state();
-		
-		
-		
+
 		final Class<?> valueType = state.value().getClass();
-				
 
 		if (!canConvert(value, valueType)) {
 			return ValidationErrors.Invalid;
 		}
-		
-		
-		if( state.value().equals(conversionService.convert(value, valueType))) {
+
+		if (state.value().equals(conversionService.convert(value, valueType))) {
 			return ValidationErrors.NotChanged;
 		}
-		
-
 
 		return state.validate(conversionService.convert(value, valueType)) ? ValidationErrors.Ok : ValidationErrors.Invalid;
 
@@ -92,41 +85,39 @@ class StateModelImpl implements StateModel {
 	}
 
 	@Override
-	public final <T>  State<T> convert(final Object value) {
+	public final <T> State<T> convert(final Object value) {
 		final State<T> state = state();
 
 		@SuppressWarnings("unchecked")
 		final Class<T> valueType = (Class<T>) state.value().getClass();
-		
-		final T newValue =  (T) conversionService.convert(value, valueType);
-		
-		
-		final Constructor<State<T>> 	constructor =  constructor(state);
+
+		final T newValue = (T) conversionService.convert(value, valueType);
+
+		final Constructor<State<T>> constructor = constructor(state);
 		final State<T> newState = BeanUtils.instantiateClass(constructor, state.id(), state.name(), state.lastupdate());
-		
+
 		if (newState instanceof ItemsStateImpl) {
-			
+
 			final Field field = ReflectionUtils.findField(ItemsStateImpl.class, "items");
 			field.setAccessible(true);
 			@SuppressWarnings("unchecked")
-			final Map<Integer, String> items  = (Map<Integer, String>) ReflectionUtils.getField(field, newState);
+			final Map<Integer, String> items = (Map<Integer, String>) ReflectionUtils.getField(field, newState);
 			items.putAll(((ItemsStateImpl) state).items().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
-			
+
 		}
-		
-		
+
 		newState.assign(newValue);
-		
+
 		return newState;
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> Constructor<State<T>> constructor(final State<T> state)  {
+	private <T> Constructor<State<T>> constructor(final State<T> state) {
 		try {
-			return  (Constructor<State<T>>) state.getClass().getDeclaredConstructor(long.class, String.class, LocalDateTime.class);
+			return (Constructor<State<T>>) state.getClass().getDeclaredConstructor(long.class, String.class, LocalDateTime.class);
 		} catch (final Exception ex) {
 			throw new IllegalStateException(ex);
-		} 
+		}
 	}
 
 	private boolean canConvert(final Object value, final Class<?> valueType) {
@@ -143,22 +134,19 @@ class StateModelImpl implements StateModel {
 		final State<?> state = selectedState.orElseThrow(() -> new IllegalStateException("State must be selected"));
 		StringBuilder builder = new StringBuilder();
 		if (state instanceof MinMaxRange) {
-			
+
 			builder.append("[");
-			builder.append(((DoubleStateImpl) state).getMin().map(min -> "" + min).orElse(""+(char) 236));
-			builder.append(" ... ");	
-			builder.append(((DoubleStateImpl) state).getMax().map(max -> "" + max).orElse(""+(char) 236));
+			builder.append(((DoubleStateImpl) state).getMin().map(min -> "" + min).orElse("-" + "\u221E"));
+			builder.append(",");
+			builder.append(((DoubleStateImpl) state).getMax().map(max -> "" + max).orElse("+" + "\u221E"));
 			builder.append("]");
 		}
-		return new String[] {state.value().getClass().getSimpleName(),  "" + state.id() , builder.toString()}; 
+		return new String[] { state.value().getClass().getSimpleName(), "" + state.id(), builder.toString() };
 	}
 
 	@Override
 	public Locale locale() {
-		
 		return Locale.GERMAN;
 	}
-	
-	
 
 }
