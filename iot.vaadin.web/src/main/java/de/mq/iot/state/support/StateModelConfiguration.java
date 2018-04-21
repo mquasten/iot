@@ -13,10 +13,11 @@ import de.mq.iot.model.Subject;
 import de.mq.iot.model.support.SubjectImpl;
 
 @Configuration
-class StateConfiguration {
+class StateModelConfiguration {
 	
+	static final String SYSTEM_VARIABLES_VIEW = "i18n/systemVariablesView";
 	static final String MESSAGE_SOURCE_ENCODING = "UTF-8";
-	static final String[] MESSAGE_SOURCE_BASENAME =  {"i18n/systemVariablesView"};
+	static final String[] MESSAGE_SOURCE_BASENAME =  {SYSTEM_VARIABLES_VIEW};
 	
 	@Bean
 	@UIScope
