@@ -100,7 +100,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		saveButton.addClickListener(event -> stateModel.selectedState().ifPresent(state -> updateState(stateModel)));
 		resetButton.addClickListener(event -> stateModel.selectedState().ifPresent(state -> stateModel.reset()));
 		grid.setItems(stateService.states());
-		
+	
 		
 		stateModel.register(StateModel.Events.ChangeLocale, () -> {
 			
@@ -265,7 +265,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		editorLayout.setSizeFull();
 		
 		
-		grid.addColumn((ValueProvider<State<?>, Long>) state -> state.id()).setVisible(false);
+	//	grid.addColumn((ValueProvider<State<?>, Long>) state -> state.id()).setVisible(false);
 		grid.addColumn((ValueProvider<State<?>, String>) state -> state.name()).setHeader(nameColumnLabel).setResizable(true);
 		grid.addColumn((ValueProvider<State<?>, String>) state -> stateValueConverter.convert(state)).setHeader(valueColumnLabel).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
@@ -301,7 +301,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 			return;
 		}
 	
-		stateInfoLabel.setText("Variable bearbeiten");
+		//stateInfoLabel.setText("Variable bearbeiten");
 		nameTextField.setValue("");
 		lastUpdateTextField.setValue("");
 		lastUpdateTextField.setValue("");
