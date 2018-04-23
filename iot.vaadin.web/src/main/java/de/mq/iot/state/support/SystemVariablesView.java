@@ -40,7 +40,7 @@ import de.mq.iot.state.support.StateModel.ValidationErrors;
 @I18NKey("systemvariables_")
 class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 
-	private static final String I18N_INFO_LABEL_PATTERN = "systemvariables_info";
+	static final String I18N_INFO_LABEL_PATTERN = "systemvariables_info";
 	private static final String I18N_VALUE_NOT_CHANGED = "systemvariables_notchanged";
 	private static final String I18N_VALUE_MANDATORY = "systemvariables_mandatory";
 	private static final String I18N_VALUE_INVALID = "systemvariables_invalid";

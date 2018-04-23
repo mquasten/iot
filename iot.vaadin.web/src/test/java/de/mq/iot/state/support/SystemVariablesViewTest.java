@@ -10,16 +10,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.context.MessageSource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.grid.Grid;
@@ -33,6 +35,7 @@ import de.mq.iot.state.support.StateModel.Events;
 
 class SystemVariablesViewTest {
 
+	private static final String I18N_INFO_LABEL_VALUE = "Boolean-Variable id=4711 ändern";
 	private static final String I18N_VALUE_COLUMN = "systemvariables_value_column";
 	private static final String I18N_NAME_COLUMN = "systemvariables_name_column";
 	private static final String I18N_NAME = "systemvariables_name";
@@ -43,7 +46,7 @@ class SystemVariablesViewTest {
 	private final StateService stateService = Mockito.mock(StateService.class);
 	private final StateModel stateModel = Mockito.mock(StateModel.class);
 	private final Converter<State<?>, String> converter = new StateValueConverterImpl(new DefaultConversionService());
-	private final MessageSource messageSource = Mockito.mock(MessageSource.class);
+	private final ResourceBundleMessageSource messageSource = Mockito.mock(ResourceBundleMessageSource.class);
 
 	private SystemVariablesView systemVariablesView;
 
@@ -99,15 +102,18 @@ class SystemVariablesViewTest {
 		assertTrue(itemTextField.isVisible());
 		final TextField valueTextField = (TextField) fields.get("valueTextField");
 		assertTrue(valueTextField.isReadOnly());
+		assertTrue(valueTextField.getValue().isEmpty());
 		assertEquals(I18N_VALUE_LABEL, itemTextField.getElement().getChild(1).getText());
 
 		final TextField lastUpdateTextField = (TextField) fields.get("lastUpdateTextField");
 		assertTrue(lastUpdateTextField.isReadOnly());
 		final FormLayout formLayout = (FormLayout) fields.get("formLayout");
 		assertEquals(I18N_LASTUPDATE, formLayout.getElement().getChild(1).getChild(1).getText());
-
+		assertTrue(lastUpdateTextField.isEmpty());
+		
 		final TextField nameTextField = (TextField) fields.get("nameTextField");
 		assertTrue(nameTextField.isReadOnly());
+		assertTrue(nameTextField.getValue().isEmpty());
 		assertEquals(I18N_NAME, formLayout.getElement().getChild(0).getChild(1).getText());
 
 		@SuppressWarnings("unchecked")
@@ -126,7 +132,68 @@ class SystemVariablesViewTest {
 		assertEquals(I18N_VALUE_COLUMN, valueColumn.getText());
 		
 		
+		final Label stateInfoLabel = (Label) fields.get("stateInfoLabel");
+		assertTrue(stateInfoLabel.getText().isEmpty());
+		
+	}
+	
+	@Test
+	void selectRow() {
+		
+		@SuppressWarnings("unchecked")
+		final Grid<State<Boolean>> grid = (Grid<State<Boolean>>) fields.get("grid");
+		
+		grid.select(workingDayState);
+		
+		
+		Mockito.verify(stateModel).assign(workingDayState);
+		
+		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(workingDayState));
+		String[] parameters = new String[] {workingDayState.getClass().getSimpleName() , "4711" , ""};
+		Mockito.doReturn(parameters).when(stateModel).stateInfoParameters();
+		Mockito.doReturn(I18N_INFO_LABEL_VALUE).when(messageSource).getMessage(SystemVariablesView.I18N_INFO_LABEL_PATTERN, parameters,"???", Locale.GERMAN);
+		workingDayState.assign(true);
+		observers.get(Events.AssignState).process();
+		
+		final Button saveButton = (Button) fields.get("saveButton");
+		assertEquals(I18N_SAVE_BUTTON, saveButton.getText());
+		assertTrue(saveButton.isEnabled());
 
+		final Button resetButton = (Button) fields.get("resetButton");
+		assertEquals(I18N_RESET_BUTTON, resetButton.getText());
+		assertTrue(resetButton.isEnabled());
+		
+		final TextField nameTextField = (TextField) fields.get("nameTextField");
+		assertTrue(nameTextField.isReadOnly());
+		
+		assertEquals(workingDayState.name(), nameTextField.getValue());
+		
+		
+		final TextField lastUpdateTextField = (TextField) fields.get("lastUpdateTextField");
+		assertTrue(lastUpdateTextField.isReadOnly());
+		
+		assertEquals(workingDayState.lastupdate().toString(), lastUpdateTextField.getValue());
+		
+		final FormItem itemTextField = (FormItem) fields.get("textFieldFormItem");
+
+		assertFalse(itemTextField.isVisible());
+		final TextField valueTextField = (TextField) fields.get("valueTextField");
+		assertTrue(valueTextField.isReadOnly());
+		assertTrue(valueTextField.getValue().isEmpty());
+		
+		final FormItem itemComboBox = (FormItem) fields.get("comboBoxFormItem");
+		assertTrue(itemComboBox.isVisible());
+		
+		final ComboBox<?> valueComboBox = (ComboBox<?>) fields.get("valueComboBox");
+		assertFalse(valueComboBox.isReadOnly());
+		assertEquals(Boolean.TRUE, valueComboBox.getValue());
+		
+		
+		final Label stateInfoLabel = (Label) fields.get("stateInfoLabel");
+		
+		assertEquals(I18N_INFO_LABEL_VALUE, stateInfoLabel.getText());
+		
+		
 	}
 
 }
