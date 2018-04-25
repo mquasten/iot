@@ -8,6 +8,7 @@ import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -35,7 +36,9 @@ import de.mq.iot.state.support.StateModel.Events;
 
 class SystemVariablesViewTest {
 
-	private static final String I18N_INFO_LABEL_VALUE = "Boolean-Variable id=4711 ändern";
+	private static final String I18N_INFO_LABEL_VALUE_BOOLEAN = "Boolean-Variable id=4711 ändern";
+	private static final String I18N_INFO_LABEL_VALUE_ITEM = "List-Variable id=4711 ändern";
+	private static final String I18N_INFO_LABEL_VALUE_DOUBLE = "Double-Variable id=4711 ändern";
 	private static final String I18N_VALUE_COLUMN = "systemvariables_value_column";
 	private static final String I18N_NAME_COLUMN = "systemvariables_name_column";
 	private static final String I18N_NAME = "systemvariables_name";
@@ -51,6 +54,9 @@ class SystemVariablesViewTest {
 	private SystemVariablesView systemVariablesView;
 
 	private State<Boolean> workingDayState = new BooleanStateImpl(4711, "WorkingDay", LocalDateTime.now());
+	
+	private State<Integer>itemState = new ItemsStateImpl(4711, "TimeZones", LocalDateTime.now());
+	private State<Double> doubleState = new DoubleStateImpl(4711, "TimeZones", LocalDateTime.now());
 
 	private final Map<String, Object> fields = new HashMap<>();
 
@@ -58,13 +64,17 @@ class SystemVariablesViewTest {
 
 	@BeforeEach
 	void setup() {
+		final Map<Integer, String> values = new HashMap<>();
+		values.put(Integer.valueOf(0), "Winter");
+		values.put(Integer.valueOf(1), "Summer");
+		ReflectionTestUtils.setField(itemState, "items", values);
 
 		Mockito.doReturn(Locale.GERMAN).when(stateModel).locale();
 		Arrays.asList(I18N_SAVE_BUTTON, I18N_RESET_BUTTON, I18N_NAME, I18N_LASTUPDATE, I18N_VALUE_LABEL, I18N_NAME_COLUMN, I18N_VALUE_COLUMN).forEach(key -> {
 			Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN);
 		});
 
-		Mockito.doReturn(Arrays.asList(workingDayState)).when(stateService).states();
+		Mockito.doReturn(Arrays.asList(workingDayState, itemState, doubleState)).when(stateService).states();
 		Mockito.doAnswer(answer -> {
 
 			final StateModel.Events event = (Events) answer.getArguments()[0];
@@ -122,8 +132,10 @@ class SystemVariablesViewTest {
 		assertEquals(2, grid.getColumns().size());
 
 		final ListDataProvider<?> data = (ListDataProvider<?>) grid.getDataProvider();
-		assertEquals(1, data.getItems().size());
-		assertEquals(workingDayState, data.getItems().iterator().next());
+		assertEquals(3, data.getItems().size());
+		assertEquals(workingDayState, ((List<?>)data.getItems()).get(0));
+		assertEquals(itemState, ((List<?>)data.getItems()).get(1));
+		assertEquals(doubleState, ((List<?>)data.getItems()).get(2));
 
 		final Label nameColumn = (Label) fields.get("nameColumnLabel");
 		assertEquals(I18N_NAME_COLUMN, nameColumn.getText());
@@ -149,9 +161,9 @@ class SystemVariablesViewTest {
 		Mockito.verify(stateModel).assign(workingDayState);
 		
 		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(workingDayState));
-		String[] parameters = new String[] {workingDayState.getClass().getSimpleName() , "4711" , ""};
+		final String[] parameters = new String[] {workingDayState.getClass().getSimpleName() , "4711" , ""};
 		Mockito.doReturn(parameters).when(stateModel).stateInfoParameters();
-		Mockito.doReturn(I18N_INFO_LABEL_VALUE).when(messageSource).getMessage(SystemVariablesView.I18N_INFO_LABEL_PATTERN, parameters,"???", Locale.GERMAN);
+		Mockito.doReturn(I18N_INFO_LABEL_VALUE_BOOLEAN).when(messageSource).getMessage(SystemVariablesView.I18N_INFO_LABEL_PATTERN, parameters,"???", Locale.GERMAN);
 		workingDayState.assign(true);
 		observers.get(Events.AssignState).process();
 		
@@ -191,9 +203,101 @@ class SystemVariablesViewTest {
 		
 		final Label stateInfoLabel = (Label) fields.get("stateInfoLabel");
 		
-		assertEquals(I18N_INFO_LABEL_VALUE, stateInfoLabel.getText());
+		assertEquals(I18N_INFO_LABEL_VALUE_BOOLEAN, stateInfoLabel.getText());
 		
 		
 	}
+	
+	@Test
+	void selectListValueRow() {
+		
+		@SuppressWarnings("unchecked")
+		final Grid<State<?>> grid = (Grid<State<?>>) fields.get("grid");
+		
+		
+		
+		grid.select(itemState);
+		
+		
+		Mockito.verify(stateModel).assign(itemState);
+		
+		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(itemState));
+		final String[] parameters = new String[] {itemState.getClass().getSimpleName() , "4711" , ""};
+		Mockito.doReturn(parameters).when(stateModel).stateInfoParameters();
+		Mockito.doReturn(I18N_INFO_LABEL_VALUE_ITEM).when(messageSource).getMessage(SystemVariablesView.I18N_INFO_LABEL_PATTERN, parameters,"???", Locale.GERMAN);
+		workingDayState.assign(true);
+		observers.get(Events.AssignState).process();
+		
+		
+		final TextField lastUpdateTextField = (TextField) fields.get("lastUpdateTextField");
+		assertTrue(lastUpdateTextField.isReadOnly());
+		
+		assertEquals(workingDayState.lastupdate().toString(), lastUpdateTextField.getValue());
+		
+		final FormItem itemTextField = (FormItem) fields.get("textFieldFormItem");
 
+		assertFalse(itemTextField.isVisible());
+		final TextField valueTextField = (TextField) fields.get("valueTextField");
+		assertTrue(valueTextField.isReadOnly());
+		assertTrue(valueTextField.getValue().isEmpty());
+		
+		final FormItem itemComboBox = (FormItem) fields.get("comboBoxFormItem");
+		assertTrue(itemComboBox.isVisible());
+		
+		final ComboBox<?> valueComboBox = (ComboBox<?>) fields.get("valueComboBox");
+		assertFalse(valueComboBox.isReadOnly());
+		assertEquals(0, valueComboBox.getValue());
+		
+		
+		final Label stateInfoLabel = (Label) fields.get("stateInfoLabel");
+		
+		assertEquals(I18N_INFO_LABEL_VALUE_ITEM, stateInfoLabel.getText());
+
+		
+	}
+	
+	@Test
+	void selectDoubleRow() {
+		
+		@SuppressWarnings("unchecked")
+		final Grid<State<?>> grid = (Grid<State<?>>) fields.get("grid");
+		
+		
+		
+		grid.select(doubleState);
+		
+		
+		Mockito.verify(stateModel).assign(doubleState);
+		
+		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(doubleState));
+		final String[] parameters = new String[] {doubleState.getClass().getSimpleName() , "4711" , ""};
+		Mockito.doReturn(parameters).when(stateModel).stateInfoParameters();
+		Mockito.doReturn(I18N_INFO_LABEL_VALUE_DOUBLE).when(messageSource).getMessage(SystemVariablesView.I18N_INFO_LABEL_PATTERN, parameters,"???", Locale.GERMAN);
+		workingDayState.assign(true);
+		observers.get(Events.AssignState).process();
+		
+		final TextField lastUpdateTextField = (TextField) fields.get("lastUpdateTextField");
+		assertTrue(lastUpdateTextField.isReadOnly());
+		
+		assertEquals(workingDayState.lastupdate().toString(), lastUpdateTextField.getValue());
+		
+		final FormItem itemTextField = (FormItem) fields.get("textFieldFormItem");
+
+		assertTrue(itemTextField.isVisible());
+		final TextField valueTextField = (TextField) fields.get("valueTextField");
+		assertFalse(valueTextField.isReadOnly());
+		assertEquals("0.0", valueTextField.getValue());
+		
+		final FormItem itemComboBox = (FormItem) fields.get("comboBoxFormItem");
+		assertFalse(itemComboBox.isVisible());
+		
+		final ComboBox<?> valueComboBox = (ComboBox<?>) fields.get("valueComboBox");
+		assertFalse(valueComboBox.isReadOnly());
+		assertTrue(valueComboBox.isEmpty());
+		
+		
+		final Label stateInfoLabel = (Label) fields.get("stateInfoLabel");
+		
+		assertEquals(I18N_INFO_LABEL_VALUE_DOUBLE, stateInfoLabel.getText());
+	}
 }
