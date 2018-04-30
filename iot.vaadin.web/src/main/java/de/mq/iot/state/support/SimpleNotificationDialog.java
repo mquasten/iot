@@ -37,7 +37,7 @@ public class SimpleNotificationDialog {
 		close.addClickListener(event -> notification.close());
 
 	}
-	public final void showError(final String text) {
+	public  void showError(final String text) {
 		infoIcon.setVisible(false);
 		warningsIcon.setVisible(true);
 		textArea.setValue(text);

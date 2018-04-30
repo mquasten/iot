@@ -39,6 +39,8 @@ import de.mq.iot.state.support.StateModel.ValidationErrors;
 @Theme(Lumo.class)
 @I18NKey("systemvariables_")
 class  SystemVariablesView extends VerticalLayout implements LocalizeView {
+	
+	private final Supplier<SimpleNotificationDialog> notificationDialogSupplier = () -> new SimpleNotificationDialog();
 
 	static final String I18N_INFO_LABEL_PATTERN = "systemvariables_info";
 	private static final String I18N_VALUE_NOT_CHANGED = "systemvariables_notchanged";
@@ -97,7 +99,8 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		stateModel.register(StateModel.Events.AssignState, () ->  assignState(stateModel));	
 		initStateCommands(stateModel);
 		initSuppliers();
-		saveButton.addClickListener(event -> stateModel.selectedState().ifPresent(state -> updateState(stateModel)));
+		
+		saveButton.addClickListener(event ->stateModel.selectedState().ifPresent(state -> updateState(stateModel)));
 		resetButton.addClickListener(event -> stateModel.selectedState().ifPresent(state -> stateModel.reset()));
 		grid.setItems(stateService.states());
 	
@@ -125,11 +128,12 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 
 	
 	private  void updateState(StateModel model)  {
+			
 		final Object newValue = stateValueSuppliers.get(model.selectedState().get().getClass()).get();
 		
 		
-		
-		final SimpleNotificationDialog notification = notification();
+	
+		final SimpleNotificationDialog notification = notificationDialogSupplier.get();
 	
 		 final ValidationErrors validationErrors = model.validate(newValue);
 		 if( validationErrors != ValidationErrors.Ok) {
@@ -153,9 +157,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		return messageSource.getMessage(key, null,"???",  stateModel.locale());
 	}
 
-	SimpleNotificationDialog notification() {
-		return new SimpleNotificationDialog();
-	}
+	
 	
 	
 

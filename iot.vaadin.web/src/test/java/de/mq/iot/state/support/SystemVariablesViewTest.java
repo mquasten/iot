@@ -7,11 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,8 +21,11 @@ import org.mockito.Mockito;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.vaadin.flow.component.ComponentEventBus;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -33,6 +38,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import de.mq.iot.model.Observer;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.support.StateModel.Events;
+import de.mq.iot.state.support.StateModel.ValidationErrors;
 
 class SystemVariablesViewTest {
 
@@ -54,16 +60,19 @@ class SystemVariablesViewTest {
 	private SystemVariablesView systemVariablesView;
 
 	private State<Boolean> workingDayState = new BooleanStateImpl(4711, "WorkingDay", LocalDateTime.now());
-	
-	private State<Integer>itemState = new ItemsStateImpl(4711, "TimeZones", LocalDateTime.now());
+
+	private State<Integer> itemState = new ItemsStateImpl(4711, "TimeZones", LocalDateTime.now());
 	private State<Double> doubleState = new DoubleStateImpl(4711, "TimeZones", LocalDateTime.now());
 
 	private final Map<String, Object> fields = new HashMap<>();
 
 	private final Map<StateModel.Events, Observer> observers = new HashMap<>();
 
+	private final SimpleNotificationDialog notificationDialog = Mockito.mock(SimpleNotificationDialog.class);
+
 	@BeforeEach
 	void setup() {
+		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(workingDayState));
 		final Map<Integer, String> values = new HashMap<>();
 		values.put(Integer.valueOf(0), "Winter");
 		values.put(Integer.valueOf(1), "Summer");
@@ -88,15 +97,16 @@ class SystemVariablesViewTest {
 
 		Arrays.asList(SystemVariablesView.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> fields.put(field.getName(), ReflectionTestUtils.getField(systemVariablesView, field.getName())));
 
+		ReflectionTestUtils.setField(systemVariablesView, "notificationDialogSupplier", (Supplier<SimpleNotificationDialog>) () -> notificationDialog);
+
 		observers.get(Events.ChangeLocale).process();
 	}
 
 	@Test
 	void init() {
-		assertEquals(23, fields.size());
+		assertEquals(24, fields.size());
 		assertEquals(2, observers.size());
 
-		
 		Mockito.verify(stateModel).notifyObservers(Events.ChangeLocale);
 
 		final Button saveButton = (Button) fields.get("saveButton");
@@ -120,7 +130,7 @@ class SystemVariablesViewTest {
 		final FormLayout formLayout = (FormLayout) fields.get("formLayout");
 		assertEquals(I18N_LASTUPDATE, formLayout.getElement().getChild(1).getChild(1).getText());
 		assertTrue(lastUpdateTextField.isEmpty());
-		
+
 		final TextField nameTextField = (TextField) fields.get("nameTextField");
 		assertTrue(nameTextField.isReadOnly());
 		assertTrue(nameTextField.getValue().isEmpty());
@@ -133,40 +143,38 @@ class SystemVariablesViewTest {
 
 		final ListDataProvider<?> data = (ListDataProvider<?>) grid.getDataProvider();
 		assertEquals(3, data.getItems().size());
-		assertEquals(workingDayState, ((List<?>)data.getItems()).get(0));
-		assertEquals(itemState, ((List<?>)data.getItems()).get(1));
-		assertEquals(doubleState, ((List<?>)data.getItems()).get(2));
+		assertEquals(workingDayState, ((List<?>) data.getItems()).get(0));
+		assertEquals(itemState, ((List<?>) data.getItems()).get(1));
+		assertEquals(doubleState, ((List<?>) data.getItems()).get(2));
 
 		final Label nameColumn = (Label) fields.get("nameColumnLabel");
 		assertEquals(I18N_NAME_COLUMN, nameColumn.getText());
 
 		final Label valueColumn = (Label) fields.get("valueColumnLabel");
 		assertEquals(I18N_VALUE_COLUMN, valueColumn.getText());
-		
-		
+
 		final Label stateInfoLabel = (Label) fields.get("stateInfoLabel");
 		assertTrue(stateInfoLabel.getText().isEmpty());
-		
+
 	}
-	
+
 	@Test
 	void selectRow() {
-		
+
 		@SuppressWarnings("unchecked")
 		final Grid<State<Boolean>> grid = (Grid<State<Boolean>>) fields.get("grid");
-		
+
 		grid.select(workingDayState);
-		
-		
+
 		Mockito.verify(stateModel).assign(workingDayState);
-		
+
 		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(workingDayState));
-		final String[] parameters = new String[] {workingDayState.getClass().getSimpleName() , "4711" , ""};
+		final String[] parameters = new String[] { workingDayState.getClass().getSimpleName(), "4711", "" };
 		Mockito.doReturn(parameters).when(stateModel).stateInfoParameters();
-		Mockito.doReturn(I18N_INFO_LABEL_VALUE_BOOLEAN).when(messageSource).getMessage(SystemVariablesView.I18N_INFO_LABEL_PATTERN, parameters,"???", Locale.GERMAN);
+		Mockito.doReturn(I18N_INFO_LABEL_VALUE_BOOLEAN).when(messageSource).getMessage(SystemVariablesView.I18N_INFO_LABEL_PATTERN, parameters, "???", Locale.GERMAN);
 		workingDayState.assign(true);
 		observers.get(Events.AssignState).process();
-		
+
 		final Button saveButton = (Button) fields.get("saveButton");
 		assertEquals(I18N_SAVE_BUTTON, saveButton.getText());
 		assertTrue(saveButton.isEnabled());
@@ -174,130 +182,155 @@ class SystemVariablesViewTest {
 		final Button resetButton = (Button) fields.get("resetButton");
 		assertEquals(I18N_RESET_BUTTON, resetButton.getText());
 		assertTrue(resetButton.isEnabled());
-		
+
 		final TextField nameTextField = (TextField) fields.get("nameTextField");
 		assertTrue(nameTextField.isReadOnly());
-		
+
 		assertEquals(workingDayState.name(), nameTextField.getValue());
-		
-		
+
 		final TextField lastUpdateTextField = (TextField) fields.get("lastUpdateTextField");
 		assertTrue(lastUpdateTextField.isReadOnly());
-		
+
 		assertEquals(workingDayState.lastupdate().toString(), lastUpdateTextField.getValue());
-		
+
 		final FormItem itemTextField = (FormItem) fields.get("textFieldFormItem");
 
 		assertFalse(itemTextField.isVisible());
 		final TextField valueTextField = (TextField) fields.get("valueTextField");
 		assertTrue(valueTextField.isReadOnly());
 		assertTrue(valueTextField.getValue().isEmpty());
-		
+
 		final FormItem itemComboBox = (FormItem) fields.get("comboBoxFormItem");
 		assertTrue(itemComboBox.isVisible());
-		
+
 		final ComboBox<?> valueComboBox = (ComboBox<?>) fields.get("valueComboBox");
 		assertFalse(valueComboBox.isReadOnly());
 		assertEquals(Boolean.TRUE, valueComboBox.getValue());
-		
-		
+
 		final Label stateInfoLabel = (Label) fields.get("stateInfoLabel");
-		
+
 		assertEquals(I18N_INFO_LABEL_VALUE_BOOLEAN, stateInfoLabel.getText());
-		
-		
+
 	}
-	
+
 	@Test
 	void selectListValueRow() {
-		
+
 		@SuppressWarnings("unchecked")
 		final Grid<State<?>> grid = (Grid<State<?>>) fields.get("grid");
-		
-		
-		
+
 		grid.select(itemState);
-		
-		
+
 		Mockito.verify(stateModel).assign(itemState);
-		
+
 		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(itemState));
-		final String[] parameters = new String[] {itemState.getClass().getSimpleName() , "4711" , ""};
+		final String[] parameters = new String[] { itemState.getClass().getSimpleName(), "4711", "" };
 		Mockito.doReturn(parameters).when(stateModel).stateInfoParameters();
-		Mockito.doReturn(I18N_INFO_LABEL_VALUE_ITEM).when(messageSource).getMessage(SystemVariablesView.I18N_INFO_LABEL_PATTERN, parameters,"???", Locale.GERMAN);
+		Mockito.doReturn(I18N_INFO_LABEL_VALUE_ITEM).when(messageSource).getMessage(SystemVariablesView.I18N_INFO_LABEL_PATTERN, parameters, "???", Locale.GERMAN);
 		workingDayState.assign(true);
 		observers.get(Events.AssignState).process();
-		
-		
+
 		final TextField lastUpdateTextField = (TextField) fields.get("lastUpdateTextField");
 		assertTrue(lastUpdateTextField.isReadOnly());
-		
+
 		assertEquals(workingDayState.lastupdate().toString(), lastUpdateTextField.getValue());
-		
+
 		final FormItem itemTextField = (FormItem) fields.get("textFieldFormItem");
 
 		assertFalse(itemTextField.isVisible());
 		final TextField valueTextField = (TextField) fields.get("valueTextField");
 		assertTrue(valueTextField.isReadOnly());
 		assertTrue(valueTextField.getValue().isEmpty());
-		
+
 		final FormItem itemComboBox = (FormItem) fields.get("comboBoxFormItem");
 		assertTrue(itemComboBox.isVisible());
-		
+
 		final ComboBox<?> valueComboBox = (ComboBox<?>) fields.get("valueComboBox");
 		assertFalse(valueComboBox.isReadOnly());
 		assertEquals(0, valueComboBox.getValue());
-		
-		
+
 		final Label stateInfoLabel = (Label) fields.get("stateInfoLabel");
-		
+
 		assertEquals(I18N_INFO_LABEL_VALUE_ITEM, stateInfoLabel.getText());
 
-		
 	}
-	
+
 	@Test
 	void selectDoubleRow() {
-		
+
 		@SuppressWarnings("unchecked")
 		final Grid<State<?>> grid = (Grid<State<?>>) fields.get("grid");
-		
-		
-		
+
 		grid.select(doubleState);
-		
-		
+
 		Mockito.verify(stateModel).assign(doubleState);
-		
+
 		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(doubleState));
-		final String[] parameters = new String[] {doubleState.getClass().getSimpleName() , "4711" , ""};
+		final String[] parameters = new String[] { doubleState.getClass().getSimpleName(), "4711", "" };
 		Mockito.doReturn(parameters).when(stateModel).stateInfoParameters();
-		Mockito.doReturn(I18N_INFO_LABEL_VALUE_DOUBLE).when(messageSource).getMessage(SystemVariablesView.I18N_INFO_LABEL_PATTERN, parameters,"???", Locale.GERMAN);
+		Mockito.doReturn(I18N_INFO_LABEL_VALUE_DOUBLE).when(messageSource).getMessage(SystemVariablesView.I18N_INFO_LABEL_PATTERN, parameters, "???", Locale.GERMAN);
 		workingDayState.assign(true);
 		observers.get(Events.AssignState).process();
-		
+
 		final TextField lastUpdateTextField = (TextField) fields.get("lastUpdateTextField");
 		assertTrue(lastUpdateTextField.isReadOnly());
-		
+
 		assertEquals(workingDayState.lastupdate().toString(), lastUpdateTextField.getValue());
-		
+
 		final FormItem itemTextField = (FormItem) fields.get("textFieldFormItem");
 
 		assertTrue(itemTextField.isVisible());
 		final TextField valueTextField = (TextField) fields.get("valueTextField");
 		assertFalse(valueTextField.isReadOnly());
 		assertEquals("0.0", valueTextField.getValue());
-		
+
 		final FormItem itemComboBox = (FormItem) fields.get("comboBoxFormItem");
 		assertFalse(itemComboBox.isVisible());
-		
+
 		final ComboBox<?> valueComboBox = (ComboBox<?>) fields.get("valueComboBox");
 		assertFalse(valueComboBox.isReadOnly());
 		assertTrue(valueComboBox.isEmpty());
-		
-		
+
 		final Label stateInfoLabel = (Label) fields.get("stateInfoLabel");
-		
+
 		assertEquals(I18N_INFO_LABEL_VALUE_DOUBLE, stateInfoLabel.getText());
 	}
+
+	@Test
+	void saveButtonClick() {
+		@SuppressWarnings("unchecked")
+		final Grid<State<?>> grid = (Grid<State<?>>) fields.get("grid");
+		grid.select(workingDayState);
+
+		observers.get(Events.AssignState).process();
+
+		@SuppressWarnings("unchecked")
+		final ComboBox<Boolean> valueComboBox = (ComboBox<Boolean>) fields.get("valueComboBox");
+
+		assertEquals(Boolean.FALSE, valueComboBox.getValue());
+
+		valueComboBox.setValue(Boolean.TRUE);
+
+		final Button saveButton = (Button) fields.get("saveButton");
+		Mockito.doReturn(ValidationErrors.Ok).when(stateModel).validate(Boolean.TRUE);
+		Mockito.doReturn(workingDayState).when(stateModel).convert(Boolean.TRUE);
+
+		assertTrue(grid.getSelectionModel().getFirstSelectedItem().isPresent());
+		listener(saveButton).onComponentEvent(null);
+
+		Mockito.verify(stateModel).validate(Boolean.TRUE);
+		Mockito.verify(stateModel).convert(Boolean.TRUE);
+		Mockito.verify(notificationDialog, Mockito.never()).showError(Mockito.anyString());
+		Mockito.verify(stateService).update(workingDayState);
+		assertFalse(grid.getSelectionModel().getFirstSelectedItem().isPresent());
+
+	}
+
+	@SuppressWarnings("unchecked")
+	private ComponentEventListener<?> listener(final Button saveButton) {
+		final ComponentEventBus eventBus = (ComponentEventBus) ReflectionTestUtils.getField(saveButton, "eventBus");
+		final Map<Class<?>, ?> map = (Map<Class<?>, ?>) ReflectionTestUtils.getField(eventBus, "componentEventData");
+		return DataAccessUtils.requiredSingleResult((Collection<ComponentEventListener<?>>) ReflectionTestUtils.getField(map.values().iterator().next(), "listeners"));
+	}
+
 }
