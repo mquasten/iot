@@ -45,8 +45,8 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	static final String I18N_INFO_LABEL_PATTERN = "systemvariables_info";
 	private static final String I18N_VALUE_NOT_CHANGED = "systemvariables_notchanged";
 	private static final String I18N_VALUE_MANDATORY = "systemvariables_mandatory";
-	private static final String I18N_VALUE_INVALID = "systemvariables_invalid";
-	private static final String I18N_ERROR = "systemvariables_error";
+	static final String I18N_VALUE_INVALID = "systemvariables_invalid";
+	static final String I18N_ERROR = "systemvariables_error";
 	private static final long serialVersionUID = 1L;
 	@I18NKey("name")
 	private final Label nameLabel = new Label(); 
@@ -129,7 +129,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	
 	private  void updateState(StateModel model)  {
 			
-		final Object newValue = stateValueSuppliers.get(model.selectedState().get().getClass()).get();
+		final Object newValue = Optional.ofNullable(stateValueSuppliers.get(model.selectedState().get().getClass())).orElse(() -> emptyTextAsNull()).get();
 		
 		
 	
@@ -139,7 +139,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		 if( validationErrors != ValidationErrors.Ok) {
 			 
 			 final String key =dialogMessageKeys.get(validationErrors);
-			 notification.showError(message1(model, key));
+			 notification.showError(message(model, key));
 			 return;
 		 }
 		
@@ -153,7 +153,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	}
 
 
-	private String message1(final StateModel stateModel, final String key) {
+	private String message(final StateModel stateModel, final String key) {
 		return messageSource.getMessage(key, null,"???",  stateModel.locale());
 	}
 
@@ -170,8 +170,8 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	
 		stateValueSuppliers.put(BooleanStateImpl.class, () -> valueComboBox.getValue() );
 		stateValueSuppliers.put(ItemsStateImpl.class, () -> valueComboBox.getValue());
-		stateValueSuppliers.put(DoubleStateImpl.class, () -> emptyTextAsNull());
-		stateValueSuppliers.put(StringStateImpl.class, () -> emptyTextAsNull());
+		//stateValueSuppliers.put(DoubleStateImpl.class, () -> emptyTextAsNull());
+		//stateValueSuppliers.put(StringStateImpl.class, () -> emptyTextAsNull());
 	}
 
 	private Object emptyTextAsNull() {
@@ -192,7 +192,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	}
 
 
-	protected void loacalizeStateInfoLabel(final StateModel stateModel) {
+	private void loacalizeStateInfoLabel(final StateModel stateModel) {
 		stateInfoLabel.setText("");
 		if( stateModel.selectedState().isPresent()) {
 			stateInfoLabel.setText(messageSource.getMessage(I18N_INFO_LABEL_PATTERN, stateModel.stateInfoParameters(),"???",  stateModel.locale()));
@@ -252,7 +252,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 
 		formLayout.setSizeFull();
 
-		formLayout.setResponsiveSteps(new ResponsiveStep("95vH", 1));
+		formLayout.setResponsiveSteps(new ResponsiveStep("10vH",1));
 
 		
 
@@ -283,7 +283,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		setHorizontalComponentAlignment(Alignment.CENTER, layout);
 	
 	
-		grid.setHeight("50vH");
+	   grid.setHeight("50vH");
 		
 		
 	}
