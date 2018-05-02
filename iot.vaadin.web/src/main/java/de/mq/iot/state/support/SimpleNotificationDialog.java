@@ -8,7 +8,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 
-public class SimpleNotificationDialog {
+class SimpleNotificationDialog {
 	
 	private final TextArea  textArea =new TextArea();
 	private final Button close = new Button();

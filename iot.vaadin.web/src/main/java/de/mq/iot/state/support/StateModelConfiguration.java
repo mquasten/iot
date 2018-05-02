@@ -3,6 +3,8 @@ package de.mq.iot.state.support;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
@@ -14,36 +16,43 @@ import de.mq.iot.model.support.SubjectImpl;
 
 @Configuration
 class StateModelConfiguration {
-	
+
 	static final String SYSTEM_VARIABLES_VIEW = "i18n/systemVariablesView";
 	static final String MESSAGE_SOURCE_ENCODING = "UTF-8";
-	static final String[] MESSAGE_SOURCE_BASENAME =  {SYSTEM_VARIABLES_VIEW};
-	
+	static final String[] MESSAGE_SOURCE_BASENAME = { SYSTEM_VARIABLES_VIEW };
+
 	@Bean
 	@UIScope
-	Subject<?,?> subject() {
+	Subject<?, ?> subject() {
 		return new SubjectImpl<>();
-		
+
 	}
+
 	@Bean
 	Converter<State<?>, String> stateValueConverter(final ConversionService conversionService) {
 		return new StateValueConverterImpl(conversionService);
-		
+
 	}
 
 	@Bean
 	@UIScope
 	StateModel stateModel(final Subject<StateModel.Events, StateModel> subject, ConversionService conversionService) {
 		return new StateModelImpl(subject, conversionService);
-		
+
 	}
-	
-	 @Bean
-	 MessageSource messageSource() {
-	    	final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-	        messageSource.setBasenames(MESSAGE_SOURCE_BASENAME);
-	        messageSource.setDefaultEncoding(MESSAGE_SOURCE_ENCODING);
-	        return messageSource;
-	    }
-	
+
+	@Bean
+	MessageSource messageSource() {
+		final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+		messageSource.setBasenames(MESSAGE_SOURCE_BASENAME);
+		messageSource.setDefaultEncoding(MESSAGE_SOURCE_ENCODING);
+		return messageSource;
+	}
+
+	@Bean()
+	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, scopeName = "prototype")
+	SimpleNotificationDialog notificationDialog() {
+		return new SimpleNotificationDialog();
+	}
+
 }

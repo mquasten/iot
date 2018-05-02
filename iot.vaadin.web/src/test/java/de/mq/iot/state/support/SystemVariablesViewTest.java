@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -93,11 +92,11 @@ class SystemVariablesViewTest {
 
 		}).when(stateModel).register(Mockito.any(), Mockito.any());
 
-		systemVariablesView = new SystemVariablesView(stateService, stateModel, converter, messageSource);
+		systemVariablesView = new SystemVariablesView(stateService, stateModel, converter, messageSource, notificationDialog);
 
 		Arrays.asList(SystemVariablesView.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> fields.put(field.getName(), ReflectionTestUtils.getField(systemVariablesView, field.getName())));
 
-		ReflectionTestUtils.setField(systemVariablesView, "notificationDialogSupplier", (Supplier<SimpleNotificationDialog>) () -> notificationDialog);
+		
 
 		observers.get(Events.ChangeLocale).process();
 	}

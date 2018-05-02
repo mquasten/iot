@@ -40,7 +40,7 @@ import de.mq.iot.state.support.StateModel.ValidationErrors;
 @I18NKey("systemvariables_")
 class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	
-	private final Supplier<SimpleNotificationDialog> notificationDialogSupplier = () -> new SimpleNotificationDialog();
+	private final SimpleNotificationDialog notificationDialog;
 
 	static final String I18N_INFO_LABEL_PATTERN = "systemvariables_info";
 	private static final String I18N_VALUE_NOT_CHANGED = "systemvariables_notchanged";
@@ -90,10 +90,11 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	
 	private final MessageSource messageSource;
 	private final StateService stateService; 
-	SystemVariablesView(final StateService stateService, final StateModel stateModel, @Qualifier("stateValueConverter") final Converter<State<?>, String> stateValueConverter, final MessageSource messageSource ) {
+	SystemVariablesView(final StateService stateService, final StateModel stateModel, @Qualifier("stateValueConverter") final Converter<State<?>, String> stateValueConverter, final MessageSource messageSource, final SimpleNotificationDialog notificationDialog ) {
 		this.stateValueConverter=stateValueConverter;
 		this.stateService=stateService;
 		this.messageSource=messageSource;
+		this.notificationDialog=notificationDialog;
 		createUI(stateService);	
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> stateModel.assign(selectionEvent.getValue()));
 		stateModel.register(StateModel.Events.AssignState, () ->  assignState(stateModel));	
@@ -133,13 +134,13 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		
 		
 	
-		final SimpleNotificationDialog notification = notificationDialogSupplier.get();
+		//final SimpleNotificationDialog notification = notificationDialogSupplier.get();
 	
 		 final ValidationErrors validationErrors = model.validate(newValue);
 		 if( validationErrors != ValidationErrors.Ok) {
 			 
 			 final String key =dialogMessageKeys.get(validationErrors);
-			 notification.showError(message(model, key));
+			 notificationDialog.showError(message(model, key));
 			 return;
 		 }
 		
@@ -147,7 +148,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 			stateService.update(model.convert(newValue));
 			grid.setItems(stateService.states());	
 		} catch (final Exception ex) {
-			notification.showError(messageSource.getMessage(I18N_ERROR, new String[] {ex.getMessage()},"???",  model.locale()));
+			notificationDialog.showError(messageSource.getMessage(I18N_ERROR, new String[] {ex.getMessage()},"???",  model.locale()));
 		} 
 		
 	}
