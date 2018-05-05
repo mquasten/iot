@@ -96,8 +96,6 @@ class SystemVariablesViewTest {
 
 		Arrays.asList(SystemVariablesView.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> fields.put(field.getName(), ReflectionTestUtils.getField(systemVariablesView, field.getName())));
 
-		
-
 		observers.get(Events.ChangeLocale).process();
 	}
 
@@ -331,10 +329,10 @@ class SystemVariablesViewTest {
 		final Map<Class<?>, ?> map = (Map<Class<?>, ?>) ReflectionTestUtils.getField(eventBus, "componentEventData");
 		return DataAccessUtils.requiredSingleResult((Collection<ComponentEventListener<?>>) ReflectionTestUtils.getField(map.values().iterator().next(), "listeners"));
 	}
-	
+
 	@Test
 	void saveButtonClickItemState() {
-	
+
 		Mockito.doReturn(Optional.of(itemState)).when(stateModel).selectedState();
 		@SuppressWarnings("unchecked")
 		final Grid<State<?>> grid = (Grid<State<?>>) fields.get("grid");
@@ -346,8 +344,6 @@ class SystemVariablesViewTest {
 		final ComboBox<Integer> valueComboBox = (ComboBox<Integer>) fields.get("valueComboBox");
 
 		assertEquals(Integer.valueOf(0), valueComboBox.getValue());
-
-		
 
 		final Button saveButton = (Button) fields.get("saveButton");
 		Mockito.doReturn(ValidationErrors.Ok).when(stateModel).validate(0);
@@ -363,10 +359,10 @@ class SystemVariablesViewTest {
 		assertFalse(grid.getSelectionModel().getFirstSelectedItem().isPresent());
 
 	}
-	
+
 	@Test
 	void saveButtonClickDouble() {
-	
+
 		Mockito.doReturn(Optional.of(doubleState)).when(stateModel).selectedState();
 		@SuppressWarnings("unchecked")
 		final Grid<State<?>> grid = (Grid<State<?>>) fields.get("grid");
@@ -374,11 +370,10 @@ class SystemVariablesViewTest {
 
 		observers.get(Events.AssignState).process();
 
-		final TextField  valueTextField =  (TextField) fields.get("valueTextField");
+		final TextField valueTextField = (TextField) fields.get("valueTextField");
 
 		assertEquals("0.0", valueTextField.getValue());
 		valueTextField.setValue("47.11");
-		
 
 		final Button saveButton = (Button) fields.get("saveButton");
 		Mockito.doReturn(ValidationErrors.Ok).when(stateModel).validate("47.11");
@@ -394,13 +389,12 @@ class SystemVariablesViewTest {
 		assertFalse(grid.getSelectionModel().getFirstSelectedItem().isPresent());
 
 	}
-	
-	
+
 	@Test
 	void saveButtonClickDoubleEmpty() {
 		Mockito.doReturn(Locale.GERMAN).when(stateModel).locale();
 		final String errorMessage = "Message NullValue";
-		Mockito.doReturn(errorMessage).when(messageSource).getMessage(SystemVariablesView.I18N_VALUE_INVALID, null,"???",  Locale.GERMAN);
+		Mockito.doReturn(errorMessage).when(messageSource).getMessage(SystemVariablesView.I18N_VALUE_INVALID, null, "???", Locale.GERMAN);
 		Mockito.doReturn(Optional.of(doubleState)).when(stateModel).selectedState();
 		@SuppressWarnings("unchecked")
 		final Grid<State<?>> grid = (Grid<State<?>>) fields.get("grid");
@@ -408,12 +402,11 @@ class SystemVariablesViewTest {
 
 		observers.get(Events.AssignState).process();
 
-		final TextField  valueTextField =  (TextField) fields.get("valueTextField");
+		final TextField valueTextField = (TextField) fields.get("valueTextField");
 
 		assertEquals("0.0", valueTextField.getValue());
 		String value = " ";
 		valueTextField.setValue(value);
-		
 
 		final Button saveButton = (Button) fields.get("saveButton");
 		Mockito.doReturn(ValidationErrors.Invalid).when(stateModel).validate(null);
@@ -423,22 +416,22 @@ class SystemVariablesViewTest {
 		listener(saveButton).onComponentEvent(null);
 
 		Mockito.verify(stateModel).validate(null);
-	
+
 		Mockito.verify(notificationDialog).showError(errorMessage);
 		Mockito.verify(stateService, Mockito.never()).update(doubleState);
-	
 
 	}
-	
+
 	@Test
 	void saveButtonServiceError() {
 		final String exceptionMessage = "ErrorMessage";
 		Mockito.doReturn(Locale.GERMAN).when(stateModel).locale();
 		final String errorMessage = "Message NullValue";
-		
-		Mockito.doReturn(errorMessage).when(messageSource).getMessage(SystemVariablesView.I18N_ERROR, new String[] {exceptionMessage},"???",  Locale.GERMAN);
-		//Mockito.doReturn(errorMessage).when(messageSource).getMessage(SystemVariablesView.I18N_ERROR, null,"???",  Locale.GERMAN);
-		
+
+		Mockito.doReturn(errorMessage).when(messageSource).getMessage(SystemVariablesView.I18N_ERROR, new String[] { exceptionMessage }, "???", Locale.GERMAN);
+		// Mockito.doReturn(errorMessage).when(messageSource).getMessage(SystemVariablesView.I18N_ERROR,
+		// null,"???", Locale.GERMAN);
+
 		@SuppressWarnings("unchecked")
 		final Grid<State<?>> grid = (Grid<State<?>>) fields.get("grid");
 		grid.select(workingDayState);
@@ -455,9 +448,9 @@ class SystemVariablesViewTest {
 		final Button saveButton = (Button) fields.get("saveButton");
 		Mockito.doReturn(ValidationErrors.Ok).when(stateModel).validate(Boolean.TRUE);
 		Mockito.doReturn(workingDayState).when(stateModel).convert(Boolean.TRUE);
-		
-		Mockito.doThrow( new IllegalStateException(exceptionMessage)).when(stateService).update(workingDayState);
-		
+
+		Mockito.doThrow(new IllegalStateException(exceptionMessage)).when(stateService).update(workingDayState);
+
 		assertTrue(grid.getSelectionModel().getFirstSelectedItem().isPresent());
 		listener(saveButton).onComponentEvent(null);
 
@@ -465,58 +458,60 @@ class SystemVariablesViewTest {
 		Mockito.verify(stateModel).convert(Boolean.TRUE);
 		Mockito.verify(notificationDialog, Mockito.times(1)).showError(errorMessage);
 		Mockito.verify(stateService).update(workingDayState);
-		
 
 	}
-	
+
 	@Test
 	void unselect() {
-		
-			Mockito.doReturn(Optional.empty()).when(stateModel).selectedState();
-		
-			observers.get(Events.AssignState).process();
-			
-			final Button saveButton = (Button) fields.get("saveButton");
-			assertFalse(saveButton.isEnabled());
 
-			final Button resetButton = (Button) fields.get("resetButton");
-			assertFalse(resetButton.isEnabled());
+		Mockito.doReturn(Optional.empty()).when(stateModel).selectedState();
 
-			
-			final TextField lastUpdateTextField = (TextField) fields.get("lastUpdateTextField");
-			assertTrue(lastUpdateTextField.isReadOnly());
-			assertTrue(lastUpdateTextField.isEmpty());
+		observers.get(Events.AssignState).process();
 
-			final TextField nameTextField = (TextField) fields.get("nameTextField");
-			assertTrue(nameTextField.isReadOnly());
-			assertTrue(nameTextField.getValue().isEmpty());
-			
-			
-			
-			final FormItem itemTextField = (FormItem) fields.get("textFieldFormItem");
-			assertTrue(itemTextField.isVisible());
-			
-			final TextField valueTextField = (TextField) fields.get("valueTextField");
-			assertTrue(valueTextField.isReadOnly());
-			assertTrue(valueTextField.isVisible());
-			assertTrue(valueTextField.getValue().isEmpty());
-			
+		final Button saveButton = (Button) fields.get("saveButton");
+		assertFalse(saveButton.isEnabled());
 
-			final FormItem itemCombobox = (FormItem) fields.get("comboBoxFormItem");
-			assertFalse(itemCombobox.isVisible());
-			
-			
+		final Button resetButton = (Button) fields.get("resetButton");
+		assertFalse(resetButton.isEnabled());
+
+		final TextField lastUpdateTextField = (TextField) fields.get("lastUpdateTextField");
+		assertTrue(lastUpdateTextField.isReadOnly());
+		assertTrue(lastUpdateTextField.isEmpty());
+
+		final TextField nameTextField = (TextField) fields.get("nameTextField");
+		assertTrue(nameTextField.isReadOnly());
+		assertTrue(nameTextField.getValue().isEmpty());
+
+		final FormItem itemTextField = (FormItem) fields.get("textFieldFormItem");
+		assertTrue(itemTextField.isVisible());
+
+		final TextField valueTextField = (TextField) fields.get("valueTextField");
+		assertTrue(valueTextField.isReadOnly());
+		assertTrue(valueTextField.isVisible());
+		assertTrue(valueTextField.getValue().isEmpty());
+
+		final FormItem itemCombobox = (FormItem) fields.get("comboBoxFormItem");
+		assertFalse(itemCombobox.isVisible());
+
 	}
-	
+
 	@Test
 	void loacalizeStateInfoLabelNothingSelected() {
 		Mockito.doReturn(Optional.empty()).when(stateModel).selectedState();
-	
+
 		observers.get(Events.ChangeLocale).process();
-		
+
 		final Label stateInfoLabel = (Label) fields.get("stateInfoLabel");
 		assertTrue(stateInfoLabel.getText().isEmpty());
-		
+
+	}
+
+	@Test
+	void resetButtonClick() {
+		final Button resetButton = (Button) fields.get("resetButton");
+		listener(resetButton).onComponentEvent(null);
+
+		Mockito.verify(stateModel).reset();
 	}
 
 }
