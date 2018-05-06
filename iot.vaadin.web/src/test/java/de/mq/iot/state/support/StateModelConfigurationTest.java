@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,7 +16,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import com.vaadin.flow.component.dialog.Dialog;
 
 import de.mq.iot.model.Subject;
 
@@ -75,4 +79,34 @@ public class StateModelConfigurationTest {
 		assertEquals(StateModelConfiguration.SYSTEM_VARIABLES_VIEW ,basenames.iterator().next());
 		assertEquals(StateModelConfiguration.MESSAGE_SOURCE_ENCODING, ReflectionTestUtils.invokeMethod(messageSource, "getDefaultEncoding"));
 	}
+	
+	@Test
+	void notificationDialog() {
+		final Dialog dialog = Mockito.mock(Dialog.class);
+		final SimpleNotificationDialog notificationDialog = stateModelConfiguration.notificationDialog(dialog);
+		assertEquals(dialog, DataAccessUtils.requiredSingleResult(Arrays.asList(SimpleNotificationDialog.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(Dialog.class)).map(field -> ReflectionTestUtils.getField(notificationDialog, field.getName())).collect(Collectors.toList())));
+	}
+	
+	@Test
+	void dialog() {
+		
+		Arrays.asList(StateModelConfiguration.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(Class.class)).forEach(field -> ReflectionTestUtils.setField(stateModelConfiguration, field.getName(), DialogMock.class));
+		assertEquals(DialogMock.class, stateModelConfiguration.dialog().getClass());;
+		
+		
+	}
+	
 }
+
+class DialogMock extends Dialog {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	  public void setOpened(boolean opened) {
+	  
+	  }
+}
+
+

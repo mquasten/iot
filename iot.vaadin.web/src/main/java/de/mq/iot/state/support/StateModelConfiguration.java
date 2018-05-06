@@ -1,5 +1,6 @@
 package de.mq.iot.state.support;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
 
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.spring.annotation.UIScope;
 
 import de.mq.iot.model.Subject;
@@ -20,6 +22,9 @@ class StateModelConfiguration {
 	static final String SYSTEM_VARIABLES_VIEW = "i18n/systemVariablesView";
 	static final String MESSAGE_SOURCE_ENCODING = "UTF-8";
 	static final String[] MESSAGE_SOURCE_BASENAME = { SYSTEM_VARIABLES_VIEW };
+	
+	
+	private final Class<? extends Dialog> dialogClass = Dialog.class; 
 
 	@Bean
 	@UIScope
@@ -48,11 +53,20 @@ class StateModelConfiguration {
 		messageSource.setDefaultEncoding(MESSAGE_SOURCE_ENCODING);
 		return messageSource;
 	}
+	
+	@Bean()
+	@Scope(scopeName = "prototype")
+	Dialog dialog()  {
+		return BeanUtils.instantiateClass(dialogClass);
+	}
 
 	@Bean()
 	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, scopeName = "prototype")
-	SimpleNotificationDialog notificationDialog() {
-		return new SimpleNotificationDialog();
+	SimpleNotificationDialog notificationDialog(final Dialog dialog ) {
+		return new SimpleNotificationDialog(dialog);
 	}
+	
+	
+	
 
 }

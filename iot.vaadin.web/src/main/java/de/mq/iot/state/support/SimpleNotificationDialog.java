@@ -11,20 +11,25 @@ import com.vaadin.flow.component.textfield.TextArea;
 class SimpleNotificationDialog {
 	
 	private final TextArea  textArea =new TextArea();
-	private final Button close = new Button();
+	private final Button closeButton = new Button();
 	private final Icon warningsIcon =  VaadinIcons.WARNING.create();
 	private final Icon infoIcon =  VaadinIcons.INFO.create();
 
-	private final VerticalLayout root = new VerticalLayout(warningsIcon, infoIcon, textArea,close);
+	private final VerticalLayout root = new VerticalLayout(warningsIcon, infoIcon, textArea,closeButton);
 	
-	private final Dialog notification = new Dialog(root);
+	private final Dialog notification;
 	
-	SimpleNotificationDialog() {
+	
+	SimpleNotificationDialog(final Dialog notification) {
+		
+		this.notification=notification;
+		this.notification.add(root);
+		
 		textArea.setReadOnly(true);
 		textArea.setInvalid(true);
 	
-		close.setText("ok");
-		root.setHorizontalComponentAlignment(Alignment.CENTER, close);
+		closeButton.setText("ok");
+		root.setHorizontalComponentAlignment(Alignment.CENTER, closeButton);
 		root.setSizeUndefined();
 		textArea.setSizeFull();
 		//layout.setSizeFull();
@@ -33,8 +38,10 @@ class SimpleNotificationDialog {
 		notification.setCloseOnOutsideClick(true);
 		root.setWidth("40vh");
 	
+		warningsIcon.setVisible(false);
+		infoIcon.setVisible(false);
 		
-		close.addClickListener(event -> notification.close());
+		closeButton.addClickListener(event -> notification.close());
 
 	}
 	public  void showError(final String text) {
