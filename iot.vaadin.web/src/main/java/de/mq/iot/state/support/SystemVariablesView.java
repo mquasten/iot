@@ -1,5 +1,6 @@
 package de.mq.iot.state.support;
 
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.StringUtils;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -22,6 +24,7 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcons;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -225,11 +228,24 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 
 	private void createUI(StateService stateService) {
 				
+	
 		saveButton.setEnabled(false);
 		resetButton.setEnabled(false);
 		
 		valueComboBox.setRequired(true);
 		valueTextField.setRequired(true);
+		final HorizontalLayout buttonBox = new HorizontalLayout();
+		Button loginButton = new Button();
+		loginButton.setIcon(VaadinIcons.USERS.create());
+		loginButton.addClickListener(listener -> {
+			UI.getCurrent().navigate("");
+			
+		});
+		
+		
+		buttonBox.add(loginButton);
+		
+		
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
 		
@@ -275,7 +291,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		
 		
 		
-		add(layout, stateInfoLabel, editorLayout);
+		add(buttonBox, layout, stateInfoLabel, editorLayout);
 		setHorizontalComponentAlignment(Alignment.CENTER, stateInfoLabel);
 	
 		
@@ -283,8 +299,10 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	
 		setHorizontalComponentAlignment(Alignment.CENTER, layout);
 	
+		
 	
 	   grid.setHeight("50vH");
+	 
 		
 		
 	}
@@ -319,8 +337,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	}
 	
 	
-		
 	
 
-
 }
+

@@ -40,6 +40,8 @@
 			<id>vaadin-prereleases</id>
 			<url>https://maven.vaadin.com/vaadin-prereleases</url>
 		</repository>
+		
+		
 	</repositories>
 
 	<pluginRepositories>
@@ -67,7 +69,7 @@
 			<artifactId>vaadin-core</artifactId>
 
 		</dependency>
-
+	
 		<dependency>
 			<groupId>de.mq</groupId>
 			<artifactId>iot.application</artifactId>
