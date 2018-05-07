@@ -1,8 +1,11 @@
 package de.mq.iot.state.support;
 
+import javax.servlet.Filter;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -66,7 +69,9 @@ class StateModelConfiguration {
 		return new SimpleNotificationDialog(dialog);
 	}
 	
-	
-	
+	@Bean()
+	Filter loginFilter() {
+		return new LoginFilter();
+	}
 
 }
