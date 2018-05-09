@@ -238,7 +238,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		Button loginButton = new Button();
 		loginButton.setIcon(VaadinIcons.USERS.create());
 		loginButton.addClickListener(listener -> {
-			UI.getCurrent().navigate("");
+			UI.getCurrent().navigate("login");
 			
 		});
 		
