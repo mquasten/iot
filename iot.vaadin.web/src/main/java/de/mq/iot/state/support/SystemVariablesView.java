@@ -94,6 +94,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	private final MessageSource messageSource;
 	private final StateService stateService; 
 	SystemVariablesView(final StateService stateService, final StateModel stateModel, @Qualifier("stateValueConverter") final Converter<State<?>, String> stateValueConverter, final MessageSource messageSource, final SimpleNotificationDialog notificationDialog ) {
+	
 		this.stateValueConverter=stateValueConverter;
 		this.stateService=stateService;
 		this.messageSource=messageSource;
@@ -118,6 +119,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		initDialogMessageKeys();
 		
 		stateModel.notifyObservers(StateModel.Events.ChangeLocale);
+		
 		
 	}
 
@@ -335,6 +337,18 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		saveButton.setEnabled(false);
 	
 	}
+
+
+	
+
+
+	
+
+
+	
+
+
+	
 	
 	
 	

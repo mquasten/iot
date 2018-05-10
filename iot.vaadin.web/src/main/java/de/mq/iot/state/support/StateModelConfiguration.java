@@ -1,26 +1,30 @@
 package de.mq.iot.state.support;
 
-import javax.servlet.Filter;
-
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
-
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 
 import de.mq.iot.model.Subject;
 import de.mq.iot.model.support.SubjectImpl;
 
 @Configuration
-class StateModelConfiguration {
+class StateModelConfiguration  {
 
 	static final String SYSTEM_VARIABLES_VIEW = "i18n/systemVariablesView";
 	static final String MESSAGE_SOURCE_ENCODING = "UTF-8";
@@ -33,8 +37,9 @@ class StateModelConfiguration {
 	@UIScope
 	Subject<?, ?> subject() {
 		return new SubjectImpl<>();
-
 	}
+	
+	
 
 	@Bean
 	Converter<State<?>, String> stateValueConverter(final ConversionService conversionService) {
@@ -69,9 +74,39 @@ class StateModelConfiguration {
 		return new SimpleNotificationDialog(dialog);
 	}
 	
+	
 	@Bean()
-	Filter loginFilter() {
-		return new LoginFilter();
+	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, scopeName = "prototype")
+	UI ui () {
+		return UI.getCurrent();
+	}
+	
+	@Bean
+	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, scopeName = "session")
+	SecurityContext securityContext() {
+		
+		
+		return new SecurityContextImpl(new UsernamePasswordAuthenticationToken("", ""));
+	}
+	
+	
+	@Bean
+	BeanPostProcessor beanPostProcessor(final UI ui, SecurityContext securityContext) {
+		return new BeanPostProcessor() {
+			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+				
+				if( bean.getClass().isAnnotationPresent(Route.class)) {
+					
+					
+					System.out.println(securityContext.getAuthentication().isAuthenticated());
+					
+					ui.addBeforeEnterListener(new SimpleBeforeEnterListenerImpl(securityContext));
+				}
+				
+				return bean;
+			}
+			
+		};
 	}
 
 }
