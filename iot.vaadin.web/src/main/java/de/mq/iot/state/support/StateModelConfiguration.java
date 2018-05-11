@@ -13,6 +13,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import com.vaadin.flow.component.UI;
@@ -85,8 +86,9 @@ class StateModelConfiguration  {
 	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, scopeName = "session")
 	SecurityContext securityContext() {
 		
-		
-		return new SecurityContextImpl(new UsernamePasswordAuthenticationToken("", ""));
+		System.out.println("new SecurityContext ...");
+		SecurityContextHolder.setContext(new SecurityContextImpl(new UsernamePasswordAuthenticationToken("", "")));
+		return SecurityContextHolder.getContext();
 	}
 	
 	
@@ -95,11 +97,7 @@ class StateModelConfiguration  {
 		return new BeanPostProcessor() {
 			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 				
-				if( bean.getClass().isAnnotationPresent(Route.class)) {
-					
-					
-					System.out.println(securityContext.getAuthentication().isAuthenticated());
-					
+				if( bean.getClass().isAnnotationPresent(Route.class)) {	
 					ui.addBeforeEnterListener(new SimpleBeforeEnterListenerImpl(securityContext));
 				}
 				

@@ -1,5 +1,11 @@
 package de.mq.iot.state.support;
 
+import java.util.Collections;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
@@ -12,14 +18,15 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import de.mq.iot.model.I18NKey;
 
+
 @Route("login")
 @Theme(Lumo.class)
 @I18NKey("login_")
 public class LoginView extends VerticalLayout  {
 	
 	private static final long serialVersionUID = 1L;
-
-	LoginView() {
+	@Autowired
+	LoginView(final SecurityContext securityContext) {
 	final FormLayout formLayout = new FormLayout();
 	formLayout.setResponsiveSteps(new ResponsiveStep("10vH",1));
 	final VerticalLayout layout = new VerticalLayout(formLayout);
@@ -41,8 +48,17 @@ public class LoginView extends VerticalLayout  {
 	final Button button = new Button("login");
 	
 	button.addClickListener(e -> {
-		user.setErrorMessage("invalid user");
-		user.setInvalid(true);
+		 getUI().ifPresent(ui -> {
+			
+			securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("kminogue", "fever", Collections.emptyList()));
+		
+			 ui.navigate("");
+			 
+	});
+		 
+		 
+		
+		
 		
 	});
 	Label message = new Label("error");
