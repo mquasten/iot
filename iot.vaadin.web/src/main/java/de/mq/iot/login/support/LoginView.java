@@ -1,10 +1,8 @@
-package de.mq.iot.state.support;
+package de.mq.iot.login.support;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -17,6 +15,8 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import de.mq.iot.model.I18NKey;
+import de.mq.iot.model.SecurityContext;
+import de.mq.iot.model.support.UserAuthentificationImpl;
 
 
 @Route("login")
@@ -50,7 +50,8 @@ public class LoginView extends VerticalLayout  {
 	button.addClickListener(e -> {
 		 getUI().ifPresent(ui -> {
 			
-			securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("kminogue", "fever", Collections.emptyList()));
+			securityContext.assign(new UserAuthentificationImpl("kminogue",  Arrays.asList("user")));
+			
 		
 			 ui.navigate("");
 			 

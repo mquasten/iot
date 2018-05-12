@@ -1,10 +1,12 @@
 package de.mq.iot.state.support;
 
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.Assert;
 
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterListener;
+
+import de.mq.iot.login.support.LoginView;
+import de.mq.iot.model.SecurityContext;
 
 class SimpleBeforeEnterListenerImpl  implements BeforeEnterListener {
 
@@ -20,18 +22,19 @@ class SimpleBeforeEnterListenerImpl  implements BeforeEnterListener {
 	@Override
 	public void beforeEnter(final BeforeEnterEvent event) {
 		
+		
+		
 		if( event.getNavigationTarget() == LoginView.class) {
 			return;
 		}
 		
-		if( securityContext.getAuthentication() == null) {
-			event.rerouteTo(LoginView.class);
+		if( securityContext.authentication().isPresent()) {
 			return;
 		}
 		
-		if( ! securityContext.getAuthentication().isAuthenticated() ) {
-			event.rerouteTo(LoginView.class);
-		}
+		
+		event.rerouteTo(LoginView.class);
+	
 		
 		
 	}

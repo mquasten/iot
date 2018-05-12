@@ -11,16 +11,14 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextImpl;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import de.mq.iot.model.SecurityContext;
+import de.mq.iot.model.SecurityContextImpl;
 import de.mq.iot.model.Subject;
 import de.mq.iot.model.support.SubjectImpl;
 
@@ -82,18 +80,15 @@ class StateModelConfiguration  {
 		return UI.getCurrent();
 	}
 	
-	@Bean
+	@Bean()
 	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, scopeName = "session")
 	SecurityContext securityContext() {
-		
-		System.out.println("new SecurityContext ...");
-		SecurityContextHolder.setContext(new SecurityContextImpl(new UsernamePasswordAuthenticationToken("", "")));
-		return SecurityContextHolder.getContext();
+		return new SecurityContextImpl();
 	}
 	
 	
 	@Bean
-	BeanPostProcessor beanPostProcessor(final UI ui, SecurityContext securityContext) {
+	BeanPostProcessor beanPostProcessor(final UI ui, final SecurityContext securityContext) {
 		return new BeanPostProcessor() {
 			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 				
@@ -106,5 +101,7 @@ class StateModelConfiguration  {
 			
 		};
 	}
-
+	
+   
+	
 }
