@@ -21,7 +21,7 @@ import com.mongodb.reactivestreams.client.MongoClients;
 
 @Configuration
 @EnableReactiveMongoRepositories(basePackages= {"de.mq.iot.resource.support"})
-@ComponentScan(basePackages = "de.mq.iot.state")
+@ComponentScan(basePackages = "de.mq.iot.state,de.mq.iot.authentication")
 @PropertySource(value="classpath:/iot-application.properties" ,ignoreResourceNotFound=true)
 public class ApplicationConfiguration {
 	

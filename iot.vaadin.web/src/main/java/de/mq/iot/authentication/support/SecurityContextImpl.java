@@ -1,8 +1,11 @@
-package de.mq.iot.model;
+package de.mq.iot.authentication.support;
 
 import java.util.Optional;
 
 import org.springframework.util.Assert;
+
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.SecurityContext;
 
 public class SecurityContextImpl implements SecurityContext {
 	
@@ -21,7 +24,7 @@ public class SecurityContextImpl implements SecurityContext {
 	 */
 	@Override
 	public void assign(final Authentication authentication) {
-		Assert.notNull(authentication, "Authentication is mandatory.");
+		Assert.notNull(authentication, "User is mandatory.");
 		this.authentication=Optional.of(authentication);
 	}
 }

@@ -1,4 +1,4 @@
-package de.mq.iot.login.support;
+package de.mq.iot.authentication.support;
 
 import java.util.Arrays;
 
@@ -14,9 +14,9 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import de.mq.iot.authentication.SecurityContext;
+import de.mq.iot.authentication.support.UserAuthenticationImpl;
 import de.mq.iot.model.I18NKey;
-import de.mq.iot.model.SecurityContext;
-import de.mq.iot.model.support.UserAuthentificationImpl;
 
 
 @Route("login")
@@ -50,7 +50,7 @@ public class LoginView extends VerticalLayout  {
 	button.addClickListener(e -> {
 		 getUI().ifPresent(ui -> {
 			
-			securityContext.assign(new UserAuthentificationImpl("kminogue",  Arrays.asList("user")));
+			securityContext.assign(new UserAuthenticationImpl("kminogue",  Arrays.asList("user")));
 			
 		
 			 ui.navigate("");

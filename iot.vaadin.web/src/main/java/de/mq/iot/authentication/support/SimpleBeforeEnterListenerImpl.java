@@ -1,12 +1,11 @@
-package de.mq.iot.state.support;
+package de.mq.iot.authentication.support;
 
 import org.springframework.util.Assert;
 
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterListener;
 
-import de.mq.iot.login.support.LoginView;
-import de.mq.iot.model.SecurityContext;
+import de.mq.iot.authentication.SecurityContext;
 
 class SimpleBeforeEnterListenerImpl  implements BeforeEnterListener {
 
