@@ -6,11 +6,11 @@ import java.util.Collection;
 
 public interface Authentication{
 	
-	Collection<String> 	authorities();
+	Collection<Authority> 	authorities();
 	String username();
 	
 
-	
+	boolean authenticate(final String credentials);
 	
 
 }

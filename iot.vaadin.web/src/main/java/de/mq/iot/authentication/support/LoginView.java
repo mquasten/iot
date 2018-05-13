@@ -50,7 +50,7 @@ public class LoginView extends VerticalLayout  {
 	button.addClickListener(e -> {
 		 getUI().ifPresent(ui -> {
 			
-			securityContext.assign(new UserAuthenticationImpl("kminogue",  Arrays.asList("user")));
+			securityContext.assign(new UserAuthenticationImpl("kminogue","xxx",   Arrays.asList()));
 			
 		
 			 ui.navigate("");
