@@ -1,12 +1,12 @@
 package de.mq.iot.authentication.support;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Optional;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
-@Disabled
+
 class AuthenticationRepositoryIntegrationTest {
 
 	@Autowired
@@ -36,10 +36,12 @@ class AuthenticationRepositoryIntegrationTest {
 		
 		authenticationRepository.save(authentication).block(duration);
 		
-		final Authentication result = authenticationRepository.findByUsername("mquasten").block(duration);
-		
-		assertEquals(authentication, result);
+	
+		final  Optional<Authentication> result =  authenticationRepository.findByUsername("mquasten").blockOptional();
+		assertTrue(result.isPresent());
+		assertTrue(result.get().authenticate("manfred01"));
 		
 	}
+	
 
 }

@@ -1,5 +1,7 @@
 package de.mq.iot.authentication.support;
 
+import de.mq.iot.authentication.Authentication;
+
 public class LoginModelImpl  implements LoginModel{
 	
 	private String login;
@@ -29,5 +31,11 @@ public class LoginModelImpl  implements LoginModel{
 	}
 
 	private String password;
+
+
+	@Override
+	public boolean  authenticate(final Authentication authentication) {
+		 return authentication.authenticate(password);
+	}
 
 }

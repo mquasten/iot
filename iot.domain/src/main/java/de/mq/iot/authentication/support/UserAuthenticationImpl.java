@@ -20,14 +20,19 @@ class UserAuthenticationImpl  implements Authentication {
 	private final String  credentials;
 	private final Collection<Authority> authorities = new ArrayList<>();
 	
+	@SuppressWarnings("unused")
+	private UserAuthenticationImpl() {
+		this.username=null;;
+		this.credentials=null;
 	
+	} 
 	
 	UserAuthenticationImpl(final String username, final String credentials, final Collection<Authority> authorities) {
 		Assert.hasText(credentials , "Credentials is mandatory");
 		Assert.notNull(username, "Username is mandatory");
 		this.username=username;
 		this.authorities.addAll(authorities);
-		this.credentials= DigestUtils.md5DigestAsHex(DigestUtils.md5Digest(credentials.getBytes()));
+		this.credentials= DigestUtils.md5DigestAsHex(credentials.getBytes());
 	
 	}	
 
@@ -41,14 +46,14 @@ class UserAuthenticationImpl  implements Authentication {
 		return username;
 	}
 
-	
+	@Override
 	public boolean authenticate(final String credentials) {
 		Assert.hasText(credentials , "Credentials is mandatory");
 		if( ! StringUtils.hasText(this.credentials)){
 			return false;
 		}
 		
-		return this.credentials.equalsIgnoreCase(DigestUtils.md5DigestAsHex(DigestUtils.md5Digest(credentials.getBytes())));
+		return this.credentials.equalsIgnoreCase(DigestUtils.md5DigestAsHex(credentials.getBytes()));
 	}
 
 	@Override

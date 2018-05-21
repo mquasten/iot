@@ -1,9 +1,10 @@
 package de.mq.iot.authentication.support;
 
-import java.util.Arrays;
+
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.component.UI;
@@ -34,18 +35,33 @@ public class LoginView extends VerticalLayout  {
 	
 	
 	private static final long serialVersionUID = 1L;
+	
+	private final Label message = new Label("error");
+	final SecurityContext securityContext;
+	final AuthentificationService authentificationService;
+	final LoginModel loginModel;
+	final UI ui;
+	
 	@Autowired
-	LoginView(final SecurityContext securityContext, final AuthentificationService authentificationService) {
+	LoginView(final SecurityContext securityContext, final AuthentificationService authentificationService, final LoginModel loginModel, final UI ui) {
+	this.securityContext=securityContext;
+	this.authentificationService=authentificationService;
+	this.loginModel=loginModel;
+	this.ui=ui;
+		
 	final FormLayout formLayout = new FormLayout();
 	formLayout.setResponsiveSteps(new ResponsiveStep("10vH",1));
+	
+	
 	final VerticalLayout layout = new VerticalLayout(formLayout);
+	
 	
 	
 	final TextField user = new TextField();
 	
 	user.setSizeFull();
 	
-	final LoginModel loginModel = new LoginModelImpl();
+	
 
 	
 	final PasswordField passwd = new PasswordField();
@@ -67,10 +83,9 @@ public class LoginView extends VerticalLayout  {
 	final Button button = new Button("login");
 	
 	button.addClickListener(e -> {
-		 getUI().ifPresent(ui -> {
-			
+			message.setVisible(false);
 			if( binder.writeBeanIfValid(loginModel) ) {
-				login(securityContext, authentificationService, loginModel, ui);
+				login();
 			} 
 			
 		
@@ -82,8 +97,8 @@ public class LoginView extends VerticalLayout  {
 		
 		
 		
-	});
-	Label message = new Label("error");
+	
+	
 	//message.setVisible(false);
 	message.getStyle().set("color", "red");
 	message.setVisible(false);
@@ -100,9 +115,24 @@ public class LoginView extends VerticalLayout  {
 	setHorizontalComponentAlignment(Alignment.CENTER, layout);
 	
 	}
-	private void login(final SecurityContext securityContext, final AuthentificationService authentificationService, final LoginModel loginModel, final UI ui) {
+	private void login() {
+		
 		final Optional<Authentication> authentication =  authentificationService.authentification(loginModel.getLogin());
-		securityContext.assign(new UserAuthenticationImpl(loginModel.getLogin(),loginModel.getPassword(),   Arrays.asList()));
+		
+		if( ! authentication.isPresent()) {
+			message.setVisible(true);
+			message.setText("Benutzer nicht vorhanden.");
+			return;
+		}
+		
+		if( ! loginModel.authenticate(authentication.get()) ) {
+			message.setVisible(true);
+			message.setText("Passwort ungültig.");
+			return;
+		}
+		
+		
+		securityContext.assign(authentication.get());
 		ui.navigate("");
 	}
 	
