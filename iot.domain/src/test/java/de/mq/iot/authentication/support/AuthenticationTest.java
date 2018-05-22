@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.beans.BeanUtils;
 
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
@@ -26,6 +26,13 @@ class AuthenticationTest {
 	}
 	
 	@Test
+	void defaultConstructor() {
+		final Authentication authentication = BeanUtils.instantiateClass(UserAuthenticationImpl.class);
+		assertTrue(authentication.username().isEmpty());
+		assertTrue(authentication.authorities().isEmpty());
+	}
+	
+	@Test
 	void username() {
 		assertEquals(USERNAME, authentication.username());
 	}
@@ -37,8 +44,7 @@ class AuthenticationTest {
 	
 	@Test
 	void authenticateNullString() {
-		
-		Arrays.asList(authentication.getClass().getDeclaredFields()).stream().filter(field -> field.getType().equals(String.class)).forEach(field -> ReflectionTestUtils.setField(authentication, field.getName(), null));
+		final Authentication authentication = BeanUtils.instantiateClass(UserAuthenticationImpl.class);
 		assertFalse(authentication.authenticate(PASSWORD));
 	}
 	@Test

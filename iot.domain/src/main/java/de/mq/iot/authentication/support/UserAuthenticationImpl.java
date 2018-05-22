@@ -22,8 +22,8 @@ class UserAuthenticationImpl  implements Authentication {
 	
 	@SuppressWarnings("unused")
 	private UserAuthenticationImpl() {
-		this.username=null;;
-		this.credentials=null;
+		this.username="";
+		this.credentials="";
 	
 	} 
 	
