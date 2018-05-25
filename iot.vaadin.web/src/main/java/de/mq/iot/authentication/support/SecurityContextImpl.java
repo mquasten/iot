@@ -24,7 +24,7 @@ public class SecurityContextImpl implements SecurityContext {
 	 */
 	@Override
 	public void assign(final Authentication authentication) {
-		Assert.notNull(authentication, "User is mandatory.");
+		Assert.notNull(authentication, "Authentication is mandatory.");
 		this.authentication=Optional.of(authentication);
 	}
 }

@@ -4,13 +4,13 @@ import de.mq.iot.authentication.Authentication;
 
 interface LoginModel {
 	
-	String getLogin();
+	String login();
 
-	void setLogin(String login);
+	void assignLogin(String login);
 
-	String getPassword();
+	String password();
 
-	void setPassword(String password);
+	void assignPassword(String password);
 
 	boolean authenticate(final Authentication authentication);
 

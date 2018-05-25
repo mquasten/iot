@@ -75,9 +75,9 @@ public class LoginView extends VerticalLayout  {
 	final Binder<LoginModel> binder = new Binder<>();
 
 	
-	binder.forField(user).withValidator( value ->  StringUtils.hasText(value), "required").bind(LoginModel::getLogin, LoginModel::setLogin);
+	binder.forField(user).withValidator( value ->  StringUtils.hasText(value), "required").bind(LoginModel::login, LoginModel::assignLogin);
 	
-	binder.forField(passwd).withValidator( value ->  StringUtils.hasText(value),"required").bind(LoginModel::getPassword, LoginModel::setPassword);  
+	binder.forField(passwd).withValidator( value ->  StringUtils.hasText(value),"required").bind(LoginModel::password, LoginModel::assignPassword);  
 	
 	
 	final Button button = new Button("login");
@@ -117,7 +117,7 @@ public class LoginView extends VerticalLayout  {
 	}
 	private void login() {
 		
-		final Optional<Authentication> authentication =  authentificationService.authentification(loginModel.getLogin());
+		final Optional<Authentication> authentication =  authentificationService.authentification(loginModel.login());
 		
 		if( ! authentication.isPresent()) {
 			message.setVisible(true);

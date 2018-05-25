@@ -2,35 +2,34 @@ package de.mq.iot.authentication.support;
 
 import de.mq.iot.authentication.Authentication;
 
-public class LoginModelImpl  implements LoginModel{
+class LoginModelImpl  implements LoginModel{
 	
 	private String login;
-	
+
+	private String password;
 	
 	@Override
-	public String getLogin() {
+	public String login() {
 		return login;
 	}
 
 	
 	@Override
-	public void setLogin(String login) {
+	public void assignLogin(String login) {
 		this.login = login;
 	}
 
 	
 	@Override
-	public String getPassword() {
+	public String password() {
 		return password;
 	}
 
 	
 	@Override
-	public void setPassword(String password) {
+	public void assignPassword(String password) {
 		this.password = password;
 	}
-
-	private String password;
 
 
 	@Override
