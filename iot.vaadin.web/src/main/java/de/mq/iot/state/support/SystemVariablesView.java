@@ -15,7 +15,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -239,11 +238,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		final HorizontalLayout buttonBox = new HorizontalLayout();
 		Button loginButton = new Button();
 		loginButton.setIcon(VaadinIcons.USERS.create());
-		loginButton.addClickListener(listener -> {
-			UI.getCurrent().navigate("login");
-			
-		});
-		
+	
 		
 		buttonBox.add(loginButton);
 		
