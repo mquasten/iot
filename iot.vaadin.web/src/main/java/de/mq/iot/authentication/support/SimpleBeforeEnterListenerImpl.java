@@ -21,8 +21,6 @@ class SimpleBeforeEnterListenerImpl  implements BeforeEnterListener {
 	@Override
 	public void beforeEnter(final BeforeEnterEvent event) {
 		
-		
-		
 		if( event.getNavigationTarget() == LoginView.class) {
 			return;
 		}
@@ -34,8 +32,6 @@ class SimpleBeforeEnterListenerImpl  implements BeforeEnterListener {
 		
 		event.rerouteTo(LoginView.class);
 	
-		
-		
 	}
 
 }
