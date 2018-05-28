@@ -2,6 +2,7 @@ package de.mq.iot.authentication.support;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -16,10 +17,22 @@ import de.mq.iot.authentication.SecurityContext;
 @Configuration
 class AuthenticationConfiguration {
 
+	static final String CURRENT_UI_METHOD_NAME = UI.class.getName() +".getCurrent";
+
 	@Bean()
 	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, scopeName = "prototype")
-	UI ui() {
-		return UI.getCurrent();
+	UI ui(final MethodInvokingFactoryBean methodInvokingFactoryBean) throws Exception {
+		methodInvokingFactoryBean.prepare();
+		return (UI) methodInvokingFactoryBean.invoke();
+	}
+
+	@Bean()
+	@Scope("prototype")
+	MethodInvokingFactoryBean methodInvokingFactoryBean() {
+		MethodInvokingFactoryBean methodInvokingFactoryBean = new MethodInvokingFactoryBean();
+		methodInvokingFactoryBean.setTargetClass(UI.class);
+		methodInvokingFactoryBean.setStaticMethod(CURRENT_UI_METHOD_NAME);
+		return methodInvokingFactoryBean;
 	}
 
 	@Bean()

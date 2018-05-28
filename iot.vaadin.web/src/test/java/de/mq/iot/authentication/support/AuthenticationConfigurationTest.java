@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.vaadin.flow.component.UI;
@@ -22,8 +23,19 @@ public class AuthenticationConfigurationTest {
 	private final AuthenticationConfiguration authenticationConfiguration = new AuthenticationConfiguration();
 	
 	@Test
-	void ui() {
-		assertNull(authenticationConfiguration.ui());
+	void ui() throws Exception {
+		final MethodInvokingFactoryBean methodInvokingFactoryBean =  Mockito.mock(MethodInvokingFactoryBean.class);
+		assertNull(authenticationConfiguration.ui(methodInvokingFactoryBean));
+		Mockito.verify(methodInvokingFactoryBean).prepare();
+		Mockito.verify(methodInvokingFactoryBean).invoke();
+	}
+	
+	@Test
+	void methodInvokingFactoryBean() {
+		final MethodInvokingFactoryBean methodInvokingFactoryBean = authenticationConfiguration.methodInvokingFactoryBean();
+		assertEquals(UI.class, methodInvokingFactoryBean.getTargetClass());
+		assertEquals(AuthenticationConfiguration.CURRENT_UI_METHOD_NAME, ReflectionTestUtils.getField(methodInvokingFactoryBean, "staticMethod"));
+		
 	}
 
 	@Test
