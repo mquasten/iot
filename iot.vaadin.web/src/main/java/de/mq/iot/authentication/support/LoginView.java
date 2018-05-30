@@ -4,7 +4,7 @@ package de.mq.iot.authentication.support;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.context.MessageSource;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.component.UI;
@@ -24,26 +24,36 @@ import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.AuthentificationService;
 import de.mq.iot.authentication.SecurityContext;
 import de.mq.iot.model.I18NKey;
+import de.mq.iot.model.LocalizeView;
+
 
 
 
 @Route("login")
 @Theme(Lumo.class)
 @I18NKey("login_")
-public class LoginView extends VerticalLayout  {
+public class LoginView extends VerticalLayout  implements LocalizeView {
 	
 	
 	
 	private static final long serialVersionUID = 1L;
 	
 	private final Label message = new Label("error");
-	final SecurityContext securityContext;
-	final AuthentificationService authentificationService;
-	final LoginModel loginModel;
-	final UI ui;
+	private final SecurityContext securityContext;
+	private final AuthentificationService authentificationService;
+	private final LoginModel loginModel;
+	@I18NKey("user")
+	private final Label userLabel = new Label();
+	
+	@I18NKey("password")
+	private final Label passwdLabel = new Label();
+	
+	@I18NKey("login")
+	private final Button button = new Button();
+	private final UI ui;
 	
 	@Autowired
-	LoginView(final SecurityContext securityContext, final AuthentificationService authentificationService, final LoginModel loginModel, final UI ui) {
+	LoginView(final SecurityContext securityContext, final AuthentificationService authentificationService, final LoginModel loginModel, final UI ui, final MessageSource messageSource) {
 	this.securityContext=securityContext;
 	this.authentificationService=authentificationService;
 	this.loginModel=loginModel;
@@ -68,8 +78,8 @@ public class LoginView extends VerticalLayout  {
 	
 	passwd.setSizeFull();
 	
-	formLayout.addFormItem( user, new Label("Benutzer"));
-	formLayout.addFormItem(passwd,new Label("Password"));
+	formLayout.addFormItem( user, userLabel);
+	formLayout.addFormItem(passwd,passwdLabel);
 	
 	
 	final Binder<LoginModel> binder = new Binder<>();
@@ -80,7 +90,7 @@ public class LoginView extends VerticalLayout  {
 	binder.forField(passwd).withValidator( value ->  StringUtils.hasText(value),"required").bind(LoginModel::password, LoginModel::assignPassword);  
 	
 	
-	final Button button = new Button("login");
+	
 	
 	button.addClickListener(e -> {
 			message.setVisible(false);
@@ -113,6 +123,10 @@ public class LoginView extends VerticalLayout  {
 	
 
 	setHorizontalComponentAlignment(Alignment.CENTER, layout);
+	
+	loginModel.register(LoginModel.Events.ChangeLocale, () -> localize(messageSource, loginModel.locale()));
+	
+	loginModel.notifyObservers(LoginModel.Events.ChangeLocale);
 	
 	}
 	private void login() {

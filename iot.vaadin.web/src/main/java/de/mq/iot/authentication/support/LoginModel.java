@@ -1,8 +1,16 @@
 package de.mq.iot.authentication.support;
 
 import de.mq.iot.authentication.Authentication;
+import de.mq.iot.model.LocaleAware;
+import de.mq.iot.model.Subject;
 
-interface LoginModel {
+
+interface LoginModel  extends Subject<LoginModel.Events, LoginModel>, LocaleAware{
+	
+	enum Events {
+		ChangeLocale;
+	}
+	
 	
 	String login();
 

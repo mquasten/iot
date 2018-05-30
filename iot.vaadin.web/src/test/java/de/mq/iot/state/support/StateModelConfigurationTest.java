@@ -3,8 +3,8 @@ package de.mq.iot.state.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,9 +74,10 @@ public class StateModelConfigurationTest {
 		final MessageSource messageSource = stateModelConfiguration.messageSource(); 
 		assertTrue(messageSource instanceof ResourceBundleMessageSource);
 		
-		final Collection<String> basenames = ((ResourceBundleMessageSource)messageSource).getBasenameSet();
-		assertEquals(1, basenames.size());
-		assertEquals(StateModelConfiguration.SYSTEM_VARIABLES_VIEW ,basenames.iterator().next());
+		final List<String> basenames = new ArrayList<>( ((ResourceBundleMessageSource)messageSource).getBasenameSet());
+		assertEquals(2, basenames.size());
+		assertEquals(StateModelConfiguration.SYSTEM_VARIABLES_VIEW ,basenames.get(0));
+		assertEquals(StateModelConfiguration.LOGIN_VIEW ,basenames.get(1));
 		assertEquals(StateModelConfiguration.MESSAGE_SOURCE_ENCODING, ReflectionTestUtils.invokeMethod(messageSource, "getDefaultEncoding"));
 	}
 	

@@ -17,6 +17,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEnterListener;
 
 import de.mq.iot.authentication.SecurityContext;
+import de.mq.iot.model.Subject;
 
 public class AuthenticationConfigurationTest {
 	
@@ -47,7 +48,16 @@ public class AuthenticationConfigurationTest {
 	
 	@Test
 	void loginModel() {
-		assertTrue(authenticationConfiguration.loginModel() instanceof LoginModelImpl);
+		@SuppressWarnings("unchecked")
+		final Subject<LoginModel.Events, LoginModel> subject = Mockito.mock(Subject.class);
+		final LoginModel loginModel = authenticationConfiguration.loginModel(subject);
+		assertTrue(loginModel instanceof LoginModelImpl);
+		
+		loginModel.notifyObservers(LoginModel.Events.ChangeLocale);
+		
+		Mockito.verify(subject).notifyObservers(LoginModel.Events.ChangeLocale);
+		
+		
 	}
 	
 	@Test

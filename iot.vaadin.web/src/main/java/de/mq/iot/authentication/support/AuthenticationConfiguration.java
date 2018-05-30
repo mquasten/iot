@@ -13,6 +13,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 
 import de.mq.iot.authentication.SecurityContext;
+import de.mq.iot.model.Subject;
 
 @Configuration
 class AuthenticationConfiguration {
@@ -43,8 +44,8 @@ class AuthenticationConfiguration {
 
 	@Bean
 	@UIScope
-	LoginModel loginModel() {
-		return new LoginModelImpl();
+	LoginModel loginModel(final Subject<LoginModel.Events, LoginModel> subject) {
+		return new LoginModelImpl(subject);
 	}
 
 	@Bean

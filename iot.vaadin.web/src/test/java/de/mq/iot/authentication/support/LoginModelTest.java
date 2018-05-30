@@ -7,12 +7,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import de.mq.iot.authentication.Authentication;
+import de.mq.iot.model.Subject;
 
 class LoginModelTest {
 	
 	private static final String PASSWD = "fever";
 	private static final String USER = "kminogue";
-	private final LoginModel loginModel = new LoginModelImpl();
+	
+	@SuppressWarnings("unchecked")
+	private final Subject<LoginModel.Events, LoginModel> subject = Mockito.mock(Subject.class); 
+	private final LoginModel loginModel = new LoginModelImpl(subject);
 	
 	@Test
 	void login() {
