@@ -36,6 +36,12 @@ public class LoginView extends VerticalLayout  implements LocalizeView {
 	
 	
 	
+	private static final String I18N_PASSWORD_INVALID = "login_password_invalid";
+
+	private static final String I18N_USER_NOT_FOUND = "login_user_not_found";
+
+	private static final String I18N_REQUIRED = "login_required";
+
 	private static final long serialVersionUID = 1L;
 	
 	private final Label message = new Label("error");
@@ -52,12 +58,15 @@ public class LoginView extends VerticalLayout  implements LocalizeView {
 	private final Button button = new Button();
 	private final UI ui;
 	
+	private MessageSource messageSource;
+	
 	@Autowired
 	LoginView(final SecurityContext securityContext, final AuthentificationService authentificationService, final LoginModel loginModel, final UI ui, final MessageSource messageSource) {
 	this.securityContext=securityContext;
 	this.authentificationService=authentificationService;
 	this.loginModel=loginModel;
 	this.ui=ui;
+	this.messageSource=messageSource;
 		
 	final FormLayout formLayout = new FormLayout();
 	formLayout.setResponsiveSteps(new ResponsiveStep("10vH",1));
@@ -85,9 +94,9 @@ public class LoginView extends VerticalLayout  implements LocalizeView {
 	final Binder<LoginModel> binder = new Binder<>();
 
 	
-	binder.forField(user).withValidator( value ->  StringUtils.hasText(value), "required").bind(LoginModel::login, LoginModel::assignLogin);
+	binder.forField(user).withValidator( value ->  StringUtils.hasText(value), message(I18N_REQUIRED)).bind(LoginModel::login, LoginModel::assignLogin);
 	
-	binder.forField(passwd).withValidator( value ->  StringUtils.hasText(value),"required").bind(LoginModel::password, LoginModel::assignPassword);  
+	binder.forField(passwd).withValidator( value ->  StringUtils.hasText(value),message(I18N_REQUIRED)).bind(LoginModel::password, LoginModel::assignPassword);  
 	
 	
 	
@@ -129,19 +138,22 @@ public class LoginView extends VerticalLayout  implements LocalizeView {
 	loginModel.notifyObservers(LoginModel.Events.ChangeLocale);
 	
 	}
+	private String message(final String key) {
+		return messageSource.getMessage(key, null, loginModel.locale());
+	}
 	private void login() {
 		
 		final Optional<Authentication> authentication =  authentificationService.authentification(loginModel.login());
 		
 		if( ! authentication.isPresent()) {
 			message.setVisible(true);
-			message.setText("Benutzer nicht vorhanden.");
+			message.setText(message(I18N_USER_NOT_FOUND));
 			return;
 		}
 		
 		if( ! loginModel.authenticate(authentication.get()) ) {
 			message.setVisible(true);
-			message.setText("Passwort ungültig.");
+			message.setText(message(I18N_PASSWORD_INVALID));
 			return;
 		}
 		
