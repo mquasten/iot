@@ -40,7 +40,7 @@ public class LoginView extends VerticalLayout  implements LocalizeView {
 
 	private static final String I18N_USER_NOT_FOUND = "login_user_not_found";
 
-	private static final String I18N_REQUIRED = "login_required";
+	static final String I18N_REQUIRED = "login_required";
 
 	private static final long serialVersionUID = 1L;
 	
@@ -52,7 +52,7 @@ public class LoginView extends VerticalLayout  implements LocalizeView {
 	private final Label userLabel = new Label();
 	
 	@I18NKey("password")
-	private final Label passwdLabel = new Label();
+	private final Label passwordLabel = new Label();
 	
 	@I18NKey("login")
 	private final Button button = new Button();
@@ -88,7 +88,7 @@ public class LoginView extends VerticalLayout  implements LocalizeView {
 	passwd.setSizeFull();
 	
 	formLayout.addFormItem( user, userLabel);
-	formLayout.addFormItem(passwd,passwdLabel);
+	formLayout.addFormItem(passwd,passwordLabel);
 	
 	
 	final Binder<LoginModel> binder = new Binder<>();

@@ -13,6 +13,7 @@ public interface LocalizeView {
 		final String prefix =  this.getClass().isAnnotationPresent(I18NKey.class) ? this.getClass().getAnnotation(I18NKey.class).value() :  this.getClass().getSimpleName().toLowerCase()+ "_" ; 
 		Arrays.asList(this.getClass().getDeclaredFields()).stream().filter(field -> HasText.class.isAssignableFrom(field.getType())).filter(field -> field.isAnnotationPresent(I18NKey.class)).forEach(field -> {
 			field.setAccessible(true);
+		
 			final String key = prefix + field.getAnnotation(I18NKey.class).value();
 			final HasText component = (HasText) ReflectionUtils.getField(field, this);
 			component.setText(messageSource.getMessage(key, null, "???", locale));
