@@ -1,0 +1,42 @@
+jahr 	West-Kirche	Ost-Kirche
+2000 	23. April 	30. April
+2001 	15. April
+2002 	31. März 	5. Mai
+2003 	20. April 	27. April
+2004 	11. April
+2005 	27. März 	1. Mai
+2006 	16. April 	23. April
+2007 	8. April
+2008 	23. März 	27. April
+2009 	12. April 	19. April
+2010 	4. April
+2011 	24. April
+2012 	8. April 	15. April
+2013 	31. März 	5. Mai
+2014 	20. April
+2015 	5. April 	12. April
+2016 	27. März 	1. Mai
+2017 	16. April
+2018 	1. April 	8. April
+2019 	21. April 	28. April
+2020 	12. April 	19. April
+2021 	4. April 	2. Mai
+2022 	17. April 	24. April
+2023 	9. April 	16. April
+2024 	31. März 	5. Mai
+2025 	20. April
+2026 	5. April 	12. April
+2027 	28. März 	2. Mai
+2028 	16. April
+2029 	1. April 	8. April
+2030 	21. April 	28. April
+2031 	13. April
+2032 	28. März 	2. Mai
+2033 	17. April 	24. April
+2034 	9. April
+2035 	25. März 	29. April
+2036 	13. April 	20. April
+2037 	5. April
+2038 	25. April
+2039 	10. April 	17. April
+2040 	1. April 	6. Mai 
