@@ -9,8 +9,11 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import de.mq.iot.calendar.Specialday.VariantSpecialDay;
+
 public class SpecialdayTest {
 	
+private static final int YEAR = 2018;
 private Map<Integer,LocalDate> easterDates = new  HashMap<>();
 	
 	@BeforeEach
@@ -77,6 +80,34 @@ private Map<Integer,LocalDate> easterDates = new  HashMap<>();
 		easterDates.entrySet().forEach(entry -> assertEquals(easterDates.get(entry.getKey()), specialday.easterdate(entry.getKey())));
 		
 	}
+	
+	@Test
+	void goodFriday() {
+		assertEquals(LocalDate.of(YEAR, 3, 30), new SpecialdayImpl(VariantSpecialDay.GoodFriday).date(YEAR));
+	}
+	
+	@Test
+	void  easter() {
+		assertEquals(LocalDate.of(YEAR, 4, 1), new SpecialdayImpl(VariantSpecialDay.Easter).date(2018));
+	}
 
+	@Test
+	void   easterMonday() {
+		assertEquals(LocalDate.of(YEAR, 4, 2), new SpecialdayImpl(VariantSpecialDay.EasterMonday).date(2018));
+	}
 
+	@Test
+	void  ascension() {
+		assertEquals(LocalDate.of(YEAR, 5, 10), new SpecialdayImpl(VariantSpecialDay.Ascension).date(2018));
+	}
+	
+	@Test
+	void whitMonday() {
+		assertEquals(LocalDate.of(YEAR, 5, 21), new SpecialdayImpl(VariantSpecialDay.WhitMonday).date(2018));
+	}
+	
+	@Test
+	void corpusChristi() {
+		assertEquals(LocalDate.of(YEAR, 5, 31), new SpecialdayImpl(VariantSpecialDay.CorpusChristi).date(2018));
+	}
 }

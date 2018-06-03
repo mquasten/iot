@@ -8,8 +8,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.Assert;
 
+import de.mq.iot.calendar.Specialday;
+
 @Document( collection="Specialday")
-class SpecialdayImpl {
+class SpecialdayImpl implements Specialday {
 	
 	enum Type {
 		Gauss,
@@ -31,6 +33,10 @@ class SpecialdayImpl {
 		this(0);
 	}
 	
+	SpecialdayImpl(final VariantSpecialDay variantSpecialDay) {
+		this(variantSpecialDay.daysFromEasterDay());
+	}
+	
 	SpecialdayImpl(final int offset) {
 		id= new UUID(Type.Gauss.name().hashCode(), Long.valueOf(offset)).toString();
 		type=Type.Gauss;
@@ -39,15 +45,23 @@ class SpecialdayImpl {
 		month=null;
 	}
 	
-	SpecialdayImpl(final int month, final int dayOfMonth) {
-		id= new UUID(Type.Fix.name().hashCode(), MonthDay.of(month, dayOfMonth).hashCode()).toString();
+	SpecialdayImpl(final FixedSpecialDay fixedSpecialDay) {
+		this(fixedSpecialDay.monthDay());
+	}
+	
+	SpecialdayImpl(final MonthDay monthDay) {
+		id= new UUID(Type.Fix.name().hashCode(), monthDay.hashCode()).toString();
 		type=Type.Fix;
-		this.month=month;
-		this.dayOfMonth=dayOfMonth;
+		this.month=monthDay.getMonthValue();
+		this.dayOfMonth=monthDay.getDayOfMonth();
 		this.offset=null;
 	}
 	
 	
+	/* (non-Javadoc)
+	 * @see de.mq.iot.calendar.support.Specialday#date(int)
+	 */
+	@Override
 	public LocalDate date(final int year) {
 		validYearGuard(year);
 		if(type == Type.Fix) {
