@@ -1,0 +1,214 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>de.mq</groupId>
+	<artifactId>iot.batch</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>iot.batch</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+		<maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+		<jacoco.version>0.8.0</jacoco.version>
+		<surefire-plugin-version>2.19.1</surefire-plugin-version>
+		<junit-platform-surefire-provider-version>1.0.1</junit-platform-surefire-provider-version>
+		<junit-launcher-version>1.0.1</junit-launcher-version>
+		<junit-jupiter-version>5.0.2</junit-jupiter-version>
+		<spring.version>5.0.4.RELEASE</spring.version>
+		<spring-data-version>2.0.5.RELEASE</spring-data-version>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit-jupiter-version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit-jupiter-version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<version>${junit-launcher-version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-expression</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-mongodb-parent -->
+		<!--  dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-mongodb-parent</artifactId>
+			<version>2.0.5.RELEASE</version>
+			<type>pom</type>
+		</dependency-->
+		
+		
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-mongodb</artifactId>
+			<version>${spring-data-version}</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>io.projectreactor.ipc</groupId>
+			<artifactId>reactor-netty</artifactId>
+			<version>0.7.3.RELEASE</version>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webflux</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-core -->
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-core</artifactId>
+			<version>3.1.4.RELEASE</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+    <groupId>org.mongodb</groupId>
+    <artifactId>mongodb-driver-reactivestreams</artifactId>
+    <version>1.6.0</version>
+  </dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/io.projectreactor.spring/reactor-spring-core -->
+
+
+		<!-- https://mvnrepository.com/artifact/io.projectreactor.spring/reactor-spring-core -->
+
+
+
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-web -->
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-web-reactive -->
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-web-reactive -->
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
+		<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-rest-core -->
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-web -->
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
+
+
+	</dependencies>
+
+
+	<build>
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${surefire-plugin-version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.junit.platform</groupId>
+						<artifactId>junit-platform-surefire-provider</artifactId>
+						<version>${junit-platform-surefire-provider-version}</version>
+					</dependency>
+
+				</dependencies>
+			</plugin>
+
+
+
+			<plugin>
+
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<!-- version>0.7.4.201502262128</version -->
+
+				<version>${jacoco.version}</version>
+
+
+
+				<configuration>
+					<excludes>
+						<exclude>**/*DatabaseSetup.*</exclude>
+					</excludes>
+
+
+					<destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
+					<dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
+				</configuration>
+				<executions>
+					<execution>
+						<id>jacoco-initialize</id>
+						<goals>
+							<goal>prepare-agent</goal>
+
+
+						</goals>
+
+					</execution>
+					<execution>
+						<id>jacoco-site</id>
+						<phase>package</phase>
+
+						<goals>
+							<goal>report</goal>
+
+						</goals>
+
+					</execution>
+
+				</executions>
+
+
+			</plugin>
+
+		</plugins>
+	</build>
+</project>
