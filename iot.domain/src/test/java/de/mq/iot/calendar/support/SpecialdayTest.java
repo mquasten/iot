@@ -9,11 +9,9 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class EasterCaculatorTest {
+public class SpecialdayTest {
 	
-	private EasterCalculator easterCalculator = new GregorianEasterCalculatorImpl();
-	
-	private Map<Integer,LocalDate> easterDates = new  HashMap<>();
+private Map<Integer,LocalDate> easterDates = new  HashMap<>();
 	
 	@BeforeEach
 	void setup() {
@@ -67,17 +65,18 @@ public class EasterCaculatorTest {
 	}
 	
 	
-	
 	@Test
 	void easterdate() {
-		final LocalDate easterdate = easterCalculator.easterdate(2018);
-		assertEquals(LocalDate.of(2018, 4, 1), easterdate);
+		final SpecialdayImpl specialday =  new SpecialdayImpl();
+		assertEquals(LocalDate.of(2018, 4, 1), specialday.easterdate(2018));
 	}
 	
 	@Test
 	void easterdates() {
-		easterDates.entrySet().forEach(entry -> assertEquals(easterDates.get(entry.getKey()), easterCalculator.easterdate(entry.getKey())));
+		final SpecialdayImpl specialday =  new SpecialdayImpl();
+		easterDates.entrySet().forEach(entry -> assertEquals(easterDates.get(entry.getKey()), specialday.easterdate(entry.getKey())));
 		
 	}
+
 
 }
