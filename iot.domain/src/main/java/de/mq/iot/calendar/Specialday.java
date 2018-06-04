@@ -29,8 +29,8 @@ public interface Specialday {
  		LaborDay(MonthDay.of(5,1)) ,
  		GermanUnity(MonthDay.of(10,3)),
  		AllHallows(MonthDay.of(11,1)),
- 		ChristmasDay(MonthDay.of(25,12)),
- 		BoxingDay(MonthDay.of(26, 12));
+ 		ChristmasDay(MonthDay.of(12,25)),
+ 		BoxingDay(MonthDay.of(12,26));
  		
  		private final MonthDay monthDay;
  		

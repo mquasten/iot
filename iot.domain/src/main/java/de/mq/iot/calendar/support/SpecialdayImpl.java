@@ -46,6 +46,8 @@ class SpecialdayImpl implements Specialday {
 	}
 	
 	SpecialdayImpl(final FixedSpecialDay fixedSpecialDay) {
+		
+	
 		this(fixedSpecialDay.monthDay());
 	}
 	
@@ -58,19 +60,21 @@ class SpecialdayImpl implements Specialday {
 	}
 	
 	
+	
 	/* (non-Javadoc)
 	 * @see de.mq.iot.calendar.support.Specialday#date(int)
 	 */
 	@Override
 	public LocalDate date(final int year) {
 		validYearGuard(year);
+		
 		if(type == Type.Fix) {
 			return LocalDate.of(year, month, dayOfMonth);
 		}
 		if( type == Type.Gauss) {
 			return easterdate(year).plusDays(offset);
 		}
-		throw new IllegalArgumentException("Invalid type: " + type.name());
+		throw new IllegalArgumentException("Invalid type: " + type);
 		
 	}
 	
