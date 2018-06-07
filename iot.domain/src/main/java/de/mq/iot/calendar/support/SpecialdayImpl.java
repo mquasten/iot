@@ -15,7 +15,8 @@ class SpecialdayImpl implements Specialday {
 	
 	enum Type {
 		Gauss,
-		Fix
+		Fix,
+		Vacation
 	}
 	
 	@Id
@@ -27,6 +28,7 @@ class SpecialdayImpl implements Specialday {
 	
 	private final Integer dayOfMonth;
 	private final Integer month;
+	private final Integer year;
 	
 	
 	SpecialdayImpl() {
@@ -43,10 +45,10 @@ class SpecialdayImpl implements Specialday {
 		this.offset=offset;
 		dayOfMonth=null;
 		month=null;
+		year=null;
 	}
 	
 	SpecialdayImpl(final FixedSpecialDay fixedSpecialDay) {
-		
 	
 		this(fixedSpecialDay.monthDay());
 	}
@@ -57,8 +59,17 @@ class SpecialdayImpl implements Specialday {
 		this.month=monthDay.getMonthValue();
 		this.dayOfMonth=monthDay.getDayOfMonth();
 		this.offset=null;
+		this.year=null;
 	}
 	
+	SpecialdayImpl(final LocalDate date){
+		id= new UUID(Type.Fix.name().hashCode(), date.hashCode()).toString();
+		type=Type.Vacation;
+		this.month=date.getMonthValue();
+		this.dayOfMonth=date.getDayOfMonth();
+		this.offset=null;
+		this.year=date.getYear();
+	}
 	
 	
 	/* (non-Javadoc)
@@ -73,6 +84,11 @@ class SpecialdayImpl implements Specialday {
 		}
 		if( type == Type.Gauss) {
 			return easterdate(year).plusDays(offset);
+		}
+		if( type == Type.Vacation) {
+			Assert.notNull(this.year , "Year is mandatory.");
+			Assert.isTrue(this.year==year, "Wrong year: " + this.year + " expected " + year );
+			return  LocalDate.of(year, month, dayOfMonth);
 		}
 		throw new IllegalArgumentException("Invalid type: " + type);
 		

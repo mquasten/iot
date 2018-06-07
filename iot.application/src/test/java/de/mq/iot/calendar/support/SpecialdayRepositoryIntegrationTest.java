@@ -29,7 +29,7 @@ class SpecialdayRepositoryIntegrationTest {
 	
 	private static final int YEAR = 2018;
 	@Autowired
-	private SpecialdaysRepository specialdaysRepository;
+	private SpecialdayRepository specialdaysRepository;
 
 	
 	@Test
@@ -62,5 +62,6 @@ class SpecialdayRepositoryIntegrationTest {
 		assertEquals(FixedSpecialDay.values().length, results.size());
 		
 		results.forEach(result -> assertTrue(days.contains(result.date(YEAR))));
+		
 	}
 }

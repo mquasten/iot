@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 
 @RepositoryDefinition(domainClass = SpecialdayImpl.class, idClass = String.class)
-public interface SpecialdaysRepository {
+public interface SpecialdayRepository {
 
 	Mono<Specialday> save(final Specialday specialday); 
 	
