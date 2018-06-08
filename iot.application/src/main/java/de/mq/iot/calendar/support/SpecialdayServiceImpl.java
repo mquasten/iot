@@ -3,21 +3,26 @@ package de.mq.iot.calendar.support;
 import java.time.Duration;
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.support.SpecialdayImpl.Type;
 
 
-
+@Service
 class SpecialdayServiceImpl implements SpecialdayService {
 	
 	private SpecialdayRepository specialdaysRepository;
 	private Duration duration;
+	
+	@Autowired
 	SpecialdayServiceImpl(final SpecialdayRepository specialdaysRepository, @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.specialdaysRepository=specialdaysRepository;
 		this.duration=Duration.ofMillis(timeout);
@@ -37,8 +42,8 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	@Override
 	public final Collection<Specialday> specialdays(final Year year) {
 		final Collection<Specialday> results = new ArrayList<>();
-		results.addAll(specialdaysRepository.findByType(Type.Fix).collectList().block(duration));
-		results.addAll(specialdaysRepository.findByType(Type.Fix).collectList().block(duration));
+		results.addAll(specialdaysRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss)).collectList().block(duration));
+		results.addAll(specialdaysRepository.findByTypeAndYear(Type.Vacation, year.getValue()).collectList().block(duration));
 		return Collections.unmodifiableCollection(results);
 		
 	}

@@ -1,7 +1,8 @@
 package de.mq.iot.calendar.support;
 
-import org.springframework.data.repository.RepositoryDefinition;
+import java.util.List;
 
+import org.springframework.data.repository.RepositoryDefinition;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.support.SpecialdayImpl.Type;
@@ -15,6 +16,8 @@ public interface SpecialdayRepository {
 
 	Mono<Specialday> save(final Specialday specialday); 
 	
-	Flux<Specialday> findByType(final Type type);
+	Flux<Specialday> findByTypeIn(final List<Type> types);
+	
+	Flux<Specialday> findByTypeAndYear(final Type type, final int year);
 	
 }
