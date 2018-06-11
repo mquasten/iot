@@ -14,6 +14,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import de.mq.iot.state.StateUpdateService;
 import de.mq.iot.support.ApplicationConfiguration;
 
+@Mains( {@Main(name ="workingDayUpdate",  parameters = { @MainParameter(name = "d" , defaultValue="0") })})
 public class StateMain {
 
 	public final static void main(String[] args) {
@@ -21,9 +22,9 @@ public class StateMain {
 		final CommandLineParser parser = new DefaultParser();
 
 		final Option daysOption = Option.builder("d")
-
+				
 				.required(true)
-
+				
 				.hasArg(true)
 
 				.desc("Offset in days")

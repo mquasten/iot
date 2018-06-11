@@ -1,6 +1,7 @@
 package de.mq.iot.state.support;
 
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
+@Disabled
 class StateUpdateSeriviceIntegrationTest {
 	
 	@Autowired
