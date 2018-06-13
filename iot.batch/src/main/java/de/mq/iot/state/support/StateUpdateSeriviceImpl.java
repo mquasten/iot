@@ -13,11 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.state.Command;
+import de.mq.iot.state.Commands;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.StateUpdateService;
 
 @Service
-class StateUpdateSeriviceImpl implements StateUpdateService {
+public class StateUpdateSeriviceImpl implements StateUpdateService {
 
 	private final SpecialdayService specialdayService;
 	private final StateService  stateService;
@@ -33,6 +35,7 @@ class StateUpdateSeriviceImpl implements StateUpdateService {
 	 * @see de.mq.iot.state.support.StateUpdateService#update(int)
 	 */
 	@Override
+	@Commands(commands= {@Command(arguments = { "d" }, name = "updateWorkingday")})
 	public void update(final int offsetDays) {
 		final LocalDate localDate = LocalDate.now().plusDays(offsetDays);
 		Assert.isTrue(offsetDays >=0 , "Offset days should be greather or equals 0." );

@@ -11,10 +11,13 @@ import org.apache.commons.cli.ParseException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import de.mq.iot.state.Main;
+import de.mq.iot.state.MainParameter;
+import de.mq.iot.state.Mains;
 import de.mq.iot.state.StateUpdateService;
 import de.mq.iot.support.ApplicationConfiguration;
 
-@Mains( {@Main(name ="workingDayUpdate",  parameters = { @MainParameter(name = "d" , defaultValue="0") })})
+@Mains( {@Main(name ="workingDayUpdate",  parameters = { @MainParameter(name = "d" , defaultValue="0", desc = "Offset days from current date") })})
 public class StateMain {
 
 	public final static void main(String[] args) {
