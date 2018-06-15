@@ -23,7 +23,7 @@ class StateUpdateSeriviceIntegrationTest {
 	void update() {
 	
 		
-		stateUpdateSerivice.update(0);
+		stateUpdateSerivice.updateWorkingday(0);
 	}
 
 }

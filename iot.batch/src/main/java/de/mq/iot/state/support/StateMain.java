@@ -51,7 +51,7 @@ public class StateMain {
 		try (final ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(ApplicationConfiguration.class)) {
 
 			final StateUpdateService stateUpdateService = applicationContext.getBean(StateUpdateService.class);
-			stateUpdateService.update(days);
+			stateUpdateService.updateWorkingday(days);
 			System.out.println("main...");
 		}
 	}

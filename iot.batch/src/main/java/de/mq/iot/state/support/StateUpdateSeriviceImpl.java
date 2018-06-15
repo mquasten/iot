@@ -35,8 +35,8 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 	 * @see de.mq.iot.state.support.StateUpdateService#update(int)
 	 */
 	@Override
-	@Commands(commands= {@Command(arguments = { "d" }, name = "updateWorkingday")})
-	public void update(final int offsetDays) {
+	@Commands(commands= {@Command(arguments = { "d" }, name = "updateWorkingday"), @Command(arguments = { "d" }, name = "updateCalendar" , order=1)})
+	public void updateWorkingday(final int offsetDays) {
 		final LocalDate localDate = LocalDate.now().plusDays(offsetDays);
 		Assert.isTrue(offsetDays >=0 , "Offset days should be greather or equals 0." );
 		
@@ -52,6 +52,11 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 		}
 		
 		
+		
+	}
+	
+	@Commands(commands= {@Command(arguments = { "d" }, name = "updateTime"), @Command(arguments = { "d" }, name = "updateCalendar") })
+	public void updateTime(final int offsetDays) {
 		
 	}
 

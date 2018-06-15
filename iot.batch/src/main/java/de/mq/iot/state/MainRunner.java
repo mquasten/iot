@@ -22,7 +22,8 @@ import de.mq.iot.state.support.SimpleServiceCommandlineRunnerImpl;
 import de.mq.iot.support.ApplicationConfiguration;
 
 @Mains({
-	@Main(name = "updateWorkingday", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date")})
+	@Main(name = "updateWorkingday", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date")}),
+	@Main(name = "updateCalendar", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date")})
 })
 public class MainRunner {
 	private static Class<?> configurationClass = ApplicationConfiguration.class;
@@ -46,9 +47,7 @@ public class MainRunner {
 		final Options options = new Options();
 		mainDefinitions.get(cmd.get()).forEach(mainParameter -> options.addOption(mainParameter.name(), mainParameter.hasArg(), mainParameter.desc()));
 
-		if (!options.hasOption("h")) {
-			options.addOption("h", false, "Print help");
-		}
+		
 		final Map<String, Object> argumentValues = new HashMap<>();
 		final CommandLineParser parser = new DefaultParser();
 		try {
