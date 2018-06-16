@@ -22,22 +22,25 @@ import de.mq.iot.state.support.SimpleServiceCommandlineRunnerImpl;
 import de.mq.iot.support.ApplicationConfiguration;
 
 @Mains({
-	@Main(name = "updateWorkingday", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date")}),
-	@Main(name = "updateCalendar", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date")})
+	@Main(name = "updateWorkingday", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date" ,defaultValue="0")}),
+	@Main(name = "updateCalendar", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date", defaultValue="0")})
 })
 public class MainRunner {
-	private static Class<?> configurationClass = ApplicationConfiguration.class;
+	final static Class<MainRunner> MAIN_DEFINITION_CLASS = MainRunner.class;
+	final  static Class<?> CONFIGURATION_CLASS = ApplicationConfiguration.class;
 
 	public static void main(final String[] arguments) {
-		System.exit(run(arguments));
+		System.exit(run(arguments,CONFIGURATION_CLASS, MAIN_DEFINITION_CLASS));
 
 	}
 
-	static int run(final String[] arguments) {
+	static int run(final String[] arguments,  final Class<?> configurationClass, final Class<?> mainDefinitionClass ) {
 
+		
+		System.out.println(mainDefinitionClass);
 		final SimpleServiceCommandlineRunnerImpl commandlineRunner = new SimpleServiceCommandlineRunnerImpl();
 
-		final Map<String, Collection<MainParameter>> mainDefinitions = commandlineRunner.mainDefinitions(MainRunner.class);
+		final Map<String, Collection<MainParameter>> mainDefinitions = commandlineRunner.mainDefinitions(mainDefinitionClass);
 
 		final Optional<String> cmd = Arrays.asList(arguments).stream().filter(arg -> mainDefinitions.containsKey(arg)).findFirst();
 		if (!cmd.isPresent()) {
