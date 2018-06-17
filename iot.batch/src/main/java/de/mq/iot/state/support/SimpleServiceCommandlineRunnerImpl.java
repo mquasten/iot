@@ -37,7 +37,7 @@ public class SimpleServiceCommandlineRunnerImpl {
 
 	final ConversionService conversionService = new DefaultConversionService();
 
-	public final Map<String, Collection<MainParameter>> mainDefinitions(final Class<?> mainDefinitionClass) {
+	public  Map<String, Collection<MainParameter>> mainDefinitions(final Class<?> mainDefinitionClass) {
 		Assert.isTrue(mainDefinitionClass.isAnnotationPresent(Mains.class), "Mains annotation expected.");
 
 		final List<Main> mainList = Arrays.asList(mainDefinitionClass.getAnnotation(Mains.class).value());
@@ -51,7 +51,7 @@ public class SimpleServiceCommandlineRunnerImpl {
 
 	}
 
-	public final Collection<Entry<Method, Collection<String>>> servicesMethods(final String commandName) {
+	public  Collection<Entry<Method, Collection<String>>> servicesMethods(final String commandName) {
 		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
 		provider.addIncludeFilter(new AnnotationTypeFilter(Service.class));
 		final Collection<BeanDefinition> beans = provider.findCandidateComponents(BASE_PACKAGE);

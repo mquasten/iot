@@ -15,42 +15,38 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.StringUtils;
 
 import de.mq.iot.state.support.SimpleServiceCommandlineRunnerImpl;
 import de.mq.iot.support.ApplicationConfiguration;
 
-@Mains({
-	@Main(name = "updateWorkingday", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date" ,defaultValue="0")}),
-	@Main(name = "updateCalendar", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date", defaultValue="0")})
-})
+@Mains({ @Main(name = "updateWorkingday", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date", defaultValue = "0") }), @Main(name = "updateCalendar", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date", defaultValue = "0") }) })
 public class MainRunner {
-	final static Class<MainRunner> MAIN_DEFINITION_CLASS = MainRunner.class;
-	final  static Class<?> CONFIGURATION_CLASS = ApplicationConfiguration.class;
+	private final Class<MainRunner> mainDefinitionClass = MainRunner.class;
+	private final Class<?> configurationClass = ApplicationConfiguration.class;
+	private static Class<? extends MainRunner> mainRunnerClass = MainRunner.class;
+	private final SimpleServiceCommandlineRunnerImpl commandlineRunner = new SimpleServiceCommandlineRunnerImpl();
 
 	public static void main(final String[] arguments) {
-		System.exit(run(arguments,CONFIGURATION_CLASS, MAIN_DEFINITION_CLASS));
+		final MainRunner mainRunner = BeanUtils.instantiateClass(mainRunnerClass);
+		mainRunner.run(arguments).ifPresent(System::exit);
 
 	}
 
-	static int run(final String[] arguments,  final Class<?> configurationClass, final Class<?> mainDefinitionClass ) {
-
-		
-		System.out.println(mainDefinitionClass);
-		final SimpleServiceCommandlineRunnerImpl commandlineRunner = new SimpleServiceCommandlineRunnerImpl();
+	Optional<Integer> run(final String[] arguments) {
 
 		final Map<String, Collection<MainParameter>> mainDefinitions = commandlineRunner.mainDefinitions(mainDefinitionClass);
 
 		final Optional<String> cmd = Arrays.asList(arguments).stream().filter(arg -> mainDefinitions.containsKey(arg)).findFirst();
 		if (!cmd.isPresent()) {
 			System.err.println("Command not found expected values: " + StringUtils.collectionToCommaDelimitedString(mainDefinitions.keySet()));
-			return 1;
+			return Optional.of(1);
 		}
 		final Options options = new Options();
 		mainDefinitions.get(cmd.get()).forEach(mainParameter -> options.addOption(mainParameter.name(), mainParameter.hasArg(), mainParameter.desc()));
 
-		
 		final Map<String, Object> argumentValues = new HashMap<>();
 		final CommandLineParser parser = new DefaultParser();
 		try {
@@ -77,13 +73,13 @@ public class MainRunner {
 			commandlineRunner.execute(methodEntries, argumentValues, applicationContext);
 			System.out.println(cmd.get() + " finished ...");
 		}
-		return 0;
+		return Optional.of(0);
 	}
 
-	private static int showHelpAndExitWithError(final Options options, final String cmd) {
+	private static Optional<Integer> showHelpAndExitWithError(final Options options, final String cmd) {
 		final HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("MainRunner " + cmd, options);
-		return 1;
+		return Optional.of(1);
 	}
 
 	private static void addArgumentValues(final Map<String, Collection<MainParameter>> mainDefinitions, final String cmd, Map<String, Object> argumentValues, final CommandLine commandLine) {
