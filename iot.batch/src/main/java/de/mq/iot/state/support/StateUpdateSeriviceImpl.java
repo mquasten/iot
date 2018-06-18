@@ -21,6 +21,7 @@ import de.mq.iot.state.StateUpdateService;
 @Service
 public class StateUpdateSeriviceImpl implements StateUpdateService {
 
+	static final String WORKINGDAY_STATE_NAME = "Workingday";
 	private final SpecialdayService specialdayService;
 	private final StateService  stateService;
 	
@@ -41,14 +42,14 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 		Assert.isTrue(offsetDays >=0 , "Offset days should be greather or equals 0." );
 		
 		@SuppressWarnings("unchecked")
-		final State<Boolean> workingDayState = (State<Boolean>) stateService.states().stream().filter(state -> state.name().equals("Workingday")).findAny().orElseThrow(() -> new IllegalStateException("Workingday Sttae expected."));
+		final State<Boolean> workingDayState = (State<Boolean>) stateService.states().stream().filter(state -> state.name().equals(WORKINGDAY_STATE_NAME)).findAny().orElseThrow(() -> new IllegalStateException("Workingday State expected."));
 		final boolean expectedWorkingDayStateValue = isWorkingsday(localDate);
 		if( ! workingDayState.value().equals(expectedWorkingDayStateValue)) {
 			System.out.println("update needed ...");
 			workingDayState.assign(expectedWorkingDayStateValue);
 			stateService.update(workingDayState);
 			
-			System.out.println("update workingday to:" + workingDayState.value() );
+			System.out.println("update workingday to:" +expectedWorkingDayStateValue );
 		}
 		
 		
@@ -60,13 +61,15 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 		
 	}
 
-	private  boolean  isWorkingsday(final LocalDate date) {
+	boolean  isWorkingsday(final LocalDate date) {
 		if ( Arrays.asList(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY).contains(date.getDayOfWeek())) {
-			return false;
+		   return false;
 		}
 		
 		final Collection<LocalDate> specialdates = specialdayService.specialdays(Year.from(date)).stream().map(specialday -> specialday.date(date.getYear())).collect(Collectors.toSet());
+		
 		if(specialdates.contains(date)) {
+			
 			return false;
 		}
 	    
