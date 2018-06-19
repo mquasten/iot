@@ -33,7 +33,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	 */
 	@Override
 	public final void save(final Specialday specialday) {
-		specialdaysRepository.save(specialday).block();
+		specialdaysRepository.save(specialday).block(duration);
 	}
 	
 	/* (non-Javadoc)

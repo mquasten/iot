@@ -20,7 +20,7 @@
 		<spring-version>5.0.4.RELEASE</spring-version>
 
 		<maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
-		<jacoco.version>0.8.0</jacoco.version>
+		<jacoco.version>0.8.1</jacoco.version>
 		<surefire-plugin-version>2.19.1</surefire-plugin-version>
 		<surefire-provider-version>1.0.1</surefire-provider-version>
 		<mockito-version>2.7.22</mockito-version>
@@ -124,9 +124,7 @@
 
 
 				<configuration>
-					<excludes>
-						<exclude>**/*DatabaseSetup.*</exclude>
-					</excludes>
+					
 
 
 					<destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
