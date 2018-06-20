@@ -32,7 +32,7 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
-		
+
 		<dependency>
 			<groupId>commons-cli</groupId>
 			<artifactId>commons-cli</artifactId>
@@ -125,9 +125,9 @@
 			<artifactId>mongodb-driver-reactivestreams</artifactId>
 			<version>1.6.0</version>
 		</dependency>
-		
-		
-		
+
+
+
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
@@ -156,23 +156,6 @@
 			<version>${mockito-version}</version>
 			<scope>test</scope>
 		</dependency>
-		
-
-
-		<!-- https://mvnrepository.com/artifact/io.projectreactor.spring/reactor-spring-core -->
-
-
-		<!-- https://mvnrepository.com/artifact/io.projectreactor.spring/reactor-spring-core -->
-
-
-
-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-web -->
-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-web-reactive -->
-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-web-reactive -->
-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
-		<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-rest-core -->
-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-web -->
-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
 
 
 	</dependencies>
@@ -252,6 +235,54 @@
 
 			</plugin>
 
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<finalName>iotBatch</finalName>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass> de.mq.iot.state.MainRunner</mainClass>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.handlers</resource>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.schemas</resource>
+								</transformer>
+							</transformers>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+
+
 		</plugins>
 	</build>
+
+
+
 </project>
