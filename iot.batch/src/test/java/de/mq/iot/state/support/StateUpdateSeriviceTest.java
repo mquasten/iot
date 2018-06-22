@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.withSettings;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,14 +32,20 @@ public class StateUpdateSeriviceTest {
 	private final StateService stateService = Mockito.mock(StateService.class);
 
 	private final StateUpdateService stateUpdateService = new StateUpdateSeriviceImpl(specialdayService, stateService);
+	
+	private final Map<String,Integer> items = new HashMap<>();
+	
+	static final Integer SUMMER_VALUE = 1;
+	static final Integer WINTER_VALUE = 0;
 
 	@SuppressWarnings("unchecked")
 	private final State<Boolean> state = Mockito.mock(State.class);
 
 	@BeforeEach
 	void setup() {
-
-		;
+		items.put("WINTER", WINTER_VALUE);
+		items.put("SUMMER", SUMMER_VALUE);
+		
 		Mockito.doReturn(StateUpdateSeriviceImpl.WORKINGDAY_STATE_NAME).when(state).name();
 		Mockito.doReturn(Boolean.FALSE).when(state).value();
 		Mockito.doReturn(Arrays.asList(state)).when(stateService).states();
@@ -122,20 +130,39 @@ public class StateUpdateSeriviceTest {
 
 	@Test
 	void time() {
-		final Map<Month, String> expectedValues = new HashMap<>();
-		expectedValues.putAll(Arrays.asList(Month.JANUARY, Month.FEBRUARY, Month.MARCH, Month.NOVEMBER, Month.DECEMBER).stream().collect(Collectors.toMap(month -> month, month -> StateUpdateSeriviceImpl.WINTER)));
+		final Map<Month, Integer> expectedValues = new HashMap<>();
+		expectedValues.putAll(Arrays.asList(Month.JANUARY, Month.FEBRUARY, Month.MARCH, Month.NOVEMBER, Month.DECEMBER).stream().collect(Collectors.toMap(month -> month, month -> WINTER_VALUE)));
 
-		expectedValues.putAll(Arrays.asList(Month.values()).stream().filter(month -> !expectedValues.containsKey(month)).collect(Collectors.toMap(month -> month, month -> StateUpdateSeriviceImpl.SUMMER)));
+		expectedValues.putAll(Arrays.asList(Month.values()).stream().filter(month -> !expectedValues.containsKey(month)).collect(Collectors.toMap(month -> month, month ->SUMMER_VALUE)));
 
 		Arrays.asList(Month.values()).forEach(month -> {
 			LocalDate date = LocalDate.of(LocalDate.now().getYear(), month, 1);
-			assertEquals(expectedValues.get(month), ((StateUpdateSeriviceImpl) stateUpdateService).time(date), month.name());
+			assertEquals(expectedValues.get(month), ((StateUpdateSeriviceImpl) stateUpdateService).time(date, items), month.name());
 		});
 
-		assertEquals(StateUpdateSeriviceImpl.WINTER, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 3, 24)));
-		assertEquals(StateUpdateSeriviceImpl.SUMMER, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 3, 25)));
-		assertEquals(StateUpdateSeriviceImpl.SUMMER, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 10, 27)));
-		assertEquals(StateUpdateSeriviceImpl.WINTER, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 10, 28)));
+		assertEquals(WINTER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 3, 24),items));
+		assertEquals(SUMMER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 3, 25),items));
+		assertEquals(SUMMER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 10, 27), items));
+		assertEquals(WINTER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 10, 28),items));
 
+	}
+	@Test
+	void updateTime() {
+		@SuppressWarnings("unchecked")
+		final State<Integer> state = Mockito.mock(State.class, withSettings().extraInterfaces(ItemList.class));
+		Mockito.doReturn(StateUpdateSeriviceImpl.TIME_STATE_NAME).when(state).name();
+		Mockito.doReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(0, "WINTER"),new AbstractMap.SimpleImmutableEntry<>(1, "SUMMER"))).when((ItemList)state).items();
+		final Integer currentState = ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.now(), items).equals(SUMMER_VALUE) ? WINTER_VALUE: SUMMER_VALUE;
+	
+		
+		Mockito.doReturn(currentState).when(state).value();
+		Mockito.doReturn(Arrays.asList(state)).when(stateService).states();
+		
+		
+		stateUpdateService.updateTime(0);
+		
+		Mockito.verify(state).assign(SUMMER_VALUE);
+
+		Mockito.verify(stateService).update(state);
 	}
 }
