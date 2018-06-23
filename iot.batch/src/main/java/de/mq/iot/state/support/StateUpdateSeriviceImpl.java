@@ -23,6 +23,7 @@ import de.mq.iot.state.StateUpdateService;
 
 @Service
 public class StateUpdateSeriviceImpl implements StateUpdateService {
+	static final String MONTH_STATE_NAME = "Month";
 	static final String SUMMER = "SUMMER";
 	static final String WINTER = "WINTER";
 	static final String WORKINGDAY_STATE_NAME = "Workingday";
@@ -67,7 +68,6 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 		Assert.isTrue(offsetDays >= 0, "Offset days should be greather or equals 0.");
 		final LocalDate localDate = LocalDate.now().plusDays(offsetDays);
 		
-		
 		final Collection<State<?>> states = stateService.states();
 		
 		@SuppressWarnings("unchecked")
@@ -75,9 +75,9 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 		
 		
 		
-		final Map<String, Integer> itemValues = ((ItemList)timeState).items().stream().collect(Collectors.toMap(Entry::getValue ,  Entry::getKey));
+		final Map<String, Integer> timeItemValues = ((ItemList)timeState).items().stream().collect(Collectors.toMap(Entry::getValue ,  Entry::getKey));
 		
-		final Integer expectedTimeStateValue = time(localDate, itemValues);
+		final Integer expectedTimeStateValue = time(localDate, timeItemValues);
 		if (!timeState.value().equals(expectedTimeStateValue)) {
 			System.out.println("update needed (Time) ...");
 			
@@ -87,15 +87,22 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 
 			System.out.println("update time to:" + expectedTimeStateValue);
 		}
+		
+		
+		@SuppressWarnings("unchecked")
+		final State<Integer> monthState = (State<Integer>) states.stream().filter(state -> state.name().equals(MONTH_STATE_NAME)).findAny().orElseThrow(() -> new IllegalStateException("Month State expected."));
+	
+		final Map<String, Integer> monthItemValues = ((ItemList)monthState).items().stream().collect(Collectors.toMap(Entry::getValue ,  Entry::getKey));
+		
+		System.out.println(monthItemValues); 
+		
 	}
 
 	boolean isWorkingsday(final LocalDate date) {
 		if (Arrays.asList(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY).contains(date.getDayOfWeek())) {
 			return false;
 		}
-		
-		
-		//++++++
+	
 		final Collection<LocalDate> specialdates = specialdayService.specialdays(Year.from(date)).stream().map(specialday -> specialday.date(date.getYear())).collect(Collectors.toSet());
 
 		if (specialdates.contains(date)) {
