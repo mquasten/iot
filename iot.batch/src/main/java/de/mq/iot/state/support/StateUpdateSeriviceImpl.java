@@ -93,7 +93,9 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 		if (Arrays.asList(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY).contains(date.getDayOfWeek())) {
 			return false;
 		}
-
+		
+		
+		//++++++
 		final Collection<LocalDate> specialdates = specialdayService.specialdays(Year.from(date)).stream().map(specialday -> specialday.date(date.getYear())).collect(Collectors.toSet());
 
 		if (specialdates.contains(date)) {
