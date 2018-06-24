@@ -10,10 +10,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
-import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -33,9 +33,9 @@ public class StateUpdateSeriviceTest {
 
 	private final StateUpdateService stateUpdateService = new StateUpdateSeriviceImpl(specialdayService, stateService);
 	
-	private final Map<String,Integer> timeItems = new HashMap<>();
+	private final Map<Integer, String> timeItems = new HashMap<>();
 	
-	private final Map<String, Integer> monthItems = new HashMap<>();
+	private final Map<Integer, String> monthItems = new HashMap<>();
 	
 	static final Integer SUMMER_VALUE = 1;
 	static final Integer WINTER_VALUE = 0;
@@ -50,21 +50,25 @@ public class StateUpdateSeriviceTest {
 	private final State<Integer> monthState = Mockito.mock(State.class, withSettings().extraInterfaces(ItemList.class));
 	@BeforeEach
 	void setup() {
-		timeItems.put("WINTER", WINTER_VALUE);
-		timeItems.put("SUMMER", SUMMER_VALUE);
+		timeItems.put(WINTER_VALUE, "WINTER");
+		timeItems.put(SUMMER_VALUE, "SUMMER");
 		
 		
 		Mockito.doReturn(StateUpdateSeriviceImpl.TIME_STATE_NAME).when(timeState).name();
-		Mockito.doReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(0, "WINTER"),new AbstractMap.SimpleImmutableEntry<>(1, "SUMMER"))).when((ItemList)timeState).items();
+		Mockito.doReturn(timeItems.entrySet()).when((ItemList)timeState).items();
 		
 		
 		Mockito.doReturn(StateUpdateSeriviceImpl.MONTH_STATE_NAME).when(monthState).name();
-		
+		monthItems.putAll(Arrays.asList(Month.values()).stream().collect(Collectors.toMap(Month::ordinal, Month::name)));
 		Mockito.doReturn(monthItems.entrySet()).when((ItemList)monthState).items();
+	
+		
 		
 		Mockito.doReturn(Arrays.asList(state, timeState, monthState)).when(stateService).states();
 		
-		monthItems.putAll(Arrays.asList(Month.values()).stream().collect(Collectors.toMap(Month::name,Month::ordinal)));
+		
+		
+	
 	
 		Mockito.doReturn(StateUpdateSeriviceImpl.WORKINGDAY_STATE_NAME).when(state).name();
 		Mockito.doReturn(Boolean.FALSE).when(state).value();
@@ -151,35 +155,102 @@ public class StateUpdateSeriviceTest {
 	@Test
 	void time() {
 		final Map<Month, Integer> expectedValues = new HashMap<>();
+		
+		final Map<String,Integer> reverseItemItems =  reverseItemItems();
+		
 		expectedValues.putAll(Arrays.asList(Month.JANUARY, Month.FEBRUARY, Month.MARCH, Month.NOVEMBER, Month.DECEMBER).stream().collect(Collectors.toMap(month -> month, month -> WINTER_VALUE)));
 
 		expectedValues.putAll(Arrays.asList(Month.values()).stream().filter(month -> !expectedValues.containsKey(month)).collect(Collectors.toMap(month -> month, month ->SUMMER_VALUE)));
 
 		Arrays.asList(Month.values()).forEach(month -> {
-			LocalDate date = LocalDate.of(LocalDate.now().getYear(), month, 1);
-			assertEquals(expectedValues.get(month), ((StateUpdateSeriviceImpl) stateUpdateService).time(date, timeItems), month.name());
+			final LocalDate date = LocalDate.of(LocalDate.now().getYear(), month, 1);
+			assertEquals(expectedValues.get(month), ((StateUpdateSeriviceImpl) stateUpdateService).time(date, reverseItemItems), month.name());
 		});
 
-		assertEquals(WINTER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 3, 24),timeItems));
-		assertEquals(SUMMER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 3, 25),timeItems));
-		assertEquals(SUMMER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 10, 27), timeItems));
-		assertEquals(WINTER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 10, 28),timeItems));
+		assertEquals(WINTER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 3, 24),reverseItemItems));
+		assertEquals(SUMMER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 3, 25),reverseItemItems));
+		assertEquals(SUMMER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 10, 27), reverseItemItems));
+		assertEquals(WINTER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 10, 28),reverseItemItems));
 
 	}
+
+	protected Map<String, Integer> reverseItemItems() {
+		return timeItems.entrySet().stream().collect(Collectors.toMap(Entry::getValue, Entry::getKey));
+	}
+	
 	@Test
-	void updateTime() {
+	void updateTimeWrongDaysOffset() {
+		Mockito.doReturn(0).when(timeState).value();
+		Mockito.doReturn(0).when(monthState).value();
 		
-		final Integer currentState = ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.now(), timeItems).equals(SUMMER_VALUE) ? WINTER_VALUE: SUMMER_VALUE;
+		assertThrows(IllegalArgumentException.class, () -> stateUpdateService.updateTime(-1));
+	}
+	
+	
+	@Test
+	void updateTimeSummerWinterStateMissing() {
+		Mockito.doReturn(0).when(timeState).value();
+		Mockito.doReturn(0).when(monthState).value();
+		
+		Mockito.doReturn(Arrays.asList(state, monthState)).when(stateService).states();		
+	
+		
+		assertThrows(IllegalStateException.class, () -> stateUpdateService.updateTime(0));
+		
+	}
+	
+	@Test
+	void updateTimeSummerWinter() {
+		final Map<String,Integer> reverseItemItems =  reverseItemItems();
+		final Integer currentState = ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.now(), reverseItemItems).equals(SUMMER_VALUE) ? WINTER_VALUE: SUMMER_VALUE;
 	
 		
 		Mockito.doReturn(currentState).when(timeState).value();
-	
 		
+		final Integer currentMonth = monthItems.entrySet().stream().filter(entry -> entry.getValue().equals(LocalDate.now().getMonth().name())).map(entry -> entry.getKey()).findFirst().orElseThrow(() -> new IllegalStateException("Month not found"));
+		
+		
+		Mockito.doReturn(currentMonth).when(monthState).value();
 		
 		stateUpdateService.updateTime(0);
 		
+		Mockito.verify(monthState, Mockito.never()).assign(Mockito.any());
+		Mockito.verify(stateService, Mockito.never()).update(monthState);
+		
 		Mockito.verify(timeState).assign(SUMMER_VALUE);
-
 		Mockito.verify(stateService).update(timeState);
 	}
+	
+	@Test
+	void updateMonth() {
+		final Integer currentState = ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.now(), reverseItemItems());
+		Mockito.doReturn(currentState).when(timeState).value();
+		
+		
+		final Integer currentMonth = monthItems.entrySet().stream().filter(entry -> entry.getValue().equals(LocalDate.now().minusDays(31).getMonth().name())).map(entry -> entry.getKey()).findFirst().orElseThrow(() -> new IllegalStateException("Month not found"));
+		Mockito.doReturn(currentMonth).when(monthState).value();
+		
+		stateUpdateService.updateTime(0);
+		
+		Mockito.verify(timeState,Mockito.never()).assign(Mockito.any());
+		Mockito.verify(stateService, Mockito.never()).update(timeState);
+		
+		Mockito.verify(monthState).assign(LocalDate.now().getMonthValue()-1);
+		Mockito.verify(stateService).update(monthState);
+	}
+	
+	
+	@Test
+	void updateTimeMonthStateMissing() {
+		Mockito.doReturn(0).when(timeState).value();
+		Mockito.doReturn(0).when(monthState).value();
+		
+		Mockito.doReturn(Arrays.asList(state, timeState)).when(stateService).states();		
+	
+		
+		assertThrows(IllegalStateException.class, () -> stateUpdateService.updateTime(0));
+		
+	}
+	
+	
 }

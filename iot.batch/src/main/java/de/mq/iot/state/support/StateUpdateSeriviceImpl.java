@@ -69,11 +69,9 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 		final LocalDate localDate = LocalDate.now().plusDays(offsetDays);
 		
 		final Collection<State<?>> states = stateService.states();
-		
+	
 		@SuppressWarnings("unchecked")
 		final State<Integer> timeState = (State<Integer>) states.stream().filter(state -> state.name().equals(TIME_STATE_NAME)).findAny().orElseThrow(() -> new IllegalStateException("Time State expected."));
-		
-		
 		
 		final Map<String, Integer> timeItemValues = ((ItemList)timeState).items().stream().collect(Collectors.toMap(Entry::getValue ,  Entry::getKey));
 		
@@ -94,7 +92,18 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 	
 		final Map<String, Integer> monthItemValues = ((ItemList)monthState).items().stream().collect(Collectors.toMap(Entry::getValue ,  Entry::getKey));
 		
-		System.out.println(monthItemValues); 
+		
+		final Integer expectedMonthStateValue = monthItemValues.get(localDate.getMonth().name());
+		//System.out.println(localDate.getMonth().name());
+		
+		if (!monthState.value().equals(expectedMonthStateValue)) {
+			System.out.println("update needed (Time) ...");
+			
+			monthState.assign(expectedMonthStateValue);
+			stateService.update(monthState);
+			System.out.println("update month to:" + expectedMonthStateValue);
+		} 
+		//System.out.println(monthItemValues);  
 		
 	}
 
@@ -113,7 +122,7 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 		return true;
 	}
 
-	Integer time(final LocalDate date, Map<String, Integer> items ) {
+	Integer time(final LocalDate date, final Map<String, Integer> items ) {
 
 		final LocalDate startSummerTime = lastSundayInMonth(Year.of(date.getYear()), Month.MARCH);
 
