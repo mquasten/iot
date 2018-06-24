@@ -1,0 +1,12 @@
+607cd43d4d9b17d8a96df387fe4ede62
+
+api.openweathermap.org/data/2.5/weather?q=Wegberg,de
+
+
+api.openweathermap.org/data/2.5/weather?q=Wegberg,de&appid=607cd43d4d9b17d8a96df387fe4ede62
+
+
+api.openweathermap.org/data/2.5/forecast?q=Wegberg,de&appid=607cd43d4d9b17d8a96df387fe4ede62
+
+
+api.openweathermap.org/data/2.5/weather?q=London,uk&APPID=607cd43d4d9b17d8a96df387fe4ede62
