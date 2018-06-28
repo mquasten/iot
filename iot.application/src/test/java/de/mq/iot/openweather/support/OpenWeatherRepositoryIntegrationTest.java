@@ -1,7 +1,15 @@
 package de.mq.iot.openweather.support;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -29,7 +37,7 @@ class OpenWeatherRepositoryIntegrationTest {
 	void setup() {
 		
 		
-		Mockito.doReturn("http://api.openweathermap.org/data/2.5/forecast?q={city},{country}&appid={key}").when(resourceIdentifier).uri();
+		Mockito.doReturn("http://api.openweathermap.org/data/2.5/forecast?q={city},{country}&appid={key}&units=metric").when(resourceIdentifier).uri();
 		final Map<String, String> parameters = new HashMap<>();
 		parameters.put("city", "wegberg");
 		parameters.put("country", "de");
@@ -38,11 +46,17 @@ class OpenWeatherRepositoryIntegrationTest {
 	}
 	
 	@Test
-	@Disabled
+	
 	void forecast() {
-		System.out.println(openWeatherRepository);
 		
-		openWeatherRepository.forecast(resourceIdentifier);
+		final List<Entry<LocalDate, Double>> results = new ArrayList<>( openWeatherRepository.forecast(resourceIdentifier));
+		
+		assertEquals(6, results.size());
+	
+		IntStream.range(0, 6).forEach(i -> assertEquals(LocalDate.now().plusDays(i), results.get(i).getKey()));
+		
+		
+		results.stream().map(entry -> entry.getValue()).forEach(value -> assertTrue(((value >= -10d) && (value <= 35d))));
 	}
 	
 }
