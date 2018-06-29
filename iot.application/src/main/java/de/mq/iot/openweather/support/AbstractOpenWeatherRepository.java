@@ -63,7 +63,8 @@ abstract class AbstractOpenWeatherRepository {
 			}
 			Assert.notNull(map.get(MAIN_NODE_NAME), "Main node is required.");
 			Assert.notNull(((Map<?, ?>) map.get(MAIN_NODE_NAME)).get(TEMPERATURE_NODE_NAME), "Temp node is required.");
-			temperatures.get(date).add((Double) ((Map<?, ?>) map.get(MAIN_NODE_NAME)).get(TEMPERATURE_NODE_NAME));
+			
+			temperatures.get(date).add(  ((Number) ((Map<?, ?>) map.get(MAIN_NODE_NAME)).get(TEMPERATURE_NODE_NAME)).doubleValue()) ; 
 
 		});
 
