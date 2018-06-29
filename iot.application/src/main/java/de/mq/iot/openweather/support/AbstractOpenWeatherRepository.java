@@ -3,6 +3,7 @@ package de.mq.iot.openweather.support;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -24,7 +25,25 @@ import org.springframework.web.reactive.function.client.WebClient.Builder;
 import de.mq.iot.resource.ResourceIdentifier;
 
 @Repository
-abstract class AbstractOpenWeatherRepository {
+abstract class AbstractOpenWeatherRepository implements WeatherRepository {
+	
+	
+	enum OpenWeatherParameters {
+		Forecast,
+
+		Weather;
+		static final String RESOURCE_PARAMETER_NAME = "resource";
+		
+		final Map<String, String> parameters(final ResourceIdentifier uniformResourceIdentifier) {
+			final Map<String, String> parameters = new HashMap<>();
+			parameters.putAll(uniformResourceIdentifier.parameters());
+			parameters.put(RESOURCE_PARAMETER_NAME, name().toLowerCase());
+			return parameters;
+		}
+
+	}
+	
+	
 
 	private static final String TEMPERATURE_NODE_NAME = "temp";
 
@@ -40,12 +59,16 @@ abstract class AbstractOpenWeatherRepository {
 		this.timeout = Duration.ofMillis(timeout);
 	}
 
+	/* (non-Javadoc)
+	 * @see de.mq.iot.openweather.support.WeatherRepository#forecast(de.mq.iot.resource.ResourceIdentifier)
+	 */
+	@Override
 	public Collection<Entry<LocalDate, Double>> forecast(final ResourceIdentifier resourceIdentifier) {
 
 		Assert.notNull(resourceIdentifier, "ResourceIdentifier is mandatory.");
 
 		@SuppressWarnings("unchecked")
-		final ResponseEntity<Map<String, Object>> res = (ResponseEntity<Map<String, Object>>) webClientBuilder().build().get().uri(resourceIdentifier.uri(), resourceIdentifier.parameters()).exchange().block(timeout).toEntity((Class<Map<String, Object>>) (Class<?>) HashMap.class).block(timeout);
+		final ResponseEntity<Map<String, Object>> res = (ResponseEntity<Map<String, Object>>) webClientBuilder().build().get().uri(resourceIdentifier.uri(), OpenWeatherParameters.Forecast.parameters(resourceIdentifier)).exchange().block(timeout).toEntity((Class<Map<String, Object>>) (Class<?>) HashMap.class).block(timeout);
 
 		httpStatusGuard(res);
 
@@ -88,6 +111,26 @@ abstract class AbstractOpenWeatherRepository {
 			private static final long serialVersionUID = 1L;
 
 		};
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see de.mq.iot.openweather.support.WeatherRepository#weather(de.mq.iot.resource.ResourceIdentifier)
+	 */
+	@Override
+	public Entry<LocalDateTime, Double>  weather(final ResourceIdentifier resourceIdentifier) {
+		Assert.notNull(resourceIdentifier, "ResourceIdentifier is mandatory.");
+		@SuppressWarnings("unchecked")
+		final ResponseEntity<Map<String, Object>> res = (ResponseEntity<Map<String, Object>>) webClientBuilder().build().get().uri(resourceIdentifier.uri(), OpenWeatherParameters.Weather.parameters(resourceIdentifier)).exchange().block(timeout).toEntity((Class<Map<String, Object>>) (Class<?>) HashMap.class).block(timeout);
+		httpStatusGuard(res);
+		
+		Assert.notNull(res.getBody().get(MAIN_NODE_NAME), "Main node is required.");
+		
+		Assert.notNull(((Map<?, ?>) res.getBody().get(MAIN_NODE_NAME)).get(TEMPERATURE_NODE_NAME), "Temp node is required.");
+		final LocalDateTime date = Instant.ofEpochMilli(1000 * Long.valueOf((int)  res.getBody().get(DATE_NODE_NAME))).atZone(ZoneId.systemDefault()).toLocalDateTime();
+		final Number temperature = (Number) ((Map<?, ?>) res.getBody().get(MAIN_NODE_NAME)).get(TEMPERATURE_NODE_NAME);
+		
+		return new AbstractMap.SimpleImmutableEntry<>(date, temperature.doubleValue());
 	}
 
 	@Lookup

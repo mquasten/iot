@@ -10,7 +10,7 @@ class ResourceTypeTest {
 	
 	@Test
 	void values () {
-		assertEquals(Integer.valueOf(1), Integer.valueOf(ResourceType.values().length));
+		assertEquals(Integer.valueOf(2), Integer.valueOf(ResourceType.values().length));
 	}
 
 }

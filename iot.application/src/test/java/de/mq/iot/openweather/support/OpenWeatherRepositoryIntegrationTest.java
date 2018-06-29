@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,20 +27,21 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
-@Disabled
+
 class OpenWeatherRepositoryIntegrationTest {
 	
 	@Autowired
-	private AbstractOpenWeatherRepository openWeatherRepository;
+	private WeatherRepository openWeatherRepository;
 	
 	private final ResourceIdentifier resourceIdentifier = Mockito.mock(ResourceIdentifier.class);
 	
+	private final Map<String, String> parameters = new HashMap<>();
 	@BeforeEach
 	void setup() {
 		
+		Mockito.doReturn("http://api.openweathermap.org/data/{version}/{resource}?q={city},{country}&appid={key}&units=metric").when(resourceIdentifier).uri();
 		
-		Mockito.doReturn("http://api.openweathermap.org/data/2.5/forecast?q={city},{country}&appid={key}&units=metric").when(resourceIdentifier).uri();
-		final Map<String, String> parameters = new HashMap<>();
+		parameters.put("version", "2.5");
 		parameters.put("city", "wegberg");
 		parameters.put("country", "de");
 		parameters.put("key", "607cd43d4d9b17d8a96df387fe4ede62");
@@ -46,9 +49,8 @@ class OpenWeatherRepositoryIntegrationTest {
 	}
 	
 	@Test
-	
+	@Disabled
 	void forecast() {
-		
 		final List<Entry<LocalDate, Double>> results = new ArrayList<>( openWeatherRepository.forecast(resourceIdentifier));
 		
 		assertEquals(6, results.size());
@@ -58,5 +60,19 @@ class OpenWeatherRepositoryIntegrationTest {
 		
 		results.stream().map(entry -> entry.getValue()).forEach(value -> assertTrue(((value >= -10d) && (value <= 35d))));
 	}
+	
+	@Test
+	@Disabled
+	void weather() {
+		final Entry<LocalDateTime, Double> result = openWeatherRepository.weather(resourceIdentifier);
+		
+		 final long minutes = result.getKey().until(LocalDateTime.now(), ChronoUnit.MINUTES);
+		 
+		 assertTrue(minutes<= 120);
+		 
+		 assertTrue((result.getValue() >= -10d) && (result.getValue()  <= 35d));
+		 
+		
+	}	
 	
 }
