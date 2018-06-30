@@ -46,6 +46,10 @@ class OpenWeatherRepositoryIntegrationTest {
 		parameters.put("country", "de");
 		parameters.put("key", "607cd43d4d9b17d8a96df387fe4ede62");
 		Mockito.doReturn(parameters).when(resourceIdentifier).parameters();
+	
+	
+	
+		
 	}
 	
 	@Test
@@ -59,6 +63,10 @@ class OpenWeatherRepositoryIntegrationTest {
 		
 		
 		results.stream().map(entry -> entry.getValue()).forEach(value -> assertTrue(((value >= -10d) && (value <= 35d))));
+		
+		
+		
+		results.forEach(result -> System.out.println(result));
 	}
 	
 	@Test
@@ -71,6 +79,10 @@ class OpenWeatherRepositoryIntegrationTest {
 		 assertTrue(minutes<= 120);
 		 
 		 assertTrue((result.getValue() >= -10d) && (result.getValue()  <= 35d));
+		 
+		 
+		 System.out.println(result.getKey());
+		 System.out.println(result.getValue());
 		 
 		
 	}	
