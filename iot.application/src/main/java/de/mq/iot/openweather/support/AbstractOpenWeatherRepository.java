@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,7 +81,7 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 		final Map<LocalDate, List<Double>> temperatures = new HashMap<>();
 		list.forEach(map -> {
 
-			final LocalDate date = Instant.ofEpochMilli(1000 * Long.valueOf((int) map.get(DATE_NODE_NAME))).atZone(ZoneId.systemDefault()).toLocalDate();
+			final LocalDate date = Instant.ofEpochMilli(1000 * Long.valueOf((int) map.get(DATE_NODE_NAME))).atZone(ZoneOffset.UTC).toLocalDate();
 			if (!temperatures.containsKey(date)) {
 				temperatures.put(date, new ArrayList<>());
 			}
@@ -96,7 +97,7 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 	}
 
 	long millis(LocalDate date) {
-		return date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+		return date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
 	}
 
 	private void httpStatusGuard(final ResponseEntity<?> res) {

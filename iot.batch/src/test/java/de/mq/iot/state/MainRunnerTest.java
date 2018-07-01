@@ -154,7 +154,7 @@ class MockServiceConfiguration {
 	
 }
 
-//Mockito isn't able to do that!!!;
+//Mockito isn't able to do that!!!
 class MainRunnerMock extends MainRunner {
 
 	@Override
