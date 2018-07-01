@@ -54,8 +54,6 @@ class MainRunnerTest {
 	@Test
 	void  run() {
 		assertEquals(OK_STATE, mainRunner.run(new String[] {COMMAND,  "-d " + DAYS_OFFSET}));
-		
-		Mockito.verify(stateUpdateService).updateWorkingday(DAYS_OFFSET);
 		Mockito.verify(stateUpdateService).updateTime(10);
 	}
 	
@@ -64,7 +62,6 @@ class MainRunnerTest {
 	void  runDefault() {
 		assertEquals(OK_STATE, mainRunner.run(new String[] {COMMAND }));
 		
-		Mockito.verify(stateUpdateService).updateWorkingday(0);
 		Mockito.verify(stateUpdateService).updateTime(0);
 	}
 	

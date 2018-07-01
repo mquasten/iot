@@ -79,10 +79,9 @@ public class ServiceCommandlineRunnerTest {
 	@Test
 	final void servicesMethodsSort() {
 		final List<Entry<Method, Collection<String>>> methods = new ArrayList<>(serviceCommandlineRunner.servicesMethods("updateCalendar"));
-		assertEquals(2, methods.size());
+		assertEquals(1, methods.size());
 
 		assertEquals(UPDATE_METHOD_TIME, methods.get(0).getKey().getName());
-		assertEquals(UPDATE_METHOD_WORKING_DAY, methods.get(1).getKey().getName());
 
 		methods.stream().map(entry -> entry.getValue().size()).forEach(size -> assertEquals(Integer.valueOf(1), size));
 
