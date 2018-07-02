@@ -2,7 +2,7 @@ package de.mq.iot.openweather.support;
 
 import java.time.LocalDateTime;
 
-class MeteorologicalData {
+class MeteorologicalData  implements Comparable<MeteorologicalData>{
 	
 	private final double lowestTemperature;
 	private final double temperature;
@@ -47,6 +47,11 @@ class MeteorologicalData {
 	
 	public final LocalDateTime dateTime() {
 		return dateTime;
+	}
+
+	@Override
+	public int compareTo(final MeteorologicalData other) {
+		return dateTime.compareTo(other.dateTime);
 	}
 
 }

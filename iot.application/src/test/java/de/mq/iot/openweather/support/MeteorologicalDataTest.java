@@ -15,7 +15,12 @@ class MeteorologicalDataTest {
 	static final double TEMPERATURE = 26.50;
 	static final double MIN_TEMPERATURE = 25.6d;
 	
-	private final MeteorologicalData meteorologicalData = new MeteorologicalData(MIN_TEMPERATURE, TEMPERATURE, MAX_TEMPERATURE, WIND_VELOCITY_AMOUNT, WIND_VELOCITY_DEGREES, TIME);
+	private final MeteorologicalData meteorologicalData = newMeteorologicalData(TIME);
+
+
+	private  MeteorologicalData newMeteorologicalData(final LocalDateTime localDateTime) {
+		return new MeteorologicalData(MIN_TEMPERATURE, TEMPERATURE, MAX_TEMPERATURE, WIND_VELOCITY_AMOUNT, WIND_VELOCITY_DEGREES, localDateTime);
+	}
 	
    
 	@Test
@@ -43,5 +48,16 @@ class MeteorologicalDataTest {
 	final void dateTime() {
 		assertEquals(TIME, meteorologicalData.dateTime());
 	}
+	
+	
+	@Test
+	final void compareTo() {
+		assertEquals(0,meteorologicalData.compareTo(newMeteorologicalData(TIME)));
+		assertEquals(1,meteorologicalData.compareTo(newMeteorologicalData(TIME.minusSeconds(1))));
+		assertEquals(-1,meteorologicalData.compareTo(newMeteorologicalData(TIME.plusSeconds(1))));
+	}
+	
+	
+	
 
 }

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,18 +56,39 @@ class OpenWeatherRepositoryIntegrationTest {
 	@Test
 	@Disabled
 	void forecast() {
-		final List<Entry<LocalDate, Double>> results = new ArrayList<>( openWeatherRepository.forecast(resourceIdentifier));
+		final List<MeteorologicalData> results = new ArrayList<>( openWeatherRepository.forecast(resourceIdentifier));
 		
-		assertEquals(6, results.size());
 	
-		IntStream.range(0, 6).forEach(i -> assertEquals(LocalDate.now().plusDays(i), results.get(i).getKey()));
 		
+		assertEquals(40, results.size());
+		final LocalDateTime[] lastdate= {LocalDateTime.now().minusHours(3)};
+		Map<LocalDate, Integer> dates =  new HashMap<>();
+		results.forEach(result ->{
+			
+			if( ! dates.containsKey(result.dateTime().toLocalDate())) {
+				dates.put(result.dateTime().toLocalDate(), 0);
+			}
+			assertTrue(lastdate[0].isBefore(result.dateTime()));
+			assertEquals(3, ChronoUnit.HOURS.between(lastdate[0].toInstant(ZoneOffset.UTC), result.dateTime().toInstant(ZoneOffset.UTC)));
+			
+			assertTemperature(result.temperature());
+			assertTemperature(result.highestTemperature());
+			assertTemperature(result.lowestTemperature());
+			assertTrue((result.windVelocityAmount() >= 0.5d) && (result.windVelocityAmount()  <= 30d));
+			
+			assertTrue((result.windVelocityAngleInDegrees() >= 0d) && (result.windVelocityAngleInDegrees()  < 360d));
+			lastdate[0]=(result.dateTime());
+			dates.put(result.dateTime().toLocalDate(), dates.get(result.dateTime().toLocalDate())+1);
+			
+		});
 		
-		results.stream().map(entry -> entry.getValue()).forEach(value -> assertTrue(((value >= -10d) && (value <= 35d))));
+		IntStream.range(1, 5).forEach(i -> assertEquals(Integer.valueOf(8), dates.get(LocalDate.now().plusDays(i))));
+		assertEquals(Integer.valueOf(8), Integer.valueOf(dates.get(LocalDate.now().plusDays(5)) + dates.get(LocalDate.now()))) ;
 		
-		
-		
-		results.forEach(result -> System.out.println(result));
+	}
+
+	private void assertTemperature(double result) {
+		assertTrue((result >= -10d) && (result <= 35d));
 	}
 	
 	@Test

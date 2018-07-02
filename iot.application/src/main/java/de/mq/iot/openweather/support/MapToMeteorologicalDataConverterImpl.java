@@ -5,9 +5,10 @@ import java.time.ZoneOffset;
 import java.util.Map;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-
+@Component
 class MapToMeteorologicalDataConverterImpl implements Converter<Map<String,Object> , MeteorologicalData> {
 
 	static final String DEGREES_WIND_VELOCITY_KEY = "deg";

@@ -7,15 +7,16 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
@@ -55,8 +56,10 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 	private static final String FORECAST_LIST_NODE_NAME = "list";
 
 	private final Duration timeout;
+	private Converter<Map<String,Object>, MeteorologicalData> converter;
 
-	AbstractOpenWeatherRepository(@Value("${mongo.webclient:500}") final Long timeout) {
+	AbstractOpenWeatherRepository( Converter<Map<String,Object>, MeteorologicalData> converter, @Value("${mongo.webclient:500}") final Long timeout) {
+		this.converter=converter;
 		this.timeout = Duration.ofMillis(timeout);
 	}
 
@@ -64,7 +67,7 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 	 * @see de.mq.iot.openweather.support.WeatherRepository#forecast(de.mq.iot.resource.ResourceIdentifier)
 	 */
 	@Override
-	public Collection<Entry<LocalDate, Double>> forecast(final ResourceIdentifier resourceIdentifier) {
+	public  Collection<MeteorologicalData> forecast(final ResourceIdentifier resourceIdentifier) {
 
 		Assert.notNull(resourceIdentifier, "ResourceIdentifier is mandatory.");
 
@@ -78,22 +81,9 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 		@SuppressWarnings("unchecked")
 		final List<Map<String, Object>> list = (List<Map<String, Object>>) res.getBody().get(FORECAST_LIST_NODE_NAME);
 
-		final Map<LocalDate, List<Double>> temperatures = new HashMap<>();
-		list.forEach(map -> {
+		return list.stream().map(map -> converter.convert(map)).sorted().collect(Collectors.toList()); 
 
-			final LocalDate date = Instant.ofEpochMilli(1000 * Long.valueOf((int) map.get(DATE_NODE_NAME))).atZone(ZoneOffset.UTC).toLocalDate();
-			if (!temperatures.containsKey(date)) {
-				temperatures.put(date, new ArrayList<>());
-			}
-			Assert.notNull(map.get(MAIN_NODE_NAME), "Main node is required.");
-			Assert.notNull(((Map<?, ?>) map.get(MAIN_NODE_NAME)).get(TEMPERATURE_NODE_NAME), "Temp node is required.");
-			
-			temperatures.get(date).add(  ((Number) ((Map<?, ?>) map.get(MAIN_NODE_NAME)).get(TEMPERATURE_NODE_NAME)).doubleValue()) ; 
-
-		});
-
-		return temperatures.entrySet().stream().map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), e.getValue().stream().mapToDouble(v -> v).max().getAsDouble())).sorted((e1, e2) -> (int) Math.signum((double) (millis(e1.getKey()) - millis(e2.getKey())))).collect(Collectors.toList());
-
+	
 	}
 
 	long millis(LocalDate date) {
