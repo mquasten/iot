@@ -3,8 +3,7 @@ package de.mq.iot.openweather.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,7 @@ import org.springframework.core.convert.converter.Converter;
 
 class MapToMeteorologicalDataConverterImplTest {
 	
-	static final LocalDateTime TIME = LocalDateTime.now();
+	static final ZonedDateTime TIME = ZonedDateTime.now(MapToMeteorologicalDataConverterImpl.ZONE_OFFSET);
 	static final Double WIND_VELOCITY_DEGREES = 102.001;
 	static final Double WIND_VELOCITY_AMOUNT = 7.11d;
 	static final Double MAX_TEMPERATURE = 27.61d;
@@ -50,6 +49,21 @@ class MapToMeteorologicalDataConverterImplTest {
 	    assertEquals(MAX_TEMPERATURE.intValue(), result.highestTemperature());
 	    assertEquals(WIND_VELOCITY_AMOUNT.intValue(), result.windVelocityAmount());
 	    assertEquals(WIND_VELOCITY_DEGREES.intValue(), result.windVelocityAngleInDegrees());
+	}
+	
+	@Test
+	void convertWindSpeedAngleMissing() {
+		final Map<String,Object> map =MeteorologicalDataMapBuilder.builder().withDateTime(TIME).withLowestTemperature(MIN_TEMPERATURE).withTemperature(TEMPERATURE).withHighestTemperature(MAX_TEMPERATURE).withWindVelocityAmount(WIND_VELOCITY_AMOUNT).build();
+		
+	    final MeteorologicalData result = converter.convert(map);
+	    
+	    assertNotNull(result);
+	    assertEquals(TIME.withNano(0), result.dateTime());
+	    assertEquals(MIN_TEMPERATURE.doubleValue(), result.lowestTemperature());
+	    assertEquals(TEMPERATURE.doubleValue(), result.temperature());
+	    assertEquals(MAX_TEMPERATURE.doubleValue(), result.highestTemperature());
+	    assertEquals(WIND_VELOCITY_AMOUNT.doubleValue(), result.windVelocityAmount());
+	    assertEquals(0d, result.windVelocityAngleInDegrees());
 	}
 
 }

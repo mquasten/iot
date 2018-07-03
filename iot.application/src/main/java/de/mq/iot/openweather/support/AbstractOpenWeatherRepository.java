@@ -1,17 +1,12 @@
 package de.mq.iot.openweather.support;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Lookup;
@@ -44,12 +39,6 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 		}
 
 	}
-	
-	
-
-	private static final String TEMPERATURE_NODE_NAME = "temp";
-
-	private static final String DATE_NODE_NAME = "dt";
 
 	private static final String MAIN_NODE_NAME = "main";
 
@@ -109,7 +98,7 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 	 * @see de.mq.iot.openweather.support.WeatherRepository#weather(de.mq.iot.resource.ResourceIdentifier)
 	 */
 	@Override
-	public Entry<LocalDateTime, Double>  weather(final ResourceIdentifier resourceIdentifier) {
+	public MeteorologicalData  weather(final ResourceIdentifier resourceIdentifier) {
 		Assert.notNull(resourceIdentifier, "ResourceIdentifier is mandatory.");
 		@SuppressWarnings("unchecked")
 		final ResponseEntity<Map<String, Object>> res = (ResponseEntity<Map<String, Object>>) webClientBuilder().build().get().uri(resourceIdentifier.uri(), OpenWeatherParameters.Weather.parameters(resourceIdentifier)).exchange().block(timeout).toEntity((Class<Map<String, Object>>) (Class<?>) HashMap.class).block(timeout);
@@ -117,11 +106,8 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 		
 		Assert.notNull(res.getBody().get(MAIN_NODE_NAME), "Main node is required.");
 		
-		Assert.notNull(((Map<?, ?>) res.getBody().get(MAIN_NODE_NAME)).get(TEMPERATURE_NODE_NAME), "Temp node is required.");
-		final LocalDateTime date = Instant.ofEpochMilli(1000 * Long.valueOf((int)  res.getBody().get(DATE_NODE_NAME))).atZone(ZoneId.systemDefault()).toLocalDateTime();
-		final Number temperature = (Number) ((Map<?, ?>) res.getBody().get(MAIN_NODE_NAME)).get(TEMPERATURE_NODE_NAME);
+		return converter.convert(res.getBody());
 		
-		return new AbstractMap.SimpleImmutableEntry<>(date, temperature.doubleValue());
 	}
 
 	@Lookup

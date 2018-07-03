@@ -4,14 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -61,7 +59,7 @@ class OpenWeatherRepositoryIntegrationTest {
 	
 		
 		assertEquals(40, results.size());
-		final LocalDateTime[] lastdate= {LocalDateTime.now().minusHours(3)};
+		final ZonedDateTime[] lastdate= {results.get(0).dateTime().minusHours(3)};
 		Map<LocalDate, Integer> dates =  new HashMap<>();
 		results.forEach(result ->{
 			
@@ -69,14 +67,15 @@ class OpenWeatherRepositoryIntegrationTest {
 				dates.put(result.dateTime().toLocalDate(), 0);
 			}
 			assertTrue(lastdate[0].isBefore(result.dateTime()));
-			assertEquals(3, ChronoUnit.HOURS.between(lastdate[0].toInstant(ZoneOffset.UTC), result.dateTime().toInstant(ZoneOffset.UTC)));
+			
+			assertEquals(3, ChronoUnit.HOURS.between(lastdate[0], result.dateTime()));
 			
 			assertTemperature(result.temperature());
 			assertTemperature(result.highestTemperature());
 			assertTemperature(result.lowestTemperature());
-			assertTrue((result.windVelocityAmount() >= 0.5d) && (result.windVelocityAmount()  <= 30d));
+			assertSpeedAmount(result.windVelocityAmount());
 			
-			assertTrue((result.windVelocityAngleInDegrees() >= 0d) && (result.windVelocityAngleInDegrees()  < 360d));
+			assertSpeedDegrees(result.windVelocityAngleInDegrees());
 			lastdate[0]=(result.dateTime());
 			dates.put(result.dateTime().toLocalDate(), dates.get(result.dateTime().toLocalDate())+1);
 			
@@ -87,6 +86,14 @@ class OpenWeatherRepositoryIntegrationTest {
 		
 	}
 
+	private void assertSpeedDegrees(final double windVelocityAngleInDegrees) {
+		assertTrue((windVelocityAngleInDegrees >= 0d) && (windVelocityAngleInDegrees  < 360d));
+	}
+
+	private void assertSpeedAmount(double windVelocityAmount) {
+		assertTrue((windVelocityAmount >= 0.5d) && (windVelocityAmount  <= 30d));
+	}
+
 	private void assertTemperature(double result) {
 		assertTrue((result >= -10d) && (result <= 35d));
 	}
@@ -94,18 +101,19 @@ class OpenWeatherRepositoryIntegrationTest {
 	@Test
 	@Disabled
 	void weather() {
-		final Entry<LocalDateTime, Double> result = openWeatherRepository.weather(resourceIdentifier);
+		final MeteorologicalData result = openWeatherRepository.weather(resourceIdentifier);
 		
-		 final long minutes = result.getKey().until(LocalDateTime.now(), ChronoUnit.MINUTES);
+		 final long minutes = result.dateTime().until(ZonedDateTime.now(MapToMeteorologicalDataConverterImpl.ZONE_OFFSET), ChronoUnit.MINUTES);
+		 
+		 
 		 
 		 assertTrue(minutes<= 120);
+		 assertTemperature(result.temperature());
+		 assertTemperature(result.highestTemperature());
+		 assertTemperature(result.lowestTemperature());
 		 
-		 assertTrue((result.getValue() >= -10d) && (result.getValue()  <= 35d));
-		 
-		 
-		 System.out.println(result.getKey());
-		 System.out.println(result.getValue());
-		 
+		 assertSpeedAmount(result.windVelocityAmount());
+		 assertSpeedDegrees(result.windVelocityAngleInDegrees());
 		
 	}	
 	

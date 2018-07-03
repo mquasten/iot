@@ -1,7 +1,6 @@
 package de.mq.iot.openweather.support;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,8 +19,8 @@ public class MeteorologicalDataMapBuilder {
 	private final Map<String,Number> temperatures = new HashMap<>();
 	
 	private final Map<String,Number> wind = new HashMap<>();
-	MeteorologicalDataMapBuilder withDateTime(final LocalDateTime dateTime) {
-		data.put(MapToMeteorologicalDataConverterImpl.DATETIME_KEY, dateTime.toEpochSecond(ZoneOffset.UTC));
+	MeteorologicalDataMapBuilder withDateTime(final ZonedDateTime dateTime) {
+		data.put(MapToMeteorologicalDataConverterImpl.DATETIME_KEY, dateTime.toEpochSecond());
 		return this;
 		
 	}
@@ -55,7 +54,7 @@ public class MeteorologicalDataMapBuilder {
 	Map<String,Object> build() {
 		dataExistsGuard(data, MapToMeteorologicalDataConverterImpl.DATETIME_KEY);
 		dataExistsGuard(temperatures, Arrays.asList(MapToMeteorologicalDataConverterImpl.TEMPERATURE_KEY, MapToMeteorologicalDataConverterImpl.LOWEST_TEMPERATURE_KEY, MapToMeteorologicalDataConverterImpl.HIGHEST_TEMPERATURE_KEY));
-		dataExistsGuard(wind,Arrays.asList(MapToMeteorologicalDataConverterImpl.AMOUNT_WIND_VELOCITY_KEY, MapToMeteorologicalDataConverterImpl.DEGREES_WIND_VELOCITY_KEY) );
+		dataExistsGuard(wind,Arrays.asList(MapToMeteorologicalDataConverterImpl.AMOUNT_WIND_VELOCITY_KEY ));
 	
 		data.put(MapToMeteorologicalDataConverterImpl.MAIN_DATA_KEY, temperatures);
 		data.put(MapToMeteorologicalDataConverterImpl.WIND_DATA_KEY, wind);

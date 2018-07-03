@@ -1,6 +1,6 @@
 package de.mq.iot.openweather.support;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 class MeteorologicalData  implements Comparable<MeteorologicalData>{
 	
@@ -8,7 +8,7 @@ class MeteorologicalData  implements Comparable<MeteorologicalData>{
 	private final double temperature;
 	private final double highestTemperature;
 	private final double 	windVelocityAmount;
-	private final LocalDateTime dateTime;
+	private final ZonedDateTime dateTime;
 	
 
 	/*
@@ -16,7 +16,7 @@ class MeteorologicalData  implements Comparable<MeteorologicalData>{
 	 */
 	private final double windVelocityAngleInDegrees;
 	
-	MeteorologicalData(final double lowestTemperature, final double temperature, final double highestTemperature, final double windVelocityAmount, final double windVelocityAngleInDegrees, final LocalDateTime dateTime) {
+	MeteorologicalData(final double lowestTemperature, final double temperature, final double highestTemperature, final double windVelocityAmount, final double windVelocityAngleInDegrees, final ZonedDateTime dateTime) {
 		this.lowestTemperature = lowestTemperature;
 		this.temperature = temperature;
 		this.highestTemperature = highestTemperature;
@@ -45,7 +45,7 @@ class MeteorologicalData  implements Comparable<MeteorologicalData>{
 		return windVelocityAngleInDegrees;
 	}
 	
-	public final LocalDateTime dateTime() {
+	public final ZonedDateTime dateTime() {
 		return dateTime;
 	}
 

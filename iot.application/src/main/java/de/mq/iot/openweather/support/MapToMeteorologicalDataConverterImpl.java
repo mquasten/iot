@@ -1,6 +1,7 @@
 package de.mq.iot.openweather.support;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Map;
 
@@ -19,12 +20,14 @@ class MapToMeteorologicalDataConverterImpl implements Converter<Map<String,Objec
 	static final String DATETIME_KEY= "dt";
 	static final String WIND_DATA_KEY = "wind";
 	static final String MAIN_DATA_KEY = "main";
+
+
 	
-	
+	static final ZoneOffset ZONE_OFFSET = ZoneId.systemDefault().getRules().getOffset(Instant.now());
 	
 	@Override
 	public MeteorologicalData convert(Map<String, Object> data) {
-		
+	
 		mandatoryDataExistsGuard(data, DATETIME_KEY);
 		mandatoryDataExistsGuard(data, MAIN_DATA_KEY);
 		mandatoryDataExistsGuard(data, WIND_DATA_KEY);
@@ -40,8 +43,8 @@ class MapToMeteorologicalDataConverterImpl implements Converter<Map<String,Objec
 		
 		
 		mandatoryDataExistsGuard(windData, AMOUNT_WIND_VELOCITY_KEY);
-		mandatoryDataExistsGuard(windData, DEGREES_WIND_VELOCITY_KEY);
-		return new MeteorologicalData(((Number) mainData.get(LOWEST_TEMPERATURE_KEY)).doubleValue(), ((Number) mainData.get(TEMPERATURE_KEY)).doubleValue(), ((Number) mainData.get(HIGHEST_TEMPERATURE_KEY)).doubleValue(), ((Number) windData.get(AMOUNT_WIND_VELOCITY_KEY)).doubleValue(), ((Number) windData.get(DEGREES_WIND_VELOCITY_KEY)).doubleValue(), Instant.ofEpochMilli(1000 * Long.valueOf(((Number) data.get(DATETIME_KEY)).intValue())).atZone(ZoneOffset.UTC).toLocalDateTime());
+		System.out.println();
+		return new MeteorologicalData(((Number) mainData.get(LOWEST_TEMPERATURE_KEY)).doubleValue(), ((Number) mainData.get(TEMPERATURE_KEY)).doubleValue(), ((Number) mainData.get(HIGHEST_TEMPERATURE_KEY)).doubleValue(), ((Number) windData.get(AMOUNT_WIND_VELOCITY_KEY)).doubleValue(), windData.containsKey(DEGREES_WIND_VELOCITY_KEY) ? ((Number)windData.get(DEGREES_WIND_VELOCITY_KEY)).doubleValue() : 0d, Instant.ofEpochMilli(1000 * Long.valueOf(((Number) data.get(DATETIME_KEY)).intValue())).atZone(ZONE_OFFSET.normalized()));
 	}
 
 	private void mandatoryDataExistsGuard(Map<String, ?> data, final String key ) {

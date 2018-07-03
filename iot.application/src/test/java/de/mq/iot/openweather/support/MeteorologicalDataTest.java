@@ -2,13 +2,13 @@ package de.mq.iot.openweather.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.Test;
 
 class MeteorologicalDataTest {
 
-	static final LocalDateTime TIME = LocalDateTime.now();
+	static final ZonedDateTime TIME = ZonedDateTime.now();
 	static final double WIND_VELOCITY_DEGREES = 102.001;
 	static final double WIND_VELOCITY_AMOUNT = 7.11d;
 	static final double MAX_TEMPERATURE = 27.61d;
@@ -18,8 +18,8 @@ class MeteorologicalDataTest {
 	private final MeteorologicalData meteorologicalData = newMeteorologicalData(TIME);
 
 
-	private  MeteorologicalData newMeteorologicalData(final LocalDateTime localDateTime) {
-		return new MeteorologicalData(MIN_TEMPERATURE, TEMPERATURE, MAX_TEMPERATURE, WIND_VELOCITY_AMOUNT, WIND_VELOCITY_DEGREES, localDateTime);
+	private  MeteorologicalData newMeteorologicalData(final ZonedDateTime dateTime) {
+		return new MeteorologicalData(MIN_TEMPERATURE, TEMPERATURE, MAX_TEMPERATURE, WIND_VELOCITY_AMOUNT, WIND_VELOCITY_DEGREES, dateTime);
 	}
 	
    
