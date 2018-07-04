@@ -1,8 +1,6 @@
 package de.mq.iot.openweather.support;
 
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +40,7 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 
 	private static final String MAIN_NODE_NAME = "main";
 
-	private static final String FORECAST_LIST_NODE_NAME = "list";
+	static final String FORECAST_LIST_NODE_NAME = "list";
 
 	private final Duration timeout;
 	private Converter<Map<String,Object>, MeteorologicalData> converter;
@@ -60,6 +58,7 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 
 		Assert.notNull(resourceIdentifier, "ResourceIdentifier is mandatory.");
 
+		
 		@SuppressWarnings("unchecked")
 		final ResponseEntity<Map<String, Object>> res = (ResponseEntity<Map<String, Object>>) webClientBuilder().build().get().uri(resourceIdentifier.uri(), OpenWeatherParameters.Forecast.parameters(resourceIdentifier)).exchange().block(timeout).toEntity((Class<Map<String, Object>>) (Class<?>) HashMap.class).block(timeout);
 
@@ -75,9 +74,7 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 	
 	}
 
-	long millis(LocalDate date) {
-		return date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
-	}
+	
 
 	private void httpStatusGuard(final ResponseEntity<?> res) {
 		if (res.getStatusCode().is2xxSuccessful()) {
