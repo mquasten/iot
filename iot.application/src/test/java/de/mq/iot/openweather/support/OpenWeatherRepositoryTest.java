@@ -1,6 +1,7 @@
 package de.mq.iot.openweather.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
@@ -17,11 +18,13 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec;
 
+import de.mq.iot.openweather.support.AbstractOpenWeatherRepository.OpenWeatherParameters;
 import de.mq.iot.resource.ResourceIdentifier;
 import reactor.core.publisher.Mono;
 
@@ -96,6 +99,14 @@ class OpenWeatherRepositoryTest {
 
 		final MeteorologicalData result = results.stream().findAny().get();
 
+		assertMeteorologicalDate(result);
+		
+		assertEquals(URI, uriCaptor.getValue());
+		
+		assertEquals(AbstractOpenWeatherRepository.OpenWeatherParameters.Forecast.name().toLowerCase(), parametersCaptor.getValue().get(AbstractOpenWeatherRepository.OpenWeatherParameters.RESOURCE_PARAMETER_NAME));
+	}
+
+	protected void assertMeteorologicalDate(final MeteorologicalData result) {
 		assertEquals(MapToMeteorologicalDataConverterImplTest.TIME.withNano(0), result.dateTime());
 
 		assertEquals((double) MapToMeteorologicalDataConverterImplTest.TEMPERATURE, result.temperature());
@@ -104,10 +115,43 @@ class OpenWeatherRepositoryTest {
 
 		assertEquals((double) MapToMeteorologicalDataConverterImplTest.WIND_VELOCITY_AMOUNT, result.windVelocityAmount());
 		assertEquals((double) MapToMeteorologicalDataConverterImplTest.WIND_VELOCITY_DEGREES, result.windVelocityAngleInDegrees());
+	}
+	
+	@Test
+	void weather() {
+		Mockito.doReturn(map).when(resonseEntity).getBody();
+		final MeteorologicalData result = abstractOpenWeatherRepository.weather(resourceIdentifier);
+		assertMeteorologicalDate(result);
+		
 		
 		assertEquals(URI, uriCaptor.getValue());
+		assertEquals(AbstractOpenWeatherRepository.OpenWeatherParameters.Weather.name().toLowerCase(), parametersCaptor.getValue().get(AbstractOpenWeatherRepository.OpenWeatherParameters.RESOURCE_PARAMETER_NAME));
+	}
+	
+	@Test
+	void httpStatusGuardWeather() {
+		Mockito.doReturn(HttpStatus.NOT_FOUND).when(resonseEntity).getStatusCode();
+		assertThrows(HttpStatusCodeException.class, () -> abstractOpenWeatherRepository.weather(resourceIdentifier));
+	}
+	
+	@Test
+	void httpStatusGuardForecast() {
+		Mockito.doReturn(HttpStatus.NOT_FOUND).when(resonseEntity).getStatusCode();
 		
-		assertEquals(AbstractOpenWeatherRepository.OpenWeatherParameters.Forecast.name().toLowerCase(), parametersCaptor.getValue().get(AbstractOpenWeatherRepository.OpenWeatherParameters.RESOURCE_PARAMETER_NAME));
+		assertThrows(HttpStatusCodeException.class, () -> abstractOpenWeatherRepository.forecast(resourceIdentifier));
+	}
+	@Test
+	void openWeatherParameters() {
+		assertEquals(2, OpenWeatherParameters.values().length);
+		
+		Arrays.asList(OpenWeatherParameters.values()).forEach(value -> assertEquals(value, OpenWeatherParameters.valueOf(value.name())));
+	}
+	@Test
+	void parametes() {
+		Arrays.asList(OpenWeatherParameters.values()).forEach(value ->  value.parameters(resourceIdentifier).keySet().forEach(v -> assertEquals(OpenWeatherParameters.RESOURCE_PARAMETER_NAME, v)));
+	
+		Arrays.asList(OpenWeatherParameters.values()).forEach(value ->  value.parameters(resourceIdentifier).values().forEach(v -> assertEquals(value.name().toLowerCase(), v)));
+	
 	}
 
 }
