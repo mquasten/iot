@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import de.mq.iot.openweather.MeteorologicalData;
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.support.ApplicationConfiguration;
 
@@ -114,6 +115,8 @@ class OpenWeatherRepositoryIntegrationTest {
 		 
 		 assertSpeedAmount(result.windVelocityAmount());
 		 assertSpeedDegrees(result.windVelocityAngleInDegrees());
+		 
+
 		
 	}	
 	

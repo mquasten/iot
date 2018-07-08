@@ -2,6 +2,7 @@ package de.mq.iot.openweather.support;
 
 import java.util.Collection;
 
+import de.mq.iot.openweather.MeteorologicalData;
 import de.mq.iot.resource.ResourceIdentifier;
 
 interface WeatherRepository {

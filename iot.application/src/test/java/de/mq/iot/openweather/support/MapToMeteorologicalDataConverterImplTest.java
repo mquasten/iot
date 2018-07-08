@@ -9,6 +9,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.convert.converter.Converter;
 
+import de.mq.iot.openweather.MeteorologicalData;
+
 class MapToMeteorologicalDataConverterImplTest {
 	
 	static final ZonedDateTime TIME = ZonedDateTime.now(MapToMeteorologicalDataConverterImpl.ZONE_OFFSET);
@@ -19,7 +21,7 @@ class MapToMeteorologicalDataConverterImplTest {
 	static final Double MIN_TEMPERATURE = 25.6d;
 	
 	
-	private final Converter<Map<String, Object>, MeteorologicalData> converter = new MapToMeteorologicalDataConverterImpl();
+	private final Converter<Map<String, Object>, MeteorologicalDataImpl> converter = new MapToMeteorologicalDataConverterImpl();
 	
 	@Test
 	void convert() {

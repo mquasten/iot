@@ -24,6 +24,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec;
 
+import de.mq.iot.openweather.MeteorologicalData;
 import de.mq.iot.openweather.support.AbstractOpenWeatherRepository.OpenWeatherParameters;
 import de.mq.iot.resource.ResourceIdentifier;
 import reactor.core.publisher.Mono;

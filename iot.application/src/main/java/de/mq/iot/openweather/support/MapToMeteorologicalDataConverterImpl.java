@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 @Component
-class MapToMeteorologicalDataConverterImpl implements Converter<Map<String,Object> , MeteorologicalData> {
+class MapToMeteorologicalDataConverterImpl implements Converter<Map<String,Object> , MeteorologicalDataImpl> {
 
 	static final String DEGREES_WIND_VELOCITY_KEY = "deg";
 	static final String AMOUNT_WIND_VELOCITY_KEY = "speed";
@@ -26,7 +26,7 @@ class MapToMeteorologicalDataConverterImpl implements Converter<Map<String,Objec
 	static final ZoneOffset ZONE_OFFSET = ZoneId.systemDefault().getRules().getOffset(Instant.now());
 	
 	@Override
-	public MeteorologicalData convert(Map<String, Object> data) {
+	public MeteorologicalDataImpl convert(Map<String, Object> data) {
 	
 		mandatoryDataExistsGuard(data, DATETIME_KEY);
 		mandatoryDataExistsGuard(data, MAIN_DATA_KEY);
@@ -43,8 +43,7 @@ class MapToMeteorologicalDataConverterImpl implements Converter<Map<String,Objec
 		
 		
 		mandatoryDataExistsGuard(windData, AMOUNT_WIND_VELOCITY_KEY);
-		System.out.println();
-		return new MeteorologicalData(((Number) mainData.get(LOWEST_TEMPERATURE_KEY)).doubleValue(), ((Number) mainData.get(TEMPERATURE_KEY)).doubleValue(), ((Number) mainData.get(HIGHEST_TEMPERATURE_KEY)).doubleValue(), ((Number) windData.get(AMOUNT_WIND_VELOCITY_KEY)).doubleValue(), windData.containsKey(DEGREES_WIND_VELOCITY_KEY) ? ((Number)windData.get(DEGREES_WIND_VELOCITY_KEY)).doubleValue() : 0d, Instant.ofEpochMilli(1000 * Long.valueOf(((Number) data.get(DATETIME_KEY)).intValue())).atZone(ZONE_OFFSET.normalized()));
+		return new MeteorologicalDataImpl(((Number) mainData.get(LOWEST_TEMPERATURE_KEY)).doubleValue(), ((Number) mainData.get(TEMPERATURE_KEY)).doubleValue(), ((Number) mainData.get(HIGHEST_TEMPERATURE_KEY)).doubleValue(), ((Number) windData.get(AMOUNT_WIND_VELOCITY_KEY)).doubleValue(), windData.containsKey(DEGREES_WIND_VELOCITY_KEY) ? ((Number)windData.get(DEGREES_WIND_VELOCITY_KEY)).doubleValue() : 0d, Instant.ofEpochMilli(1000 * Long.valueOf(((Number) data.get(DATETIME_KEY)).intValue())).atZone(ZONE_OFFSET.normalized()));
 	}
 
 	private void mandatoryDataExistsGuard(Map<String, ?> data, final String key ) {

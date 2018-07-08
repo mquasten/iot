@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.reactive.function.client.WebClient.Builder;
 
+import de.mq.iot.openweather.MeteorologicalData;
 import de.mq.iot.resource.ResourceIdentifier;
 
 @Repository
@@ -43,9 +44,9 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 	static final String FORECAST_LIST_NODE_NAME = "list";
 
 	private final Duration timeout;
-	private Converter<Map<String,Object>, MeteorologicalData> converter;
+	private Converter<Map<String,Object>, MeteorologicalDataImpl> converter;
 
-	AbstractOpenWeatherRepository( Converter<Map<String,Object>, MeteorologicalData> converter, @Value("${mongo.webclient:500}") final Long timeout) {
+	AbstractOpenWeatherRepository( Converter<Map<String,Object>, MeteorologicalDataImpl> converter, @Value("${mongo.webclient:500}") final Long timeout) {
 		this.converter=converter;
 		this.timeout = Duration.ofMillis(timeout);
 	}
