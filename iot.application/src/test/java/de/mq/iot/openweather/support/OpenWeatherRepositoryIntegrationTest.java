@@ -85,6 +85,8 @@ class OpenWeatherRepositoryIntegrationTest {
 		IntStream.range(1, 5).forEach(i -> assertEquals(Integer.valueOf(8), dates.get(LocalDate.now().plusDays(i))));
 		assertEquals(Integer.valueOf(8), Integer.valueOf(dates.get(LocalDate.now().plusDays(5)) + dates.get(LocalDate.now()))) ;
 		
+		results.forEach( result -> System.out.println(result.dateTime() + ":" + result.temperature()));
+		
 	}
 
 	private void assertSpeedDegrees(final double windVelocityAngleInDegrees) {

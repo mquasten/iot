@@ -6,4 +6,6 @@ public interface StateUpdateService {
 
 	void updateTime(final int offsetDays);
 
+	void updateTemperature(int offsetDays);
+
 }
