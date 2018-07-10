@@ -24,6 +24,7 @@ import de.mq.iot.state.StateUpdateService;
 
 @Service
 public class StateUpdateSeriviceImpl implements StateUpdateService {
+	static final String TEMPERATURE_STATE_NAME = "Temperature";
 	static final String MONTH_STATE_NAME = "Month";
 	static final String SUMMER = "SUMMER";
 	static final String WINTER = "WINTER";
@@ -126,7 +127,7 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 		final Collection<State<?>> states = stateService.states();
 		
 		@SuppressWarnings("unchecked")
-		final State<Double> temperatureState = (State<Double>) states.stream().filter(state -> state.name().equals("Temperature")).findAny().orElseThrow(() -> new IllegalStateException("Time State expected."));
+		final State<Double> temperatureState = (State<Double>) states.stream().filter(state -> state.name().equals(TEMPERATURE_STATE_NAME)).findAny().orElseThrow(() -> new IllegalStateException("Time State expected."));
 		
 		final double expectedTemperatureStateValue = meteorologicalDataService.forecastMaxTemperature(localDate).temperature();
 		if (!temperatureState.value().equals(expectedTemperatureStateValue)) {

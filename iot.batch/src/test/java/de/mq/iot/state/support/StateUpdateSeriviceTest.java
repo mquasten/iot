@@ -23,12 +23,14 @@ import org.mockito.Mockito;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.openweather.MeteorologicalData;
 import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.StateUpdateService;
 
 public class StateUpdateSeriviceTest {
 
+	private static final double NEW_TEMPERATURE_STATE = 27.27d;
 	private final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
 	private final StateService stateService = Mockito.mock(StateService.class);
 
@@ -39,6 +41,8 @@ public class StateUpdateSeriviceTest {
 	private final Map<Integer, String> timeItems = new HashMap<>();
 	
 	private final Map<Integer, String> monthItems = new HashMap<>();
+	
+	
 	
 	static final Integer SUMMER_VALUE = 1;
 	static final Integer WINTER_VALUE = 0;
@@ -51,6 +55,10 @@ public class StateUpdateSeriviceTest {
 	private final State<Integer> timeState = Mockito.mock(State.class, withSettings().extraInterfaces(ItemList.class));
 	@SuppressWarnings("unchecked")
 	private final State<Integer> monthState = Mockito.mock(State.class, withSettings().extraInterfaces(ItemList.class));
+	
+	private final MeteorologicalData meteorologicalData = Mockito.mock(MeteorologicalData.class);
+	@SuppressWarnings("unchecked")
+	private final State<Double> temperatureState = Mockito.mock(State.class);
 	@BeforeEach
 	void setup() {
 		timeItems.put(WINTER_VALUE, "WINTER");
@@ -66,8 +74,10 @@ public class StateUpdateSeriviceTest {
 		Mockito.doReturn(monthItems.entrySet()).when((ItemList)monthState).items();
 	
 		
+		Mockito.doReturn(StateUpdateSeriviceImpl.TEMPERATURE_STATE_NAME).when(temperatureState).name();
 		
-		Mockito.doReturn(Arrays.asList(state, timeState, monthState)).when(stateService).states();
+		
+		Mockito.doReturn(Arrays.asList(state, timeState, monthState, temperatureState)).when(stateService).states();
 		
 		
 		
@@ -75,7 +85,12 @@ public class StateUpdateSeriviceTest {
 	
 		Mockito.doReturn(StateUpdateSeriviceImpl.WORKINGDAY_STATE_NAME).when(state).name();
 		Mockito.doReturn(Boolean.FALSE).when(state).value();
-	
+		Mockito.when(temperatureState.value()).thenReturn(25.55d);
+		Mockito.when(meteorologicalData.temperature()).thenReturn(27.27d);
+		Mockito.when(meteorologicalDataService.forecastMaxTemperature(LocalDate.now().plusDays(1))).thenReturn(meteorologicalData);
+		
+		
+		
 	}
 
 	@Test
@@ -255,5 +270,14 @@ public class StateUpdateSeriviceTest {
 		
 	}
 	
+	@Test
+	void updateTemperature() {
+		
 	
+		stateUpdateService.updateTemperature(1);
+		
+		Mockito.verify(temperatureState).assign(NEW_TEMPERATURE_STATE);
+
+		Mockito.verify(stateService).update(temperatureState);
+	}
 }
