@@ -39,7 +39,7 @@ class MeteorologicalDataServiceImpl implements MeteorologicalDataService {
 		final Collection<MeteorologicalData>  results = meteorologicalData(localDate, resourceIdentifier);
 		
 		
-		return results.stream().max((c1, c2) ->(int)  Math.signum(c1.temperature() - c2.temperature()) ).orElseThrow(() -> new IllegalArgumentException("MeteorologicalDataImpl expected.")); 
+		return results.stream().max((c1, c2) ->(int)  Math.signum(c1.temperature() - c2.temperature()) ).orElseThrow(() -> new IllegalArgumentException("MeteorologicalData expected.")); 
 	}
 
 	private Collection<MeteorologicalData> meteorologicalData(final LocalDate localDate, final ResourceIdentifier resourceIdentifier) {

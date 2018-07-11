@@ -280,4 +280,36 @@ public class StateUpdateSeriviceTest {
 
 		Mockito.verify(stateService).update(temperatureState);
 	}
+	
+	
+	@Test
+	void  updateTemperatureNotChanged() {
+		
+		Mockito.when(temperatureState.value()).thenReturn(NEW_TEMPERATURE_STATE);
+		
+		stateUpdateService.updateTemperature(1);
+		
+		Mockito.verify(temperatureState, Mockito.never()).assign(NEW_TEMPERATURE_STATE);
+
+		Mockito.verify(stateService, Mockito.never()).update(temperatureState);
+		Mockito.verify(meteorologicalDataService).forecastMaxTemperature(Mockito.any());
+		
+	}
+	
+	@Test
+	void updateTemperatureTemperatureStateMissing() {
+		Mockito.when(stateService.states()).thenReturn(Arrays.asList());
+		assertThrows(IllegalStateException.class, () -> stateUpdateService.updateTemperature(1));
+		
+	}
+	
+	@Test
+	void updateTemperatureOffsetLessThan0() {
+		assertThrows(IllegalArgumentException.class, () -> stateUpdateService.updateTemperature(-1));
+	}
+	
+	@Test
+	void updateTemperatureOffsetMoreThan5() {
+		assertThrows(IllegalArgumentException.class, () -> stateUpdateService.updateTemperature(6));
+	}
 }
