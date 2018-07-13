@@ -2,10 +2,13 @@ package de.mq.iot.state.support;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -21,6 +24,7 @@ import de.mq.iot.state.Command;
 import de.mq.iot.state.Commands;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.StateUpdateService;
+import de.mq.iot.support.SunDownCalculationService;
 
 @Service
 public class StateUpdateSeriviceImpl implements StateUpdateService {
@@ -33,12 +37,15 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 	private final SpecialdayService specialdayService;
 	private final StateService stateService;
 	private final MeteorologicalDataService meteorologicalDataService;
+	
+	private final SunDownCalculationService sunDownCalculationService; 
 	@Autowired
-	StateUpdateSeriviceImpl(final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService) {
+	StateUpdateSeriviceImpl(final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService,final SunDownCalculationService sunDownCalculationService) {
 
 		this.specialdayService = specialdayService;
 		this.stateService = stateService;
 		this.meteorologicalDataService=meteorologicalDataService;
+		this.sunDownCalculationService=sunDownCalculationService;
 	}
 
 	/*
@@ -179,6 +186,30 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 		final LocalDate start = LocalDate.of(year.getValue(), Month.of(month.getValue() + 1), 1);
 		return IntStream.range(1, 8).mapToObj(i -> start.minusDays(i)).filter(date -> date.getDayOfWeek().equals(DayOfWeek.SUNDAY)).findFirst().get();
 
+	}
+	
+	@Override
+	@Commands(commands = {  @Command( name = "updateAll", arguments = {}) })
+	public void update() {
+		final LocalDateTime date = LocalDateTime.now();
+		updateWorkingday(defaultWorkingDayOffset(date));
+		updateTime(date.toLocalTime().isBefore(sunDownCalculationService.sunDownTime(date.getMonth(), defaultTimeOffset(date))) ? 0 :1);	
+		updateTemperature(date.toLocalTime().isBefore(LocalTime.of(9, 30))? 0 : 1);
+	}
+
+	int defaultTimeOffset(final  LocalDateTime date) {
+		final Map<String, Integer> map = new HashMap<>();
+		map.put(SUMMER, 2);
+		map.put(WINTER, 1);
+		return time(date.toLocalDate(), map );
+	}
+
+	int defaultWorkingDayOffset(final LocalDateTime date) {
+		final Map<Boolean, LocalTime> workingDaysTimes = new HashMap<>();
+		workingDaysTimes.put(Boolean.TRUE, LocalTime.of(5, 45 ));
+		workingDaysTimes.put(Boolean.FALSE, LocalTime.of(7, 30 ));
+		final int offset = date.toLocalTime().isBefore(workingDaysTimes.get(this.isWorkingsday(date.toLocalDate()))) ? 0 :1;
+		return offset;
 	}
 
 }

@@ -2,6 +2,7 @@ package de.mq.iot.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.LocalTime;
 import java.time.Month;
 
 import org.junit.jupiter.api.Test;
@@ -14,18 +15,23 @@ class SunDownCalculationServiceTest {
 	@Test
 	
 	final void sunDownTime() {
-		double result = sunDownCalculationService.sunDownTime(86, 2);
-		//System.out.println(">>>"+(int) result +":"  + (int) Math.round(60 * (result % 1) ));	
+		
+		final double result = sunDownCalculationService.sunDownTime(86, 2);
+	//	System.out.println(">>>"+(int) result +":"  + (int) Math.round(60 * (result % 1) ));	
+		
+		
 		assertEquals(19, (int) result); 
 		assertEquals(57, Math.round(60 *(result %1 )));
 	}
 	
 	@Test
 		final void sunDownTimeMonth() {
-		double result = sunDownCalculationService.sunDownTime(Month.MARCH ,2);
-		//System.out.println(">>>"+(int) result +":"  + (int) Math.round(60 * (result % 1) ));	
-		assertEquals(19, (int) result); 
-		assertEquals(39, Math.round(60 *(result %1 )));
+		LocalTime result = sunDownCalculationService.sunDownTime(Month.MARCH ,2);
+		
+		//System.out.println(result);	
+		
+		assertEquals(LocalTime.of(19, 39), result);
+	
 		
 	}
 }

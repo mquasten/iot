@@ -1,11 +1,12 @@
 package de.mq.iot.support;
 
+import java.time.LocalTime;
 import java.time.Month;
 
-interface SunDownCalculationService {
+public interface SunDownCalculationService {
 
 	double sunDownTime(int dayOfYear, int timeZoneOffsetInHours);
 
-	double sunDownTime(Month month, final int timeZoneOffsetInHours);
+	LocalTime sunDownTime(Month month, final int timeZoneOffsetInHours);
 
 }

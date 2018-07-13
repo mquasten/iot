@@ -8,4 +8,6 @@ public interface StateUpdateService {
 
 	void updateTemperature(int offsetDays);
 
+	void update();
+
 }

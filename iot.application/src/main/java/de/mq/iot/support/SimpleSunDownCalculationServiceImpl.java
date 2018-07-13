@@ -1,9 +1,15 @@
 package de.mq.iot.support;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Month;
+
 import java.util.stream.IntStream;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
 class SimpleSunDownCalculationServiceImpl implements SunDownCalculationService {
 	
 private final double  latitude;
@@ -16,6 +22,12 @@ private final double  latitude;
 	SimpleSunDownCalculationServiceImpl(final double latitudeDegrees, final double longitudeDegrees) {
 		this.latitude = latitudeDegrees*Math.PI/ 180d;
 		this.longitude = longitudeDegrees;
+	}
+	
+	@Autowired
+	SimpleSunDownCalculationServiceImpl() {
+		this(51.1423399, 6.2815922);
+		
 	}
 
 	
@@ -47,24 +59,26 @@ private final double  latitude;
 	}
 	
 	
-	public final double sunDownTime(final Month month, final int timeZoneOffsetInHours ) {
+	public final LocalTime sunDownTime(final Month month, final int timeZoneOffsetInHours ) {
 		LocalDate firstDay = LocalDate.of(18, month, 01);
 		
 		
 		final int daysInMonth = firstDay.lengthOfMonth();
 		
-		return  IntStream.rangeClosed(1, daysInMonth).mapToDouble(i -> {
+		final double result =   IntStream.rangeClosed(1, daysInMonth).mapToDouble(i -> {
 	
 			final LocalDate localDate = LocalDate.of(18, month, i);
 			
 			//System.out.println( localDate + "=" + localDate.getDayOfYear());
+			
+			
 			
 			return sunDownTime(localDate.getDayOfYear() , timeZoneOffsetInHours);
 			
 			
 		}).sum()/daysInMonth;
 				
-	
+		return LocalTime.of((int) result, (int)  Math.round(60 * (result % 1)));
 		
 		
 	}

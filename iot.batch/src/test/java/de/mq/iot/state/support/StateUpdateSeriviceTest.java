@@ -27,6 +27,7 @@ import de.mq.iot.openweather.MeteorologicalData;
 import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.StateUpdateService;
+import de.mq.iot.support.SunDownCalculationService;
 
 public class StateUpdateSeriviceTest {
 
@@ -36,7 +37,9 @@ public class StateUpdateSeriviceTest {
 
 	private final MeteorologicalDataService meteorologicalDataService = Mockito.mock(MeteorologicalDataService.class);
 	
-	private final StateUpdateService stateUpdateService = new StateUpdateSeriviceImpl(specialdayService, stateService, meteorologicalDataService);
+	private final SunDownCalculationService sunDownCalculationService = Mockito.mock(SunDownCalculationService.class);
+	
+	private final StateUpdateService stateUpdateService = new StateUpdateSeriviceImpl(specialdayService, stateService, meteorologicalDataService, sunDownCalculationService);
 	
 	private final Map<Integer, String> timeItems = new HashMap<>();
 	
