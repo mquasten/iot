@@ -28,6 +28,10 @@ import de.mq.iot.support.SunDownCalculationService;
 
 @Service
 public class StateUpdateSeriviceImpl implements StateUpdateService {
+	static final int NEXT_DAY_DAYS_OFFSET = 1;
+	static final int CURRENT_DAY_DAYS_OFFSET = 0;
+	static final int OFFSET_HOURS_WT = 1;
+	static final int OFFSET_HOURS_ST = 2;
 	static final String TEMPERATURE_STATE_NAME = "Temperature";
 	static final String MONTH_STATE_NAME = "Month";
 	static final String SUMMER = "SUMMER";
@@ -200,7 +204,7 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 	int defaultTimeOffset(final  LocalDateTime date) {
 		final Map<String, Integer> map = new HashMap<>();
 		map.put(SUMMER, 2);
-		map.put(WINTER, 1);
+		map.put(WINTER, OFFSET_HOURS_WT);
 		return time(date.toLocalDate(), map );
 	}
 
@@ -208,7 +212,7 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 		final Map<Boolean, LocalTime> workingDaysTimes = new HashMap<>();
 		workingDaysTimes.put(Boolean.TRUE, LocalTime.of(5, 45 ));
 		workingDaysTimes.put(Boolean.FALSE, LocalTime.of(7, 30 ));
-		final int offset = date.toLocalTime().isBefore(workingDaysTimes.get(this.isWorkingsday(date.toLocalDate()))) ? 0 :1;
+		final int offset = date.toLocalTime().isBefore(workingDaysTimes.get(this.isWorkingsday(date.toLocalDate()))) ? CURRENT_DAY_DAYS_OFFSET :NEXT_DAY_DAYS_OFFSET;
 		return offset;
 	}
 

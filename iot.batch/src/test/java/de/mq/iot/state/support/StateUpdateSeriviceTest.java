@@ -8,6 +8,8 @@ import static org.mockito.Mockito.withSettings;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
 import java.util.Arrays;
@@ -314,5 +316,26 @@ public class StateUpdateSeriviceTest {
 	@Test
 	void updateTemperatureOffsetMoreThan5() {
 		assertThrows(IllegalArgumentException.class, () -> stateUpdateService.updateTemperature(6));
+	}
+	@Test
+	void defaultTimeOffset() {
+		assertEquals(StateUpdateSeriviceImpl.OFFSET_HOURS_WT, ((StateUpdateSeriviceImpl)stateUpdateService).defaultTimeOffset(LocalDateTime.of(2018, Month.MARCH, 1, 0, 0)));
+		assertEquals(StateUpdateSeriviceImpl.OFFSET_HOURS_ST,((StateUpdateSeriviceImpl)stateUpdateService).defaultTimeOffset(LocalDateTime.of(2018, Month.MARCH, 31, 0, 0)));
+	
+		assertEquals(StateUpdateSeriviceImpl.OFFSET_HOURS_ST, ((StateUpdateSeriviceImpl)stateUpdateService).defaultTimeOffset(LocalDateTime.of(2018, Month.OCTOBER, 1, 0, 0)));
+		assertEquals(StateUpdateSeriviceImpl.OFFSET_HOURS_WT,((StateUpdateSeriviceImpl)stateUpdateService).defaultTimeOffset(LocalDateTime.of(2018, Month.OCTOBER, 31, 0,0)));
+	}
+	
+	
+	@Test
+	void defaultWorkingDayOffset() {
+		final LocalDate sunday = LocalDate.of(2018, 7, 15);
+		 final LocalDate normalDay = LocalDate.of(2018, 7, 16);
+		 LocalDateTime.of(normalDay, LocalTime.of(5, 40));
+		 assertEquals(StateUpdateSeriviceImpl.CURRENT_DAY_DAYS_OFFSET, (((StateUpdateSeriviceImpl)stateUpdateService).defaultWorkingDayOffset(LocalDateTime.of(normalDay, LocalTime.of(5, 40)))));
+		 assertEquals(StateUpdateSeriviceImpl.NEXT_DAY_DAYS_OFFSET, (((StateUpdateSeriviceImpl)stateUpdateService).defaultWorkingDayOffset(LocalDateTime.of(normalDay, LocalTime.of(5, 50)))));
+		 
+		 assertEquals(StateUpdateSeriviceImpl.CURRENT_DAY_DAYS_OFFSET, (((StateUpdateSeriviceImpl)stateUpdateService).defaultWorkingDayOffset(LocalDateTime.of(sunday, LocalTime.of(7, 25)))));
+		 assertEquals(StateUpdateSeriviceImpl.NEXT_DAY_DAYS_OFFSET, (((StateUpdateSeriviceImpl)stateUpdateService).defaultWorkingDayOffset(LocalDateTime.of(sunday, LocalTime.of(7, 35)))));
 	}
 }
