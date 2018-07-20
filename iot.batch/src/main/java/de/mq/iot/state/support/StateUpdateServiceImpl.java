@@ -27,7 +27,7 @@ import de.mq.iot.state.StateUpdateService;
 import de.mq.iot.support.SunDownCalculationService;
 
 @Service
-public class StateUpdateSeriviceImpl implements StateUpdateService {
+public class StateUpdateServiceImpl implements StateUpdateService {
 	static final int NEXT_DAY_DAYS_OFFSET = 1;
 	static final int CURRENT_DAY_DAYS_OFFSET = 0;
 	static final int OFFSET_HOURS_WT = 1;
@@ -44,7 +44,7 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 	
 	private final SunDownCalculationService sunDownCalculationService; 
 	@Autowired
-	StateUpdateSeriviceImpl(final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService,final SunDownCalculationService sunDownCalculationService) {
+	StateUpdateServiceImpl(final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService,final SunDownCalculationService sunDownCalculationService) {
 
 		this.specialdayService = specialdayService;
 		this.stateService = stateService;
@@ -197,8 +197,16 @@ public class StateUpdateSeriviceImpl implements StateUpdateService {
 	public void update() {
 		final LocalDateTime date = LocalDateTime.now();
 		updateWorkingday(defaultWorkingDayOffset(date));
-		updateTime(date.toLocalTime().isBefore(sunDownCalculationService.sunDownTime(date.getMonth(), defaultTimeOffset(date))) ? 0 :1);	
-		updateTemperature(date.toLocalTime().isBefore(LocalTime.of(9, 30))? 0 : 1);
+		updateTime(defaultUpdateTimeOffset(date));	
+		updateTemperature(defaultUpdateTemperature(date));
+	}
+
+	 int defaultUpdateTemperature(final LocalDateTime date) {
+		return date.toLocalTime().isBefore(LocalTime.of(9, 30))? 0 : 1;
+	}
+
+	 int defaultUpdateTimeOffset(final LocalDateTime date) {
+		return date.toLocalTime().isBefore(sunDownCalculationService.sunDownTime(date.getMonth(), defaultTimeOffset(date))) ? 0 :1;
 	}
 
 	int defaultTimeOffset(final  LocalDateTime date) {

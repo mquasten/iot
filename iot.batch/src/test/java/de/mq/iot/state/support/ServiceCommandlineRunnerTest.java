@@ -99,11 +99,11 @@ public class ServiceCommandlineRunnerTest {
 	@Test
 	final void execute() {
 
-		final Method updateStateMethod = updateMethod(StateUpdateSeriviceImpl.class);
+		final Method updateStateMethod = updateMethod(StateUpdateServiceImpl.class);
 		final Map<String, Object> environment = new HashMap<>();
 		environment.put(DAYS_ARG_NAME, OFFSET_ARG_VALUE);
 
-		final StateUpdateSeriviceImpl stateUpdateService = Mockito.mock(StateUpdateSeriviceImpl.class);
+		final StateUpdateServiceImpl stateUpdateService = Mockito.mock(StateUpdateServiceImpl.class);
 
 		serviceCommandlineRunner.execute(new AbstractMap.SimpleImmutableEntry<>(updateStateMethod, Arrays.asList(DAYS_ARG_NAME)), environment, stateUpdateService);
 
@@ -113,10 +113,10 @@ public class ServiceCommandlineRunnerTest {
 
 	@Test
 	final void executeWronfNumberOfArguments() {
-		final Method updateStateMethod = updateMethod(StateUpdateSeriviceImpl.class);
+		final Method updateStateMethod = updateMethod(StateUpdateServiceImpl.class);
 		final Map<String, Object> environment = new HashMap<>();
 		environment.put(DAYS_ARG_NAME, OFFSET_ARG_VALUE);
-		final StateUpdateSeriviceImpl stateUpdateService = Mockito.mock(StateUpdateSeriviceImpl.class);
+		final StateUpdateServiceImpl stateUpdateService = Mockito.mock(StateUpdateServiceImpl.class);
 		assertThrows(IllegalArgumentException.class, () -> serviceCommandlineRunner.execute(new AbstractMap.SimpleImmutableEntry<>(updateStateMethod, Arrays.asList(DAYS_ARG_NAME, DAYS_ARG_NAME)), environment, stateUpdateService));
 	}
 
@@ -126,12 +126,12 @@ public class ServiceCommandlineRunnerTest {
 
 	@Test
 	final void executeList() {
-		final StateUpdateSeriviceImpl service = Mockito.mock(StateUpdateSeriviceImpl.class);
+		final StateUpdateServiceImpl service = Mockito.mock(StateUpdateServiceImpl.class);
 
 		final ApplicationContext applicationContext = Mockito.mock(ApplicationContext.class);
-		Mockito.doReturn(service).when(applicationContext).getBean(StateUpdateSeriviceImpl.class);
+		Mockito.doReturn(service).when(applicationContext).getBean(StateUpdateServiceImpl.class);
 
-		final Method workingdayUpdateMethod = updateMethod(StateUpdateSeriviceImpl.class);
+		final Method workingdayUpdateMethod = updateMethod(StateUpdateServiceImpl.class);
 
 		final Map<String, Object> environment = new HashMap<>();
 		environment.put(DAYS_ARG_NAME, "" + OFFSET_ARG_VALUE);

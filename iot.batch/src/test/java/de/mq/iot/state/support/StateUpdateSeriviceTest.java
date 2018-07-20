@@ -22,6 +22,7 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
@@ -41,7 +42,7 @@ public class StateUpdateSeriviceTest {
 	
 	private final SunDownCalculationService sunDownCalculationService = Mockito.mock(SunDownCalculationService.class);
 	
-	private final StateUpdateService stateUpdateService = new StateUpdateSeriviceImpl(specialdayService, stateService, meteorologicalDataService, sunDownCalculationService);
+	private final StateUpdateService stateUpdateService = new StateUpdateServiceImpl(specialdayService, stateService, meteorologicalDataService, sunDownCalculationService);
 	
 	private final Map<Integer, String> timeItems = new HashMap<>();
 	
@@ -70,16 +71,16 @@ public class StateUpdateSeriviceTest {
 		timeItems.put(SUMMER_VALUE, "SUMMER");
 		
 		
-		Mockito.doReturn(StateUpdateSeriviceImpl.TIME_STATE_NAME).when(timeState).name();
+		Mockito.doReturn(StateUpdateServiceImpl.TIME_STATE_NAME).when(timeState).name();
 		Mockito.doReturn(timeItems.entrySet()).when((ItemList)timeState).items();
 		
 		
-		Mockito.doReturn(StateUpdateSeriviceImpl.MONTH_STATE_NAME).when(monthState).name();
+		Mockito.doReturn(StateUpdateServiceImpl.MONTH_STATE_NAME).when(monthState).name();
 		monthItems.putAll(Arrays.asList(Month.values()).stream().collect(Collectors.toMap(Month::ordinal, Month::name)));
 		Mockito.doReturn(monthItems.entrySet()).when((ItemList)monthState).items();
 	
 		
-		Mockito.doReturn(StateUpdateSeriviceImpl.TEMPERATURE_STATE_NAME).when(temperatureState).name();
+		Mockito.doReturn(StateUpdateServiceImpl.TEMPERATURE_STATE_NAME).when(temperatureState).name();
 		
 		
 		Mockito.doReturn(Arrays.asList(state, timeState, monthState, temperatureState)).when(stateService).states();
@@ -88,7 +89,7 @@ public class StateUpdateSeriviceTest {
 		
 	
 	
-		Mockito.doReturn(StateUpdateSeriviceImpl.WORKINGDAY_STATE_NAME).when(state).name();
+		Mockito.doReturn(StateUpdateServiceImpl.WORKINGDAY_STATE_NAME).when(state).name();
 		Mockito.doReturn(Boolean.FALSE).when(state).value();
 		Mockito.when(temperatureState.value()).thenReturn(25.55d);
 		Mockito.when(meteorologicalData.temperature()).thenReturn(27.27d);
@@ -144,7 +145,7 @@ public class StateUpdateSeriviceTest {
 	void isWorkingsdaySpecialDay() {
 		final LocalDate testDate = prepareSpecialDays();
 
-		assertFalse(((StateUpdateSeriviceImpl) stateUpdateService).isWorkingsday(testDate));
+		assertFalse(((StateUpdateServiceImpl) stateUpdateService).isWorkingsday(testDate));
 	}
 
 	private LocalDate prepareSpecialDays() {
@@ -166,13 +167,13 @@ public class StateUpdateSeriviceTest {
 	void isWorkingsdayWeekend() {
 		final LocalDate testDate = LocalDate.now().plusDays(workingWeekEndOffset(LocalDate.now()));
 
-		assertFalse(((StateUpdateSeriviceImpl) stateUpdateService).isWorkingsday(testDate));
+		assertFalse(((StateUpdateServiceImpl) stateUpdateService).isWorkingsday(testDate));
 	}
 
 	@Test
 	void isWorkingsday() {
 		final LocalDate testDate = LocalDate.now().plusDays(workingDayOffset(LocalDate.now()));
-		assertTrue(((StateUpdateSeriviceImpl) stateUpdateService).isWorkingsday(testDate));
+		assertTrue(((StateUpdateServiceImpl) stateUpdateService).isWorkingsday(testDate));
 	}
 
 	@Test
@@ -187,13 +188,13 @@ public class StateUpdateSeriviceTest {
 
 		Arrays.asList(Month.values()).forEach(month -> {
 			final LocalDate date = LocalDate.of(LocalDate.now().getYear(), month, 1);
-			assertEquals(expectedValues.get(month), ((StateUpdateSeriviceImpl) stateUpdateService).time(date, reverseItemItems), month.name());
+			assertEquals(expectedValues.get(month), ((StateUpdateServiceImpl) stateUpdateService).time(date, reverseItemItems), month.name());
 		});
 
-		assertEquals(WINTER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 3, 24),reverseItemItems));
-		assertEquals(SUMMER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 3, 25),reverseItemItems));
-		assertEquals(SUMMER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 10, 27), reverseItemItems));
-		assertEquals(WINTER_VALUE, ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.of(2018, 10, 28),reverseItemItems));
+		assertEquals(WINTER_VALUE, ((StateUpdateServiceImpl) stateUpdateService).time(LocalDate.of(2018, 3, 24),reverseItemItems));
+		assertEquals(SUMMER_VALUE, ((StateUpdateServiceImpl) stateUpdateService).time(LocalDate.of(2018, 3, 25),reverseItemItems));
+		assertEquals(SUMMER_VALUE, ((StateUpdateServiceImpl) stateUpdateService).time(LocalDate.of(2018, 10, 27), reverseItemItems));
+		assertEquals(WINTER_VALUE, ((StateUpdateServiceImpl) stateUpdateService).time(LocalDate.of(2018, 10, 28),reverseItemItems));
 
 	}
 
@@ -225,7 +226,7 @@ public class StateUpdateSeriviceTest {
 	@Test
 	void updateTimeSummerWinter() {
 		final Map<String,Integer> reverseItemItems =  reverseItemItems();
-		final Integer currentState = ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.now(), reverseItemItems).equals(SUMMER_VALUE) ? WINTER_VALUE: SUMMER_VALUE;
+		final Integer currentState = ((StateUpdateServiceImpl) stateUpdateService).time(LocalDate.now(), reverseItemItems).equals(SUMMER_VALUE) ? WINTER_VALUE: SUMMER_VALUE;
 	
 		
 		Mockito.doReturn(currentState).when(timeState).value();
@@ -246,7 +247,7 @@ public class StateUpdateSeriviceTest {
 	
 	@Test
 	void updateMonth() {
-		final Integer currentState = ((StateUpdateSeriviceImpl) stateUpdateService).time(LocalDate.now(), reverseItemItems());
+		final Integer currentState = ((StateUpdateServiceImpl) stateUpdateService).time(LocalDate.now(), reverseItemItems());
 		Mockito.doReturn(currentState).when(timeState).value();
 		
 		
@@ -319,11 +320,11 @@ public class StateUpdateSeriviceTest {
 	}
 	@Test
 	void defaultTimeOffset() {
-		assertEquals(StateUpdateSeriviceImpl.OFFSET_HOURS_WT, ((StateUpdateSeriviceImpl)stateUpdateService).defaultTimeOffset(LocalDateTime.of(2018, Month.MARCH, 1, 0, 0)));
-		assertEquals(StateUpdateSeriviceImpl.OFFSET_HOURS_ST,((StateUpdateSeriviceImpl)stateUpdateService).defaultTimeOffset(LocalDateTime.of(2018, Month.MARCH, 31, 0, 0)));
+		assertEquals(StateUpdateServiceImpl.OFFSET_HOURS_WT, ((StateUpdateServiceImpl)stateUpdateService).defaultTimeOffset(LocalDateTime.of(2018, Month.MARCH, 1, 0, 0)));
+		assertEquals(StateUpdateServiceImpl.OFFSET_HOURS_ST,((StateUpdateServiceImpl)stateUpdateService).defaultTimeOffset(LocalDateTime.of(2018, Month.MARCH, 31, 0, 0)));
 	
-		assertEquals(StateUpdateSeriviceImpl.OFFSET_HOURS_ST, ((StateUpdateSeriviceImpl)stateUpdateService).defaultTimeOffset(LocalDateTime.of(2018, Month.OCTOBER, 1, 0, 0)));
-		assertEquals(StateUpdateSeriviceImpl.OFFSET_HOURS_WT,((StateUpdateSeriviceImpl)stateUpdateService).defaultTimeOffset(LocalDateTime.of(2018, Month.OCTOBER, 31, 0,0)));
+		assertEquals(StateUpdateServiceImpl.OFFSET_HOURS_ST, ((StateUpdateServiceImpl)stateUpdateService).defaultTimeOffset(LocalDateTime.of(2018, Month.OCTOBER, 1, 0, 0)));
+		assertEquals(StateUpdateServiceImpl.OFFSET_HOURS_WT,((StateUpdateServiceImpl)stateUpdateService).defaultTimeOffset(LocalDateTime.of(2018, Month.OCTOBER, 31, 0,0)));
 	}
 	
 	
@@ -332,10 +333,36 @@ public class StateUpdateSeriviceTest {
 		final LocalDate sunday = LocalDate.of(2018, 7, 15);
 		 final LocalDate normalDay = LocalDate.of(2018, 7, 16);
 		 LocalDateTime.of(normalDay, LocalTime.of(5, 40));
-		 assertEquals(StateUpdateSeriviceImpl.CURRENT_DAY_DAYS_OFFSET, (((StateUpdateSeriviceImpl)stateUpdateService).defaultWorkingDayOffset(LocalDateTime.of(normalDay, LocalTime.of(5, 40)))));
-		 assertEquals(StateUpdateSeriviceImpl.NEXT_DAY_DAYS_OFFSET, (((StateUpdateSeriviceImpl)stateUpdateService).defaultWorkingDayOffset(LocalDateTime.of(normalDay, LocalTime.of(5, 50)))));
+		 assertEquals(StateUpdateServiceImpl.CURRENT_DAY_DAYS_OFFSET, (((StateUpdateServiceImpl)stateUpdateService).defaultWorkingDayOffset(LocalDateTime.of(normalDay, LocalTime.of(5, 40)))));
+		 assertEquals(StateUpdateServiceImpl.NEXT_DAY_DAYS_OFFSET, (((StateUpdateServiceImpl)stateUpdateService).defaultWorkingDayOffset(LocalDateTime.of(normalDay, LocalTime.of(5, 50)))));
 		 
-		 assertEquals(StateUpdateSeriviceImpl.CURRENT_DAY_DAYS_OFFSET, (((StateUpdateSeriviceImpl)stateUpdateService).defaultWorkingDayOffset(LocalDateTime.of(sunday, LocalTime.of(7, 25)))));
-		 assertEquals(StateUpdateSeriviceImpl.NEXT_DAY_DAYS_OFFSET, (((StateUpdateSeriviceImpl)stateUpdateService).defaultWorkingDayOffset(LocalDateTime.of(sunday, LocalTime.of(7, 35)))));
+		 assertEquals(StateUpdateServiceImpl.CURRENT_DAY_DAYS_OFFSET, (((StateUpdateServiceImpl)stateUpdateService).defaultWorkingDayOffset(LocalDateTime.of(sunday, LocalTime.of(7, 25)))));
+		 assertEquals(StateUpdateServiceImpl.NEXT_DAY_DAYS_OFFSET, (((StateUpdateServiceImpl)stateUpdateService).defaultWorkingDayOffset(LocalDateTime.of(sunday, LocalTime.of(7, 35)))));
+	}
+	
+	@Test
+	void update() {
+	
+		final StateUpdateService stateUpdateService = Mockito.mock(StateUpdateServiceImpl.class);
+		final Map<Class<?>, Object> dependencies = new HashMap<>();
+		dependencies.put(SunDownCalculationService.class, sunDownCalculationService);
+		
+		final LocalTime time = LocalTime.now();
+		Mockito.when(sunDownCalculationService.sunDownTime(Mockito.any(Month.class), Mockito.anyInt())).thenReturn(time);
+		
+		Arrays.asList(StateUpdateServiceImpl.class.getDeclaredFields()).stream().filter(field -> dependencies.containsKey(field.getType()) ).forEach(field -> ReflectionTestUtils.setField(stateUpdateService, field.getName(), dependencies.get(field.getType())));
+		
+		
+		
+		
+		Mockito.doCallRealMethod().when(stateUpdateService).update();
+		
+		stateUpdateService.update();
+		
+		
+		Mockito.verify(stateUpdateService).updateWorkingday(Mockito.anyInt());
+		Mockito.verify(stateUpdateService).updateTime(Mockito.anyInt());
+		Mockito.verify(stateUpdateService).updateTemperature(Mockito.anyInt());
+	
 	}
 }
