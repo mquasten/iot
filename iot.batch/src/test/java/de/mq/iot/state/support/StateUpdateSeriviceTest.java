@@ -198,7 +198,7 @@ public class StateUpdateSeriviceTest {
 
 	}
 
-	protected Map<String, Integer> reverseItemItems() {
+	private Map<String, Integer> reverseItemItems() {
 		return timeItems.entrySet().stream().collect(Collectors.toMap(Entry::getValue, Entry::getKey));
 	}
 	
@@ -364,5 +364,24 @@ public class StateUpdateSeriviceTest {
 		Mockito.verify(stateUpdateService).updateTime(Mockito.anyInt());
 		Mockito.verify(stateUpdateService).updateTemperature(Mockito.anyInt());
 	
+	}
+	
+	
+	
+	@Test
+	void defaultUpdateTemperature() {
+		assertEquals(0, (((StateUpdateServiceImpl) stateUpdateService).defaultUpdateTemperature(LocalDateTime.of(LocalDate.now(), LocalTime.of(StateUpdateServiceImpl.UPDATE_TEMPERATURE_TIME.getHour(), StateUpdateServiceImpl.UPDATE_TEMPERATURE_TIME.getMinute()-1)))));
+		assertEquals(1, (((StateUpdateServiceImpl) stateUpdateService).defaultUpdateTemperature(LocalDateTime.of(LocalDate.now(), LocalTime.of(StateUpdateServiceImpl.UPDATE_TEMPERATURE_TIME.getHour(), StateUpdateServiceImpl.UPDATE_TEMPERATURE_TIME.getMinute()+1)))));
+	}
+	
+	
+	@Test
+	void defaultUpdateTimeOffset() {
+		final  LocalTime sundownTime = LocalTime.of(21, 50);	
+		Mockito.when(sunDownCalculationService.sunDownTime(Mockito.any(Month.class), Mockito.anyInt())).thenReturn(sundownTime);
+		
+	
+		assertEquals(0,(((StateUpdateServiceImpl) stateUpdateService).defaultUpdateTimeOffset(LocalDateTime.of(LocalDate.now(), sundownTime.minusMinutes(1)))));
+		assertEquals(1,(((StateUpdateServiceImpl) stateUpdateService).defaultUpdateTimeOffset(LocalDateTime.of(LocalDate.now(), sundownTime.plusMinutes(1)))));
 	}
 }

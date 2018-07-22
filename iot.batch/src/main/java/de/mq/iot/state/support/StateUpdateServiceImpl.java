@@ -28,6 +28,7 @@ import de.mq.iot.support.SunDownCalculationService;
 
 @Service
 public class StateUpdateServiceImpl implements StateUpdateService {
+	static final LocalTime UPDATE_TEMPERATURE_TIME = LocalTime.of(9, 30);
 	static final int NEXT_DAY_DAYS_OFFSET = 1;
 	static final int CURRENT_DAY_DAYS_OFFSET = 0;
 	static final int OFFSET_HOURS_WT = 1;
@@ -202,7 +203,7 @@ public class StateUpdateServiceImpl implements StateUpdateService {
 	}
 
 	 int defaultUpdateTemperature(final LocalDateTime date) {
-		return date.toLocalTime().isBefore(LocalTime.of(9, 30))? 0 : 1;
+		return date.toLocalTime().isBefore(UPDATE_TEMPERATURE_TIME)? 0 : 1;
 	}
 
 	 int defaultUpdateTimeOffset(final LocalDateTime date) {
