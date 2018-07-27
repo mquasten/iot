@@ -3,6 +3,7 @@ package de.mq.iot.state.support;
 import java.net.InetAddress;
 import java.time.Duration;
 import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ import org.springframework.util.Assert;
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
+import de.mq.iot.state.IPUpdateService;
 import reactor.core.publisher.Mono;
 
 @Service 
@@ -54,11 +56,25 @@ class IPUpdateServiceImpl implements IPUpdateService {
 		System.out.println("Existing host: " + host);
 		
 	
+		if(host.equals(ips.get(HOMEMATIC_HOST))) {
+			System.out.println("IPs are identical, nothing do.");
+			return ;
+		}
 		
 		
+		final Map<String, String>  parameters = new HashMap<>();
 		
-	
+		parameters.putAll(resourceIdentifier.parameters());
 		
+		
+		parameters.put(HOST_PARAMETER_NAME, ips.get(HOMEMATIC_HOST));
+		
+		resourceIdentifier.assign(parameters);
+		
+		resourceIdentifierRepository.save(resourceIdentifier).block(Duration.ofMillis(500));
+		
+		
+		System.out.println("Update ip to : "+  ips.get(HOMEMATIC_HOST));
 	}
 
 
