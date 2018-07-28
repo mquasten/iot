@@ -22,7 +22,8 @@ import reactor.core.publisher.Mono;
 class IPUpdateServiceImpl implements IPUpdateService {
 	
 	
-	private static final String HOMEMATIC_HOST = "HOMEMATIC-CCU2";
+	static final String IP_PREFIX = "192.168.2.";
+	static final String HOMEMATIC_HOST = "HOMEMATIC-CCU2";
 	private static final String HOST_PARAMETER_NAME = "host";
 	private final ResourceIdentifierRepository resourceIdentifierRepository;
 	
@@ -78,11 +79,11 @@ class IPUpdateServiceImpl implements IPUpdateService {
 	}
 
 
-	private Entry<String,String> toEntry(int address) {
-		String host2 = "192.168.2." + address;
+	Entry<String,String> toEntry(int address) {
+		final String host = IP_PREFIX + address;
 		try {
 
-			return new AbstractMap.SimpleImmutableEntry<String,String>(InetAddress.getByName(host2).getHostName().split("[.]")[0].toUpperCase(), host2);
+			return new AbstractMap.SimpleImmutableEntry<String,String>(InetAddress.getByName(host).getHostName().split("[.]")[0].toUpperCase(), host);
 			
 		
 		} catch (final Exception e) {
