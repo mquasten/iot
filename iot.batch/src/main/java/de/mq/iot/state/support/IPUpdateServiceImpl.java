@@ -15,6 +15,8 @@ import org.springframework.util.Assert;
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
+import de.mq.iot.state.Command;
+import de.mq.iot.state.Commands;
 import de.mq.iot.state.IPUpdateService;
 import reactor.core.publisher.Mono;
 
@@ -24,7 +26,7 @@ class IPUpdateServiceImpl implements IPUpdateService {
 	
 	static final String IP_PREFIX = "192.168.2.";
 	static final String HOMEMATIC_HOST = "HOMEMATIC-CCU2";
-	private static final String HOST_PARAMETER_NAME = "host";
+	static final String HOST_PARAMETER_NAME = "host";
 	private final ResourceIdentifierRepository resourceIdentifierRepository;
 	
 	IPUpdateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository) {
@@ -36,6 +38,7 @@ class IPUpdateServiceImpl implements IPUpdateService {
 	 * @see de.mq.iot.state.support.IPUpdateService#update()
 	 */
 	@Override
+	@Commands(commands = {  @Command( name = "updateIP", arguments = {}) })
 	public final void update() {
 		
 		final  Map<String,String> ips = IntStream.range(100, 111).mapToObj(address -> toEntry(address)).filter(entry -> ! entry.getKey().startsWith("192")).collect(Collectors.toMap( Entry::getKey, Entry::getValue));
@@ -47,8 +50,10 @@ class IPUpdateServiceImpl implements IPUpdateService {
 		
 		System.out.println(HOMEMATIC_HOST +":" + ips.get(HOMEMATIC_HOST));
 		
-		final Mono<ResourceIdentifier> mono =  resourceIdentifierRepository.findById(ResourceType.XmlApi);
 		
+		
+		final Mono<ResourceIdentifier> mono =  resourceIdentifierRepository.findById(ResourceType.XmlApi);
+	
 		final ResourceIdentifier resourceIdentifier  = mono.block(Duration.ofMillis(500)); 
 		
 		final String host = resourceIdentifier.parameters().get(HOST_PARAMETER_NAME);
