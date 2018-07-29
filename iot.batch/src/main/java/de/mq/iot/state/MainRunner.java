@@ -26,7 +26,8 @@ import de.mq.iot.support.ApplicationConfiguration;
 	@Main(name = "updateCalendar", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date", defaultValue = "0") }) ,
 @Main(name = "updateTemperature", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date", defaultValue = "0") }) ,
 @Main(name = "updateAll", parameters = { }), 
-@Main(name = "updateIP", parameters = { }) 
+@Main(name = "updateIP", parameters = { }) ,
+@Main(name = "updateResources", parameters = { }) 
 })
 public class MainRunner {
 	private final Class<MainRunner> mainDefinitionClass = MainRunner.class;

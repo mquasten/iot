@@ -1,4 +1,4 @@
-package de.mq.iot.state.support;
+package de.mq.iot.resource.support;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -7,24 +7,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import de.mq.iot.state.IPUpdateService;
 import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
 @Disabled
-class IPUpdateServiceIntegrationTest {
+class ResourceUpdateServiceIntegrationTest {
 	
 	@Autowired
-	private IPUpdateService ipUpdateService;
+	private ResourceUpdateService resourceUpdateService;
 	
 	
 	@Test
+	@Disabled
+	void updateIP() {
+		
+		
+		resourceUpdateService.updateIp();
+	}
 	
+	@Test
+	@Disabled
 	void update() {
 		
 		
-		ipUpdateService.update();
+		resourceUpdateService.updateResources();
 	}
+
 
 }

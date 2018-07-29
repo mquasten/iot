@@ -1,4 +1,4 @@
-package de.mq.iot.state.support;
+package de.mq.iot.resource.support;
 
 import java.net.InetAddress;
 import java.time.Duration;
@@ -9,28 +9,28 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
-import de.mq.iot.resource.support.ResourceIdentifierRepository;
-import de.mq.iot.state.Command;
 import de.mq.iot.state.Commands;
-import de.mq.iot.state.IPUpdateService;
+import de.mq.iot.state.Command;
 import reactor.core.publisher.Mono;
 
 @Service 
-class IPUpdateServiceImpl implements IPUpdateService {
+public class ResourceUpdateServiceImpl implements ResourceUpdateService {
 	
 	
 	static final String IP_PREFIX = "192.168.2.";
 	static final String HOMEMATIC_HOST = "HOMEMATIC-CCU2";
 	static final String HOST_PARAMETER_NAME = "host";
 	private final ResourceIdentifierRepository resourceIdentifierRepository;
-	
-	IPUpdateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository) {
+	private final Duration duration; 
+	ResourceUpdateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository,  @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.resourceIdentifierRepository = resourceIdentifierRepository;
+		this.duration=Duration.ofMillis(timeout);
 	}
 
 	
@@ -39,7 +39,7 @@ class IPUpdateServiceImpl implements IPUpdateService {
 	 */
 	@Override
 	@Commands(commands = {  @Command( name = "updateIP", arguments = {}) })
-	public final void update() {
+	public final void updateIp() {
 		
 		final  Map<String,String> ips = IntStream.range(100, 111).mapToObj(address -> toEntry(address)).filter(entry -> ! entry.getKey().startsWith("192")).collect(Collectors.toMap( Entry::getKey, Entry::getValue));
 		
@@ -54,7 +54,7 @@ class IPUpdateServiceImpl implements IPUpdateService {
 		
 		final Mono<ResourceIdentifier> mono =  resourceIdentifierRepository.findById(ResourceType.XmlApi);
 	
-		final ResourceIdentifier resourceIdentifier  = mono.block(Duration.ofMillis(500)); 
+		final ResourceIdentifier resourceIdentifier  = mono.block(duration); 
 		
 		final String host = resourceIdentifier.parameters().get(HOST_PARAMETER_NAME);
 		
@@ -77,7 +77,7 @@ class IPUpdateServiceImpl implements IPUpdateService {
 		
 		resourceIdentifier.assign(parameters);
 		
-		resourceIdentifierRepository.save(resourceIdentifier).block(Duration.ofMillis(500));
+		resourceIdentifierRepository.save(resourceIdentifier).block(duration);
 		
 		
 		System.out.println("Update ip to : "+  ips.get(HOMEMATIC_HOST));
@@ -97,6 +97,47 @@ class IPUpdateServiceImpl implements IPUpdateService {
 	}
 
 
+	@Override
+	@Commands(commands = {  @Command( name = "updateResources", arguments = {}) })
+	public final void updateResources() {
+		updateXMLApi();
+		
+		updateOpenWeatherApi();
+		
+		
+	}
+
+
+	private void updateOpenWeatherApi() {
+		final ResourceIdentifier resourceIdentifier = new ResourceIdentifierImpl(ResourceType.OpenWeather, "http://api.openweathermap.org/data/{version}/{resource}?q={city},{country}&appid={key}&units=metric") ; 
+		final Map<String,String> parameters = new HashMap<>();
+		parameters.put("version", "2.5");
+		parameters.put("city", "Wegberg");
+		parameters.put("country", "de");
+		parameters.put("key", "607cd43d4d9b17d8a96df387fe4ede62");
+		resourceIdentifier.assign(parameters);
+		resourceIdentifierRepository.save(resourceIdentifier);
+		System.out.println("Update " + resourceIdentifier.uri() +":"  + parameters);
+
+	}
+
+
+	private void updateXMLApi() {
+		final String  ip =  homematicIp();
+		
+		final ResourceIdentifier resourceIdentifier = new ResourceIdentifierImpl(ResourceType.XmlApi, "http://{host}:{port}/addons/xmlapi/{resource}") ; 
+		final Map<String,String> parameters = new HashMap<>();
+		parameters.put(HOST_PARAMETER_NAME, ip);
+		parameters.put("port", "80");
+		
+		resourceIdentifierRepository.save(resourceIdentifier);
+		System.out.println("Update " + resourceIdentifier.uri() +":"  + parameters);
+	}
+
+
+	private String homematicIp() {
+		return IntStream.range(100, 111).mapToObj(address -> toEntry(address)).filter(entry ->  entry.getKey().equals(HOMEMATIC_HOST)).map(Entry::getValue).findAny().orElseThrow(() -> new IllegalStateException("Homematic-Host not found"));
+	}
 	
 		
 	
