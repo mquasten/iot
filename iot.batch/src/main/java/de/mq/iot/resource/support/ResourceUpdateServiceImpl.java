@@ -23,6 +23,9 @@ import reactor.core.publisher.Mono;
 public class ResourceUpdateServiceImpl implements ResourceUpdateService {
 	
 	
+	static final String XMLPORT = "80";
+	static final String XML_API_URL = "http://{host}:{port}/addons/xmlapi/{resource}";
+	static final String PORT_PARAMETER_NAME = "port";
 	static final String IP_PREFIX = "192.168.2.";
 	static final String HOMEMATIC_HOST = "HOMEMATIC-CCU2";
 	static final String HOST_PARAMETER_NAME = "host";
@@ -125,11 +128,11 @@ public class ResourceUpdateServiceImpl implements ResourceUpdateService {
 	private void updateXMLApi() {
 		final String  ip =  homematicIp();
 		
-		final ResourceIdentifier resourceIdentifier = new ResourceIdentifierImpl(ResourceType.XmlApi, "http://{host}:{port}/addons/xmlapi/{resource}") ; 
+		final ResourceIdentifier resourceIdentifier = new ResourceIdentifierImpl(ResourceType.XmlApi, XML_API_URL) ; 
 		final Map<String,String> parameters = new HashMap<>();
 		parameters.put(HOST_PARAMETER_NAME, ip);
-		parameters.put("port", "80");
-		
+		parameters.put(PORT_PARAMETER_NAME, XMLPORT);
+		resourceIdentifier.assign(parameters);
 		resourceIdentifierRepository.save(resourceIdentifier);
 		System.out.println("Update " + resourceIdentifier.uri() +":"  + parameters);
 	}

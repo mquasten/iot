@@ -28,7 +28,7 @@ class ResourceUpdateServiceIntegrationTest {
 	
 	@Test
 	@Disabled
-	void update() {
+	void updateResources() {
 		
 		
 		resourceUpdateService.updateResources();

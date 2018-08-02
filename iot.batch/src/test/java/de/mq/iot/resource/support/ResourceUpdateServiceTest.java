@@ -4,6 +4,7 @@ package de.mq.iot.resource.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Modifier;
 import java.time.Duration;
@@ -126,4 +127,27 @@ class ResourceUpdateServiceTest {
 		
 		
 	}
+	
+	@Test
+	void updateResources() {
+		final ArgumentCaptor<ResourceIdentifier>  argumentCaptor = ArgumentCaptor.forClass(ResourceIdentifier.class);
+		ipUpdateService.updateResources();
+		
+		Mockito.verify(resourceIdentifierRepository, Mockito.times(2)).save(argumentCaptor.capture());
+		
+		assertEquals(2,argumentCaptor.getAllValues().size());
+		
+		assertResourceIdentifierXmlApi(argumentCaptor.getAllValues().get(0));
+	}
+
+
+	private void assertResourceIdentifierXmlApi(final ResourceIdentifier resourceIdentifierXmlApi) {
+		assertEquals(ResourceType.XmlApi, resourceIdentifierXmlApi.id());
+		assertEquals(ResourceUpdateServiceImpl.XML_API_URL, resourceIdentifierXmlApi.uri());
+		
+		final Map<String,String> parameter =  resourceIdentifierXmlApi.parameters();
+		assertTrue(parameter.get(ResourceUpdateServiceImpl.HOST_PARAMETER_NAME).startsWith(ResourceUpdateServiceImpl.IP_PREFIX));
+		assertEquals(ResourceUpdateServiceImpl.XMLPORT, parameter.get(ResourceUpdateServiceImpl.PORT_PARAMETER_NAME));
+	}
+	
 }
