@@ -138,6 +138,22 @@ class ResourceUpdateServiceTest {
 		assertEquals(2,argumentCaptor.getAllValues().size());
 		
 		assertResourceIdentifierXmlApi(argumentCaptor.getAllValues().get(0));
+		
+		ResourceIdentifier resourceIdentifier = argumentCaptor.getAllValues().get(1);
+		assertEquals(ResourceType.OpenWeather, resourceIdentifier.id());
+		assertEquals(ResourceUpdateServiceImpl.OPEN_WEATHER_URL, resourceIdentifier.uri());
+		
+		final Map<String,String> parameter =  resourceIdentifier.parameters();
+		
+		assertEquals(4, parameter.size());
+		
+		System.out.println(parameter);
+		
+		assertEquals(ResourceUpdateServiceImpl.OPEN_WEATHER_VERSION_VALUE, parameter.get(ResourceUpdateServiceImpl.OPEN_WEATHER_VERSION_PARAM));
+		assertEquals(ResourceUpdateServiceImpl.OPEN_WEATHER_CITY_VALUE, parameter.get(ResourceUpdateServiceImpl.OPEN_WEATHER_CITY_PARAM));
+		assertEquals(ResourceUpdateServiceImpl.OPEN_WEATHER_COUNTRY_VALUE, parameter.get(ResourceUpdateServiceImpl.OPEN_WEATHER_COUNTRY_PARAM));
+		assertEquals(ResourceUpdateServiceImpl.OPEN_WEATHER_KEY_VALUE, parameter.get(ResourceUpdateServiceImpl.OPEN_WEATHER_KEY_PARAM));
+		
 	}
 
 

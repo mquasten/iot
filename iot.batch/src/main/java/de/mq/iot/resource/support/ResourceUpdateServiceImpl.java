@@ -23,6 +23,15 @@ import reactor.core.publisher.Mono;
 public class ResourceUpdateServiceImpl implements ResourceUpdateService {
 	
 	
+	static final String OPEN_WEATHER_KEY_VALUE = "607cd43d4d9b17d8a96df387fe4ede62";
+	static final String OPEN_WEATHER_COUNTRY_VALUE = "de";
+	static final String OPEN_WEATHER_CITY_VALUE = "Wegberg";
+	static final String OPEN_WEATHER_VERSION_VALUE = "2.5";
+	static final String OPEN_WEATHER_KEY_PARAM = "key";
+	static final String OPEN_WEATHER_COUNTRY_PARAM = "country";
+	static final String OPEN_WEATHER_CITY_PARAM = "city";
+	static final String OPEN_WEATHER_VERSION_PARAM = "version";
+	static final String OPEN_WEATHER_URL = "http://api.openweathermap.org/data/{version}/{resource}?q={city},{country}&appid={key}&units=metric";
 	static final String XMLPORT = "80";
 	static final String XML_API_URL = "http://{host}:{port}/addons/xmlapi/{resource}";
 	static final String PORT_PARAMETER_NAME = "port";
@@ -112,12 +121,12 @@ public class ResourceUpdateServiceImpl implements ResourceUpdateService {
 
 
 	private void updateOpenWeatherApi() {
-		final ResourceIdentifier resourceIdentifier = new ResourceIdentifierImpl(ResourceType.OpenWeather, "http://api.openweathermap.org/data/{version}/{resource}?q={city},{country}&appid={key}&units=metric") ; 
+		final ResourceIdentifier resourceIdentifier = new ResourceIdentifierImpl(ResourceType.OpenWeather, OPEN_WEATHER_URL) ; 
 		final Map<String,String> parameters = new HashMap<>();
-		parameters.put("version", "2.5");
-		parameters.put("city", "Wegberg");
-		parameters.put("country", "de");
-		parameters.put("key", "607cd43d4d9b17d8a96df387fe4ede62");
+		parameters.put(OPEN_WEATHER_VERSION_PARAM, OPEN_WEATHER_VERSION_VALUE);
+		parameters.put(OPEN_WEATHER_CITY_PARAM, OPEN_WEATHER_CITY_VALUE);
+		parameters.put(OPEN_WEATHER_COUNTRY_PARAM, OPEN_WEATHER_COUNTRY_VALUE);
+		parameters.put(OPEN_WEATHER_KEY_PARAM, OPEN_WEATHER_KEY_VALUE);
 		resourceIdentifier.assign(parameters);
 		resourceIdentifierRepository.save(resourceIdentifier);
 		System.out.println("Update " + resourceIdentifier.uri() +":"  + parameters);
