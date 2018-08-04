@@ -1,6 +1,7 @@
 package de.mq.iot.calendar.support;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +46,15 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		results.addAll(specialdaysRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss)).collectList().block(duration));
 		results.addAll(specialdaysRepository.findByTypeAndYear(Type.Vacation, year.getValue()).collectList().block(duration));
 		return Collections.unmodifiableCollection(results);
+		
+	}
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.calendar.SpecialdayService#vacation(java.time.LocalDate, java.time.LocalDate)
+	 */
+	@Override
+	public final Collection<Specialday>vacation(final LocalDate begin, final LocalDate end) {
+		return Arrays.asList();
 		
 	}
 
