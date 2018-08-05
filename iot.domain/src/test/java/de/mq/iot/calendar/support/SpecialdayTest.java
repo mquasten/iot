@@ -166,12 +166,6 @@ public class SpecialdayTest {
 		assertEquals(date, specialday.date(YEAR));
 	}
 	
-	@Test
-	void vacationWrongYear() {
-		final LocalDate date = LocalDate.of(YEAR, 5, 28);
-		final Specialday specialday = new SpecialdayImpl(date);
-		
-		assertThrows(IllegalArgumentException.class, () -> specialday.date(YEAR+1));
-	}
+	
 
 }

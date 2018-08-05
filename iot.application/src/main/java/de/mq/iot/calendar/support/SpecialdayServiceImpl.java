@@ -1,12 +1,19 @@
 package de.mq.iot.calendar.support;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Year;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,8 +61,36 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	 */
 	@Override
 	public final Collection<Specialday>vacation(final LocalDate begin, final LocalDate end) {
-		return Arrays.asList();
+		assertTrue(begin.isBefore(end));
+		final Collection<LocalDate> publicHolidays = new HashSet<>();
+		final Collection<Specialday> specialdays = specialdaysRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss)).collectList().block();
+		publicHolidays.addAll(specialdays.stream().map(specialday -> specialday.date(begin.getYear())).collect(Collectors.toList()));
+		if( begin.getYear() != end.getYear()) {
+			publicHolidays.addAll(specialdays.stream().map(specialday -> specialday.date(end.getYear())).collect(Collectors.toList()));
+		}
+		publicHolidays.addAll(specialdays.stream().map(specialday -> specialday.date(end.getYear())).collect(Collectors.toList()));
 		
+	
+		final long daysOffset = ChronoUnit.DAYS.between(begin, end);
+		final Collection<Specialday> results = LongStream.range(0, daysOffset).mapToObj(i -> new SpecialdayImpl(begin.plusDays(i))).filter(specialday -> filterSpecialDay(publicHolidays, specialday)).collect(Collectors.toList());
+		return results;
+		
+	}
+
+	private boolean filterSpecialDay(final Collection<LocalDate> publicHolidays, final Specialday specialday) {
+		final LocalDate localDate = specialday.date(1);
+		
+		if (localDate.getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
+			return false;
+		}
+		
+		if (localDate.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+			return false;
+		}
+		if( publicHolidays.contains(localDate) ) {
+			return false;
+		}
+		return true;
 	}
 
 }

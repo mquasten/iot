@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.MonthDay;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,6 +81,36 @@ class SpecialdayServiceTest {
 		assertEquals(2, results.size());
 		assertEquals(specialday, results.get(0));
 		assertEquals(otherSpecialday, results.get(1));
+	}
+	
+	@Test
+	void  vacation() {
+		final Flux<Specialday> fluxHoliday = Flux.fromStream(Arrays.asList(new SpecialdayImpl(MonthDay.of(12, 25)), new SpecialdayImpl(MonthDay.of(12, 26)), new SpecialdayImpl(MonthDay.of(1, 1))).stream());
+		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss))).thenReturn(fluxHoliday);
+		final LocalDate begin = LocalDate.of(2018, 12, 17);
+		final LocalDate end = LocalDate.of(2019, 1, 6);
+		final Collection<Specialday> results = specialdayService.vacation(begin, end);
+		
+		final Collection<LocalDate> expectedDates = expectedDatesVacation(begin);
+		
+		assertEquals(expectedDates.size(), results.size());
+		assertEquals(expectedDates, results.stream().map(specialday -> specialday.date(2018) ).collect(Collectors.toList()));
+	}
+
+	private Collection<LocalDate> expectedDatesVacation(final LocalDate begin) {
+		final Collection<LocalDate> expectedDates = LongStream.range(0, 20).mapToObj(i -> begin.plusDays(i)).collect(Collectors.toList());
+		
+		expectedDates.remove(LocalDate.of(2018, 12, 25));
+		expectedDates.remove(LocalDate.of(2018, 12, 26));
+		expectedDates.remove(LocalDate.of(2019, 1, 1));
+		
+		expectedDates.remove(LocalDate.of(2018, 12, 22));
+		expectedDates.remove(LocalDate.of(2018, 12, 23));
+		expectedDates.remove(LocalDate.of(2018, 12, 29));
+		expectedDates.remove(LocalDate.of(2018, 12, 30));
+		expectedDates.remove(LocalDate.of(2019, 1, 5));
+		expectedDates.remove(LocalDate.of(2019, 1, 6));
+		return expectedDates;
 	}
 
 }

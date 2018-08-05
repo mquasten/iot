@@ -87,8 +87,7 @@ class SpecialdayImpl implements Specialday {
 		}
 		if( type == Type.Vacation) {
 			Assert.notNull(this.year , "Year is mandatory.");
-			Assert.isTrue(this.year==year, "Wrong year: " + this.year + " expected " + year );
-			return  LocalDate.of(year, month, dayOfMonth);
+			return  LocalDate.of(this.year, month, dayOfMonth);
 		}
 		throw new IllegalArgumentException("Invalid type: " + type);
 		
