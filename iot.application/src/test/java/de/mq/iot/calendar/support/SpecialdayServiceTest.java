@@ -1,6 +1,8 @@
 package de.mq.iot.calendar.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -112,5 +114,60 @@ class SpecialdayServiceTest {
 		expectedDates.remove(LocalDate.of(2019, 1, 6));
 		return expectedDates;
 	}
+	
+	
+	@Test
+	void  vacationOnlyOneYear() {
+	
+		
+		final Flux<Specialday> fluxHoliday = Flux.fromStream(Arrays.asList(new SpecialdayImpl(MonthDay.of(12, 25)), new SpecialdayImpl(MonthDay.of(12, 26)), specialday).stream());
+		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss))).thenReturn(fluxHoliday);
+		final LocalDate begin = LocalDate.of(2018, 12, 17);
+		final LocalDate end = LocalDate.of(2018, 12, 31);
+		final Collection<Specialday> results = specialdayService.vacation(begin, end);
+		
+		final Collection<LocalDate> expectedDates = LongStream.range(0, 15).mapToObj(i -> begin.plusDays(i)).collect(Collectors.toList());
+		expectedDates.remove(LocalDate.of(2018, 12, 25));
+		expectedDates.remove(LocalDate.of(2018, 12, 26));
+		
+		
+		expectedDates.remove(LocalDate.of(2018, 12, 22));
+		expectedDates.remove(LocalDate.of(2018, 12, 23));
+		expectedDates.remove(LocalDate.of(2018, 12, 29));
+		expectedDates.remove(LocalDate.of(2018, 12, 30));
+		
+		assertEquals(expectedDates.size(), results.size());
+		assertEquals(expectedDates, results.stream().map(specialday -> specialday.date(2018) ).collect(Collectors.toList()));
+		
+		Mockito.verify(specialday, Mockito.atLeastOnce()).date(2018);
+		Mockito.verify(specialday, Mockito.never()).date(2019);
+	}
+	
+	@Test
+	void vacationSingleDay() {
+		final LocalDate date = LocalDate.of(2018, 12, 17);
+	
+		final Collection<Specialday> results = specialdayService.vacation(date, date);
+		
+		assertEquals(1, results.size());
+		assertEquals(date, results.stream().findFirst().get().date(2018));
+	}
+	
+	@Test
+	void vacationEmpty() {
+		final Flux<Specialday> fluxHoliday = Flux.fromStream(Arrays.asList(new SpecialdayImpl(MonthDay.of(12, 25)), new SpecialdayImpl(MonthDay.of(12, 26))).stream());
+		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss))).thenReturn(fluxHoliday);
+		final LocalDate begin = LocalDate.of(2018, 12,25);
+		final LocalDate end = LocalDate.of(2018, 12, 26);
+		final Collection<Specialday> results = specialdayService.vacation(begin, end);
+		
+		assertTrue(results.isEmpty());
+	}
+	
+	@Test
+	void vacationEndBeforeBegin() {
+		assertThrows(IllegalArgumentException.class, () -> specialdayService.vacation(LocalDate.of(2018, 12, 31), LocalDate.of(2018, 12, 17)));
+	}
+
 
 }

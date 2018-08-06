@@ -1,6 +1,6 @@
 package de.mq.iot.calendar.support;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -18,6 +18,7 @@ import java.util.stream.LongStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
@@ -61,7 +62,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	 */
 	@Override
 	public final Collection<Specialday>vacation(final LocalDate begin, final LocalDate end) {
-		assertTrue(begin.isBefore(end));
+		Assert.isTrue(!begin.isAfter(end), "Begin should be before or equals end.");
 		final Collection<LocalDate> publicHolidays = new HashSet<>();
 		final Collection<Specialday> specialdays = specialdaysRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss)).collectList().block();
 		publicHolidays.addAll(specialdays.stream().map(specialday -> specialday.date(begin.getYear())).collect(Collectors.toList()));
@@ -72,7 +73,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		
 	
 		final long daysOffset = ChronoUnit.DAYS.between(begin, end);
-		final Collection<Specialday> results = LongStream.range(0, daysOffset).mapToObj(i -> new SpecialdayImpl(begin.plusDays(i))).filter(specialday -> filterSpecialDay(publicHolidays, specialday)).collect(Collectors.toList());
+		final Collection<Specialday> results = LongStream.rangeClosed(0, daysOffset).mapToObj(i -> new SpecialdayImpl(begin.plusDays(i))).filter(specialday -> filterSpecialDay(publicHolidays, specialday)).collect(Collectors.toList());
 		return results;
 		
 	}
