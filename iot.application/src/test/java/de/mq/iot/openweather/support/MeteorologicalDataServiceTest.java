@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,6 +73,15 @@ class MeteorologicalDataServiceTest {
 	@Test
 	void forecastMaxTemperatureMissingData() {
 		assertThrows(IllegalArgumentException.class, () -> meteorologicalDataService.forecastMaxTemperature(localDate.plusDays(1)));
+	}
+	
+	@Test
+	void forecasts() {
+		final List<MeteorologicalData>  results =  new ArrayList<>(meteorologicalDataService.forecasts());
+		
+		assertEquals(2, results.size());
+		assertEquals(meteorologicalDataWeather, results.get(0));
+		assertEquals(meteorologicalDataForecast, results.get(1));
 	}
 
 }
