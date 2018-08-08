@@ -236,12 +236,19 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		valueComboBox.setRequired(true);
 		valueTextField.setRequired(true);
 		final HorizontalLayout buttonBox = new HorizontalLayout();
-		Button loginButton = new Button();
+		final Button loginButton = new Button();
 		loginButton.setIcon(VaadinIcons.USERS.create());
-	
-		
 		buttonBox.add(loginButton);
 		
+		final Button logoutButton = new Button();
+		logoutButton.setIcon(VaadinIcons.CLOSE.create());
+		buttonBox.add(logoutButton);
+	
+		logoutButton.addClickListener( e -> {
+			
+			System.out.println(e.getSource());
+			
+		});
 		
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
