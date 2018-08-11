@@ -15,6 +15,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.StringUtils;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -244,11 +246,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		logoutButton.setIcon(VaadinIcons.CLOSE.create());
 		buttonBox.add(logoutButton);
 	
-		logoutButton.addClickListener( e -> {
-			
-			System.out.println(e.getSource());
-			
-		});
+		logoutButton.addClickListener( event -> ((Component) event.getSource()).getUI().ifPresent(ui -> invalidateSession(ui)));
 		
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
@@ -309,6 +307,12 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	 
 		
 		
+	}
+
+
+	private void invalidateSession(final UI ui) {
+		ui.getSession().getSession().invalidate();
+		ui.getPage().reload();
 	}
 	
 	private void assignState(final StateModel stateModel) {
