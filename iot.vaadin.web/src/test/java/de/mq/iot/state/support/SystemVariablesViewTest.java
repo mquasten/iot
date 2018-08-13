@@ -38,6 +38,7 @@ import de.mq.iot.model.Observer;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.support.StateModel.Events;
 import de.mq.iot.state.support.StateModel.ValidationErrors;
+import de.mq.iot.support.ButtonBox;
 
 class SystemVariablesViewTest {
 
@@ -69,6 +70,9 @@ class SystemVariablesViewTest {
 
 	private final SimpleNotificationDialog notificationDialog = Mockito.mock(SimpleNotificationDialog.class);
 
+	
+	
+	
 	@BeforeEach
 	void setup() {
 		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(workingDayState));
@@ -92,7 +96,9 @@ class SystemVariablesViewTest {
 
 		}).when(stateModel).register(Mockito.any(), Mockito.any());
 
-		systemVariablesView = new SystemVariablesView(stateService, stateModel, converter, messageSource, notificationDialog);
+		
+		
+		systemVariablesView = new SystemVariablesView(stateService, stateModel, converter, messageSource, notificationDialog,  new ButtonBox());;
 
 		Arrays.asList(SystemVariablesView.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> fields.put(field.getName(), ReflectionTestUtils.getField(systemVariablesView, field.getName())));
 

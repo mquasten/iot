@@ -15,6 +15,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 import de.mq.iot.model.Subject;
 import de.mq.iot.model.support.SubjectImpl;
+import de.mq.iot.support.ButtonBox;
 
 @Configuration
 class StateModelConfiguration  {
@@ -42,7 +43,8 @@ class StateModelConfiguration  {
 	}
 
 	@Bean
-	@UIScope
+	//@UIScope
+	@Scope("prototype")
 	StateModel stateModel(final Subject<StateModel.Events, StateModel> subject, ConversionService conversionService) {
 		return new StateModelImpl(subject, conversionService);
 
@@ -68,7 +70,11 @@ class StateModelConfiguration  {
 		return new SimpleNotificationDialog(dialog);
 	}
 	
-	
+	@Bean
+	@UIScope
+	ButtonBox buttonBox() {
+		return new ButtonBox();
+	}
 	
    
 	

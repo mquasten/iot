@@ -15,8 +15,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -25,7 +23,6 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.VaadinIcons;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -38,6 +35,7 @@ import de.mq.iot.model.I18NKey;
 import de.mq.iot.model.LocalizeView;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.support.StateModel.ValidationErrors;
+import de.mq.iot.support.ButtonBox;
 
 @Route("")
 @Theme(Lumo.class)
@@ -94,13 +92,13 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	
 	private final MessageSource messageSource;
 	private final StateService stateService; 
-	SystemVariablesView(final StateService stateService, final StateModel stateModel, @Qualifier("stateValueConverter") final Converter<State<?>, String> stateValueConverter, final MessageSource messageSource, final SimpleNotificationDialog notificationDialog ) {
+	SystemVariablesView(final StateService stateService, final StateModel stateModel, @Qualifier("stateValueConverter") final Converter<State<?>, String> stateValueConverter, final MessageSource messageSource, final SimpleNotificationDialog notificationDialog, final ButtonBox buttonBox ) {
 	
 		this.stateValueConverter=stateValueConverter;
 		this.stateService=stateService;
 		this.messageSource=messageSource;
 		this.notificationDialog=notificationDialog;
-		createUI(stateService);	
+		createUI(stateService, buttonBox);	
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> stateModel.assign(selectionEvent.getValue()));
 		stateModel.register(StateModel.Events.AssignState, () ->  assignState(stateModel));	
 		initStateCommands(stateModel);
@@ -229,7 +227,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		
 	}
 
-	private void createUI(StateService stateService) {
+	private void createUI(final StateService stateService, final ButtonBox buttonBox) {
 				
 	
 		saveButton.setEnabled(false);
@@ -237,16 +235,16 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		
 		valueComboBox.setRequired(true);
 		valueTextField.setRequired(true);
-		final HorizontalLayout buttonBox = new HorizontalLayout();
-		final Button loginButton = new Button();
-		loginButton.setIcon(VaadinIcons.USERS.create());
-		buttonBox.add(loginButton);
+		//final HorizontalLayout buttonBox = new HorizontalLayout();
+		//final Button loginButton = new Button();
+		//loginButton.setIcon(VaadinIcons.USERS.create());
+		//buttonBox.add(loginButton);
 		
-		final Button logoutButton = new Button();
-		logoutButton.setIcon(VaadinIcons.CLOSE.create());
-		buttonBox.add(logoutButton);
+		//final Button logoutButton = new Button();
+		//logoutButton.setIcon(VaadinIcons.CLOSE.create());
+		//buttonBox.add(logoutButton);
 	
-		logoutButton.addClickListener( event -> ((Component) event.getSource()).getUI().ifPresent(ui -> invalidateSession(ui)));
+		//logoutButton.addClickListener( event -> ((Component) event.getSource()).getUI().ifPresent(ui -> invalidateSession(ui)));
 		
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
@@ -310,10 +308,6 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	}
 
 
-	private void invalidateSession(final UI ui) {
-		ui.getSession().getSession().invalidate();
-		ui.getPage().reload();
-	}
 	
 	private void assignState(final StateModel stateModel) {
 		if(stateModel.selectedState().isPresent()) {
