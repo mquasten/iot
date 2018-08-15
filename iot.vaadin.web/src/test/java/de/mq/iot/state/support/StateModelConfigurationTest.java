@@ -75,9 +75,10 @@ public class StateModelConfigurationTest {
 		assertTrue(messageSource instanceof ResourceBundleMessageSource);
 		
 		final List<String> basenames = new ArrayList<>( ((ResourceBundleMessageSource)messageSource).getBasenameSet());
-		assertEquals(2, basenames.size());
+		assertEquals(3, basenames.size());
 		assertEquals(StateModelConfiguration.SYSTEM_VARIABLES_VIEW ,basenames.get(0));
 		assertEquals(StateModelConfiguration.LOGIN_VIEW ,basenames.get(1));
+		assertEquals(StateModelConfiguration.CALENDAR_VIEW ,basenames.get(2));
 		assertEquals(StateModelConfiguration.MESSAGE_SOURCE_ENCODING, ReflectionTestUtils.invokeMethod(messageSource, "getDefaultEncoding"));
 	}
 	
