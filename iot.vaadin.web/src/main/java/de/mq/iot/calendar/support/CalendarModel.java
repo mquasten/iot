@@ -8,8 +8,23 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 
 	enum Events {
 	
-		ChangeLocale;
+		ChangeLocale,
+		ValuesChanged;
 	}
 	
+	enum ValidationErrors {
+		Ok,
+		Mandatory,
+		Invalid;
+	}
 	
+	ValidationErrors validateFrom(final String from);
+	
+	ValidationErrors validateTo(final String to);
+
+	boolean valid();
+
+	void assignFrom(String from);
+
+	void assignTo(String to);
 }

@@ -24,6 +24,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
 import de.mq.iot.model.I18NKey;
 import de.mq.iot.model.LocalizeView;
 
@@ -78,10 +79,12 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 	private void createUI(final SpecialdayService specialdayService, final ButtonBox buttonBox) {
 
+	
 		saveButton.setEnabled(false);
 		deleteButton.setEnabled(false);
 
 		fromTextField.setRequired(true);
+		toTextField.setRequired(true);
 
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
@@ -121,12 +124,50 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		final ColumnBase<Column<LocalDate>> dateColumnBase = grid.addColumn((ValueProvider<LocalDate, String>) date -> date.getDayOfMonth() + "." + date.getMonthValue() + "." + date.getYear()).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setItems(dates);
+		
+		fromTextField.addValueChangeListener(value -> {
+			
+			saveButton.setEnabled(false);
+			deleteButton.setEnabled(false);
+			fromTextField.setErrorMessage("" );
+			fromTextField.setInvalid(false);
+			if( calendarModel.validateFrom(value.getValue()) != ValidationErrors.Ok) {
+				fromTextField.setInvalid(true);
+				return;
+			}
+			
+			calendarModel.assignFrom(value.getValue());
+		    
+		});
+		
+		
+		toTextField.addValueChangeListener(value -> {
+			saveButton.setEnabled(false);
+			deleteButton.setEnabled(false);
+			toTextField.setErrorMessage("" );
+			toTextField.setInvalid(false);
+			if( calendarModel.validateTo(value.getValue()) != ValidationErrors.Ok) {
+				toTextField.setInvalid(true);
+				return;
+			}
+			
+			calendarModel.assignTo(value.getValue());
+			
+		
+		});
 
 		calendarModel.register(CalendarModel.Events.ChangeLocale, () -> {
 			localize(messageSource, calendarModel.locale());
 			dateColumnBase.setHeader(dateColumnLabel);
 		});
+		
+		calendarModel.register(CalendarModel.Events.ValuesChanged, () -> {	
+			deleteButton.setEnabled(calendarModel.valid());
+			saveButton.setEnabled(calendarModel.valid());
+		});
+		
 
 	}
 
+	
 }
