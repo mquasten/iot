@@ -1,6 +1,7 @@
 package de.mq.iot.calendar.support;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -20,6 +21,10 @@ public class CalendarModelImpl  implements CalendarModel  {
 
 	private Optional<LocalDate> from = Optional.empty();
 	
+	
+
+	
+
 	private Optional<LocalDate> to = Optional.empty();
 
 
@@ -65,6 +70,22 @@ public class CalendarModelImpl  implements CalendarModel  {
 	}
 
 
+	
+	@Override
+	public ValidationErrors vaidate(final int maxDays) {
+		if( ! valid()) {
+			return ValidationErrors.Invalid;
+		}
+		if( to.get().isBefore(from.get())) {
+			return ValidationErrors.FromBeforeTo;
+		}
+		
+		if( ChronoUnit.DAYS.between(from.get(), to.get()) > maxDays ) {
+			return ValidationErrors.RangeSize;
+		}
+		
+		return ValidationErrors.Ok;
+	}
 
 	private ValidationErrors validateDate(final String date) {
 		
@@ -118,6 +139,19 @@ public class CalendarModelImpl  implements CalendarModel  {
 	@Override
 	public boolean valid() {
 		return this.to.isPresent() && this.from.isPresent();
+	}
+
+	@Override
+	public LocalDate from() {
+		return from.orElseThrow(() -> new IllegalArgumentException("FromDate is missing."));
+	}
+
+
+	
+
+	@Override
+	public LocalDate to() {
+		return to.orElseThrow(() -> new IllegalArgumentException("ToDate is missing."));
 	}
 
 }

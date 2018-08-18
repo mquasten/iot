@@ -14,4 +14,6 @@ public interface SpecialdayService {
 
 	Collection<Specialday> vacation(final LocalDate begin, final LocalDate end);
 
+	void delete(Specialday specialday);
+
 }

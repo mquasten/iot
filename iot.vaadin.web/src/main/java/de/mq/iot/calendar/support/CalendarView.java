@@ -2,7 +2,10 @@ package de.mq.iot.calendar.support;
 
 import java.time.LocalDate;
 import java.time.Year;
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.context.MessageSource;
@@ -27,7 +30,6 @@ import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
 import de.mq.iot.model.I18NKey;
 import de.mq.iot.model.LocalizeView;
-
 import de.mq.iot.support.ButtonBox;
 
 @Route("calendar")
@@ -64,6 +66,8 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	private final CalendarModel calendarModel;
 
 	private final MessageSource messageSource;
+	
+	private Map<ValidationErrors, String> validationErrors = new HashMap<>();
 
 	CalendarView(final CalendarModel calendarModel, final SpecialdayService specialdayService, final MessageSource messageSource, final ButtonBox buttonBox) {
 
@@ -79,12 +83,12 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 	private void createUI(final SpecialdayService specialdayService, final ButtonBox buttonBox) {
 
-	
+		
 		saveButton.setEnabled(false);
 		deleteButton.setEnabled(false);
 
-		fromTextField.setRequired(true);
-		toTextField.setRequired(true);
+		
+	
 
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
@@ -103,6 +107,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		final VerticalLayout buttonLayout = new VerticalLayout(deleteButton, saveButton);
 
 		final HorizontalLayout editorLayout = new HorizontalLayout(formLayout, buttonLayout);
+		
 
 		editorLayout.setVerticalComponentAlignment(Alignment.CENTER, buttonLayout);
 
@@ -112,27 +117,27 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 		add(buttonBox, layout, stateInfoLabel, editorLayout);
 		setHorizontalComponentAlignment(Alignment.CENTER, stateInfoLabel);
-
+	
 		layout.setSizeFull();
 
 		setHorizontalComponentAlignment(Alignment.CENTER, layout);
 
 		grid.setHeight("50vH");
 
-		final Collection<LocalDate> dates = specialdayService.specialdays(Year.now()).stream().map(day -> day.date(Year.now().getValue())).sorted().collect(Collectors.toList());
-
 		final ColumnBase<Column<LocalDate>> dateColumnBase = grid.addColumn((ValueProvider<LocalDate, String>) date -> date.getDayOfMonth() + "." + date.getMonthValue() + "." + date.getYear()).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
-		grid.setItems(dates);
+		
+		grid.setItems(readDates(specialdayService));
 		
 		fromTextField.addValueChangeListener(value -> {
 			
-			saveButton.setEnabled(false);
-			deleteButton.setEnabled(false);
+			
 			fromTextField.setErrorMessage("" );
 			fromTextField.setInvalid(false);
-			if( calendarModel.validateFrom(value.getValue()) != ValidationErrors.Ok) {
+			final ValidationErrors error = calendarModel.validateFrom(value.getValue());
+			if( error != ValidationErrors.Ok) {
 				fromTextField.setInvalid(true);
+				fromTextField.setErrorMessage(validationErrors.get(error));
 				return;
 			}
 			
@@ -142,12 +147,13 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		
 		
 		toTextField.addValueChangeListener(value -> {
-			saveButton.setEnabled(false);
-			deleteButton.setEnabled(false);
+		
 			toTextField.setErrorMessage("" );
 			toTextField.setInvalid(false);
-			if( calendarModel.validateTo(value.getValue()) != ValidationErrors.Ok) {
+			final ValidationErrors error = calendarModel.validateTo(value.getValue());
+			if( error != ValidationErrors.Ok) {
 				toTextField.setInvalid(true);
+				toTextField.setErrorMessage(validationErrors.get(error));
 				return;
 			}
 			
@@ -159,6 +165,10 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		calendarModel.register(CalendarModel.Events.ChangeLocale, () -> {
 			localize(messageSource, calendarModel.locale());
 			dateColumnBase.setHeader(dateColumnLabel);
+			
+			Arrays.asList(ValidationErrors.values()).stream().filter(validationError -> validationError!= ValidationErrors.Ok).forEach(validationError -> validationErrors.put( validationError, messageSource.getMessage("calendar_validation_" + validationError.name().toLowerCase() , null, "???", calendarModel.locale())));
+			
+			
 		});
 		
 		calendarModel.register(CalendarModel.Events.ValuesChanged, () -> {	
@@ -167,6 +177,36 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		});
 		
 
+		
+		deleteButton.addClickListener(event -> {
+			final ValidationErrors error = calendarModel.vaidate(60);
+			if ( error != ValidationErrors.Ok ) {
+				toTextField.setErrorMessage(validationErrors.get(error));
+				toTextField.setInvalid(true);
+				return;
+			} 
+			
+			refresh(specialdayService);
+		});
+	}
+
+	private void refresh(final SpecialdayService specialdayService) {
+		specialdayService.vacation(calendarModel.from(),  calendarModel.to()).forEach(day -> specialdayService.delete(day));
+		grid.setItems(readDates(specialdayService));
+		
+		toTextField.setValue("");
+		fromTextField.setValue("");
+		fromTextField.setValue("");
+		toTextField.setInvalid(false);
+		fromTextField.setInvalid(false);
+		toTextField.setErrorMessage("");
+		fromTextField.setErrorMessage("");
+		calendarModel.assignFrom(null);
+		calendarModel.assignTo(null);
+	}
+
+	private List<LocalDate> readDates(final SpecialdayService specialdayService) {
+		return specialdayService.specialdays(Year.now()).stream().map(day -> day.date(Year.now().getValue())).sorted().collect(Collectors.toList());
 	}
 
 	

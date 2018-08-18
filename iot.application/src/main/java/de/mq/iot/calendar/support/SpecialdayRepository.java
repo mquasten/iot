@@ -16,6 +16,8 @@ public interface SpecialdayRepository {
 
 	Mono<Specialday> save(final Specialday specialday); 
 	
+	Mono<Specialday> delete(final Specialday specialday); 
+	
 	Flux<Specialday> findByTypeIn(final List<Type> types);
 	
 	Flux<Specialday> findByTypeAndYear(final Type type, final int year);

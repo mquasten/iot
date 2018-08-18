@@ -1,5 +1,7 @@
 package de.mq.iot.calendar.support;
 
+import java.time.LocalDate;
+
 import de.mq.iot.model.LocaleAware;
 import de.mq.iot.model.Subject;
 
@@ -15,7 +17,9 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 	enum ValidationErrors {
 		Ok,
 		Mandatory,
-		Invalid;
+		Invalid,
+		FromBeforeTo, 
+		RangeSize;
 	}
 	
 	ValidationErrors validateFrom(final String from);
@@ -27,4 +31,10 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 	void assignFrom(String from);
 
 	void assignTo(String to);
+
+	ValidationErrors vaidate(final int maxDays);
+
+	LocalDate from();
+
+	LocalDate to();
 }

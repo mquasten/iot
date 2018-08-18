@@ -45,6 +45,12 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		specialdaysRepository.save(specialday).block(duration);
 	}
 	
+	
+	@Override
+	public final void delete(final Specialday specialday) {
+		specialdaysRepository.delete(specialday).block(duration);
+	}
+	
 	/* (non-Javadoc)
 	 * @see de.mq.iot.calendar.support.SpecialdaysService#specialdays(java.time.Year)
 	 */
