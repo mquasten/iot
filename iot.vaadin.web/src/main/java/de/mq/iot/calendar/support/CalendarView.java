@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.context.MessageSource;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.ColumnBase;
@@ -58,9 +59,11 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	@I18NKey("info")
 	private final Label stateInfoLabel = new Label();
 
-	@I18NKey("table_date")
+	@I18NKey("table_header")
 	private final Label dateColumnLabel = new Label();
 
+	private Checkbox vacationOnlyCheckbox = new Checkbox();
+	
 	private final Grid<LocalDate> grid = new Grid<>();
 
 	private final FormLayout formLayout = new FormLayout();
@@ -166,10 +169,12 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 		calendarModel.register(CalendarModel.Events.ChangeLocale, () -> {
 			localize(messageSource, calendarModel.locale());
-			dateColumnBase.setHeader(dateColumnLabel);
+		
+			
+			dateColumnBase.setHeader(vacationOnlyCheckbox);
 			
 			Arrays.asList(ValidationErrors.values()).stream().filter(validationError -> validationError!= ValidationErrors.Ok).forEach(validationError -> validationErrors.put( validationError, messageSource.getMessage("calendar_validation_" + validationError.name().toLowerCase() , null, "???", calendarModel.locale())));
-			
+			vacationOnlyCheckbox.setLabel(dateColumnLabel.getText());
 			
 		});
 		
