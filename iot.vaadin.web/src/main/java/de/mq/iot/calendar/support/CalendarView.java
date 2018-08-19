@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.springframework.context.MessageSource;
@@ -26,6 +27,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
 import de.mq.iot.model.I18NKey;
@@ -178,20 +180,26 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		
 
 		
-		deleteButton.addClickListener(event -> {
-			final ValidationErrors error = calendarModel.vaidate(60);
-			if ( error != ValidationErrors.Ok ) {
-				toTextField.setErrorMessage(validationErrors.get(error));
-				toTextField.setInvalid(true);
-				return;
-			} 
+		deleteButton.addClickListener(event -> process(specialday -> specialdayService.delete(specialday), specialdayService));
+		
+		
+		saveButton.addClickListener(event -> process(specialday -> specialdayService.save(specialday), specialdayService)); 
 			
-			refresh(specialdayService);
-		});
+			
 	}
 
-	private void refresh(final SpecialdayService specialdayService) {
-		specialdayService.vacation(calendarModel.from(),  calendarModel.to()).forEach(day -> specialdayService.delete(day));
+	private void process(final Consumer<Specialday> consumer, final SpecialdayService specialdayService) {
+		
+		
+		final ValidationErrors error = calendarModel.vaidate(60);
+		if ( error != ValidationErrors.Ok ) {
+			toTextField.setErrorMessage(validationErrors.get(error));
+			toTextField.setInvalid(true);
+			return;
+		} 
+		specialdayService.vacation(calendarModel.from(),  calendarModel.to()).forEach(day -> consumer.accept(day));
+		
+	
 		grid.setItems(readDates(specialdayService));
 		
 		toTextField.setValue("");
