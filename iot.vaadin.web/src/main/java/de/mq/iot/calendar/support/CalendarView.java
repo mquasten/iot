@@ -30,6 +30,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.calendar.support.CalendarModel.Events;
 import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
 import de.mq.iot.model.I18NKey;
 import de.mq.iot.model.LocalizeView;
@@ -83,6 +84,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		createUI(specialdayService, buttonBox);
 
 		calendarModel.notifyObservers(CalendarModel.Events.ChangeLocale);
+		
 
 	}
 
@@ -132,7 +134,9 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		final ColumnBase<Column<LocalDate>> dateColumnBase = grid.addColumn((ValueProvider<LocalDate, String>) date -> date.getDayOfMonth() + "." + date.getMonthValue() + "." + date.getYear()).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		
-		grid.setItems(readDates(specialdayService));
+		//grid.setItems(readDates(specialdayService));
+		
+		
 		
 		fromTextField.addValueChangeListener(value -> {
 			
@@ -183,13 +187,24 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 			saveButton.setEnabled(calendarModel.valid());
 		});
 		
+		calendarModel.register(CalendarModel.Events.DatesChanged, () -> grid.setItems(readDates(specialdayService)));
+		
 
+		vacationOnlyCheckbox.addValueChangeListener(event -> {
+			
+			calendarModel.assign(event.getValue() ? CalendarModel.Filter.Vacation : CalendarModel.Filter.All);
+			
+			//grid.setItems(readDates(specialdayService));
+			
+		});
+		
 		
 		deleteButton.addClickListener(event -> process(specialday -> specialdayService.delete(specialday), specialdayService));
 		
 		
 		saveButton.addClickListener(event -> process(specialday -> specialdayService.save(specialday), specialdayService)); 
-			
+		
+		calendarModel.assign(CalendarModel.Filter.All);
 			
 	}
 
@@ -205,7 +220,9 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		specialdayService.vacation(calendarModel.from(),  calendarModel.to()).forEach(day -> consumer.accept(day));
 		
 	
-		grid.setItems(readDates(specialdayService));
+		//grid.setItems(readDates(specialdayService));
+		
+		calendarModel.notifyObservers(CalendarModel.Events.DatesChanged);
 		
 		toTextField.setValue("");
 		fromTextField.setValue("");
@@ -216,10 +233,11 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		fromTextField.setErrorMessage("");
 		calendarModel.assignFrom(null);
 		calendarModel.assignTo(null);
+		calendarModel.notifyObservers(Events.DatesChanged);
 	}
 
 	private List<LocalDate> readDates(final SpecialdayService specialdayService) {
-		return specialdayService.specialdays(Year.now()).stream().map(day -> day.date(Year.now().getValue())).sorted().collect(Collectors.toList());
+		return specialdayService.specialdays(Year.now()).stream().filter(calendarModel.filter()).map(day -> day.date(Year.now().getValue())).sorted().collect(Collectors.toList());
 	}
 
 	

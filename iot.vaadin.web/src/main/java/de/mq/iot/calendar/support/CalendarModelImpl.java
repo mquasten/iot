@@ -2,11 +2,15 @@ package de.mq.iot.calendar.support;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.springframework.util.StringUtils;
 
+import de.mq.iot.calendar.Specialday;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
@@ -21,8 +25,9 @@ public class CalendarModelImpl  implements CalendarModel  {
 
 	private Optional<LocalDate> from = Optional.empty();
 	
-	
+	private final Map<CalendarModel.Filter, Predicate<Specialday>> filters = new HashMap<>();
 
+	private CalendarModel.Filter filter = CalendarModel.Filter.All;
 	
 
 	private Optional<LocalDate> to = Optional.empty();
@@ -30,6 +35,10 @@ public class CalendarModelImpl  implements CalendarModel  {
 
 	CalendarModelImpl(final Subject<Events, CalendarModel> subject) {
 		this.subject = subject;
+	
+		
+		filters.put(CalendarModel.Filter.All, day -> true);
+		filters.put(CalendarModel.Filter.Vacation, day -> day.isVacation() );
 
 	}
 
@@ -146,12 +155,21 @@ public class CalendarModelImpl  implements CalendarModel  {
 		return from.orElseThrow(() -> new IllegalArgumentException("FromDate is missing."));
 	}
 
-
-	
-
 	@Override
 	public LocalDate to() {
 		return to.orElseThrow(() -> new IllegalArgumentException("ToDate is missing."));
+	}
+	
+	
+	@Override
+	public Predicate<Specialday> filter() {
+		return filters.get(filter);
+	}
+	
+	@Override
+	public void assign(CalendarModel.Filter filter) {
+		this.filter=filter;
+		notifyObservers(Events.DatesChanged);
 	}
 
 }

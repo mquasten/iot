@@ -3,6 +3,8 @@ package de.mq.iot.calendar;
 import java.time.LocalDate;
 import java.time.MonthDay;
 
+
+
 public interface Specialday {
 
 
@@ -54,5 +56,21 @@ public interface Specialday {
 	
 	
 	LocalDate date(final int year);
+
+
+
+
+
+
+
+
+
+
+	boolean isVacation();
+
+
+
+
+
 
 }

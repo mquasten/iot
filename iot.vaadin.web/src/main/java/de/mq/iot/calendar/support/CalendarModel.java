@@ -1,7 +1,9 @@
 package de.mq.iot.calendar.support;
 
 import java.time.LocalDate;
+import java.util.function.Predicate;
 
+import de.mq.iot.calendar.Specialday;
 import de.mq.iot.model.LocaleAware;
 import de.mq.iot.model.Subject;
 
@@ -11,7 +13,8 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 	enum Events {
 	
 		ChangeLocale,
-		ValuesChanged;
+		ValuesChanged,
+		DatesChanged;
 	}
 	
 	enum ValidationErrors {
@@ -20,6 +23,11 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 		Invalid,
 		FromBeforeTo, 
 		RangeSize;
+	}
+	
+	enum Filter {
+		All,
+		Vacation;
 	}
 	
 	ValidationErrors validateFrom(final String from);
@@ -37,4 +45,8 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 	LocalDate from();
 
 	LocalDate to();
+
+	Predicate<Specialday> filter();
+
+	void assign(Filter filter);
 }

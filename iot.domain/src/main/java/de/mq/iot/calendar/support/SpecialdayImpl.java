@@ -113,5 +113,11 @@ class SpecialdayImpl implements Specialday {
 	private void validYearGuard(final int year) {
 		Assert.isTrue(year > 0 , "Year should be > 0.");
 	}
+	
+	@Override
+	public final boolean isVacation() {
+		return type == Type.Vacation;
+		
+	}
 
 }
