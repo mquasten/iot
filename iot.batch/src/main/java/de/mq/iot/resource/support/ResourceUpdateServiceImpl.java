@@ -99,10 +99,7 @@ public class ResourceUpdateServiceImpl implements ResourceUpdateService {
 	Entry<String,String> toEntry(int address) {
 		final String host = IP_PREFIX + address;
 		try {
-
 			return new AbstractMap.SimpleImmutableEntry<String,String>(InetAddress.getByName(host).getHostName().split("[.]")[0].toUpperCase(), host);
-			
-		
 		} catch (final Exception e) {
 			throw new IllegalStateException();
 		}

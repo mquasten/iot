@@ -11,7 +11,7 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
-@Disabled
+
 class ResourceUpdateServiceIntegrationTest {
 	
 	@Autowired
@@ -21,8 +21,6 @@ class ResourceUpdateServiceIntegrationTest {
 	@Test
 	@Disabled
 	void updateIP() {
-		
-		
 		resourceUpdateService.updateIp();
 	}
 	
