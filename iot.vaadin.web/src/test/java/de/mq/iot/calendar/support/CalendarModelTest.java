@@ -117,5 +117,46 @@ class CalendarModelTest {
 	}
 	
 
+	@Test
+	public final void validateTo() {
+		assertEquals(ValidationErrors.Ok, calendarModel.validateTo(DATE));
+		Mockito.verify(subject).notifyObservers(Events.ValuesChanged);
+	}
+	
+	@Test
+	public final void vaidate() {
+		
+		calendarModel.assignFrom("01.01.2018");
+		calendarModel.assignTo("10.01.2018");
+		assertEquals(ValidationErrors.Ok, calendarModel.vaidate(30));
+	}
+	
+	@Test
+	public final void vaidateInvalid() {
+		
+		assertEquals(ValidationErrors.Invalid, calendarModel.vaidate(30));
+	}
+	
+	@Test
+	public final void vaidateFromBeforeTo() {
+		
+		calendarModel.assignFrom("10.01.2018");
+		calendarModel.assignTo("01.01.2018");
+		assertEquals(ValidationErrors.FromBeforeTo, calendarModel.vaidate(30));
+	}
+	
+	@Test
+	public final void vaidateFromMaxDays() {
+		
+		calendarModel.assignFrom("10.01.2018");
+		calendarModel.assignTo("31.12.2018");
+		assertEquals(ValidationErrors.RangeSize, calendarModel.vaidate(30));
+	}
+	
+	@Test
+	public final void vaidatefromOldDate() {
+		assertEquals(ValidationErrors.Invalid, calendarModel.validateFrom("01.01.1900"));
+		Mockito.verify(subject).notifyObservers(Events.ValuesChanged);
+	}
 
 }
