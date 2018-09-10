@@ -171,5 +171,7 @@ public class CalendarModelImpl  implements CalendarModel  {
 		this.filter=filter;
 		notifyObservers(Events.DatesChanged);
 	}
+	
+	
 
 }

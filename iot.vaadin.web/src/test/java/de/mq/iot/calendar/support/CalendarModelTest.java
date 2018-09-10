@@ -2,11 +2,13 @@ package de.mq.iot.calendar.support;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Modifier;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -26,6 +28,10 @@ import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
 class CalendarModelTest {
+
+	private static final String TO_METHOD = "to";
+
+	private static final String FROM_METHOD = "from";
 
 	private static final String DATE = "31.12.2011";
 
@@ -158,5 +164,77 @@ class CalendarModelTest {
 		assertEquals(ValidationErrors.Invalid, calendarModel.validateFrom("01.01.1900"));
 		Mockito.verify(subject).notifyObservers(Events.ValuesChanged);
 	}
+	
+	@Test
+	public final void assignFrom() {
+		assertEquals(Optional.empty(), ReflectionTestUtils.getField(calendarModel, FROM_METHOD));
+		calendarModel.assignFrom(DATE);
+		
+		assertEquals(localDate(), calendarModel.from());
+		calendarModel.assignFrom("");
+		assertEquals(Optional.empty(), ReflectionTestUtils.getField(calendarModel, FROM_METHOD));
+	}
 
+
+	private  LocalDate localDate() {
+		final String[] cols = DATE.split("[.]");
+		return LocalDate.of(Integer.valueOf(cols[2]), Integer.valueOf(cols[1]), Integer.valueOf(cols[0]));
+	}
+	
+	@Test
+	public final void assignTo() {
+		assertEquals(Optional.empty(), ReflectionTestUtils.getField(calendarModel, TO_METHOD));
+		calendarModel.assignTo(DATE);
+		
+		assertEquals(localDate(), calendarModel.to());
+		calendarModel.assignTo("");
+		assertEquals(Optional.empty(), ReflectionTestUtils.getField(calendarModel, TO_METHOD));
+	}
+	
+	@Test
+	public final void valid() {
+		calendarModel.assignTo(DATE);
+		calendarModel.assignFrom(DATE);
+		assertTrue(calendarModel.valid());
+		calendarModel.assignFrom("");
+		assertFalse(calendarModel.valid());
+		calendarModel.assignTo("");
+		assertFalse(calendarModel.valid());
+		calendarModel.assignTo(DATE);
+		assertFalse(calendarModel.valid());
+	}
+
+	
+	@Test
+	public final void from() {
+		calendarModel.assignFrom(DATE);
+		assertEquals(localDate(), calendarModel.from());
+	}
+	
+	@Test
+	public final void fromNotAssigned() {
+		assertThrows(IllegalArgumentException.class,  () -> calendarModel.from());
+	}
+	
+	@Test
+	public final void to() {
+		calendarModel.assignTo(DATE);
+		assertEquals(localDate(), calendarModel.to());
+	}
+	
+	@Test
+	public final void toNotAssigned() {
+		assertThrows(IllegalArgumentException.class,  () -> calendarModel.to());
+	}
+	
+	@Test
+	public final void filter() {
+		assertTrue(calendarModel.filter().test(null));
+		final Specialday specialday = Mockito.mock(Specialday.class);
+		calendarModel.assign(CalendarModel.Filter.Vacation);
+		assertFalse(calendarModel.filter().test(specialday));
+		Mockito.when(specialday.isVacation()).thenReturn(true);
+		assertTrue(calendarModel.filter().test(specialday));
+	}
+	
 }
