@@ -235,6 +235,8 @@ class CalendarModelTest {
 		assertFalse(calendarModel.filter().test(specialday));
 		Mockito.when(specialday.isVacation()).thenReturn(true);
 		assertTrue(calendarModel.filter().test(specialday));
+		
+		Mockito.verify(subject).notifyObservers(Events.DatesChanged);
 	}
 	
 }
