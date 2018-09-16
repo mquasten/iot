@@ -23,6 +23,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
@@ -134,9 +135,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		final ColumnBase<Column<LocalDate>> dateColumnBase = grid.addColumn((ValueProvider<LocalDate, String>) date -> date.getDayOfMonth() + "." + date.getMonthValue() + "." + date.getYear()).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		
-		//grid.setItems(readDates(specialdayService));
-		
-		
+	
 		
 		fromTextField.addValueChangeListener(value -> {
 			
@@ -203,7 +202,6 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		
 		
 		saveButton.addClickListener(event -> process(specialday -> specialdayService.save(specialday), specialdayService)); 
-		
 		calendarModel.assign(CalendarModel.Filter.All);
 			
 	}
@@ -237,6 +235,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	}
 
 	private List<LocalDate> readDates(final SpecialdayService specialdayService) {
+	
 		return specialdayService.specialdays(Year.now()).stream().filter(calendarModel.filter()).map(day -> day.date(Year.now().getValue())).sorted().collect(Collectors.toList());
 	}
 
