@@ -3,10 +3,13 @@ package de.mq.iot.authentication.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.Locale;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import de.mq.iot.authentication.Authentication;
+import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
 class LoginModelTest {
@@ -45,6 +48,19 @@ class LoginModelTest {
 		
 		Mockito.verify(authentication).authenticate(PASSWD);
 		
+	}
+	
+	@Test
+	void locale() {
+		assertEquals(Locale.GERMAN, loginModel.locale());
+	}
+	
+	@Test
+	void register() {
+		final Observer observer = Mockito.mock(Observer.class);
+		loginModel.register(LoginModel.Events.ChangeLocale, observer);
+		
+		Mockito.verify(subject).register(LoginModel.Events.ChangeLocale, observer);
 	}
 
 }

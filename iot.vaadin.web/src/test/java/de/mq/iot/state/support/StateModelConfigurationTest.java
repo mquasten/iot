@@ -1,6 +1,7 @@
 package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.vaadin.flow.component.dialog.Dialog;
 
 import de.mq.iot.model.Subject;
+
 
 public class StateModelConfigurationTest {
 	
@@ -96,6 +98,11 @@ public class StateModelConfigurationTest {
 		assertEquals(DialogMock.class, stateModelConfiguration.dialog().getClass());;
 		
 		
+	}
+	
+	@Test
+	void buttonBox() {
+		assertNotNull(stateModelConfiguration.buttonBox());
 	}
 	
 }
