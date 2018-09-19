@@ -3,11 +3,14 @@ package de.mq.iot.calendar.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -17,23 +20,33 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.context.MessageSource;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.StringUtils;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventBus;
+import com.vaadin.flow.component.ComponentEventListener;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.support.CalendarModel.Events;
-
+import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
 import de.mq.iot.model.Observer;
 import de.mq.iot.support.ButtonBox;
 
 class CalendarViewTest {
 	
+	private static final String I18N_CALENDAR_VALIDATION = "calendar_validation_";
+
+
 	private static final String I18N_CALENDAR_DELETE_RANGE = "calendar_delete_range";
 	
 	
@@ -63,7 +76,7 @@ class CalendarViewTest {
 	@BeforeEach
 	void setup() {
 		Mockito.when(calendarModel.locale()).thenReturn(Locale.GERMAN);
-		Arrays.asList(I18N_CALENDAR_DELETE_RANGE, I18N_CALENDAR_ADD_RANGE, I18N_CALENDAR_TABLE_HEADER, I18N_CALENDAR_INFO, I18N_CALENDAR_RANGE_FROM,I18N_CALENDAR_RANGE_TO ).forEach(key -> Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN));
+		Arrays.asList(I18N_CALENDAR_DELETE_RANGE, I18N_CALENDAR_ADD_RANGE, I18N_CALENDAR_TABLE_HEADER, I18N_CALENDAR_INFO, I18N_CALENDAR_RANGE_FROM,I18N_CALENDAR_RANGE_TO , I18N_CALENDAR_VALIDATION + ValidationErrors.Invalid.name().toLowerCase()).forEach(key -> Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN));
 		
 		 Mockito.doReturn((Predicate<Specialday>) day -> true).when(calendarModel).filter();
 		
@@ -143,6 +156,46 @@ class CalendarViewTest {
 		assertEquals(I18N_CALENDAR_RANGE_FROM, fromLabel.getText());
 		assertEquals(I18N_CALENDAR_RANGE_TO, toLabel.getText());
 		
+	}
+	
+	@Test
+	void fromTextFieldInvalid() {
+		final TextField fromText = (TextField) fields.get("fromTextField");
+		assertNotNull(fromText);
+		
+		Mockito.when(calendarModel.validateFrom(Mockito.anyString())).thenReturn(ValidationErrors.Invalid);
+		fromText.setValue("x");
+		
+		
+		assertTrue(fromText.isInvalid());
+		assertEquals(I18N_CALENDAR_VALIDATION + ValidationErrors.Invalid.name().toLowerCase(), fromText.getErrorMessage());
+		
+	}
+	
+	
+	@Test
+	void fromTextField() {
+		final TextField fromText = (TextField) fields.get("fromTextField");
+		assertNotNull(fromText);
+		
+		Mockito.when(calendarModel.validateFrom(Mockito.anyString())).thenReturn(ValidationErrors.Ok);
+		fromText.setValue("31.12.2018");
+		
+		
+		assertFalse(fromText.isInvalid());
+		assertFalse(StringUtils.hasText(fromText.getErrorMessage()));
+		
+		Mockito.verify(calendarModel).assignFrom(fromText.getValue());
+		
+		
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private ComponentEventListener<?> listener(final Component saveButton) {
+		final ComponentEventBus eventBus = (ComponentEventBus) ReflectionTestUtils.getField(saveButton, "eventBus");
+		final Map<Class<?>, ?> map = (Map<Class<?>, ?>) ReflectionTestUtils.getField(eventBus, "componentEventData");
+		return DataAccessUtils.requiredSingleResult((Collection<ComponentEventListener<?>>) ReflectionTestUtils.getField(map.values().iterator().next(), "listeners"));
 	}
 
 }
