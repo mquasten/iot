@@ -191,6 +191,56 @@ class CalendarViewTest {
 		
 	}
 	
+	
+	@Test
+	void toTextFieldInvalid() {
+		final TextField toText = (TextField) fields.get("toTextField");
+		assertNotNull(toText);
+		
+		Mockito.when(calendarModel.validateTo(Mockito.anyString())).thenReturn(ValidationErrors.Invalid);
+		toText.setValue("x");
+		
+		
+		assertTrue(toText.isInvalid());
+		assertEquals(I18N_CALENDAR_VALIDATION + ValidationErrors.Invalid.name().toLowerCase(), toText.getErrorMessage());
+		
+	}
+	
+	
+	@Test
+	void toTextField() {
+		final TextField toText = (TextField) fields.get("toTextField");
+		assertNotNull(toText);
+		
+		Mockito.when(calendarModel.validateTo(Mockito.anyString())).thenReturn(ValidationErrors.Ok);
+		toText.setValue("31.12.2018");
+		
+		
+		assertFalse(toText.isInvalid());
+		assertFalse(StringUtils.hasText(toText.getErrorMessage()));
+		
+		Mockito.verify(calendarModel).assignTo(toText.getValue());
+		
+	}
+	
+	@Test
+	void enableButton() {
+		
+		Mockito.when(calendarModel.valid()).thenReturn(true);
+		final Button deleteButton = (Button) fields.get("deleteButton");
+		assertFalse(deleteButton.isEnabled());
+		
+		final Button saveButton = (Button) fields.get("saveButton");
+		assertFalse(saveButton.isEnabled());
+		
+		final Observer observer =  observers.get(CalendarModel.Events.ValuesChanged);
+		observer.process();
+		
+		assertTrue(deleteButton.isEnabled());
+		assertTrue(saveButton.isEnabled());
+		
+	}
+	
 	@SuppressWarnings("unchecked")
 	private ComponentEventListener<?> listener(final Component saveButton) {
 		final ComponentEventBus eventBus = (ComponentEventBus) ReflectionTestUtils.getField(saveButton, "eventBus");
