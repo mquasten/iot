@@ -38,6 +38,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.support.CalendarModel.Events;
+import de.mq.iot.calendar.support.CalendarModel.Filter;
 import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
 import de.mq.iot.model.Observer;
 import de.mq.iot.support.ButtonBox;
@@ -238,6 +239,23 @@ class CalendarViewTest {
 		
 		assertTrue(deleteButton.isEnabled());
 		assertTrue(saveButton.isEnabled());
+		
+	}
+	
+	@Test
+	void vacationOnlyCheckbox() {
+		
+		final Checkbox deleteButton =  (Checkbox) fields.get("vacationOnlyCheckbox");
+		assertFalse(deleteButton.getValue());
+		
+		deleteButton.setValue(true);
+		
+		Mockito.verify(calendarModel).assign(Filter.Vacation);
+		
+		deleteButton.setValue(false);
+		
+		Mockito.verify(calendarModel, Mockito.atLeast(1)).assign(Filter.All);
+		
 		
 	}
 	
