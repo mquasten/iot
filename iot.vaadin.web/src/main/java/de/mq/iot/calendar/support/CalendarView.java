@@ -208,7 +208,6 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 	private void process(final Consumer<Specialday> consumer, final SpecialdayService specialdayService) {
 		
-		
 		final ValidationErrors error = calendarModel.vaidate(60);
 		if ( error != ValidationErrors.Ok ) {
 			toTextField.setErrorMessage(validationErrors.get(error));

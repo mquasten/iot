@@ -259,11 +259,98 @@ class CalendarViewTest {
 		
 	}
 	
+	@Test
+	void deleteVactions() {
+		prepareForButtons(ValidationErrors.Ok);
+		
+		final Button deleteButton = (Button) fields.get("deleteButton");
+		
+		final ComponentEventListener<?> listener = listener(deleteButton);
+		
+		
+		listener.onComponentEvent(null);
+		
+		Mockito.verify(specialdayService).delete(specialday);
+		
+		Mockito.verify(calendarModel, Mockito.times(2)).notifyObservers(CalendarModel.Events.DatesChanged);
+		
+	}
+	
+	@Test
+	void deleteVactionsValidationError() {
+		prepareForButtons(ValidationErrors.FromBeforeTo);
+		
+		final Button deleteButton = (Button) fields.get("deleteButton");
+		
+		final ComponentEventListener<?> listener = listener(deleteButton);
+		
+		
+		listener.onComponentEvent(null);
+		
+		Mockito.verify(specialdayService, Mockito.never()).delete(specialday);
+		
+		Mockito.verify(calendarModel, Mockito.never()).notifyObservers(CalendarModel.Events.DatesChanged);
+		
+	}
+
+
+
+	private void prepareForButtons(ValidationErrors error) {
+		final LocalDate from = LocalDate.now();
+		final LocalDate to = LocalDate.now().plusDays(1);
+		
+		Mockito.when(calendarModel.from()).thenReturn(from);
+		Mockito.when(calendarModel.to()).thenReturn(to);
+		
+		Mockito.when(specialdayService.vacation(from, to)).thenReturn(Arrays.asList(specialday));
+		
+		
+		Mockito.when(calendarModel.vaidate(Mockito.anyInt())).thenReturn(error);
+	}
+	
 	@SuppressWarnings("unchecked")
 	private ComponentEventListener<?> listener(final Component saveButton) {
 		final ComponentEventBus eventBus = (ComponentEventBus) ReflectionTestUtils.getField(saveButton, "eventBus");
 		final Map<Class<?>, ?> map = (Map<Class<?>, ?>) ReflectionTestUtils.getField(eventBus, "componentEventData");
 		return DataAccessUtils.requiredSingleResult((Collection<ComponentEventListener<?>>) ReflectionTestUtils.getField(map.values().iterator().next(), "listeners"));
 	}
+	
+	
+	@Test
+	void saveVactions() {
+		prepareForButtons(ValidationErrors.Ok);
+		
+		final Button saveButton = (Button) fields.get("saveButton");
+		
+		final ComponentEventListener<?> listener = listener(saveButton);
+		
+		
+		listener.onComponentEvent(null);
+		
+		Mockito.verify(specialdayService).save(specialday);
+		
+		Mockito.verify(calendarModel, Mockito.times(2)).notifyObservers(CalendarModel.Events.DatesChanged);
+		
+	}
+	
+	
+	@Test
+	void saveVactionsVacations() {
+		prepareForButtons(ValidationErrors.FromBeforeTo);
+		
+		final Button saveButton = (Button) fields.get("saveButton");
+		
+		final ComponentEventListener<?> listener = listener(saveButton);
+		
+		
+		listener.onComponentEvent(null);
+		
+		Mockito.verify(specialdayService, Mockito.never()).save(specialday);
+		
+		Mockito.verify(calendarModel, Mockito.never()).notifyObservers(CalendarModel.Events.DatesChanged);
+		
+	}
+	
+	
 
 }
