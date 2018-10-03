@@ -12,7 +12,7 @@ public class ButtonBox extends HorizontalLayout {
 	private static final long serialVersionUID = 1L;
 	
 	private final Button systemsVariablesButton = new Button();
-	private final Button systemsVariable = new Button();
+	private final Button closeButton = new Button();
 	
 	private final Button specialdaysButton = new Button();
 	public ButtonBox () {
@@ -26,17 +26,16 @@ public class ButtonBox extends HorizontalLayout {
 		
 		specialdaysButton.setIcon(VaadinIcons.CALENDAR.create());
 		
-		specialdaysButton.addClickListener( event ->  ((Component) event.getSource()).getUI().ifPresent(ui -> {
-			ui.navigate("calendar");
-			
-		}) );
+		
+		
+		specialdaysButton.addClickListener( event ->  ((Component) event.getSource()).getUI().ifPresent(ui -> ui.navigate("calendar")) ); 
 		
 		add(specialdaysButton);
 		
-		systemsVariable.setIcon(VaadinIcons.CLOSE.create());
-		add(systemsVariable);
+		closeButton.setIcon(VaadinIcons.CLOSE.create());
+		add(closeButton);
 		
-		systemsVariable.addClickListener( event -> ((Component) event.getSource()).getUI().ifPresent(ui -> invalidateSession(ui)));
+		closeButton.addClickListener( event -> ((Component) event.getSource()).getUI().ifPresent(ui -> invalidateSession(ui)));
 	}
 	
 	private void invalidateSession(final UI ui) {
