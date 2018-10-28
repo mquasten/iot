@@ -9,4 +9,8 @@ public interface SunDownCalculationService {
 
 	LocalTime sunDownTime(Month month, final int timeZoneOffsetInHours);
 
+	double sunUpTime(int i, int j);
+
+	LocalTime sunUpTime(Month month, int timeZoneOffsetInHours);
+
 }

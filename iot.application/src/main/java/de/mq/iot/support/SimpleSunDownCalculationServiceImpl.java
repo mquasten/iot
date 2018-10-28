@@ -36,6 +36,12 @@ private final double  latitude;
 	 */
 	@Override
 	public double sunDownTime(final int dayOfYear, final int timeZoneOffsetInHours) {
+		return time(dayOfYear, timeZoneOffsetInHours, true);
+	}
+	
+	
+	
+	private double time(final int dayOfYear, final int timeZoneOffsetInHours, boolean isDown ) {
 		
 		final double declination =0.4095*Math.sin(0.016906*(dayOfYear-80.086));
 		
@@ -47,19 +53,33 @@ private final double  latitude;
 		
 		final double timeOffset = -0.171*Math.sin(0.0337*dayOfYear+0.465)-0.1299*Math.sin(0.01787*dayOfYear-0.168);
 		
-		
-		double result = 12d + timeDelta-timeOffset-longitude/15+timeZoneOffsetInHours;
+		if( isDown ) {
+		return 12d + timeDelta-timeOffset-longitude/15+timeZoneOffsetInHours;
+		} else {
+			
+			return 12d - timeDelta-timeOffset-longitude/15+timeZoneOffsetInHours;
+		}
 	//	System.out.println(">>>"+(int) result +":"  +Math.round(60 * (result % 1)) );
 		
 		
 	//	LocalDate date = LocalDate.of(2018, Month.MARCH, 26);
 		
-		return result;
+		//return result;
 		
 	}
 	
-	
+	@Override
 	public final LocalTime sunDownTime(final Month month, final int timeZoneOffsetInHours ) {
+		 return time(month, timeZoneOffsetInHours, true );
+	}
+	
+	@Override
+	public final LocalTime sunUpTime(final Month month, final int timeZoneOffsetInHours ) {
+		 return time(month, timeZoneOffsetInHours, false );
+	}
+	
+	
+	private final LocalTime time(final Month month, final int timeZoneOffsetInHours, boolean isDown ) {
 		LocalDate firstDay = LocalDate.of(18, month, 01);
 		
 		
@@ -71,16 +91,25 @@ private final double  latitude;
 			
 			//System.out.println( localDate + "=" + localDate.getDayOfYear());
 			
+			return time(localDate.getDayOfYear(), timeZoneOffsetInHours, isDown);
 			
-			
-			return sunDownTime(localDate.getDayOfYear() , timeZoneOffsetInHours);
+			//return sunDownTime(localDate.getDayOfYear() , timeZoneOffsetInHours);
 			
 			
 		}).sum()/daysInMonth;
-				
-		return LocalTime.of((int) result, (int)  Math.round(60 * (result % 1)));
+		
+	
+		
+		int min = (int)  Math.round(60 * (result % 1));
+		return LocalTime.of((int) result, (min  != 60) ?  min : 59);
 		
 		
+	}
+
+	@Override
+	public double sunUpTime(int dayOfYear, int timeZoneOffsetInHours) {
+	
+		return time(dayOfYear, timeZoneOffsetInHours, false);
 	}
 		
 		

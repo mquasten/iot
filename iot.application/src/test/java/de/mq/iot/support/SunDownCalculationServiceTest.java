@@ -24,6 +24,19 @@ class SunDownCalculationServiceTest {
 		assertEquals(57, Math.round(60 *(result %1 )));
 	}
 	
+	
+	
+@Test
+	
+	final void sunUpTime() {
+		
+		final double result = sunDownCalculationService.sunUpTime(86, 2);
+		
+		
+		assertEquals(7, (int) result); 
+		assertEquals(23, Math.round(60 *(result %1 )));
+	}
+	
 	@Test
 		final void sunDownTimeMonth() {
 		LocalTime result = sunDownCalculationService.sunDownTime(Month.MARCH ,2);
@@ -34,4 +47,15 @@ class SunDownCalculationServiceTest {
 	
 		
 	}
+	
+	@Test
+	final void sunUpTimeMonth() {
+	LocalTime result = sunDownCalculationService.sunUpTime(Month.MARCH ,2);
+	
+
+	
+	assertEquals(LocalTime.of(7, 48), result);
+
+	
+}
 }
