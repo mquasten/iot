@@ -35,6 +35,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
 
 import de.mq.iot.model.Observer;
+import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.support.StateModel.Events;
 import de.mq.iot.state.support.StateModel.ValidationErrors;

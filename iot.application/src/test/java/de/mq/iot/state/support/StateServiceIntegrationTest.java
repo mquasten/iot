@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.support.ApplicationConfiguration;
 

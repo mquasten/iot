@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
+import de.mq.iot.state.State;
+
 class StringStateConverterTest {
 	
 	private static final String VALUE = "KylieIsNiceAnd...";

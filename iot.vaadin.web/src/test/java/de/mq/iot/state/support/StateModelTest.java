@@ -19,6 +19,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
+import de.mq.iot.state.State;
 import de.mq.iot.state.support.StateModel.Events;
 
 class StateModelTest {

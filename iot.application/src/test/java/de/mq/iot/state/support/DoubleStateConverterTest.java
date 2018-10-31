@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
+import de.mq.iot.state.State;
+
 class DoubleStateConverterTest {
 
 	private static final Double MAX_VALUE = 10d;

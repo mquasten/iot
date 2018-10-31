@@ -2,8 +2,6 @@ package de.mq.iot.state;
 
 import java.util.Collection;
 
-import de.mq.iot.state.support.State;
-
 /**
  * Service Statehandling
  * @author Admin

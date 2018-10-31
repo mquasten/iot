@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import de.mq.iot.model.LocaleAware;
 import de.mq.iot.model.Subject;
+import de.mq.iot.state.State;
 
 
 

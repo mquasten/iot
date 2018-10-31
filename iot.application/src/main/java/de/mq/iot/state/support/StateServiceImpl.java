@@ -16,6 +16,7 @@ import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
 
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
+import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 
 @Service

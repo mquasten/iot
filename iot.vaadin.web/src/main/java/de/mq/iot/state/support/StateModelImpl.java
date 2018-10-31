@@ -15,6 +15,7 @@ import org.springframework.util.ReflectionUtils;
 
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
+import de.mq.iot.state.State;
 
 class StateModelImpl implements StateModel {
 

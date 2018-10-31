@@ -1,4 +1,4 @@
-package de.mq.iot.state.support;
+package de.mq.iot.state;
 
 import java.time.LocalDateTime;
 /**

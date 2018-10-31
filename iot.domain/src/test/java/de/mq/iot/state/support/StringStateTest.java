@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
+import de.mq.iot.state.State;
+
 class StringStateTest {
 	
 	private static final String VALUE_INVALID = "Kylie\tis\tnice";

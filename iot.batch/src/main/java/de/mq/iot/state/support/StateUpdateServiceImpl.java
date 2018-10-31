@@ -22,6 +22,7 @@ import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.state.Command;
 import de.mq.iot.state.Commands;
+import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.StateUpdateService;
 import de.mq.iot.support.SunDownCalculationService;

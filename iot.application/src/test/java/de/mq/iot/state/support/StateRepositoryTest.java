@@ -37,6 +37,7 @@ import org.springframework.web.reactive.function.client.WebClient.RequestHeaders
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec;
 
 import de.mq.iot.resource.ResourceIdentifier;
+import de.mq.iot.state.State;
 import de.mq.iot.state.support.AbstractHomematicXmlApiStateRepository.XmlApiParameters;
 import reactor.core.publisher.Mono;
 

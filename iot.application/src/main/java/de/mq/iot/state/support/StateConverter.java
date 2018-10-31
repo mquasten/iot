@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.springframework.core.convert.converter.Converter;
 
-import de.mq.iot.state.support.State;
+import de.mq.iot.state.State;
 
 interface StateConverter<T>  extends Converter<Map<String,String> , State<T>>{
 	

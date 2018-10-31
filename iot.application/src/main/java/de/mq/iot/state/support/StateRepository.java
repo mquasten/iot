@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import de.mq.iot.resource.ResourceIdentifier;
+import de.mq.iot.state.State;
 
 interface StateRepository {
 	

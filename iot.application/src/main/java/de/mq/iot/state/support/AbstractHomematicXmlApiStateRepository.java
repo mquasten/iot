@@ -30,6 +30,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import de.mq.iot.resource.ResourceIdentifier;
+import de.mq.iot.state.State;
 
 @Repository
 abstract class AbstractHomematicXmlApiStateRepository implements StateRepository {
@@ -40,7 +41,10 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	enum XmlApiParameters {
 		Sysvarlist("sysvarlist.cgi"),
 
-		ChangeSysvar("statechange.cgi");
+		ChangeSysvar("statechange.cgi"),
+		
+		FunctionList("functionlist.cgi");
+		
 		static final String RESOURCE_PARAMETER_NAME = "resource";
 		private final String resource;
 
@@ -148,6 +152,26 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 
 		};
 	}
+	
+	
+	
+	Collection<Long>  findChannelIds(final ResourceIdentifier resourceIdentifier, final String function) {
+		Assert.notNull(function, "Function is mandatory.");
+
+		
+		
+		final ResponseEntity<String> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.FunctionList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(String.class).block(timeout);
+
+		httpStatusGuard(res);
+		
+		
+		final NodeList nodes = evaluate(res, String.format("/functionList/function[@name='%s']/channel/@ise_id", function));
+		
+		return IntStream.range(0, nodes.getLength()).mapToObj(i -> conversionService.convert(nodes.item(i).getFirstChild().getNodeValue(), Long.class)).collect(Collectors.toList());
+			 
+		
+	}
+	
 
 	@Lookup
 	abstract Builder webClientBuilder();

@@ -5,6 +5,8 @@ import java.util.Map;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
 
+import de.mq.iot.state.State;
+
 @Component
 class StringStateConverterImpl extends AbstractStateConverter<String> {
 

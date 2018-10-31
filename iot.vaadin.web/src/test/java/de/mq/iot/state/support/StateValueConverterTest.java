@@ -13,6 +13,8 @@ import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.mq.iot.state.State;
+
 public class StateValueConverterTest {
 
 	private static final LocalDateTime LASTUPDATE = LocalDateTime.now();

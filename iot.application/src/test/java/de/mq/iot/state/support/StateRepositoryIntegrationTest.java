@@ -21,10 +21,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import de.mq.iot.resource.ResourceIdentifier;
+import de.mq.iot.state.State;
 import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
@@ -47,6 +47,8 @@ class StateRepositoryIntegrationTest {
 		Mockito.doReturn(parameters).when(resourceIdentifier).parameters();
 	}
 
+	
+	@Disabled
 	@Test
 	void findStates() {
 
@@ -67,6 +69,8 @@ class StateRepositoryIntegrationTest {
 		assertEquals(1, values.size());
 		return values.stream().findAny().orElseThrow(() -> new IllegalStateException("Result is mandatory."));
 	}
+	
+	@Disabled
 	@Test
 	void changeState() {
 		final State<?> state = Mockito.mock(State.class);
@@ -74,6 +78,16 @@ class StateRepositoryIntegrationTest {
 		Mockito.doReturn(Boolean.FALSE).when(state).value();
 		
 		stateRepository.changeState(resourceIdentifier, state);
+	}
+	
+	@Test
+	void findChannelIds() {
+		
+		
+		final Collection<Long> ids = ((AbstractHomematicXmlApiStateRepository) stateRepository).findChannelIds(resourceIdentifier, "Rolladen");
+		
+		assertEquals(Arrays.asList(1431L, 1952L, 4669L), ids);
+		
 	}
 }
 

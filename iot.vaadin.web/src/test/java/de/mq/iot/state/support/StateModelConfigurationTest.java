@@ -23,6 +23,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.vaadin.flow.component.dialog.Dialog;
 
 import de.mq.iot.model.Subject;
+import de.mq.iot.state.State;
 
 
 public class StateModelConfigurationTest {

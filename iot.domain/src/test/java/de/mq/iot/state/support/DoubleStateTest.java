@@ -11,6 +11,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.mq.iot.state.State;
+
 class DoubleStateTest {
 	
 	private static final String MIN_FIELD_NAME = "min";

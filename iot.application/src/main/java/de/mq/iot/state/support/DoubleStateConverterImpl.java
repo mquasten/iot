@@ -7,6 +7,8 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import de.mq.iot.state.State;
+
 @Component
 class DoubleStateConverterImpl extends AbstractStateConverter<Double> {
 

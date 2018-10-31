@@ -18,6 +18,8 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
+import de.mq.iot.state.State;
+
 
 
 abstract class AbstractStateConverter<T>  implements StateConverter<T> {

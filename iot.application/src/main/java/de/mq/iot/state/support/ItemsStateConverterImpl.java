@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
+
+import de.mq.iot.state.State;
 @Component
 class ItemsStateConverterImpl extends AbstractStateConverter<Integer> {
 

@@ -15,6 +15,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 import de.mq.iot.model.Subject;
 import de.mq.iot.model.support.SubjectImpl;
+import de.mq.iot.state.State;
 import de.mq.iot.support.ButtonBox;
 
 @Configuration

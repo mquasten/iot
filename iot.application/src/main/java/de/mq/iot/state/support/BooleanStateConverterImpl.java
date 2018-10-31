@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
 
+import de.mq.iot.state.State;
+
 @Component
 class BooleanStateConverterImpl  extends AbstractStateConverter<Boolean>{
 

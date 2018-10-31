@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
 
+import de.mq.iot.state.State;
+
 class StateValueConverterImpl implements Converter<State<?>, String> {
 
 	private final Map<Class<? extends State<?>>, Function<State<?>, String>> converters = new HashMap<>();

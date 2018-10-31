@@ -16,6 +16,8 @@ import org.mockito.Mockito;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
+import de.mq.iot.state.State;
+
 class BooleanStateConverterTest {
 
 	private final ConversionService conversionService = new DefaultConversionService();

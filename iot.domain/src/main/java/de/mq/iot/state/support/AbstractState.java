@@ -7,6 +7,8 @@ import java.util.function.Predicate;
 
 import org.springframework.util.Assert;
 
+import de.mq.iot.state.State;
+
 abstract   class AbstractState<T> implements State<T> {
 
 	private final long id; 
