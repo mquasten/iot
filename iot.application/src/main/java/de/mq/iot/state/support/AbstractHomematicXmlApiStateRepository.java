@@ -1,7 +1,9 @@
 package de.mq.iot.state.support;
 
+import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,7 +36,10 @@ import de.mq.iot.state.State;
 
 @Repository
 abstract class AbstractHomematicXmlApiStateRepository implements StateRepository {
-	static final String VALUE_PARAMETER_NAME = "value";
+	private static final String VALUE_ATTRIBUTE = "value";
+	private static final String ID_ATTRIBUTE = "ise_id";
+	private static final String NAME_ATTRIBUTE = "name";
+	static final String VALUE_PARAMETER_NAME = VALUE_ATTRIBUTE;
 	static final String ID_PARAMETER_NAME = "id";
 	static final String STATE_CHANGE_URL_PARAMETER = String.format("?ise_id={id}&new_value={value}", ID_PARAMETER_NAME, VALUE_PARAMETER_NAME);
 
@@ -42,9 +47,11 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		Sysvarlist("sysvarlist.cgi"),
 
 		ChangeSysvar("statechange.cgi"),
-		
-		FunctionList("functionlist.cgi");
-		
+
+		FunctionList("functionlist.cgi"),
+
+		RoomList("roomlist.cgi"), StateList("statelist.cgi");
+
 		static final String RESOURCE_PARAMETER_NAME = "resource";
 		private final String resource;
 
@@ -77,26 +84,36 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	public Collection<Map<String, String>> findStates(final ResourceIdentifier resourceIdentifier) {
 		Assert.notNull(resourceIdentifier, "ResourceIdentifier is mandatory.");
 
-		final ResponseEntity<String> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.Sysvarlist.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(String.class).block(timeout);
+		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.Sysvarlist.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
 
 		httpStatusGuard(res);
 
-		
-		final NodeList nodes = evaluate(res, "/systemVariables/systemVariable");
+		final NodeList nodes = evaluate(res.getBody(), "/systemVariables/systemVariable");
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes())).collect(Collectors.toList());
 
 	}
 
-	private NodeList evaluate(final ResponseEntity<String> res, final String path) {
+	private NodeList evaluate(final byte[] res, final String path) {
+		final InputSource source = new InputSource(new ByteArrayInputStream(res));
+		source.setEncoding("ISO-8859-1");
+		return evaluate(source, path);
+	}
+
+	private NodeList evaluate(final String res, final String path) {
+		final InputSource source = new InputSource(new StringReader(res));
+		return evaluate(source, path);
+	}
+
+	private NodeList evaluate(final InputSource inputSource, final String path) {
 		try {
-			return (NodeList) xpath().evaluate(path, new InputSource(new StringReader(res.getBody())), XPathConstants.NODESET);
+			return (NodeList) xpath().evaluate(path, inputSource, XPathConstants.NODESET);
 		} catch (XPathExpressionException ex) {
 			throw new IllegalStateException("Unable to evalualte xpath expression", ex);
 
 		}
 	}
 
-	private void httpStatusGuard(final ResponseEntity<String> res) {
+	private void httpStatusGuard(final ResponseEntity<?> res) {
 		if (res.getStatusCode().is2xxSuccessful()) {
 			return;
 		}
@@ -119,13 +136,13 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		parameter.put(VALUE_PARAMETER_NAME, conversionService.convert(state.value(), String.class));
 
 		final ResponseEntity<String> res = webClientBuilder().build().put().uri(uri, parameter).exchange().block(timeout).toEntity(String.class).block(timeout);
-		if( ! StringUtils.hasText(res.getBody())) {
-			throw newHttpStatusCodeException(HttpStatus.BAD_REQUEST, "Result expected." ) ;
+		if (!StringUtils.hasText(res.getBody())) {
+			throw newHttpStatusCodeException(HttpStatus.BAD_REQUEST, "Result expected.");
 		}
-	
+
 		httpStatusGuard(res);
-		
-		resultChangedGuard(evaluate(res, "/result/*"));
+
+		resultChangedGuard(evaluate(res.getBody(), "/result/*"));
 	}
 
 	private void resultChangedGuard(final NodeList nodeList) {
@@ -146,32 +163,55 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		throw newHttpStatusCodeException(HttpStatus.BAD_REQUEST, result);
 	}
 
-	private  HttpStatusCodeException newHttpStatusCodeException(final HttpStatus status, final String result) {
+	private HttpStatusCodeException newHttpStatusCodeException(final HttpStatus status, final String result) {
 		return new HttpStatusCodeException(status, result) {
 			private static final long serialVersionUID = 1L;
 
 		};
 	}
-	
-	
-	
-	Collection<Long>  findChannelIds(final ResourceIdentifier resourceIdentifier, final String function) {
+
+	Collection<Long> findChannelIds(final ResourceIdentifier resourceIdentifier, final String function) {
 		Assert.notNull(function, "Function is mandatory.");
 
-		
-		
-		final ResponseEntity<String> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.FunctionList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(String.class).block(timeout);
+		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.FunctionList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
 
 		httpStatusGuard(res);
-		
-		
-		final NodeList nodes = evaluate(res, String.format("/functionList/function[@name='%s']/channel/@ise_id", function));
-		
+
+		final NodeList nodes = evaluate(res.getBody(), String.format("/functionList/function[@name='%s']/channel/@ise_id", function));
+
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> conversionService.convert(nodes.item(i).getFirstChild().getNodeValue(), Long.class)).collect(Collectors.toList());
-			 
-		
+
 	}
-	
+
+	Map<Long, String> findCannelsRooms(final ResourceIdentifier resourceIdentifier) {
+
+		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.RoomList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
+
+		httpStatusGuard(res);
+
+		final NodeList nodes = evaluate(res.getBody(), "/roomList/room/channel");
+
+		return IntStream.range(0, nodes.getLength())
+				.mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(conversionService.convert(nodes.item(i).getAttributes().getNamedItem(ID_ATTRIBUTE).getNodeValue(), Long.class), nodes.item(i).getParentNode().getAttributes().getNamedItem(NAME_ATTRIBUTE).getNodeValue()))
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
+	}
+
+	Collection<State<Double>> findDeviceStates(final ResourceIdentifier resourceIdentifier) {
+
+		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.StateList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
+
+		httpStatusGuard(res);
+
+		final NodeList nodes = evaluate(res.getBody(), "/stateList/device/channel/datapoint[@type='LEVEL' and string-length(@value) > 0]");
+
+		return IntStream.range(0, nodes.getLength()).mapToObj(i -> {
+			final State<Double> state = new DoubleStateImpl(conversionService.convert(nodes.item(i).getParentNode().getAttributes().getNamedItem(ID_ATTRIBUTE).getNodeValue(), Long.class), nodes.item(i).getParentNode().getAttributes().getNamedItem(NAME_ATTRIBUTE).getNodeValue(), LocalDateTime.now());
+			state.assign(conversionService.convert(nodes.item(i).getAttributes().getNamedItem(VALUE_ATTRIBUTE).getNodeValue(), Double.class));
+			return state;
+		}).collect(Collectors.toList());
+
+	}
 
 	@Lookup
 	abstract Builder webClientBuilder();
