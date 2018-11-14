@@ -242,7 +242,7 @@ public class StateUpdateSeriviceTest {
 		Mockito.verify(monthState, Mockito.never()).assign(Mockito.any());
 		Mockito.verify(stateService, Mockito.never()).update(monthState);
 		
-		Mockito.verify(timeState).assign(SUMMER_VALUE);
+	    Mockito.verify(timeState).assign(WINTER_VALUE);
 		Mockito.verify(stateService).update(timeState);
 	}
 	

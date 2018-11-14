@@ -38,6 +38,7 @@ class MainRunnerTest {
 	private static final Optional<Integer> ERROR_STATE = Optional.of(1);
 	static final String COMMAND = "updateCalendar";
 	private static final Optional<Integer> OK_STATE = Optional.of(0);
+	
 	private static final int DAYS_OFFSET = 10;
 	final static StateUpdateServiceImpl stateUpdateService=Mockito.mock(StateUpdateServiceImpl.class);
 	
@@ -55,6 +56,13 @@ class MainRunnerTest {
 	void  run() {
 		assertEquals(OK_STATE, mainRunner.run(new String[] {COMMAND,  "-d " + DAYS_OFFSET}));
 		Mockito.verify(stateUpdateService).updateTime(10);
+	}
+	
+	@Test
+	void  runWithException() {
+		Mockito.doThrow(new IllegalStateException("Don't worry, expected for test")).when(stateUpdateService).updateTime(Mockito.anyInt());
+		assertEquals(ERROR_STATE, mainRunner.run(new String[] {COMMAND,  "-d " + DAYS_OFFSET}));
+		
 	}
 	
 

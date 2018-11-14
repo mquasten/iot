@@ -17,4 +17,10 @@ public interface StateService {
 
 	void update(State<?> state);
 
+	/**
+	 * A list of deviceStates
+	 * @return deviceStates list
+	 */
+	Collection<State<Double>> deviceStates();
+
 }

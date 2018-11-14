@@ -22,6 +22,7 @@ import de.mq.iot.state.StateService;
 @Service
 class StateServiceImpl implements StateService {
 
+	static final String FUNCTION = "Rolladen";
 	private final Duration timeout;
 	private final ResourceIdentifierRepository resourceIdentifierRepository;
 	private final StateRepository stateRepository;
@@ -47,7 +48,7 @@ class StateServiceImpl implements StateService {
 		return stateRepository.findStates(resourceIdentifier).stream().map(this::mapToState).collect(Collectors.toList());
 	}
 
-	protected ResourceIdentifier resourceIdentifier() {
+	private ResourceIdentifier resourceIdentifier() {
 		return resourceIdentifierRepository.findById(ResourceType.XmlApi).blockOptional(timeout).orElseThrow(() -> new EmptyResultDataAccessException(String.format("ResourceType: %s not found in Database.", ResourceType.XmlApi), 1));
 	}
 
@@ -70,4 +71,24 @@ class StateServiceImpl implements StateService {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
 		stateRepository.changeState(resourceIdentifier, state);
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.StateService#deviceStates()
+	 */
+	@Override
+	public Collection<State<Double>> deviceStates() {
+		 final ResourceIdentifier resourceIdentifier = resourceIdentifier();
+		 
+		 final Collection<Long> channelIds = stateRepository.findChannelIds(resourceIdentifier, FUNCTION);
+		 System.out.println(channelIds);
+		 
+		 
+		 final Map<Long,String> rooms = stateRepository.findCannelsRooms(resourceIdentifier);
+		 System.out.println(rooms);
+		return null;
+		
+	}
+			
+			
 }

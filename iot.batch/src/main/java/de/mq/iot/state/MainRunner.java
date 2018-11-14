@@ -16,6 +16,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.StringUtils;
 
@@ -41,6 +42,7 @@ public class MainRunner {
 
 	}
 
+	
 	Optional<Integer> run(final String[] arguments) {
 
 		final Map<String, Collection<MainParameter>> mainDefinitions = commandlineRunner.mainDefinitions(mainDefinitionClass);
@@ -73,13 +75,18 @@ public class MainRunner {
 			return showHelpAndExitWithError(options, cmd.get());
 		}
 
-		try (final AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(configurationClass)) {
-
+		try  (final ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(configurationClass)) {
 			final Collection<Entry<Method, Collection<String>>> methodEntries = commandlineRunner.servicesMethods(cmd.get());
 			commandlineRunner.execute(methodEntries, argumentValues, applicationContext);
 			System.out.println(cmd.get() + " finished ...");
+			return Optional.of(0);
+		}  catch( final Exception ex ) {
+			ex.printStackTrace(System.err);
+			return Optional.of(1);	
 		}
-		return Optional.of(0);
+		
+		
+		
 	}
 
 	private static Optional<Integer> showHelpAndExitWithError(final Options options, final String cmd) {

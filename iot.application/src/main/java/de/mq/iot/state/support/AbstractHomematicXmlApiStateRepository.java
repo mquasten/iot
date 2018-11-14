@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
@@ -49,6 +50,7 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		ChangeSysvar("statechange.cgi"),
 
 		FunctionList("functionlist.cgi"),
+		Version("version.cgi"),
 
 		RoomList("roomlist.cgi"), StateList("statelist.cgi");
 
@@ -170,7 +172,12 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		};
 	}
 
-	Collection<Long> findChannelIds(final ResourceIdentifier resourceIdentifier, final String function) {
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.StateRepository#findChannelIds(de.mq.iot.resource.ResourceIdentifier, java.lang.String)
+	 */
+	@Override
+	public Collection<Long> findChannelIds(final ResourceIdentifier resourceIdentifier, final String function) {
 		Assert.notNull(function, "Function is mandatory.");
 
 		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.FunctionList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
@@ -183,7 +190,12 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 
 	}
 
-	Map<Long, String> findCannelsRooms(final ResourceIdentifier resourceIdentifier) {
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.StateRepository#findCannelsRooms(de.mq.iot.resource.ResourceIdentifier)
+	 */
+	@Override
+	public Map<Long, String> findCannelsRooms(final ResourceIdentifier resourceIdentifier) {
 
 		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.RoomList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
 
@@ -211,6 +223,20 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 			return state;
 		}).collect(Collectors.toList());
 
+	}
+	
+	@Override
+	public double findVersion(final ResourceIdentifier resourceIdentifier) {
+		
+		
+		
+		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.Version.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
+
+		httpStatusGuard(res);
+		final NodeList nodes = evaluate(res.getBody(), "/version");
+			
+		return DataAccessUtils.requiredSingleResult( IntStream.range(0, nodes.getLength()).mapToObj(i -> conversionService.convert(nodes.item(i).getTextContent(), Double.class)).collect(Collectors.toList()));
+		
 	}
 
 	@Lookup

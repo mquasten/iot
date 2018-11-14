@@ -24,6 +24,16 @@ import reactor.core.publisher.Mono;
 
 class StateServiceTest {
 	
+	private static final long THIRD_CHANNEL = 4669L;
+
+	private static final long SECOND_CHANNEL = 4665L;
+
+	private static final long FIRST_CHANNEL = 4661L;
+
+	private static final String SECOND_ROOM = "Eßzimmer (unten)";
+
+	private static final String FIRST_ROOM = "Schlafzimmer (oben)";
+
 	private static final int TIMEOUT = 500;
 
 	private final ResourceIdentifierRepository resourceIdentifierRepository = Mockito.mock(ResourceIdentifierRepository.class);
@@ -40,10 +50,22 @@ class StateServiceTest {
 	private final Map<String,String> booleanStateMap = new HashMap<>();
 	private final State<?>  booleanState = Mockito.mock(State.class);
 	
+	private final Map<Long, String> rooms = new HashMap<>();
 	
 	@BeforeEach
 	void setup() {
 	
+		rooms.put(1952L, FIRST_ROOM);
+		rooms.put(1427L, FIRST_ROOM);
+		rooms.put(FIRST_CHANNEL, SECOND_ROOM);
+		rooms.put(1431L, FIRST_ROOM);
+		rooms.put(1944L, FIRST_ROOM);
+		rooms.put(SECOND_CHANNEL, SECOND_ROOM);
+		rooms.put(1948L, FIRST_ROOM);
+		rooms.put(THIRD_CHANNEL, SECOND_ROOM);
+		rooms.put(1423L, FIRST_ROOM);
+		
+		
 		Mockito.doReturn(BooleanStateConverterImpl.BOOLEN_STATE_TYPE).when(booleanStateConverter).key();
 		Mockito.doReturn(Optional.of(resourceIdentifier)).when(mongoMono).blockOptional(Duration.ofMillis(TIMEOUT));
 		Mockito.doReturn(mongoMono).when(resourceIdentifierRepository).findById(ResourceType.XmlApi);
@@ -80,6 +102,16 @@ class StateServiceTest {
 		stateService.update(state);
 		
 		Mockito.verify(stateRepository).changeState(resourceIdentifier, state);
+	}
+	
+	@Test
+	void deviceStates() {
+		
+
+		Mockito.when(stateRepository.findChannelIds(resourceIdentifier, StateServiceImpl.FUNCTION)).thenReturn(Arrays.asList(FIRST_CHANNEL,SECOND_CHANNEL,THIRD_CHANNEL));
+		
+		Mockito.when(stateRepository.findCannelsRooms(resourceIdentifier)).thenReturn(rooms);
+		stateService.deviceStates();
 	}
 
 }

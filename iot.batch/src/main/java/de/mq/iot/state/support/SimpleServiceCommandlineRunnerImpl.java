@@ -90,13 +90,17 @@ public class SimpleServiceCommandlineRunnerImpl {
 
 	public void execute(final Collection<Entry<Method, Collection<String>>> methodEntries, final Map<String, Object> environment, final ApplicationContext applicationContext) {
 		final int[] counter = { 0 };
-		methodEntries.forEach(entry -> {
+		
+		methodEntries.forEach(entry ->{
+		
 			final Class<?> clazz = entry.getKey().getDeclaringClass();
 			final Object bean = applicationContext.getBean(clazz);
 			Assert.notNull(bean, String.format("Bean not found : %s ", clazz));
-
+		
 			final Optional<Object> result = execute(entry, environment, bean);
 			result.ifPresent(r -> environment.put(RESULT_PREFIX + counter[0], result.get()));
+		
+			
 			counter[0]++;
 		});
 

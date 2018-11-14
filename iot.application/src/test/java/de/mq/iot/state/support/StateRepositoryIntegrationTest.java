@@ -94,6 +94,7 @@ class StateRepositoryIntegrationTest {
 	void findCannelsRooms() {
 		final Map<Long,String> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findCannelsRooms(resourceIdentifier);
 		assertEquals(9, results.size());
+		
 		Arrays.asList(4661L,4665L,4669L).forEach(id -> assertEquals("Eßzimmer (unten)", results.get(id)));
 		
 		Arrays.asList(1423L, 1427L,1431L,1944L,1948L,1952L).forEach(id -> assertEquals("Schlafzimmer (oben)", results.get(id)));
@@ -107,6 +108,19 @@ class StateRepositoryIntegrationTest {
 		 results.stream().map(result  -> result.value()).forEach(value -> assertTrue(value >= 0d && value <=1d ));
 		 assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().map(result  -> new Long(result.id())).collect(Collectors.toList()));
 		 results.stream().map(result  -> result.name()).forEach(name -> assertTrue(name.matches(".*:3.Fenster.*")));
+	}
+	
+	@Test
+	@Disabled
+	void findVersion() {
+		final Map<String, String> parameters = resourceIdentifier.parameters();
+		parameters.put("host", "192.168.2.101");
+		
+		Mockito.doReturn(parameters).when(resourceIdentifier).parameters();
+	    final double version =  stateRepository.findVersion(resourceIdentifier);
+		 
+		assertEquals(1.15 ,version);
+		
 	}
 }
 
