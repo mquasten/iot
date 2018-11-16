@@ -35,4 +35,12 @@ public interface StateRepository {
 	 */
 	Map<Long, String> findCannelsRooms(ResourceIdentifier resourceIdentifier);
 
+
+	/**
+	 * Get List of DeviceStates
+	 * @param resourceIdentifier the resourceIdentifier for the HomematicXmlApi
+	 * @return List of DeviceStates
+	 */
+	Collection<State<Double>> findDeviceStates(ResourceIdentifier resourceIdentifier);
+
 }

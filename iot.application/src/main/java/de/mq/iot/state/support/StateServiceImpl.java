@@ -16,12 +16,14 @@ import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
 
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
+import de.mq.iot.state.Room;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 
 @Service
 class StateServiceImpl implements StateService {
 
+	static final String MISSING_ROOM_NAME = "?";
 	static final String FUNCTION = "Rolladen";
 	private final Duration timeout;
 	private final ResourceIdentifierRepository resourceIdentifierRepository;
@@ -61,34 +63,49 @@ class StateServiceImpl implements StateService {
 		final StateConverter<?> converter = stateConverters.get(type);
 		return converter.convert(stateMap);
 	}
-	
+
 	@Override
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.state.StateService#update(de.mq.iot.state.support.State)
 	 */
 	public void update(final State<?> state) {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
 		stateRepository.changeState(resourceIdentifier, state);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.state.StateService#deviceStates()
 	 */
 	@Override
-	public Collection<State<Double>> deviceStates() {
-		 final ResourceIdentifier resourceIdentifier = resourceIdentifier();
-		 
-		 final Collection<Long> channelIds = stateRepository.findChannelIds(resourceIdentifier, FUNCTION);
-		 System.out.println(channelIds);
-		 
-		 
-		 final Map<Long,String> rooms = stateRepository.findCannelsRooms(resourceIdentifier);
-		 System.out.println(rooms);
-		return null;
-		
+	public Collection<Room> deviceStates() {
+		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
+
+		final Collection<Long> channelIds = stateRepository.findChannelIds(resourceIdentifier, FUNCTION);
+
+		final Map<Long, String> rooms = stateRepository.findCannelsRooms(resourceIdentifier);
+
+		final Collection<State<Double>> states = stateRepository.findDeviceStates(resourceIdentifier).stream().sorted((state1, state2) -> state1.name().compareToIgnoreCase(state2.name())).filter(state -> channelIds.contains(state.id())).collect(Collectors.toList());
+
+		final Map<String, Room> results = new HashMap<>();
+
+		states.forEach(state -> {
+
+			final String roomName = rooms.containsKey(state.id()) ? rooms.get(state.id()) : MISSING_ROOM_NAME;
+
+			if (!results.containsKey(roomName)) {
+				results.put(roomName, new RoomImpl(roomName));
+			}
+
+			((RoomImpl) results.get(roomName)).assign(state);
+
+		});
+
+		return results.values().stream().sorted((r1, r2) -> r1.name().compareToIgnoreCase(r2.name())).collect(Collectors.toList());
+
 	}
-			
-			
+
 }

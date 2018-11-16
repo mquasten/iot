@@ -209,7 +209,8 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 
 	}
 
-	Collection<State<Double>> findDeviceStates(final ResourceIdentifier resourceIdentifier) {
+	@Override
+	public Collection<State<Double>> findDeviceStates(final ResourceIdentifier resourceIdentifier) {
 
 		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.StateList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
 

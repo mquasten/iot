@@ -1,7 +1,9 @@
 package de.mq.iot.calendar.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -86,62 +88,86 @@ public class SpecialdayTest {
 
 	@Test
 	void goodFriday() {
-		assertEquals(LocalDate.of(YEAR, 3, 30), new SpecialdayImpl(VariantSpecialDay.GoodFriday).date(YEAR));
+		final Specialday specialday = new SpecialdayImpl(VariantSpecialDay.GoodFriday);
+		assertEquals(LocalDate.of(YEAR, 3, 30), specialday.date(YEAR));
+		assertFalse(specialday.isVacation());
 	}
 
 	@Test
 	void easter() {
-		assertEquals(LocalDate.of(YEAR, 4, 1), new SpecialdayImpl(VariantSpecialDay.Easter).date(YEAR));
+		final Specialday specialday = new SpecialdayImpl(VariantSpecialDay.Easter);
+		assertEquals(LocalDate.of(YEAR, 4, 1), specialday.date(YEAR));
+		assertFalse(specialday.isVacation());
 	}
 
 	@Test
 	void easterMonday() {
-		assertEquals(LocalDate.of(YEAR, 4, 2), new SpecialdayImpl(VariantSpecialDay.EasterMonday).date(YEAR));
+		final Specialday specialday = new SpecialdayImpl(VariantSpecialDay.EasterMonday);
+		assertEquals(LocalDate.of(YEAR, 4, 2), specialday.date(YEAR));
+		assertFalse(specialday.isVacation());
 	}
 
 	@Test
 	void ascension() {
-		assertEquals(LocalDate.of(YEAR, 5, 10), new SpecialdayImpl(VariantSpecialDay.Ascension).date(YEAR));
+		final Specialday specialday =  new SpecialdayImpl(VariantSpecialDay.Ascension);
+		assertEquals(LocalDate.of(YEAR, 5, 10),specialday.date(YEAR));
+		assertFalse(specialday.isVacation());
 	}
 
 	@Test
 	void whitMonday() {
-		assertEquals(LocalDate.of(YEAR, 5, 21), new SpecialdayImpl(VariantSpecialDay.WhitMonday).date(YEAR));
+		final Specialday specialday = new SpecialdayImpl(VariantSpecialDay.WhitMonday);
+		assertEquals(LocalDate.of(YEAR, 5, 21), specialday.date(YEAR));
+		assertFalse(specialday.isVacation());
 	}
 
 	@Test
 	void corpusChristi() {
-		assertEquals(LocalDate.of(YEAR, 5, 31), new SpecialdayImpl(VariantSpecialDay.CorpusChristi).date(YEAR));
+		final Specialday specialday = new SpecialdayImpl(VariantSpecialDay.CorpusChristi);
+		assertEquals(LocalDate.of(YEAR, 5, 31), specialday.date(YEAR));
+		assertFalse(specialday.isVacation());
 	}
 
 	@Test
 	void newYear() {
-		assertEquals(LocalDate.of(YEAR, 1, 1), new SpecialdayImpl(FixedSpecialDay.NewYear).date(YEAR));
+		final Specialday specialday = new SpecialdayImpl(FixedSpecialDay.NewYear);
+		assertEquals(LocalDate.of(YEAR, 1, 1), specialday.date(YEAR));
+		assertFalse(specialday.isVacation());
 	}
 
 	@Test
 	void laborDay() {
-		assertEquals(LocalDate.of(YEAR, 5, 1), new SpecialdayImpl(FixedSpecialDay.LaborDay).date(YEAR));
+		final Specialday specialday = new SpecialdayImpl(FixedSpecialDay.LaborDay);
+		assertEquals(LocalDate.of(YEAR, 5, 1), specialday.date(YEAR));
+		assertFalse(specialday.isVacation());
 	}
 
 	@Test
 	void germanUnity() {
-		assertEquals(LocalDate.of(YEAR, 10, 3), new SpecialdayImpl(FixedSpecialDay.GermanUnity).date(YEAR));
+		final Specialday specialday = new SpecialdayImpl(FixedSpecialDay.GermanUnity);
+		assertEquals(LocalDate.of(YEAR, 10, 3), specialday.date(YEAR));
+		assertFalse(specialday.isVacation());
 	}
 
 	@Test
 	void allHallows() {
-		assertEquals(LocalDate.of(YEAR, 11, 1), new SpecialdayImpl(FixedSpecialDay.AllHallows).date(YEAR));
+		final Specialday specialday =  new SpecialdayImpl(FixedSpecialDay.AllHallows);
+		assertEquals(LocalDate.of(YEAR, 11, 1),specialday.date(YEAR));
+		assertFalse(specialday.isVacation());
 	}
 
 	@Test
 	void christmasDay() {
-		assertEquals(LocalDate.of(YEAR, 12, 25), new SpecialdayImpl(FixedSpecialDay.ChristmasDay).date(YEAR));
+		final Specialday specialday = new SpecialdayImpl(FixedSpecialDay.ChristmasDay);
+		assertEquals(LocalDate.of(YEAR, 12, 25),specialday.date(YEAR));
+		assertFalse(specialday.isVacation());
 	}
 
 	@Test
 	void boxingDay() {
-		assertEquals(LocalDate.of(YEAR, 12, 26), new SpecialdayImpl(FixedSpecialDay.BoxingDay).date(YEAR));
+		final Specialday specialday = new SpecialdayImpl(FixedSpecialDay.BoxingDay);
+		assertEquals(LocalDate.of(YEAR, 12, 26), specialday.date(YEAR));
+		assertFalse(specialday.isVacation());
 	}
 
 	@Test
@@ -164,6 +190,7 @@ public class SpecialdayTest {
 		final Specialday specialday = new SpecialdayImpl(date);
 		
 		assertEquals(date, specialday.date(YEAR));
+		assertTrue(specialday.isVacation());
 	}
 	
 	
