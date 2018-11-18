@@ -25,7 +25,9 @@ class StateModelConfiguration  {
 	static final String LOGIN_VIEW = "i18n/loginView";
 	static final String CALENDAR_VIEW = "i18n/calendarView";
 	static final String MESSAGE_SOURCE_ENCODING = "UTF-8";
-	static final String[] MESSAGE_SOURCE_BASENAME = { SYSTEM_VARIABLES_VIEW , LOGIN_VIEW, CALENDAR_VIEW };
+	
+	static final String DEVICE_VIEW = "i18n/deviceView";
+	static final String[] MESSAGE_SOURCE_BASENAME = { SYSTEM_VARIABLES_VIEW , LOGIN_VIEW, CALENDAR_VIEW, DEVICE_VIEW };
 	
 	
 	private final Class<? extends Dialog> dialogClass = Dialog.class; 
@@ -49,6 +51,15 @@ class StateModelConfiguration  {
 	@Scope("prototype")
 	StateModel stateModel(final Subject<StateModel.Events, StateModel> subject, ConversionService conversionService) {
 		return new StateModelImpl(subject, conversionService);
+
+	}
+	
+	
+	@Bean
+	//@UIScope
+	@Scope("prototype")
+	DeviceModel deviceModel(final Subject<DeviceModel.Events, DeviceModel> subject) {
+		return new DeviceModelImpl(subject);
 
 	}
 

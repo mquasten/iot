@@ -12,6 +12,8 @@ public class ButtonBox extends HorizontalLayout {
 	private static final long serialVersionUID = 1L;
 	
 	private final Button systemsVariablesButton = new Button();
+	
+	private final Button deviceButton = new Button();
 	private final Button closeButton = new Button();
 	
 	private final Button specialdaysButton = new Button();
@@ -31,6 +33,18 @@ public class ButtonBox extends HorizontalLayout {
 		specialdaysButton.addClickListener( event ->  ((Component) event.getSource()).getUI().ifPresent(ui -> ui.navigate("calendar")) ); 
 		
 		add(specialdaysButton);
+		
+		
+		
+		deviceButton.setIcon(VaadinIcons.AUTOMATION.create());
+		
+		
+		
+		deviceButton.addClickListener( event ->  ((Component) event.getSource()).getUI().ifPresent(ui -> ui.navigate("devices")) ); 
+		
+		add(deviceButton);
+		
+		
 		
 		closeButton.setIcon(VaadinIcons.CLOSE.create());
 		add(closeButton);
