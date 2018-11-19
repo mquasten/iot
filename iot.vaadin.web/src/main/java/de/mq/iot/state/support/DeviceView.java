@@ -1,6 +1,8 @@
 package de.mq.iot.state.support;
 
+
 import org.springframework.context.MessageSource;
+import org.springframework.util.CollectionUtils;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -119,22 +121,44 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		
 	
 		grid.addColumn((ValueProvider<Room, String>) room -> room.name()).setHeader(roomLabel).setResizable(true);
-		
-		
+	
+	
+
 			
 		grid.addColumn(new ComponentRenderer<>(
 		        room  -> {
 		        
 		        final Grid<State<Double>> devices = new Grid<State<Double>>();
+		      
+		        devices.setSelectionMode(SelectionMode.MULTI);
 		        devices.addColumn((ValueProvider<State<Double>, String>) state -> state.name());
 		        devices.setItems(room.states());
-		       
+		  
 		        devices.setHeightByRows(true);
-		        devices.setSelectionMode(SelectionMode.MULTI);
+		      
+		        
+		      
+		        devices.addSelectionListener(event -> {
+		        	
+		        	
+		        	
+			    	System.out.println("***************");
+			    	System.out.println(event.getAllSelectedItems());
+			    	
+			    	if( CollectionUtils.isEmpty( event.getAllSelectedItems() ))  {
+			    		
+			    		 devices.setItems(room.states());
+			    	}
+			    	
+			    });
+		        
+		      
+		       
 		        return devices ; 
 		        })).setHeader("Geräte");
 		
 		
+		    
 		
 		  grid.setHeightByRows(true);
 		
