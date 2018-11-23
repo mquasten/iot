@@ -145,6 +145,8 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 			    	System.out.println("***************");
 			    	System.out.println(event.getAllSelectedItems());
 			    	
+			    	deviceModel.assign(room, event.getAllSelectedItems());
+			    	
 			    	if( CollectionUtils.isEmpty( event.getAllSelectedItems() ))  {
 			    		
 			    		 devices.setItems(room.states());
