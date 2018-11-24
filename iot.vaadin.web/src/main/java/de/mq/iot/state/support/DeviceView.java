@@ -1,6 +1,8 @@
 package de.mq.iot.state.support;
 
 
+
+
 import org.springframework.context.MessageSource;
 import org.springframework.util.CollectionUtils;
 
@@ -12,6 +14,7 @@ import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
@@ -48,6 +51,10 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 	
 	private final MessageSource messageSource;
 	
+	private final TextField valueField = new TextField();
+	
+	@I18NKey("value")
+	private Label valueLabel = new Label();
 	
 	
 	@I18NKey("info")
@@ -69,7 +76,13 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		
 		
 		deviveModel.notifyObservers(DeviceModel.Events.ChangeLocale);
-		
+		deviveModel.register(DeviceModel.Events.SeclectionChanged, () -> {
+			valueField.setEnabled(deviveModel.isSelected());
+			deviveModel.selectedDistinctSinglePercentValue().ifPresent(value -> valueField.setValue("" + value));
+			if( ! deviveModel.isSelected()) {
+				valueField.clear();
+			}
+		});
 
 		
 		
@@ -80,7 +93,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		
 		saveButton.setEnabled(false);
 
-		
+		valueField.setEnabled(false);
 		
 	
 
@@ -94,16 +107,28 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 		formLayout.setResponsiveSteps(new ResponsiveStep("10vH", 1));
 
+		
+		valueField.setSizeFull();
+		
+		formLayout.addFormItem(valueField, valueLabel);		
+		
+		
+		
+		
 		final VerticalLayout buttonLayout = new VerticalLayout(saveButton);
 
 		final HorizontalLayout editorLayout = new HorizontalLayout(formLayout, buttonLayout);
 		
-
-		editorLayout.setVerticalComponentAlignment(Alignment.CENTER, buttonLayout);
+		
+		
+	
+		
+		editorLayout.setVerticalComponentAlignment(Alignment.CENTER, formLayout, buttonLayout);
 
 		editorLayout.setSizeFull();
 
-		grid.setSelectionMode(SelectionMode.SINGLE);
+		grid.setSelectionMode(SelectionMode.NONE);
+		
 
 		add(buttonBox, layout, stateInfoLabel, editorLayout);
 		setHorizontalComponentAlignment(Alignment.CENTER, stateInfoLabel);

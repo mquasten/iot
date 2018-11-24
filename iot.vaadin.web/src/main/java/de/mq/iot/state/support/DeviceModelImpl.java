@@ -4,9 +4,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
@@ -69,6 +72,7 @@ public class DeviceModelImpl implements DeviceModel {
 		Assert.notNull(room, "Room is required.");
 		Assert.notNull(selectedDevices, "Should not be null.");
 		this.selectedDevices.put(room.name(), selectedDevices);
+		notifyObservers(DeviceModel.Events.SeclectionChanged);
 	}
 
 	/*
@@ -82,5 +86,29 @@ public class DeviceModelImpl implements DeviceModel {
 		selectedDevices.values().forEach(devices4Room -> states.addAll(devices4Room));
 
 		return Collections.unmodifiableSet(states);
+	}
+	
+	@Override
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.DeviceModel#selectedDistinctPercentValue()
+	 */
+	public Optional<Double> selectedDistinctSinglePercentValue() {
+		
+		final List<Double>  states = selectedDevices().stream().map(state -> state.value()).distinct().limit(2).collect(Collectors.toList());
+		if( states.size() != 1) {
+			
+			return Optional.empty();
+		}
+		return Optional.of(100d * states.get(0));
+		
+	}
+	@Override
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.DeviceModel#isSelected()
+	 */
+	public boolean isSelected() {
+		return selectedDevices().size()>0;
 	}
 }

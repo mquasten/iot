@@ -1,6 +1,7 @@
 package de.mq.iot.state.support;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import de.mq.iot.calendar.support.CalendarModel;
 import de.mq.iot.model.LocaleAware;
@@ -12,7 +13,8 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 
 	public enum Events {
 
-		ChangeLocale;
+		ChangeLocale,
+		SeclectionChanged;
 
 	}
 
@@ -29,5 +31,20 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	 * Collection of all devices in all rooms
 	 * @return all devices
 	 */
-	 Collection<State<Double>>  selectedDevices(); 
+	 Collection<State<Double>>  selectedDevices();
+
+
+
+	 /**
+	  * if all selected devices have the same value, that value * 100  is returned. otherwise Optional.empty() is returned
+	  * @return the value of all devicesStates, if all values are equals. Otherwise return 0
+	  */
+	Optional<Double> selectedDistinctSinglePercentValue();
+
+
+	/**
+	 * Return true if at least one value is selected, otherwise false
+	 * @return true if values are selected, otherwise false
+	 */
+	boolean isSelected(); 
 }
