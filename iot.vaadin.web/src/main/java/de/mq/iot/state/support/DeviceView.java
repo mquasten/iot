@@ -1,15 +1,14 @@
 package de.mq.iot.state.support;
 
-
-
-
 import org.springframework.context.MessageSource;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -35,168 +34,151 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 	private static final long serialVersionUID = 1L;
 
-
 	private final Grid<Room> grid = new Grid<>();
-	
-	
+
 	@I18NKey("change")
 	private final Button saveButton = new Button();
-	
+
 	@I18NKey("room")
 	private final Label roomLabel = new Label();
-	
-	
+
+	@I18NKey("invalid_value")
+	private final Label invalidValueLabel = new Label();
+
 	@I18NKey("devices")
 	private final Label devicesLabel = new Label();
-	
+
 	private final MessageSource messageSource;
-	
+
 	private final TextField valueField = new TextField();
-	
+
 	@I18NKey("value")
 	private Label valueLabel = new Label();
-	
-	
+
 	@I18NKey("info")
 	private final Label stateInfoLabel = new Label();
-	
-	
+
 	private final FormLayout formLayout = new FormLayout();
+	
+	private Column<?> devicesColumn; 
+	
+	private Column<?> roomColumn; 
 
 	DeviceView(final StateService stateService, final DeviceModel deviveModel, final MessageSource messageSource, final ButtonBox buttonBox) {
 
 		this.messageSource = messageSource;
 
-	
-
 		createUI(deviveModel, buttonBox);
 
-		
 		grid.setItems(stateService.deviceStates());
-		
-		
+
 		deviveModel.notifyObservers(DeviceModel.Events.ChangeLocale);
 		deviveModel.register(DeviceModel.Events.SeclectionChanged, () -> {
 			valueField.setEnabled(deviveModel.isSelected());
 			deviveModel.selectedDistinctSinglePercentValue().ifPresent(value -> valueField.setValue("" + value));
-			if( ! deviveModel.isSelected()) {
+			if (!deviveModel.isSelected()) {
+				valueField.setInvalid(false);
+				saveButton.setEnabled(false);
 				valueField.clear();
+
 			}
 		});
 
-		
-		
+		valueField.addValueChangeListener(value -> {
+
+			if (deviveModel.isSelected()) {
+				valueField.setInvalid(true);
+				saveButton.setEnabled(false);
+				valueField.setErrorMessage(invalidValueLabel.getText());
+			}
+
+			if (StringUtils.hasText(value.getValue())) {
+				valueField.setErrorMessage("");
+				valueField.setInvalid(false);
+				saveButton.setEnabled(true);
+			}
+		});
+
 	}
 
 	private void createUI(final DeviceModel deviceModel, final ButtonBox buttonBox) {
 
-		
 		saveButton.setEnabled(false);
 
 		valueField.setEnabled(false);
-		
-	
 
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
-
-		
-
 
 		formLayout.setSizeFull();
 
 		formLayout.setResponsiveSteps(new ResponsiveStep("10vH", 1));
 
-		
 		valueField.setSizeFull();
-		
-		formLayout.addFormItem(valueField, valueLabel);		
-		
-		
-		
-		
+
+		formLayout.addFormItem(valueField, valueLabel);
+
 		final VerticalLayout buttonLayout = new VerticalLayout(saveButton);
 
 		final HorizontalLayout editorLayout = new HorizontalLayout(formLayout, buttonLayout);
-		
-		
-		
-	
-		
+
 		editorLayout.setVerticalComponentAlignment(Alignment.CENTER, formLayout, buttonLayout);
 
 		editorLayout.setSizeFull();
 
 		grid.setSelectionMode(SelectionMode.NONE);
-		
 
 		add(buttonBox, layout, stateInfoLabel, editorLayout);
 		setHorizontalComponentAlignment(Alignment.CENTER, stateInfoLabel);
-	
+
 		layout.setSizeFull();
 
 		setHorizontalComponentAlignment(Alignment.CENTER, layout);
 
 		grid.setHeight("50vH");
 
-	
 		grid.setSelectionMode(SelectionMode.SINGLE);
+
+		roomColumn=grid.addColumn((ValueProvider<Room, String>) room -> room.name()).setResizable(true);
+
 		
-	
+		devicesColumn=grid.addColumn(new ComponentRenderer<>(room -> {
+
+			final Grid<State<Double>> devices = new Grid<State<Double>>();
 		
-	
-		grid.addColumn((ValueProvider<Room, String>) room -> room.name()).setHeader(roomLabel).setResizable(true);
-	
+
+			devices.setSelectionMode(SelectionMode.MULTI);
+			devices.addColumn((ValueProvider<State<Double>, String>) state -> state.name());
+			
+			devices.setItems(room.states());
+
+			devices.setHeightByRows(true);
+
+			devices.addSelectionListener(event -> {
+
+				deviceModel.assign(room, event.getAllSelectedItems());
+
+				if (CollectionUtils.isEmpty(event.getAllSelectedItems())) {
+
+					devices.setItems(room.states());
+				}
+
+			});
+
+			return devices;
+		}));
 	
 
-			
-		grid.addColumn(new ComponentRenderer<>(
-		        room  -> {
-		        
-		        final Grid<State<Double>> devices = new Grid<State<Double>>();
-		      
-		        devices.setSelectionMode(SelectionMode.MULTI);
-		        devices.addColumn((ValueProvider<State<Double>, String>) state -> state.name());
-		        devices.setItems(room.states());
-		  
-		        devices.setHeightByRows(true);
-		      
-		        
-		      
-		        devices.addSelectionListener(event -> {
-		        	
-		        	
-		        	
-			    	System.out.println("***************");
-			    	System.out.println(event.getAllSelectedItems());
-			    	
-			    	deviceModel.assign(room, event.getAllSelectedItems());
-			    	
-			    	if( CollectionUtils.isEmpty( event.getAllSelectedItems() ))  {
-			    		
-			    		 devices.setItems(room.states());
-			    	}
-			    	
-			    });
-		        
-		      
-		       
-		        return devices ; 
-		        })).setHeader("Geräte");
-		
-		
-		    
-		
-		  grid.setHeightByRows(true);
-		
-		deviceModel.register(DeviceModel.Events.ChangeLocale, () -> {	
+		grid.setHeightByRows(true);
+
+		deviceModel.register(DeviceModel.Events.ChangeLocale, () -> {
 			localize(messageSource, deviceModel.locale());
+			devicesColumn.setHeader(devicesLabel.getText());
+			roomColumn.setHeader(roomLabel.getText());
 		});
 		
-			
+	
+
 	}
 
-
-
-	
 }
