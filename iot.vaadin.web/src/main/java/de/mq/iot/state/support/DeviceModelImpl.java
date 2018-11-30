@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
@@ -23,6 +24,10 @@ public class DeviceModelImpl implements DeviceModel {
 	private final Subject<DeviceModel.Events, DeviceModel> subject;
 
 	private final Map<String, Collection<State<Double>>> selectedDevices = new HashMap<>();
+	
+	private Integer value;
+
+	
 
 	DeviceModelImpl(Subject<Events, DeviceModel> subject) {
 		this.subject = subject;
@@ -93,14 +98,14 @@ public class DeviceModelImpl implements DeviceModel {
 	 * (non-Javadoc)
 	 * @see de.mq.iot.state.support.DeviceModel#selectedDistinctPercentValue()
 	 */
-	public Optional<Double> selectedDistinctSinglePercentValue() {
+	public Optional<Integer> selectedDistinctSinglePercentValue() {
 		
 		final List<Double>  states = selectedDevices().stream().map(state -> state.value()).distinct().limit(2).collect(Collectors.toList());
 		if( states.size() != 1) {
 			
 			return Optional.empty();
 		}
-		return Optional.of(100d * states.get(0));
+		return Optional.of((int) Math.round(100d * states.get(0)));
 		
 	}
 	@Override
@@ -110,5 +115,38 @@ public class DeviceModelImpl implements DeviceModel {
 	 */
 	public boolean isSelected() {
 		return selectedDevices().size()>0;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.DeviceModel#value()
+	 */
+	@Override
+	public Optional<Integer> value() {
+		return Optional.ofNullable(value);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.DeviceModel#assign(java.lang.String)
+	 */
+	@Override
+	public void assign(final String value) {
+		this.value = null;
+		if( StringUtils.isEmpty(value) ) {
+			notifyObservers(DeviceModel.Events.ValueChanged);
+			return;
+		}
+		if(!value.matches("[0-9]{1,3}")) {
+			notifyObservers(DeviceModel.Events.ValueChanged);
+			return;
+		}
+		int result = Integer.parseInt(value);
+		if( result > 100) {
+			notifyObservers(DeviceModel.Events.ValueChanged);
+			return; 
+		}
+		this.value=result;
+		notifyObservers(DeviceModel.Events.ValueChanged);
 	}
 }

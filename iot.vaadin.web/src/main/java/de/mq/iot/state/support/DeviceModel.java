@@ -14,7 +14,8 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	public enum Events {
 
 		ChangeLocale,
-		SeclectionChanged;
+		SeclectionChanged,
+		ValueChanged;
 
 	}
 
@@ -39,12 +40,27 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	  * if all selected devices have the same value, that value * 100  is returned. otherwise Optional.empty() is returned
 	  * @return the value of all devicesStates, if all values are equals. Otherwise return 0
 	  */
-	Optional<Double> selectedDistinctSinglePercentValue();
+	Optional<Integer> selectedDistinctSinglePercentValue();
 
 
 	/**
 	 * Return true if at least one value is selected, otherwise false
 	 * @return true if values are selected, otherwise false
 	 */
-	boolean isSelected(); 
+	boolean isSelected();
+
+
+	/**
+	 * The value to that the devices values should be set
+	 * @return devives new value
+	 */
+	Optional<Integer> value();
+
+
+
+	/**
+	 * Assign value to that the selected Devices should be set
+	 * @param value new value
+	 */
+	void assign(String value); 
 }

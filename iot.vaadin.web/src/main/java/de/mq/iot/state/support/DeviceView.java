@@ -2,7 +2,6 @@ package de.mq.iot.state.support;
 
 import org.springframework.context.MessageSource;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -83,21 +82,23 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 			}
 		});
-
-		valueField.addValueChangeListener(value -> {
-
+		deviveModel.register(DeviceModel.Events.ValueChanged, () ->{
 			if (deviveModel.isSelected()) {
 				valueField.setInvalid(true);
 				saveButton.setEnabled(false);
 				valueField.setErrorMessage(invalidValueLabel.getText());
 			}
-
-			if (StringUtils.hasText(value.getValue())) {
+			
+			deviveModel.value().ifPresent(value -> {
 				valueField.setErrorMessage("");
 				valueField.setInvalid(false);
 				saveButton.setEnabled(true);
-			}
+				
+			});
+			
 		});
+
+		valueField.addValueChangeListener(event -> deviveModel.assign(event.getValue()));
 
 	}
 
