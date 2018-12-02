@@ -1,5 +1,8 @@
 package de.mq.iot.state.support;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.springframework.context.MessageSource;
 import org.springframework.util.CollectionUtils;
 
@@ -38,8 +41,8 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 	@I18NKey("change")
 	private final Button saveButton = new Button();
 
-	@I18NKey("room")
-	private final Label roomLabel = new Label();
+	@I18NKey("devices_value")
+	private final Label deviceValueLabel = new Label();
 
 	@I18NKey("invalid_value")
 	private final Label invalidValueLabel = new Label();
@@ -47,7 +50,6 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 	@I18NKey("devices")
 	private final Label devicesLabel = new Label();
 
-	private final MessageSource messageSource;
 
 	private final TextField valueField = new TextField();
 
@@ -61,17 +63,16 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 	
 	private Column<?> devicesColumn; 
 	
-	private Column<?> roomColumn; 
+	private Collection<Column<?>> devicesValueColumn= new ArrayList<>();
 
 	DeviceView(final StateService stateService, final DeviceModel deviveModel, final MessageSource messageSource, final ButtonBox buttonBox) {
 
-		this.messageSource = messageSource;
 
 		createUI(deviveModel, buttonBox);
 
 		grid.setItems(stateService.deviceStates());
-
-		deviveModel.notifyObservers(DeviceModel.Events.ChangeLocale);
+		
+		
 		deviveModel.register(DeviceModel.Events.SeclectionChanged, () -> {
 			valueField.setEnabled(deviveModel.isSelected());
 			deviveModel.selectedDistinctSinglePercentValue().ifPresent(value -> valueField.setValue("" + value));
@@ -99,6 +100,19 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		});
 
 		valueField.addValueChangeListener(event -> deviveModel.assign(event.getValue()));
+		
+		
+		deviveModel.register(DeviceModel.Events.ChangeLocale, () -> {
+			localize(messageSource, deviveModel.locale());
+			devicesColumn.setHeader(devicesLabel.getText());
+			devicesValueColumn.forEach(column -> column.setHeader(deviceValueLabel.getText()));
+		});
+		
+		
+		
+
+		deviveModel.notifyObservers(DeviceModel.Events.ChangeLocale);
+		
 
 	}
 
@@ -140,16 +154,22 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 		grid.setSelectionMode(SelectionMode.SINGLE);
 
-		roomColumn=grid.addColumn((ValueProvider<Room, String>) room -> room.name()).setResizable(true);
-
-		
+	
+		devicesValueColumn.clear();
 		devicesColumn=grid.addColumn(new ComponentRenderer<>(room -> {
 
 			final Grid<State<Double>> devices = new Grid<State<Double>>();
 		
 
 			devices.setSelectionMode(SelectionMode.MULTI);
-			devices.addColumn((ValueProvider<State<Double>, String>) state -> state.name());
+			devices.addColumn((ValueProvider<State<Double>, String>) state -> state.name()).setFlexGrow(80).setResizable(true).setHeader(room.name());
+			
+		
+			final Column<State<Double>> column = devices.addColumn((ValueProvider<State<Double>, String>) state -> "" + (int) (100d * Math.round(state.value())  ) + " %" );
+			devicesValueColumn.add(column);
+			column.addAttachListener(event -> deviceModel.notifyObservers(DeviceModel.Events.ChangeLocale));
+		
+			
 			
 			devices.setItems(room.states());
 
@@ -172,11 +192,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 		grid.setHeightByRows(true);
 
-		deviceModel.register(DeviceModel.Events.ChangeLocale, () -> {
-			localize(messageSource, deviceModel.locale());
-			devicesColumn.setHeader(devicesLabel.getText());
-			roomColumn.setHeader(roomLabel.getText());
-		});
+		
 		
 	
 
