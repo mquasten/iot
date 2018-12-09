@@ -146,6 +146,43 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 
 		resultChangedGuard(evaluate(res.getBody(), "/result/*"));
 	}
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.StateRepository#changeState(de.mq.iot.resource.ResourceIdentifier, java.util.Collection)
+	 */
+	@Override
+	public void changeState(final ResourceIdentifier resourceIdentifier, final Collection<Entry<Long,String>> states  ) {
+		
+		Assert.notNull(states, "Statelist is mandatory.");
+		Assert.notNull(resourceIdentifier, "ResourceIdentifier is mandatory.");
+
+		final Map<String, String> parameter = XmlApiParameters.ChangeSysvar.parameters(resourceIdentifier);
+		final String uri = resourceIdentifier.uri() + STATE_CHANGE_URL_PARAMETER;
+		
+		if( states.size() == 0 ) {
+			return;
+		}
+		
+		final Collection<Long> ids = states.stream().map(state -> state.getKey()).collect(Collectors.toList());
+		
+		final Collection<String> values = states.stream().map(state -> state.getValue()).collect(Collectors.toList());
+		parameter.put(ID_PARAMETER_NAME,  StringUtils.collectionToCommaDelimitedString(ids));
+		parameter.put(VALUE_PARAMETER_NAME, StringUtils.collectionToCommaDelimitedString(values));
+
+		final ResponseEntity<String> res = webClientBuilder().build().put().uri(uri, parameter).exchange().block(timeout).toEntity(String.class).block(timeout);
+		
+		if (!StringUtils.hasText(res.getBody())) {
+			throw newHttpStatusCodeException(HttpStatus.BAD_REQUEST, "Result expected.");
+		}
+		
+		httpStatusGuard(res);
+		
+		Assert.isTrue(evaluate(res.getBody(), "/result/*").getLength() == states.size(), "Not all states processed.");
+		
+		
+	}
 
 	private void resultChangedGuard(final NodeList nodeList) {
 		if (nodeList.getLength() != 1) {

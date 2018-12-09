@@ -122,5 +122,14 @@ class StateRepositoryIntegrationTest {
 		assertEquals(1.15 ,version);
 		
 	}
+	
+	@Test
+	@Disabled
+	void changeStates() {
+		Map<Long, String> states = new HashMap<>();
+		states.put(1431L, "1.00");
+		states.put(1952L, "1.00");
+		stateRepository.changeState(resourceIdentifier, states.entrySet());
+	}
 }
 
