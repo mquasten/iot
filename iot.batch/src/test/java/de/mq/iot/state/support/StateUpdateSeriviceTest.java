@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.withSettings;
 
+import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +23,7 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -66,6 +69,10 @@ public class StateUpdateSeriviceTest {
 	private final MeteorologicalData meteorologicalData = Mockito.mock(MeteorologicalData.class);
 	@SuppressWarnings("unchecked")
 	private final State<Double> temperatureState = Mockito.mock(State.class);
+	
+	
+	@SuppressWarnings("unchecked")
+	private final State<String> lastBatchrunState = Mockito.mock(State.class);
 	@BeforeEach
 	void setup() {
 		timeItems.put(WINTER_VALUE, "WINTER");
@@ -84,7 +91,7 @@ public class StateUpdateSeriviceTest {
 		Mockito.doReturn(StateUpdateServiceImpl.TEMPERATURE_STATE_NAME).when(temperatureState).name();
 		
 		
-		Mockito.doReturn(Arrays.asList(state, timeState, monthState, temperatureState)).when(stateService).states();
+		Mockito.doReturn(Arrays.asList(state, timeState, monthState, temperatureState, lastBatchrunState)).when(stateService).states();
 		
 		
 		
@@ -95,6 +102,11 @@ public class StateUpdateSeriviceTest {
 		Mockito.when(temperatureState.value()).thenReturn(25.55d);
 		Mockito.when(meteorologicalData.temperature()).thenReturn(27.27d);
 		Mockito.when(meteorologicalDataService.forecastMaxTemperature(LocalDate.now().plusDays(1))).thenReturn(meteorologicalData);
+		
+		
+		
+		Mockito.doReturn("LastBatchrun").when(lastBatchrunState).name();
+		
 		
 		
 		
@@ -344,7 +356,7 @@ public class StateUpdateSeriviceTest {
 	@Test
 	void update() {
 	
-		final StateUpdateService stateUpdateService = Mockito.mock(StateUpdateServiceImpl.class);
+		final StateUpdateServiceImpl stateUpdateService = Mockito.mock(StateUpdateServiceImpl.class);
 		final Map<Class<?>, Object> dependencies = new HashMap<>();
 		dependencies.put(SunDownCalculationService.class, sunDownCalculationService);
 		
@@ -364,6 +376,7 @@ public class StateUpdateSeriviceTest {
 		Mockito.verify(stateUpdateService).updateWorkingday(Mockito.anyInt());
 		Mockito.verify(stateUpdateService).updateTime(Mockito.anyInt());
 		Mockito.verify(stateUpdateService).updateTemperature(Mockito.anyInt());
+		Mockito.verify(stateUpdateService).updateLastBatchrun();
 	
 	}
 	
@@ -384,5 +397,27 @@ public class StateUpdateSeriviceTest {
 	
 		assertEquals(0,(((StateUpdateServiceImpl) stateUpdateService).defaultUpdateTimeOffset(LocalDateTime.of(LocalDate.now(), sundownTime.minusMinutes(1)))));
 		assertEquals(1,(((StateUpdateServiceImpl) stateUpdateService).defaultUpdateTimeOffset(LocalDateTime.of(LocalDate.now(), sundownTime.plusMinutes(1)))));
+	}
+
+	@Test
+	void updateLastBatchrun() {
+		 ((StateUpdateServiceImpl) stateUpdateService).updateLastBatchrun();
+		 
+		 
+		 final ArgumentCaptor<String>  valueCaptor = ArgumentCaptor.forClass(String.class);
+		 Mockito.verify(lastBatchrunState).assign(valueCaptor.capture());
+		 Mockito.verify(stateService).update(lastBatchrunState);
+		 
+		 final String startDateString = new SimpleDateFormat(StateUpdateServiceImpl.LAST_BATCHRUN_DATE_FORMAT.replaceFirst(":.*", "")).format(new Date());
+		 
+		 assertTrue(valueCaptor.getValue().startsWith(startDateString));		
+	}
+	
+	@Test
+	void updateLastBatchrunMissingSystemVariable() {
+		Mockito.doReturn(Arrays.asList(state, timeState, monthState, temperatureState)).when(stateService).states();
+		
+		
+		assertThrows(IllegalStateException.class, () -> ((StateUpdateServiceImpl) stateUpdateService).updateLastBatchrun());
 	}
 }

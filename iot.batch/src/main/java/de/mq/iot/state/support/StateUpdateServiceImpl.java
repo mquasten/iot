@@ -1,5 +1,6 @@
 package de.mq.iot.state.support;
 
+import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.time.Month;
 import java.time.Year;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,12 +31,14 @@ import de.mq.iot.support.SunDownCalculationService;
 
 @Service
 public class StateUpdateServiceImpl implements StateUpdateService {
+	static final String LAST_BATCHRUN_DATE_FORMAT = "dd.MM.YYYY-HH:mm:ss";
 	static final LocalTime UPDATE_TEMPERATURE_TIME = LocalTime.of(9, 30);
 	static final int NEXT_DAY_DAYS_OFFSET = 1;
 	static final int CURRENT_DAY_DAYS_OFFSET = 0;
 	static final int OFFSET_HOURS_WT = 1;
 	static final int OFFSET_HOURS_ST = 2;
 	static final String TEMPERATURE_STATE_NAME = "Temperature";
+	static final String LAST_BATCHRUN_STATE_NAME = "LastBatchrun";
 	static final String MONTH_STATE_NAME = "Month";
 	static final String SUMMER = "SUMMER";
 	static final String WINTER = "WINTER";
@@ -76,6 +80,8 @@ public class StateUpdateServiceImpl implements StateUpdateService {
 
 			System.out.println("update workingday to:" + expectedWorkingDayStateValue);
 		}
+		
+	
 
 	}
 	
@@ -201,6 +207,7 @@ public class StateUpdateServiceImpl implements StateUpdateService {
 		updateWorkingday(defaultWorkingDayOffset(date));
 		updateTime(defaultUpdateTimeOffset(date));	
 		updateTemperature(defaultUpdateTemperature(date));
+		updateLastBatchrun();
 	}
 
 	 int defaultUpdateTemperature(final LocalDateTime date) {
@@ -224,6 +231,18 @@ public class StateUpdateServiceImpl implements StateUpdateService {
 		workingDaysTimes.put(Boolean.FALSE, LocalTime.of(7, 30 ));
 		final int offset = date.toLocalTime().isBefore(workingDaysTimes.get(this.isWorkingsday(date.toLocalDate()))) ? CURRENT_DAY_DAYS_OFFSET :NEXT_DAY_DAYS_OFFSET;
 		return offset;
+	}
+	
+	void updateLastBatchrun() {
+		final Collection<State<?>> states = stateService.states();
+		@SuppressWarnings("unchecked")
+		final State<String> lastBatchrunState = (State<String>) states.stream().filter(state -> state.name().equals(LAST_BATCHRUN_STATE_NAME)).findAny().orElseThrow(() -> new IllegalStateException("LastBatchrun State expected."));
+		
+		final String date = new SimpleDateFormat(LAST_BATCHRUN_DATE_FORMAT).format(new Date(System.currentTimeMillis()));
+		lastBatchrunState.assign(date);
+
+		stateService.update(lastBatchrunState);
+		System.out.println("update lastBatchrun to:" + date);
 	}
 
 }

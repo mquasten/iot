@@ -38,6 +38,7 @@ class DoubleStateImpl extends AbstractState<Double> implements MinMaxRange {
 
 	@Override
 	public void assign(final Double value) {
+		
 		if( ! validate(value)) {
 			throw new IllegalArgumentException("Value is invalid.");
 		}
