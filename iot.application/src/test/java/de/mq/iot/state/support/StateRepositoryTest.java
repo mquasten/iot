@@ -9,11 +9,14 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.time.Duration;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.xml.xpath.XPath;
@@ -29,7 +32,7 @@ import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
-
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -45,6 +48,9 @@ import reactor.core.publisher.Mono;
 
 class StateRepositoryTest {
 
+	private static final double SECOUND_DOUBLE_VALUE = 0.5;
+	private static final double DOUNBLE_VALUE = 1.0;
+	private static final Long SECOND_ID = 19680528L;
 	private static final String PORT = "80";
 	private static final String HOST = "kylie.com";
 	private static final String PORT_PARAMETER = "port";
@@ -186,6 +192,60 @@ class StateRepositoryTest {
 		assertEquals(2, dependencyMap.size());
 		assertEquals(dependencies, dependencyMap);
 	}
+	
+	@Test
+	final void changeStates() {
+		String xml = String.format("<result><changed id=\"%s\" new_value=\"%s\" /><changed id=\"%s\" new_value=\"0.5\" /></result>",ID, DOUNBLE_VALUE,  SECOND_ID, SECOUND_DOUBLE_VALUE);
+		Mockito.doReturn(xml).when(resonseEntity).getBody();
+		
+		stateRepository.changeState(resourceIdentifier, idValuesEntries());
+		
+		assertEquals(URI + AbstractHomematicXmlApiStateRepository.STATE_CHANGE_URL_PARAMETER, uriCaptor.getValue());
+		assertEquals(HOST, parameterCaptor.getValue().get(HOST_PARMETER));
+		assertEquals(PORT, parameterCaptor.getValue().get(PORT_PARAMETER));
+		assertEquals(XmlApiParameters.ChangeSysvar.resource(), parameterCaptor.getValue().get(XmlApiParameters.RESOURCE_PARAMETER_NAME));
+		assertEquals(StringUtils.collectionToCommaDelimitedString(Arrays.asList(ID, SECOND_ID)), parameterCaptor.getValue().get(AbstractHomematicXmlApiStateRepository.ID_PARAMETER_NAME));
+		assertEquals(StringUtils.collectionToCommaDelimitedString(Arrays.asList(DOUNBLE_VALUE, SECOUND_DOUBLE_VALUE)), parameterCaptor.getValue().get(AbstractHomematicXmlApiStateRepository.VALUE_PARAMETER_NAME));
+		
+	}
+	
+	@Test
+	final void changeStatesWrongNumberOfResults() {
+		String xml = String.format("<result><changed id=\"%s\" new_value=\"%s\" /></result>",ID, DOUNBLE_VALUE);
+		Mockito.doReturn(xml).when(resonseEntity).getBody();
+		
+		assertThrows(IllegalArgumentException.class, () -> stateRepository.changeState(resourceIdentifier, idValuesEntries()));
+		
+	}
+	
+	@Test
+	final void changeStatesEmptyResponse() {
+		
+	
+		assertThrows(HttpStatusCodeException.class, () -> stateRepository.changeState(resourceIdentifier, idValuesEntries()));
+		
+	}
+	
+	
+	@Test
+	final void changeStatesNothingChanged() {
+		String xml = String.format("<result><changed id=\"%s\" new_value=\"%s\" /><changed id=\"%s\" new_value=\"0.5\" /></result>",ID, DOUNBLE_VALUE,  SECOND_ID, SECOUND_DOUBLE_VALUE);
+		Mockito.doReturn(xml).when(resonseEntity).getBody();
+		
+		stateRepository.changeState(resourceIdentifier, Arrays.asList());
+		
+		Mockito.verify(webClientBuilder, Mockito.never()).build();
+		
+	}
+
+	private Collection<Entry<Long, String>> idValuesEntries() {
+		final Collection<Entry<Long,String>> entries = new ArrayList<>();
+		entries.add(new AbstractMap.SimpleImmutableEntry<>(Long.valueOf(ID),  String.valueOf(DOUNBLE_VALUE)));
+		
+		entries.add(new AbstractMap.SimpleImmutableEntry<>(SECOND_ID, String.valueOf(SECOUND_DOUBLE_VALUE)));
+		return entries;
+	}
+	
 
 	@Test
 	final void changeState() {
@@ -202,6 +262,7 @@ class StateRepositoryTest {
 		assertEquals(HOST, parameterCaptor.getValue().get(HOST_PARMETER));
 		assertEquals(PORT, parameterCaptor.getValue().get(PORT_PARAMETER));
 		assertEquals(XmlApiParameters.ChangeSysvar.resource(), parameterCaptor.getValue().get(XmlApiParameters.RESOURCE_PARAMETER_NAME));
+		
 	}
 
 	@Test
