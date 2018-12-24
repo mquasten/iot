@@ -11,10 +11,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -134,6 +137,45 @@ class StateServiceTest {
 		stateService.update(state);
 
 		Mockito.verify(stateRepository).changeState(resourceIdentifier, state);
+	}
+	
+	@Test
+	void updateAll() {
+		@SuppressWarnings("unchecked")
+		final State<Double> firstState = Mockito.mock(State.class);
+		Mockito.doReturn(FIRST_CHANNEL).when(firstState).id();
+		double firstValue = 0.25d;
+		Mockito.doReturn(firstValue).when(firstState).value();
+		@SuppressWarnings("unchecked")
+		final State<Double> secondState = Mockito.mock(State.class);
+		Mockito.doReturn(SECOND_CHANNEL).when(secondState).id();
+		double secondValue = 0.5d;
+		Mockito.doReturn(secondValue).when(secondState).value();
+		
+		@SuppressWarnings("unchecked")
+		final State<Double> thirdState = Mockito.mock(State.class);
+		Mockito.doReturn(THIRD_CHANNEL).when(thirdState).id();
+		double thirdValue = 0.75d;
+		Mockito.doReturn(thirdValue).when(thirdState).value();
+		
+		
+		final ArgumentCaptor<ResourceIdentifier> resourceIdentifierCaptor = ArgumentCaptor.forClass(ResourceIdentifier.class);
+		
+		@SuppressWarnings("unchecked")
+		final ArgumentCaptor<Collection<Entry<Long,String>>> entryListCaptor = ArgumentCaptor.forClass(Collection.class);
+		
+		
+		
+		stateService.update(Arrays.asList(firstState, secondState, thirdState));
+		Mockito.verify(stateRepository).changeState(resourceIdentifierCaptor.capture(), entryListCaptor.capture());
+		
+		assertEquals(resourceIdentifier, resourceIdentifierCaptor.getValue());
+		
+		final Map<Long,String> stateValues = entryListCaptor.getValue().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		assertEquals(3, stateValues.size());
+		assertEquals(""+firstValue, stateValues.get(FIRST_CHANNEL));
+		assertEquals(""+secondValue, stateValues.get(SECOND_CHANNEL));
+		assertEquals(""+thirdValue, stateValues.get(THIRD_CHANNEL));
 	}
 
 	@Test

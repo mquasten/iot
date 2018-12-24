@@ -23,4 +23,11 @@ public interface StateService {
 	 */
 	Collection<Room> deviceStates();
 
+	/**
+	 * Update states
+	 * Every state will be set to its value. 
+	 * @param states list of states 
+	 */
+	void update(Collection<State<?>> states);
+
 }

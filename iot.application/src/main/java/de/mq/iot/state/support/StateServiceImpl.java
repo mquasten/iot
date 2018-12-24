@@ -4,10 +4,13 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -29,6 +32,7 @@ class StateServiceImpl implements StateService {
 	private final ResourceIdentifierRepository resourceIdentifierRepository;
 	private final StateRepository stateRepository;
 	private final Map<String, StateConverter<State<?>>> stateConverters = new HashMap<>();
+	private ConversionService conversionService = new DefaultConversionService();
 
 	@SuppressWarnings("unchecked")
 	@Autowired
@@ -106,6 +110,21 @@ class StateServiceImpl implements StateService {
 
 		return results.values().stream().sorted((r1, r2) -> r1.name().compareToIgnoreCase(r2.name())).collect(Collectors.toList());
 
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.StateService#update(java.util.Collection)
+	 */
+	@Override
+	public void update(final Collection<State<?>> states) {
+		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
+		
+		final Collection<Entry<Long,String>> entries = states.stream().collect(Collectors.toMap(State::id, state-> conversionService.convert(state.value(), String.class))).entrySet();
+		
+		stateRepository.changeState(resourceIdentifier,  entries);
+		
+		
 	}
 
 }
