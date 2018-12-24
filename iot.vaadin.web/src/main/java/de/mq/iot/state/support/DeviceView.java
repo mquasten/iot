@@ -3,6 +3,7 @@ package de.mq.iot.state.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
+
 import org.springframework.context.MessageSource;
 import org.springframework.util.CollectionUtils;
 
@@ -109,6 +110,24 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		});
 		
 		
+		saveButton.addClickListener(event -> {
+			
+			deviveModel.value().ifPresent(value -> {
+				
+				 final Collection<State<Double>>  states = deviveModel.selectedDevices();
+				 
+				 states.forEach(state -> state.assign(new Double(value/100d)));
+			
+				 final Collection<Room> rooms = stateService.update((Collection)  states);
+				
+				 grid.setItems(rooms);
+				 valueField.setValue("");
+			
+				
+				 
+			});
+			
+		});
 		
 
 		deviveModel.notifyObservers(DeviceModel.Events.ChangeLocale);
@@ -165,7 +184,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 			devices.addColumn((ValueProvider<State<Double>, String>) state -> state.name()).setFlexGrow(80).setResizable(true).setHeader(room.name());
 			
 		
-			final Column<State<Double>> column = devices.addColumn((ValueProvider<State<Double>, String>) state -> "" + (int) (100d * Math.round(state.value())  ) + " %" );
+			final Column<State<Double>> column = devices.addColumn((ValueProvider<State<Double>, String>) state -> "" + (int) ( Math.round(100d *state.value())  ) + " %" );
 			devicesValueColumn.add(column);
 			column.addAttachListener(event -> deviceModel.notifyObservers(DeviceModel.Events.ChangeLocale));
 		

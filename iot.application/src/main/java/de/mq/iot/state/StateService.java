@@ -27,7 +27,8 @@ public interface StateService {
 	 * Update states
 	 * Every state will be set to its value. 
 	 * @param states list of states 
+	 * @return list of Rooms, with changed State Values
 	 */
-	void update(Collection<State<?>> states);
+	Collection<Room> update(Collection<State<?>> states);
 
 }

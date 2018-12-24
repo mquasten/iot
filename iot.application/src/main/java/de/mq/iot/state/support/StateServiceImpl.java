@@ -117,13 +117,21 @@ class StateServiceImpl implements StateService {
 	 * @see de.mq.iot.state.StateService#update(java.util.Collection)
 	 */
 	@Override
-	public void update(final Collection<State<?>> states) {
+	public Collection<Room> update(final Collection<State<?>> states) {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
 		
 		final Collection<Entry<Long,String>> entries = states.stream().collect(Collectors.toMap(State::id, state-> conversionService.convert(state.value(), String.class))).entrySet();
-		
+		final Map<Long, ?> values = states.stream().collect(Collectors.toMap(State::id, state-> state.value()));
 		stateRepository.changeState(resourceIdentifier,  entries);
 		
+		
+		final Collection<Room> deviceStates = deviceStates();
+		
+		deviceStates.forEach(room -> {
+			room.states().stream().filter(state -> values.containsKey(state.id())).forEach(state -> state.assign((Double)values.get(state.id())));
+			
+		});
+		return deviceStates;
 		
 	}
 
