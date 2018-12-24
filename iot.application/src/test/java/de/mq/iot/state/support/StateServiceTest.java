@@ -96,19 +96,19 @@ class StateServiceTest {
 		stateService = new StateServiceImpl(resourceIdentifierRepository, stateRepository, stateConverters, TIMEOUT);
 
 		Mockito.when(firstState.id()).thenReturn(FIRST_CHANNEL);
-		Mockito.when(firstState.value()).thenReturn(25d);
+		Mockito.when(firstState.value()).thenReturn(0.25d);
 		Mockito.when(firstState.name()).thenReturn(FIRST_CHANNEL + ":" + FIRST_ROOM);
 
 		Mockito.when(secondState.id()).thenReturn(SECOND_CHANNEL);
-		Mockito.when(secondState.value()).thenReturn(50d);
+		Mockito.when(secondState.value()).thenReturn(0.50d);
 		Mockito.when(secondState.name()).thenReturn(SECOND_CHANNEL + ":" + SECOND_ROOM);
 
 		Mockito.when(thirdState.id()).thenReturn(THIRD_CHANNEL);
-		Mockito.when(thirdState.value()).thenReturn(75d);
+		Mockito.when(thirdState.value()).thenReturn(0.75d);
 		Mockito.when(thirdState.name()).thenReturn(THIRD_CHANNEL + ":" + SECOND_ROOM);
 
 		Mockito.when(fourthState.id()).thenReturn(4711L);
-		Mockito.when(fourthState.value()).thenReturn(100d);
+		Mockito.when(fourthState.value()).thenReturn(1.00d);
 		Mockito.when(fourthState.name()).thenReturn("xxx");
 	}
 
@@ -141,23 +141,10 @@ class StateServiceTest {
 	
 	@Test
 	void updateAll() {
-		@SuppressWarnings("unchecked")
-		final State<Double> firstState = Mockito.mock(State.class);
-		Mockito.doReturn(FIRST_CHANNEL).when(firstState).id();
-		double firstValue = 0.25d;
-		Mockito.doReturn(firstValue).when(firstState).value();
-		@SuppressWarnings("unchecked")
-		final State<Double> secondState = Mockito.mock(State.class);
-		Mockito.doReturn(SECOND_CHANNEL).when(secondState).id();
-		double secondValue = 0.5d;
-		Mockito.doReturn(secondValue).when(secondState).value();
 		
-		@SuppressWarnings("unchecked")
-		final State<Double> thirdState = Mockito.mock(State.class);
-		Mockito.doReturn(THIRD_CHANNEL).when(thirdState).id();
-		double thirdValue = 0.75d;
-		Mockito.doReturn(thirdValue).when(thirdState).value();
 		
+		
+		Mockito.doReturn(Arrays.asList(firstState,secondState,thirdState)).when(stateRepository).findDeviceStates(resourceIdentifier);
 		
 		final ArgumentCaptor<ResourceIdentifier> resourceIdentifierCaptor = ArgumentCaptor.forClass(ResourceIdentifier.class);
 		
@@ -165,17 +152,28 @@ class StateServiceTest {
 		final ArgumentCaptor<Collection<Entry<Long,String>>> entryListCaptor = ArgumentCaptor.forClass(Collection.class);
 		
 		
+		Mockito.when(stateRepository.findChannelIds(resourceIdentifier, StateServiceImpl.FUNCTION)).thenReturn(Arrays.asList(FIRST_CHANNEL, SECOND_CHANNEL, THIRD_CHANNEL));
+		Mockito.when(stateRepository.findCannelsRooms(resourceIdentifier)).thenReturn(rooms);
+		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
 		
-		stateService.update(Arrays.asList(firstState, secondState, thirdState));
+		
+		Collection<Room> results = stateService.update(Arrays.asList(firstState, secondState, thirdState));
+		
+		assertEquals(2, results.size());
+		
 		Mockito.verify(stateRepository).changeState(resourceIdentifierCaptor.capture(), entryListCaptor.capture());
 		
 		assertEquals(resourceIdentifier, resourceIdentifierCaptor.getValue());
 		
 		final Map<Long,String> stateValues = entryListCaptor.getValue().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		assertEquals(3, stateValues.size());
-		assertEquals(""+firstValue, stateValues.get(FIRST_CHANNEL));
-		assertEquals(""+secondValue, stateValues.get(SECOND_CHANNEL));
-		assertEquals(""+thirdValue, stateValues.get(THIRD_CHANNEL));
+		assertEquals(""+firstState.value(), stateValues.get(FIRST_CHANNEL));
+		assertEquals(""+secondState.value(), stateValues.get(SECOND_CHANNEL));
+		assertEquals(""+thirdState.value(), stateValues.get(THIRD_CHANNEL));
+		
+		Mockito.verify(firstState,Mockito.times(1)).assign(0.25d);
+		Mockito.verify(secondState,Mockito.times(1)).assign(0.5d);
+		Mockito.verify(thirdState,Mockito.times(1)).assign(0.75d);
 	}
 
 	@Test
