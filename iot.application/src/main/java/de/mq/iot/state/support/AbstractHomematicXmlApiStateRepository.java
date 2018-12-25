@@ -3,8 +3,8 @@ package de.mq.iot.state.support;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -247,7 +247,7 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	}
 
 	@Override
-	public Collection<State<?>> findDeviceStates(final ResourceIdentifier resourceIdentifier) {
+	public Collection<Map<String,String>> findDeviceStates(final ResourceIdentifier resourceIdentifier) {
 
 		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.StateList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
 
@@ -256,10 +256,17 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		final NodeList nodes = evaluate(res.getBody(), "/stateList/device/channel/datapoint[(@type='LEVEL')  and string-length(@value) > 0]");
 		 IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes())).collect(Collectors.toList());
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> {
-			final State<Double> state = new DoubleStateImpl(conversionService.convert(nodes.item(i).getParentNode().getAttributes().getNamedItem(ID_ATTRIBUTE).getNodeValue(), Long.class), nodes.item(i).getParentNode().getAttributes().getNamedItem(NAME_ATTRIBUTE).getNodeValue(), LocalDateTime.now());
+			final Map<String,String> results = 	new HashMap<>();
+					
+			results.putAll(attributesToMap(nodes.item(i).getAttributes()));
+		
+			Arrays.asList(ID_ATTRIBUTE,NAME_ATTRIBUTE).forEach( key -> results.put(key, nodes.item(i).getParentNode().getAttributes().getNamedItem(key).getNodeValue()));
 			
-			state.assign(conversionService.convert(nodes.item(i).getAttributes().getNamedItem(VALUE_ATTRIBUTE).getNodeValue(), Double.class));
-			return state;
+			
+			
+			
+		return results; 
+		
 		}).collect(Collectors.toList());
 
 	}

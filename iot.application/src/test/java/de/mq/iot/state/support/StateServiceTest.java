@@ -2,7 +2,6 @@ package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -48,7 +47,10 @@ class StateServiceTest {
 	private final StateRepository stateRepository = Mockito.mock(StateRepository.class);
 	@SuppressWarnings("unchecked")
 	private final StateConverter<Boolean> booleanStateConverter = Mockito.mock(StateConverter.class);
-	private final Collection<StateConverter<?>> stateConverters = Arrays.asList(booleanStateConverter);
+	
+	@SuppressWarnings("unchecked")
+	private final StateConverter<Boolean> doubleStateConverter = Mockito.mock(StateConverter.class);
+	private final Collection<StateConverter<?>> stateConverters = Arrays.asList(booleanStateConverter, doubleStateConverter);
 	private StateService stateService;
 	private final ResourceIdentifier resourceIdentifier = Mockito.mock(ResourceIdentifier.class);
 	@SuppressWarnings("unchecked")
@@ -59,17 +61,20 @@ class StateServiceTest {
 
 	private final Map<Long, String> rooms = new HashMap<>();
 
-	@SuppressWarnings("unchecked")
-	private final State<Double> firstState = Mockito.mock(State.class);
+	
+	private final Map<String,String> firstState = new HashMap<>();
 
-	@SuppressWarnings("unchecked")
-	private final State<Double> secondState = Mockito.mock(State.class);
+	
+	private final Map<String,String> secondState = new HashMap<>();
 
-	@SuppressWarnings("unchecked")
-	private final State<Double> thirdState = Mockito.mock(State.class);
 
-	@SuppressWarnings("unchecked")
-	private final State<Double> fourthState = Mockito.mock(State.class);
+	private final Map<String,String>thirdState =new HashMap<>();
+
+	
+	private final Map<String,String> fourthState= new HashMap<>();
+	
+	
+	private List<State<Double>> convertedStates = new ArrayList<>();
 
 	@BeforeEach
 	void setup() {
@@ -83,6 +88,15 @@ class StateServiceTest {
 		rooms.put(1948L, FIRST_ROOM);
 		rooms.put(THIRD_CHANNEL, SECOND_ROOM);
 		rooms.put(1423L, FIRST_ROOM);
+		convertedStates.clear();
+		Mockito.doAnswer(answere -> {
+			final Map<String,String> map = answere.getArgument(0);
+			final State<Double> state = state(map);
+			convertedStates.add(state);
+			return state;
+		}).when(doubleStateConverter).convert(Mockito.anyMap());
+		Mockito.doReturn(Arrays.asList("4" , "LEVEL")).when(doubleStateConverter).keys();
+		
 
 		Mockito.doReturn(BooleanStateConverterImpl.BOOLEN_STATE_TYPES).when(booleanStateConverter).keys();
 		Mockito.doReturn(Optional.of(resourceIdentifier)).when(mongoMono).blockOptional(Duration.ofMillis(TIMEOUT));
@@ -95,21 +109,32 @@ class StateServiceTest {
 		Mockito.doReturn(booleanState).when(booleanStateConverter).convert(booleanStateMap);
 		stateService = new StateServiceImpl(resourceIdentifierRepository, stateRepository, stateConverters, TIMEOUT);
 
-		Mockito.when(firstState.id()).thenReturn(FIRST_CHANNEL);
-		Mockito.when(firstState.value()).thenReturn(0.25d);
-		Mockito.when(firstState.name()).thenReturn(FIRST_CHANNEL + ":" + FIRST_ROOM);
+		firstState.put(AbstractStateConverter.KEY_ID, ""+ FIRST_CHANNEL);
+		firstState.put(AbstractStateConverter.KEY_VALUE, ""+ 0.25);
+		firstState.put(AbstractStateConverter.KEY_NAME, FIRST_CHANNEL + ":" + FIRST_ROOM);
+		firstState.put(AbstractStateConverter.KEY_TYPE, DoubleStateConverterImpl.DOUBLE_STATE_TYPES.iterator().next());
+		firstState.put(AbstractStateConverter.KEY_TIMESTAMP, ""+System.currentTimeMillis());
+		
+		secondState.put(AbstractStateConverter.KEY_ID, ""+ SECOND_CHANNEL);
+		secondState.put(AbstractStateConverter.KEY_VALUE, ""+ 0.50);
+		secondState.put(AbstractStateConverter.KEY_NAME, SECOND_CHANNEL + ":" + FIRST_ROOM);
+		secondState.put(AbstractStateConverter.KEY_TYPE, DoubleStateConverterImpl.DOUBLE_STATE_TYPES.iterator().next());
+		secondState.put(AbstractStateConverter.KEY_TIMESTAMP, ""+System.currentTimeMillis());
 
-		Mockito.when(secondState.id()).thenReturn(SECOND_CHANNEL);
-		Mockito.when(secondState.value()).thenReturn(0.50d);
-		Mockito.when(secondState.name()).thenReturn(SECOND_CHANNEL + ":" + SECOND_ROOM);
+		thirdState.put(AbstractStateConverter.KEY_ID, ""+ THIRD_CHANNEL);
+		thirdState.put(AbstractStateConverter.KEY_VALUE, ""+ 0.75);
+		thirdState.put(AbstractStateConverter.KEY_NAME, THIRD_CHANNEL + ":" + SECOND_ROOM);
+		thirdState.put(AbstractStateConverter.KEY_TYPE, DoubleStateConverterImpl.DOUBLE_STATE_TYPES.iterator().next());
+		thirdState.put(AbstractStateConverter.KEY_TIMESTAMP, ""+System.currentTimeMillis());
 
-		Mockito.when(thirdState.id()).thenReturn(THIRD_CHANNEL);
-		Mockito.when(thirdState.value()).thenReturn(0.75d);
-		Mockito.when(thirdState.name()).thenReturn(THIRD_CHANNEL + ":" + SECOND_ROOM);
-
-		Mockito.when(fourthState.id()).thenReturn(4711L);
-		Mockito.when(fourthState.value()).thenReturn(1.00d);
-		Mockito.when(fourthState.name()).thenReturn("xxx");
+		fourthState.put(AbstractStateConverter.KEY_ID, "4711");
+		fourthState.put(AbstractStateConverter.KEY_VALUE, ""+ 1.00);
+		fourthState.put(AbstractStateConverter.KEY_NAME, "xxx");
+		fourthState.put(AbstractStateConverter.KEY_TYPE, DoubleStateConverterImpl.DOUBLE_STATE_TYPES.iterator().next());
+		fourthState.put(AbstractStateConverter.KEY_TIMESTAMP, ""+System.currentTimeMillis());
+		
+		
+		
 	}
 
 	@Test
@@ -157,7 +182,11 @@ class StateServiceTest {
 		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
 		
 		
-		Collection<Room> results = stateService.update(Arrays.asList(firstState, secondState, thirdState));
+		final State<Double> first = state(firstState);
+		final State<Double> second = state(secondState);
+		final State<Double> third = state(thirdState);
+		
+		final List<Room> results = new ArrayList<>(stateService.update(Arrays.asList(first, second, third)));
 		
 		assertEquals(2, results.size());
 		
@@ -167,13 +196,51 @@ class StateServiceTest {
 		
 		final Map<Long,String> stateValues = entryListCaptor.getValue().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		assertEquals(3, stateValues.size());
-		assertEquals(""+firstState.value(), stateValues.get(FIRST_CHANNEL));
-		assertEquals(""+secondState.value(), stateValues.get(SECOND_CHANNEL));
-		assertEquals(""+thirdState.value(), stateValues.get(THIRD_CHANNEL));
+		assertEquals(""+first.value(), stateValues.get(FIRST_CHANNEL));
+		assertEquals(""+second.value(), stateValues.get(SECOND_CHANNEL));
+		assertEquals(""+third.value(), stateValues.get(THIRD_CHANNEL));
 		
-		Mockito.verify(firstState,Mockito.times(1)).assign(0.25d);
-		Mockito.verify(secondState,Mockito.times(1)).assign(0.5d);
-		Mockito.verify(thirdState,Mockito.times(1)).assign(0.75d);
+		
+		
+		
+		assertEquals(2, results.size());
+		assertEquals(SECOND_ROOM, results.get(0).name());
+		assertEquals(1, results.get(0).states().size());
+		assertEquals(THIRD_CHANNEL, results.get(0).states().stream().findFirst().get().id());
+		assertEquals(THIRD_CHANNEL + ":" + SECOND_ROOM, results.get(0).states().stream().findFirst().get().name());
+	
+
+		assertEquals(FIRST_ROOM, results.get(1).name());
+		assertEquals(2, results.get(1).states().size());
+		
+		
+		final List<State<?>> secondResult = results.get(1).states().stream().collect(Collectors.toList());
+		assertEquals(FIRST_CHANNEL, secondResult.get(0).id());
+		assertEquals(FIRST_CHANNEL + ":" + FIRST_ROOM, secondResult.get(0).name());
+		
+		
+		
+		assertEquals(SECOND_CHANNEL, secondResult.get(1).id());
+		assertEquals(SECOND_CHANNEL + ":" + FIRST_ROOM, secondResult.get(1).name());
+			
+		
+		
+		assertEquals(4, convertedStates.size());
+		
+		
+		Mockito.verify(convertedStates.get(0),Mockito.times(1)).assign(0.25d);
+		Mockito.verify(convertedStates.get(1),Mockito.times(1)).assign(0.5d);
+		Mockito.verify(convertedStates.get(2),Mockito.times(1)).assign(0.75d);
+		Mockito.verify(convertedStates.get(3),Mockito.never()).assign(Mockito.any());
+	}
+	
+	@SuppressWarnings("unchecked")
+	private State<Double> state(final Map<String,String> map) {
+		final State<Double>  state = Mockito.mock(State.class);
+		Mockito.doReturn(Long.valueOf(map.get(AbstractStateConverter.KEY_ID))).when(state).id();
+		Mockito.doReturn(map.get(AbstractStateConverter.KEY_NAME)).when(state).name();
+		Mockito.doReturn(Double.valueOf(map.get(AbstractStateConverter.KEY_VALUE))).when(state).value();
+		return state;
 	}
 
 	@Test
@@ -188,12 +255,24 @@ class StateServiceTest {
 		assertEquals(2, results.size());
 		assertEquals(SECOND_ROOM, results.get(0).name());
 		assertEquals(1, results.get(0).states().size());
-		assertEquals(Optional.of(thirdState), results.get(0).states().stream().findFirst());
+		assertEquals(THIRD_CHANNEL, results.get(0).states().stream().findFirst().get().id());
+		assertEquals(THIRD_CHANNEL + ":" + SECOND_ROOM, results.get(0).states().stream().findFirst().get().name());
+		assertEquals(0.75d, results.get(0).states().stream().findFirst().get().value());
 
 		assertEquals(FIRST_ROOM, results.get(1).name());
 		assertEquals(2, results.get(1).states().size());
-		assertTrue(results.get(1).states().contains(firstState));
-		assertTrue(results.get(1).states().contains(secondState));
+		
+		
+		final List<State<?>> second = results.get(1).states().stream().collect(Collectors.toList());
+		assertEquals(FIRST_CHANNEL, second.get(0).id());
+		assertEquals(FIRST_CHANNEL + ":" + FIRST_ROOM, second.get(0).name());
+		assertEquals(0.25d, second.get(0).value());	
+		
+		
+		assertEquals(SECOND_CHANNEL, second.get(1).id());
+		assertEquals(SECOND_CHANNEL + ":" + FIRST_ROOM, second.get(1).name());
+		assertEquals(0.5d, second.get(1).value());	
+	
 	}
 
 	@Test
@@ -208,9 +287,22 @@ class StateServiceTest {
 
 		assertEquals(3, results.get(0).states().size());
 
-		assertTrue(results.get(0).states().contains(firstState));
-		assertTrue(results.get(0).states().contains(secondState));
-		assertTrue(results.get(0).states().contains(thirdState));
+		final List<State<?>>  states = results.get(0).states().stream().collect(Collectors.toList());
+		
+		assertEquals(FIRST_CHANNEL, states.get(0).id());
+		assertEquals(0.25d, states.get(0).value());
+		assertEquals(FIRST_CHANNEL +":" +FIRST_ROOM, states.get(0).name());
+		
+		
+		assertEquals(SECOND_CHANNEL, states.get(1).id());
+		assertEquals(0.5d, states.get(1).value());
+		assertEquals(SECOND_CHANNEL +":" +FIRST_ROOM, states.get(1).name());
+		
+		
+		assertEquals(THIRD_CHANNEL, states.get(2).id());
+		assertEquals(0.75d, states.get(2).value());
+		assertEquals(THIRD_CHANNEL +":" +SECOND_ROOM, states.get(2).name());
+		
 	}
 
 }

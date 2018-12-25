@@ -65,7 +65,7 @@ class StateServiceImpl implements StateService {
 
 		Assert.isTrue(stateMap.containsKey(StateConverter.KEY_TYPE), "Type must be specified.");
 		final String type = stateMap.get(StateConverter.KEY_TYPE);
-
+		
 		Assert.isTrue(stateConverters.containsKey(type), "No Converter found vor type " + type + ".");
 		final StateConverter<?> converter = stateConverters.get(type);
 		return converter.convert(stateMap);
@@ -95,7 +95,7 @@ class StateServiceImpl implements StateService {
 
 		final Map<Long, String> rooms = stateRepository.findCannelsRooms(resourceIdentifier);
 
-		final Collection<State<?>> states = stateRepository.findDeviceStates(resourceIdentifier).stream().sorted((state1, state2) -> state1.name().compareToIgnoreCase(state2.name())).filter(state -> channelIds.contains(state.id())).collect(Collectors.toList());
+		final Collection<State<?>> states = stateRepository.findDeviceStates(resourceIdentifier).stream().map(map -> mapToState(map)).sorted((state1, state2) -> state1.name().compareToIgnoreCase(state2.name())).filter(state -> channelIds.contains(state.id())).collect(Collectors.toList());
 
 		final Map<String, Room> results = new HashMap<>();
 
@@ -129,7 +129,7 @@ class StateServiceImpl implements StateService {
 		
 		
 		final Collection<Room> deviceStates = deviceStates();
-		
+	
 		deviceStates.forEach(room -> room.states().stream().filter(state -> values.containsKey(state.id())).forEach(state -> state.assign( values.get(state.id()))));
 		return deviceStates;
 		

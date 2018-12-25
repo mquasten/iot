@@ -40,9 +40,9 @@ public interface StateRepository {
 	 * 
 	 * @param resourceIdentifier
 	 *            the resourceIdentifier for the HomematicXmlApi
-	 * @return List of DeviceStates
+	 * @return List of DeviceStates as a map
 	 */
-	Collection<State<?>> findDeviceStates(ResourceIdentifier resourceIdentifier);
+	 Collection<Map<String,String>> findDeviceStates(ResourceIdentifier resourceIdentifier);
 
 	/**
 	 * Change values for the given devices

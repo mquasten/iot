@@ -103,11 +103,23 @@ class StateRepositoryIntegrationTest {
 	@Test
 	@Disabled
 	void findDeviceStates() {
-		 final Collection<State<?>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findDeviceStates(resourceIdentifier);
+		 final Collection<Map<String,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findDeviceStates(resourceIdentifier);
 		 assertEquals(3, results.size());
-		 results.stream().map(result  -> result.value()).forEach(value -> assertTrue((Double) value >= 0d && (Double) value <=1d ));
+		
+		 results.stream().forEach(map -> {
+			 assertEquals("LEVEL", map.get(AbstractStateConverter.KEY_TYPE));
+			 
+			final double  value = Double.valueOf(map.get(AbstractStateConverter.KEY_VALUE));
+			assertTrue(value >= 0d && value <=1d );
+			
+			assertTrue(Arrays.asList(1431L, 1952L, 4669L).contains(Long.valueOf(map.get(AbstractStateConverter.KEY_ID)))); 
+			
+			assertTrue(map.get(AbstractStateConverter.KEY_NAME).matches(".*:3.Fenster.*"));
+		 });
+		 
+		/* results.stream().map(result  -> result.value()).forEach(value -> assertTrue((Double) value >= 0d && (Double) value <=1d ));
 		 assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().map(result  -> new Long(result.id())).collect(Collectors.toList()));
-		 results.stream().map(result  -> result.name()).forEach(name -> assertTrue(name.matches(".*:3.Fenster.*")));
+		 results.stream().map(result  -> result.name()).forEach(name -> assertTrue(name.matches(".*:3.Fenster.*"))); */
 	}
 	
 	@Test
