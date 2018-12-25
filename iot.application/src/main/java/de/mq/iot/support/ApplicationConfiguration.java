@@ -9,6 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -22,7 +23,13 @@ import com.mongodb.reactivestreams.client.MongoClients;
 @Configuration
 @EnableReactiveMongoRepositories(basePackages= {"de.mq.iot.resource.support","de.mq.iot.authentication.support", "de.mq.iot.calendar.support"})
 @ComponentScan(basePackages = "de.mq.iot.state.support,de.mq.iot.authentication,de.mq.iot.calendar,de.mq.iot.openweather.support,de.mq.iot.support,de.mq.iot.resource.support")
-@PropertySource(value="classpath:/iot-application.properties" ,ignoreResourceNotFound=true)
+
+@PropertySources({
+
+@PropertySource(value="classpath:/iot-application.properties" ,ignoreResourceNotFound=true),
+@PropertySource(value="file:${config.file}" ,ignoreResourceNotFound=true)
+
+})
 public class ApplicationConfiguration {
 	
 	 

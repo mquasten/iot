@@ -27,7 +27,7 @@ class MeteorologicalDataServiceImpl implements MeteorologicalDataService {
 	private final  Duration duration;
 	
 	@Autowired
-	MeteorologicalDataServiceImpl(final WeatherRepository weatherRepository, final ResourceIdentifierRepository resourceIdentifierRepository, @Value("${mongo.webclient:500}") final Long timeout) {
+	MeteorologicalDataServiceImpl(final WeatherRepository weatherRepository, final ResourceIdentifierRepository resourceIdentifierRepository, @Value("${mongo.timeout:500}") final Long timeout) {
 		this.weatherRepository = weatherRepository;
 		this.resourceIdentifierRepository = resourceIdentifierRepository;
 		this.duration=Duration.ofMillis(timeout);

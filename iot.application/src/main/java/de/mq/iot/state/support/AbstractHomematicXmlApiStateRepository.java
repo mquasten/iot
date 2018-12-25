@@ -77,7 +77,7 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	private final ConversionService conversionService;
 
 	@Autowired
-	AbstractHomematicXmlApiStateRepository(final ConversionService conversionService, @Value("${mongo.webclient:500}") final Long timeout) {
+	AbstractHomematicXmlApiStateRepository(final ConversionService conversionService, @Value("${http.timeout:500}") final Long timeout) {
 		this.timeout = Duration.ofMillis(timeout);
 		this.conversionService = conversionService;
 	}
@@ -253,7 +253,7 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 
 		httpStatusGuard(res);
 
-		final NodeList nodes = evaluate(res.getBody(), "/stateList/device/channel/datapoint[@type='LEVEL' and string-length(@value) > 0]");
+		final NodeList nodes = evaluate(res.getBody(), "/stateList/device/channel/datapoint[@type='LEVEL'  and string-length(@value) > 0]");
 
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> {
 			final State<Double> state = new DoubleStateImpl(conversionService.convert(nodes.item(i).getParentNode().getAttributes().getNamedItem(ID_ATTRIBUTE).getNodeValue(), Long.class), nodes.item(i).getParentNode().getAttributes().getNamedItem(NAME_ATTRIBUTE).getNodeValue(), LocalDateTime.now());

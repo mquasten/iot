@@ -46,7 +46,7 @@ abstract class AbstractOpenWeatherRepository implements WeatherRepository {
 	private final Duration timeout;
 	private Converter<Map<String,Object>, MeteorologicalDataImpl> converter;
 
-	AbstractOpenWeatherRepository( Converter<Map<String,Object>, MeteorologicalDataImpl> converter, @Value("${mongo.webclient:500}") final Long timeout) {
+	AbstractOpenWeatherRepository( Converter<Map<String,Object>, MeteorologicalDataImpl> converter, @Value("${http.timeout:500}") final Long timeout) {
 		this.converter=converter;
 		this.timeout = Duration.ofMillis(timeout);
 	}
