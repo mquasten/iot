@@ -1,5 +1,8 @@
 package de.mq.iot.state.support;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,14 +15,16 @@ import de.mq.iot.state.State;
 @Component
 class DoubleStateConverterImpl extends AbstractStateConverter<Double> {
 
+	static final List<String> DOUBLE_STATE_TYPES = Arrays.asList("4", "LEVEL");
+
 	@Autowired
 	DoubleStateConverterImpl(ConversionService conversionService) {
 		super(conversionService);
 	}
 
 	@Override
-	public String key() {
-		return "4";
+	public Collection<String> keys() {
+		return DOUBLE_STATE_TYPES;
 	}
 
 	@Override

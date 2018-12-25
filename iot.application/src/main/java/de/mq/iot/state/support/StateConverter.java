@@ -1,5 +1,6 @@
 package de.mq.iot.state.support;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.core.convert.converter.Converter;
@@ -18,7 +19,7 @@ interface StateConverter<T>  extends Converter<Map<String,String> , State<T>>{
 	static final String KEY_MAX = "max";
 	static final String KEY_VALUE_LIST= "value_list";
 	
-	 String key(); 
+	 Collection<String> keys(); 
 
 }
  

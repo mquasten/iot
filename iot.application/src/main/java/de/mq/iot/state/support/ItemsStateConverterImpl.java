@@ -3,6 +3,7 @@ package de.mq.iot.state.support;
 import java.lang.reflect.Field;
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +22,8 @@ import de.mq.iot.state.State;
 @Component
 class ItemsStateConverterImpl extends AbstractStateConverter<Integer> {
 
+	static final List<String> ITEM_STATE_TYPES = Arrays.asList("16");
+
 	@Autowired
 	ItemsStateConverterImpl(final ConversionService conversionService) {
 		super(conversionService);
@@ -29,8 +32,8 @@ class ItemsStateConverterImpl extends AbstractStateConverter<Integer> {
 	private static final String DELIMITER_PATTERN = "[;]";
 
 	@Override
-	public String key() {
-		return "16";
+	public Collection<String> keys() {
+		return ITEM_STATE_TYPES;
 	}
 
 	@Override

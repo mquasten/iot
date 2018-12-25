@@ -84,11 +84,11 @@ class StateServiceTest {
 		rooms.put(THIRD_CHANNEL, SECOND_ROOM);
 		rooms.put(1423L, FIRST_ROOM);
 
-		Mockito.doReturn(BooleanStateConverterImpl.BOOLEN_STATE_TYPE).when(booleanStateConverter).key();
+		Mockito.doReturn(BooleanStateConverterImpl.BOOLEN_STATE_TYPES).when(booleanStateConverter).keys();
 		Mockito.doReturn(Optional.of(resourceIdentifier)).when(mongoMono).blockOptional(Duration.ofMillis(TIMEOUT));
 		Mockito.doReturn(mongoMono).when(resourceIdentifierRepository).findById(ResourceType.XmlApi);
 
-		booleanStateMap.put(StateConverter.KEY_TYPE, BooleanStateConverterImpl.BOOLEN_STATE_TYPE);
+		booleanStateMap.put(StateConverter.KEY_TYPE, BooleanStateConverterImpl.BOOLEN_STATE_TYPES.iterator().next());
 
 		Mockito.doReturn(Arrays.asList(booleanStateMap)).when(stateRepository).findStates(resourceIdentifier);
 

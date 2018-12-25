@@ -27,7 +27,7 @@ class StringStateConverterTest {
 
 	@Test
 	void key() {
-		assertEquals("20", converter.key());
+		assertEquals(StringStateConverterImpl.STRING_STATE_TYPES, converter.keys());
 	}
 	
 	@Test

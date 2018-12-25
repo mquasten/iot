@@ -36,7 +36,7 @@ class ItemsStateConverterTest {
 
 	@Test
 	void key() {
-		assertEquals("16", converter.key());
+		assertEquals(ItemsStateConverterImpl.ITEM_STATE_TYPES, converter.keys());
 	}
 
 	@Test

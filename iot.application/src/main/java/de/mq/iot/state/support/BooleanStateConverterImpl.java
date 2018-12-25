@@ -1,5 +1,7 @@
 package de.mq.iot.state.support;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +18,11 @@ class BooleanStateConverterImpl  extends AbstractStateConverter<Boolean>{
 		super(conversionService);
 	}
 
-	static final String BOOLEN_STATE_TYPE = "2";
+	static final Collection<String> BOOLEN_STATE_TYPES = Arrays.asList("2", "STATE");
 
 	@Override
-	public String key() {
-		return BOOLEN_STATE_TYPE;
+	public Collection<String> keys() {
+		return BOOLEN_STATE_TYPES;
 	}
 
 	@Override

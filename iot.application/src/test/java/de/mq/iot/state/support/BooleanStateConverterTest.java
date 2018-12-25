@@ -51,8 +51,8 @@ class BooleanStateConverterTest {
 	}
 	
 	@Test
-	final void key() {
-		assertEquals("2", converter.key());
+	final void keys() {
+		assertEquals(BooleanStateConverterImpl.BOOLEN_STATE_TYPES, converter.keys());
 	}
 
 	private LocalDateTime expectedTime() {

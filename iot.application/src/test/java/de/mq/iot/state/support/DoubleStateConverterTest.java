@@ -33,7 +33,7 @@ class DoubleStateConverterTest {
 
 	@Test
 	void key() {
-		assertEquals("4", converter.key());
+		assertEquals(DoubleStateConverterImpl.DOUBLE_STATE_TYPES, converter.keys());
 	}
 
 	@Test
