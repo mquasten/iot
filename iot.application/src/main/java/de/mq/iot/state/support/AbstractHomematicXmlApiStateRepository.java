@@ -91,8 +91,8 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		httpStatusGuard(res);
 
 		final NodeList nodes = evaluate(res.getBody(), "/systemVariables/systemVariable");
-		return IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes())).collect(Collectors.toList());
-
+		return  IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes())).collect(Collectors.toList());
+	
 	}
 
 	private NodeList evaluate(final byte[] res, final String path) {
@@ -247,16 +247,17 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	}
 
 	@Override
-	public Collection<State<Double>> findDeviceStates(final ResourceIdentifier resourceIdentifier) {
+	public Collection<State<?>> findDeviceStates(final ResourceIdentifier resourceIdentifier) {
 
 		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.StateList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
 
 		httpStatusGuard(res);
 
-		final NodeList nodes = evaluate(res.getBody(), "/stateList/device/channel/datapoint[@type='LEVEL'  and string-length(@value) > 0]");
-
+		final NodeList nodes = evaluate(res.getBody(), "/stateList/device/channel/datapoint[(@type='LEVEL')  and string-length(@value) > 0]");
+		 IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes())).collect(Collectors.toList());
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> {
 			final State<Double> state = new DoubleStateImpl(conversionService.convert(nodes.item(i).getParentNode().getAttributes().getNamedItem(ID_ATTRIBUTE).getNodeValue(), Long.class), nodes.item(i).getParentNode().getAttributes().getNamedItem(NAME_ATTRIBUTE).getNodeValue(), LocalDateTime.now());
+			
 			state.assign(conversionService.convert(nodes.item(i).getAttributes().getNamedItem(VALUE_ATTRIBUTE).getNodeValue(), Double.class));
 			return state;
 		}).collect(Collectors.toList());

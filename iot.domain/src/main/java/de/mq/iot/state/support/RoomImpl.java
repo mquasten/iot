@@ -11,7 +11,7 @@ class RoomImpl implements Room {
 
 	private final String name;
 
-	private final Collection<State<Double>> states = new ArrayList<>();
+	private final Collection<State<? extends Object>> states = new ArrayList<>();
 
 	RoomImpl(final String name) {
 		this.name = name;
@@ -32,9 +32,10 @@ class RoomImpl implements Room {
 	 * 
 	 * @see de.mq.iot.state.support.Room#states()
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Collection<State<Double>> states() {
-		return Collections.unmodifiableCollection(states);
+	public <T> Collection<State<T>> states() {
+		return (Collection) Collections.unmodifiableCollection(states);
 	}
 
 	/**
@@ -42,7 +43,7 @@ class RoomImpl implements Room {
 	 * 
 	 * @param state
 	 */
-	void assign(final State<Double> state) {
+	void assign(final State<?> state) {
 		this.states.add(state);
 	}
 

@@ -347,10 +347,10 @@ class StateRepositoryTest {
 	@Test
 	final void findDeviceStates() {
 		Mockito.doReturn(XML_STATES).when(resonseEntity).getBody();
-		final Collection<State<Double>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findDeviceStates(resourceIdentifier);
+		final Collection<State<?>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findDeviceStates(resourceIdentifier);
 
 		assertEquals(3, results.size());
-		results.stream().map(result -> result.value()).forEach(value -> assertTrue(value >= 0d && value <= 1d));
+		results.stream().map(result -> result.value()).forEach(value -> assertTrue((Double)value >= 0d && (Double) value <= 1d));
 		assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().map(result -> new Long(result.id())).collect(Collectors.toList()));
 		results.stream().map(result -> result.name()).forEach(name -> assertTrue(name.matches(".*:3.Fenster.*")));
 	}

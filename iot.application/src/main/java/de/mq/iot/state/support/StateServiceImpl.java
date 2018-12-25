@@ -36,10 +36,13 @@ class StateServiceImpl implements StateService {
 
 	@SuppressWarnings("unchecked")
 	@Autowired
-	StateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository, final StateRepository stateRepository, final Collection<StateConverter<?>> stateConverters2, @Value("${mongo.timeout:500}") final Integer timeout) {
+	StateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository, final StateRepository stateRepository, final Collection<StateConverter<?>> stateConverters, @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.resourceIdentifierRepository = resourceIdentifierRepository;
 		this.stateRepository = stateRepository;
-		this.stateConverters.putAll((Map<? extends String, ? extends StateConverter<State<?>>>) (Map<?, ?>) stateConverters2.stream().collect(Collectors.toMap(StateConverter::key, stateConverter -> stateConverter)));
+		this.stateConverters.putAll((Map<? extends String, ? extends StateConverter<State<?>>>) (Map<?, ?>) stateConverters.stream().collect(Collectors.toMap(StateConverter::key, stateConverter -> stateConverter)));
+		
+		
+		
 		this.timeout = Duration.ofMillis(timeout);
 	}
 
@@ -92,7 +95,7 @@ class StateServiceImpl implements StateService {
 
 		final Map<Long, String> rooms = stateRepository.findCannelsRooms(resourceIdentifier);
 
-		final Collection<State<Double>> states = stateRepository.findDeviceStates(resourceIdentifier).stream().sorted((state1, state2) -> state1.name().compareToIgnoreCase(state2.name())).filter(state -> channelIds.contains(state.id())).collect(Collectors.toList());
+		final Collection<State<?>> states = stateRepository.findDeviceStates(resourceIdentifier).stream().sorted((state1, state2) -> state1.name().compareToIgnoreCase(state2.name())).filter(state -> channelIds.contains(state.id())).collect(Collectors.toList());
 
 		final Map<String, Room> results = new HashMap<>();
 
@@ -121,16 +124,13 @@ class StateServiceImpl implements StateService {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
 		
 		final Collection<Entry<Long,String>> entries = states.stream().collect(Collectors.toMap(State::id, state-> conversionService.convert(state.value(), String.class))).entrySet();
-		final Map<Long, ?> values = states.stream().collect(Collectors.toMap(State::id, state-> state.value()));
+		final Map<Long,? > values = states.stream().collect(Collectors.toMap(State::id, state-> state.value()));
 		stateRepository.changeState(resourceIdentifier,  entries);
 		
 		
 		final Collection<Room> deviceStates = deviceStates();
 		
-		deviceStates.forEach(room -> {
-			room.states().stream().filter(state -> values.containsKey(state.id())).forEach(state -> state.assign((Double)values.get(state.id())));
-			
-		});
+		deviceStates.forEach(room -> room.states().stream().filter(state -> values.containsKey(state.id())).forEach(state -> state.assign( values.get(state.id()))));
 		return deviceStates;
 		
 	}

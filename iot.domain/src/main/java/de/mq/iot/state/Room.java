@@ -6,6 +6,6 @@ public interface Room {
 
 	String name();
 
-	Collection<State<Double>> states();
+	<T> Collection<State<T>> states();
 
 }

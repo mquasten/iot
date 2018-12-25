@@ -42,7 +42,7 @@ public interface StateRepository {
 	 *            the resourceIdentifier for the HomematicXmlApi
 	 * @return List of DeviceStates
 	 */
-	Collection<State<Double>> findDeviceStates(ResourceIdentifier resourceIdentifier);
+	Collection<State<?>> findDeviceStates(ResourceIdentifier resourceIdentifier);
 
 	/**
 	 * Change values for the given devices
