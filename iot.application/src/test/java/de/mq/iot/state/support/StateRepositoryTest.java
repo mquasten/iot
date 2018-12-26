@@ -48,6 +48,8 @@ import reactor.core.publisher.Mono;
 
 class StateRepositoryTest {
 
+	private static final String SECOND_FUNCTION = "funcLight";
+	private static final String FIRST_FUNCION = "Rolladen";
 	private static final double SECOUND_DOUBLE_VALUE = 0.5;
 	private static final double DOUNBLE_VALUE = 1.0;
 	private static final Long SECOND_ID = 19680528L;
@@ -320,7 +322,7 @@ class StateRepositoryTest {
 	final void findChannelIds() {
 		Mockito.doReturn(XML_FUNCTIONS).when(resonseEntity).getBody();
 
-		final Collection<Long> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findChannelIds(resourceIdentifier, "Rolladen");
+		final Collection<Long> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findChannelIds(resourceIdentifier, Arrays.asList(FIRST_FUNCION));
 
 		assertEquals(Arrays.asList(1431L, 1952L, 4669L), results);
 
@@ -361,6 +363,12 @@ class StateRepositoryTest {
 		Mockito.doReturn(XML_VERSION).when(resonseEntity).getBody();
 		final double version = stateRepository.findVersion(resourceIdentifier);
 		assertEquals(1.15, version);
+	}
+	
+	@Test
+	final void xpath() {
+		final String result = stateRepository.xpath(Arrays.asList(FIRST_FUNCION , SECOND_FUNCTION));
+		assertEquals(String.format("@name='%s' or @name='%s'",  FIRST_FUNCION, SECOND_FUNCTION), result);
 	}
 
 }

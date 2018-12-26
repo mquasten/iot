@@ -1,6 +1,7 @@
 package de.mq.iot.state.support;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,7 +92,7 @@ class StateServiceImpl implements StateService {
 	public Collection<Room> deviceStates() {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
 
-		final Collection<Long> channelIds = stateRepository.findChannelIds(resourceIdentifier, FUNCTION);
+		final Collection<Long> channelIds = stateRepository.findChannelIds(resourceIdentifier, Arrays.asList(FUNCTION));
 
 		final Map<Long, String> rooms = stateRepository.findCannelsRooms(resourceIdentifier);
 

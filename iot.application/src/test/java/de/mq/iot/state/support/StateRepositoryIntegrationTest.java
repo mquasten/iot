@@ -79,15 +79,21 @@ class StateRepositoryIntegrationTest {
 		
 		stateRepository.changeState(resourceIdentifier, state);
 	}
-	@Disabled
+
 	@Test
+	@Disabled
 	void findChannelIds() {
-		
-		
-		final Collection<Long> ids = ((AbstractHomematicXmlApiStateRepository) stateRepository).findChannelIds(resourceIdentifier, "Rolladen");
+		final Collection<Long> ids =  stateRepository.findChannelIds(resourceIdentifier, Arrays.asList("Rolladen"));
 		
 		assertEquals(Arrays.asList(1431L, 1952L, 4669L), ids);
+	}
+	
+	@Test
+	@Disabled
+	void findChannelIdsLight() {
+		final Collection<Long> ids =  stateRepository.findChannelIds(resourceIdentifier, Arrays.asList("funcLight"));
 		
+		assertEquals(Arrays.asList(5775L), ids);
 	}
 	@Disabled
 	@Test

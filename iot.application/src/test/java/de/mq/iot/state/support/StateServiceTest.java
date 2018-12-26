@@ -177,7 +177,7 @@ class StateServiceTest {
 		final ArgumentCaptor<Collection<Entry<Long,String>>> entryListCaptor = ArgumentCaptor.forClass(Collection.class);
 		
 		
-		Mockito.when(stateRepository.findChannelIds(resourceIdentifier, StateServiceImpl.FUNCTION)).thenReturn(Arrays.asList(FIRST_CHANNEL, SECOND_CHANNEL, THIRD_CHANNEL));
+		Mockito.when(stateRepository.findChannelIds(resourceIdentifier, Arrays.asList(StateServiceImpl.FUNCTION))).thenReturn(Arrays.asList(FIRST_CHANNEL, SECOND_CHANNEL, THIRD_CHANNEL));
 		Mockito.when(stateRepository.findCannelsRooms(resourceIdentifier)).thenReturn(rooms);
 		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
 		
@@ -246,7 +246,7 @@ class StateServiceTest {
 	@Test
 	void deviceStates() {
 
-		Mockito.when(stateRepository.findChannelIds(resourceIdentifier, StateServiceImpl.FUNCTION)).thenReturn(Arrays.asList(FIRST_CHANNEL, SECOND_CHANNEL, THIRD_CHANNEL));
+		Mockito.when(stateRepository.findChannelIds(resourceIdentifier,  Arrays.asList(StateServiceImpl.FUNCTION))).thenReturn(Arrays.asList(FIRST_CHANNEL, SECOND_CHANNEL, THIRD_CHANNEL));
 		Mockito.when(stateRepository.findCannelsRooms(resourceIdentifier)).thenReturn(rooms);
 		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
 
@@ -277,7 +277,7 @@ class StateServiceTest {
 
 	@Test
 	void deviceStatesNoRoom() {
-		Mockito.when(stateRepository.findChannelIds(resourceIdentifier, StateServiceImpl.FUNCTION)).thenReturn(Arrays.asList(FIRST_CHANNEL, SECOND_CHANNEL, THIRD_CHANNEL));
+		Mockito.when(stateRepository.findChannelIds(resourceIdentifier,  Arrays.asList(StateServiceImpl.FUNCTION))).thenReturn(Arrays.asList(FIRST_CHANNEL, SECOND_CHANNEL, THIRD_CHANNEL));
 		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
 
 		final List<Room> results = new ArrayList<>(stateService.deviceStates());

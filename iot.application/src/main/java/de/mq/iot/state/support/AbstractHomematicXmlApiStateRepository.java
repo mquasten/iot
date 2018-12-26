@@ -214,17 +214,32 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	 * @see de.mq.iot.state.support.StateRepository#findChannelIds(de.mq.iot.resource.ResourceIdentifier, java.lang.String)
 	 */
 	@Override
-	public Collection<Long> findChannelIds(final ResourceIdentifier resourceIdentifier, final String function) {
-		Assert.notNull(function, "Function is mandatory.");
+	public Collection<Long> findChannelIds(final ResourceIdentifier resourceIdentifier, final Collection<String> functions) {
+		Assert.notEmpty(functions, "Functions are mandatory.");
 
 		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.FunctionList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
 
 		httpStatusGuard(res);
 
-		final NodeList nodes = evaluate(res.getBody(), String.format("/functionList/function[@name='%s']/channel/@ise_id", function));
+		final NodeList nodes = evaluate(res.getBody(), String.format("/functionList/function[%s]/channel/@ise_id", xpath(functions)));
 
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> conversionService.convert(nodes.item(i).getFirstChild().getNodeValue(), Long.class)).collect(Collectors.toList());
 
+	}
+	
+	final String xpath(final Collection<String> names) {
+		final StringBuffer  stringBuffer = new StringBuffer();
+		
+		names.forEach(name -> {
+			if( stringBuffer.length() > 0 ) {
+				stringBuffer.append(" or ");
+			}
+			stringBuffer.append(String.format("@name='%s'", name));
+			
+		});
+		
+		return stringBuffer.substring(0);
+		
 	}
 
 	/*
