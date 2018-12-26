@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -83,17 +84,25 @@ class StateRepositoryIntegrationTest {
 	@Test
 	@Disabled
 	void findChannelIds() {
-		final Collection<Long> ids =  stateRepository.findChannelIds(resourceIdentifier, Arrays.asList("Rolladen"));
 		
-		assertEquals(Arrays.asList(1431L, 1952L, 4669L), ids);
+		final String function = "Rolladen";
+		final Collection<Entry<Long, String>> results =  stateRepository.findChannelIds(resourceIdentifier, Arrays.asList(function));
+		
+		assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().map(Entry::getKey).collect(Collectors.toList()));
+	    results.stream().map(Entry::getValue).forEach(value -> {
+			
+			assertEquals(function, value);
+		});
 	}
 	
 	@Test
 	@Disabled
 	void findChannelIdsLight() {
-		final Collection<Long> ids =  stateRepository.findChannelIds(resourceIdentifier, Arrays.asList("funcLight"));
+		final String function = "funcLight";
+		final Collection<Entry<Long,String>> results =  stateRepository.findChannelIds(resourceIdentifier, Arrays.asList(function));
 		
-		assertEquals(Arrays.asList(5775L), ids);
+		assertEquals(Arrays.asList(5775L), results.stream().map(Entry::getKey).collect(Collectors.toList()));
+		 results.stream().map(Entry::getValue).forEach(value -> assertEquals(function, value));
 	}
 	@Disabled
 	@Test

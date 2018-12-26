@@ -214,16 +214,22 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	 * @see de.mq.iot.state.support.StateRepository#findChannelIds(de.mq.iot.resource.ResourceIdentifier, java.lang.String)
 	 */
 	@Override
-	public Collection<Long> findChannelIds(final ResourceIdentifier resourceIdentifier, final Collection<String> functions) {
+	public Collection<Entry<Long,String>> findChannelIds(final ResourceIdentifier resourceIdentifier, final Collection<String> functions) {
 		Assert.notEmpty(functions, "Functions are mandatory.");
 
 		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.FunctionList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
 
 		httpStatusGuard(res);
 
-		final NodeList nodes = evaluate(res.getBody(), String.format("/functionList/function[%s]/channel/@ise_id", xpath(functions)));
+		final NodeList nodes = evaluate(res.getBody(), String.format("/functionList/function[%s]/channel", xpath(functions)));
 
-		return IntStream.range(0, nodes.getLength()).mapToObj(i -> conversionService.convert(nodes.item(i).getFirstChild().getNodeValue(), Long.class)).collect(Collectors.toList());
+		return IntStream.range(0, nodes.getLength()).mapToObj(i -> {
+		
+			return new AbstractMap.SimpleImmutableEntry<>(conversionService.convert(nodes.item(i).getAttributes().getNamedItem(ID_ATTRIBUTE).getTextContent(), Long.class), nodes.item(i).getParentNode().getAttributes().getNamedItem(NAME_ATTRIBUTE).getTextContent());
+			
+		
+		
+		}).collect(Collectors.toList());
 
 	}
 	

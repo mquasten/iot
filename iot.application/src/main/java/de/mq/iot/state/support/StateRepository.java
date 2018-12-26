@@ -22,9 +22,9 @@ public interface StateRepository {
 	 *            the resourceIdentifier for the HomematicXmlApi
 	 * @param functions
 	 *            the devices functions
-	 * @return devices channelIds for the function
+	 * @return devices channelIds and funtion 
 	 */
-	Collection<Long> findChannelIds(final ResourceIdentifier resourceIdentifier, final Collection<String> functions);
+	 Collection<Entry<Long,String>> findChannelIds(final ResourceIdentifier resourceIdentifier, final Collection<String> functions);
 
 	/**
 	 * Map of ChannelIds (key) and Rooms (Value)

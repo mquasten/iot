@@ -92,11 +92,11 @@ class StateServiceImpl implements StateService {
 	public Collection<Room> deviceStates() {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
 
-		final Collection<Long> channelIds = stateRepository.findChannelIds(resourceIdentifier, Arrays.asList(FUNCTION));
+		final Map<Long,String> channelIds = stateRepository.findChannelIds(resourceIdentifier, Arrays.asList(FUNCTION)).stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
 		final Map<Long, String> rooms = stateRepository.findCannelsRooms(resourceIdentifier);
 
-		final Collection<State<?>> states = stateRepository.findDeviceStates(resourceIdentifier).stream().map(map -> mapToState(map)).sorted((state1, state2) -> state1.name().compareToIgnoreCase(state2.name())).filter(state -> channelIds.contains(state.id())).collect(Collectors.toList());
+		final Collection<State<?>> states = stateRepository.findDeviceStates(resourceIdentifier).stream().map(map -> mapToState(map)).sorted((state1, state2) -> state1.name().compareToIgnoreCase(state2.name())).filter(state -> channelIds.containsKey(state.id())).collect(Collectors.toList());
 
 		final Map<String, Room> results = new HashMap<>();
 

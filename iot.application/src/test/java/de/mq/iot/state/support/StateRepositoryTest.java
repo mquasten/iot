@@ -322,10 +322,10 @@ class StateRepositoryTest {
 	final void findChannelIds() {
 		Mockito.doReturn(XML_FUNCTIONS).when(resonseEntity).getBody();
 
-		final Collection<Long> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findChannelIds(resourceIdentifier, Arrays.asList(FIRST_FUNCION));
+		final Collection<Entry<Long,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findChannelIds(resourceIdentifier, Arrays.asList(FIRST_FUNCION));
 
-		assertEquals(Arrays.asList(1431L, 1952L, 4669L), results);
-
+		assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().map(Entry::getKey).collect(Collectors.toList()));
+		results.stream().map(Entry::getValue).forEach(value -> assertEquals(FIRST_FUNCION, value));
 		assertEquals(URI, uriCaptor.getValue());
 		assertEquals(HOST, parameterCaptor.getValue().get(HOST_PARMETER));
 		assertEquals(PORT, parameterCaptor.getValue().get(PORT_PARAMETER));
