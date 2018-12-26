@@ -1,6 +1,7 @@
 package de.mq.iot.state;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 /**
  * One state of a finite state machine.
  * @author Admin
@@ -8,6 +9,8 @@ import java.time.LocalDateTime;
  * @param <T> type of the state, Boolean, Long, String etc.
  */
 public interface State<T> {
+	
+	
 	
 	/**
 	 * internal id ccu2
@@ -43,5 +46,13 @@ public interface State<T> {
 
 	boolean validate(T value); 
 	
+	/**
+	 * Function of a State
+	 * @return States Function
+	 */
+	default Optional<String> function() {
+		return Optional.empty();
+		
+	}
 
 }

@@ -15,6 +15,7 @@ import de.mq.iot.state.State;
 
 class DoubleStateTest {
 	
+	private static final String FUNCTION = "Rolladen";
 	private static final String MIN_FIELD_NAME = "min";
 	private static final String MAX_FIELD_NAME = "max";
 	private static final Double VALUE = 47.11;
@@ -83,6 +84,11 @@ class DoubleStateTest {
 		assertEquals(Optional.of(VALUE), minMaxRange.getMax());
 	}
 	
-	
+	@Test
+	public final void function() {
+		assertEquals(Optional.empty(), doubleState.function());
+		((AbstractState<?>) doubleState).assignFunction(FUNCTION);
+		assertEquals(Optional.of(FUNCTION), doubleState.function());
+	}
 	
 }

@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
 import de.mq.iot.state.State;
-import de.mq.iot.state.support.BooleanStateImpl;
 
 class BooleanStateTest {
 
@@ -61,4 +60,5 @@ class BooleanStateTest {
 		
 		assertFalse(state.value());
 	}
+	
 }

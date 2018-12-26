@@ -1,8 +1,11 @@
 package de.mq.iot.state.support;
 
+
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.springframework.util.Assert;
@@ -14,6 +17,7 @@ abstract   class AbstractState<T> implements State<T> {
 	private final long id; 
 	private final String name;
 	private final LocalDateTime lastupdate;
+	private String function;
 	
 	private final Collection<Predicate<T>> validators = new ArrayList<>();; 
 	
@@ -73,5 +77,26 @@ abstract   class AbstractState<T> implements State<T> {
 	final void assign(final Predicate<T> validator) {
 		validators.add(validator);
 	}
+	
+	/**
+	 * Assign a function to a State
+	 * @param function sttaes function
+	 */
+	final void assignFunction(final String function) {
+		Assert.notNull(function , "Function is required.");
+		this.function=function;
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.State#function()
+	 */
+	@Override
+	final public Optional<String> function() {
+		return Optional.ofNullable(function);
+	}
+	
+	
 	
 }
