@@ -221,7 +221,7 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 
 		httpStatusGuard(res);
 
-		final NodeList nodes = evaluate(res.getBody(), String.format("/functionList/function[%s]/channel", xpath(functions)));
+		final NodeList nodes = evaluate(res.getBody(), String.format("/functionList/function[%s]/channel", xpath("name", functions)));
 
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> {
 		
@@ -233,14 +233,14 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 
 	}
 	
-	final String xpath(final Collection<String> names) {
+	final String xpath(final String key, final Collection<String> names) {
 		final StringBuffer  stringBuffer = new StringBuffer();
 		
 		names.forEach(name -> {
 			if( stringBuffer.length() > 0 ) {
 				stringBuffer.append(" or ");
 			}
-			stringBuffer.append(String.format("@name='%s'", name));
+			stringBuffer.append(String.format("@%s='%s'",key,  name));
 			
 		});
 		
@@ -268,13 +268,13 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	}
 
 	@Override
-	public Collection<Map<String,String>> findDeviceStates(final ResourceIdentifier resourceIdentifier) {
+	public Collection<Map<String,String>> findDeviceStates(final ResourceIdentifier resourceIdentifier, Collection<String> types) {
 
 		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.StateList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
 
 		httpStatusGuard(res);
 
-		final NodeList nodes = evaluate(res.getBody(), "/stateList/device/channel/datapoint[(@type='LEVEL')  and string-length(@value) > 0]");
+		final NodeList nodes = evaluate(res.getBody(),String.format( "/stateList/device/channel/datapoint[(%s)  and string-length(@value) > 0]", xpath("type", types)));
 		 IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes())).collect(Collectors.toList());
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> {
 			final Map<String,String> results = 	new HashMap<>();
@@ -283,9 +283,7 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		
 			Arrays.asList(ID_ATTRIBUTE,NAME_ATTRIBUTE).forEach( key -> results.put(key, nodes.item(i).getParentNode().getAttributes().getNamedItem(key).getNodeValue()));
 			
-			
-			
-			
+		
 		return results; 
 		
 		}).collect(Collectors.toList());

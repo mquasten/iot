@@ -19,6 +19,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import de.mq.iot.resource.ResourceIdentifier;
@@ -32,6 +34,10 @@ import reactor.core.publisher.Mono;
 class StateServiceTest {
 
 	private static final String FUNCTION = "Rolladen";
+
+	private static final List<String> LEVELS = Arrays.asList("LEVEL");
+
+	
 
 	private static final long THIRD_CHANNEL = 4669L;
 
@@ -78,6 +84,10 @@ class StateServiceTest {
 	
 	
 	private List<State<Double>> convertedStates = new ArrayList<>();
+	
+	
+	@SuppressWarnings({ "unchecked" })
+	private final Converter<State<?>, String> stateTypeInfoConverter = Mockito.mock(Converter.class);
 
 	@BeforeEach
 	void setup() {
@@ -100,6 +110,7 @@ class StateServiceTest {
 		}).when(doubleStateConverter).convert(Mockito.anyMap());
 		Mockito.doReturn(Arrays.asList("4" , "LEVEL")).when(doubleStateConverter).keys();
 		
+		Mockito.doReturn(StateTypeInfoConverterImpl.LEVEL).when(stateTypeInfoConverter).convert(Mockito.any());
 
 		Mockito.doReturn(BooleanStateConverterImpl.BOOLEN_STATE_TYPES).when(booleanStateConverter).keys();
 		Mockito.doReturn(Optional.of(resourceIdentifier)).when(mongoMono).blockOptional(Duration.ofMillis(TIMEOUT));
@@ -110,7 +121,7 @@ class StateServiceTest {
 		Mockito.doReturn(Arrays.asList(booleanStateMap)).when(stateRepository).findStates(resourceIdentifier);
 
 		Mockito.doReturn(booleanState).when(booleanStateConverter).convert(booleanStateMap);
-		stateService = new StateServiceImpl(resourceIdentifierRepository, stateRepository, stateConverters, TIMEOUT);
+		stateService = new StateServiceImpl(resourceIdentifierRepository, stateRepository, stateConverters, new DefaultConversionService(), stateTypeInfoConverter, TIMEOUT);
 
 		firstState.put(AbstractStateConverter.KEY_ID, ""+ FIRST_CHANNEL);
 		firstState.put(AbstractStateConverter.KEY_VALUE, ""+ 0.25);
@@ -172,7 +183,7 @@ class StateServiceTest {
 		
 		
 		
-		Mockito.doReturn(Arrays.asList(firstState,secondState,thirdState)).when(stateRepository).findDeviceStates(resourceIdentifier);
+		Mockito.doReturn(Arrays.asList(firstState,secondState,thirdState)).when(stateRepository).findDeviceStates(resourceIdentifier, LEVELS);
 		
 		final ArgumentCaptor<ResourceIdentifier> resourceIdentifierCaptor = ArgumentCaptor.forClass(ResourceIdentifier.class);
 		
@@ -180,9 +191,9 @@ class StateServiceTest {
 		final ArgumentCaptor<Collection<Entry<Long,String>>> entryListCaptor = ArgumentCaptor.forClass(Collection.class);
 		
 		
-		Mockito.when(stateRepository.findChannelIds(resourceIdentifier, Arrays.asList(StateServiceImpl.FUNCTION))).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(FIRST_CHANNEL, FUNCTION) , new AbstractMap.SimpleImmutableEntry<>(SECOND_CHANNEL, FUNCTION), new AbstractMap.SimpleImmutableEntry<>(THIRD_CHANNEL, FUNCTION)));
+		Mockito.when(stateRepository.findChannelIds(resourceIdentifier, Arrays.asList(FUNCTION))).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(FIRST_CHANNEL, FUNCTION) , new AbstractMap.SimpleImmutableEntry<>(SECOND_CHANNEL, FUNCTION), new AbstractMap.SimpleImmutableEntry<>(THIRD_CHANNEL, FUNCTION)));
 		Mockito.when(stateRepository.findCannelsRooms(resourceIdentifier)).thenReturn(rooms);
-		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
+		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier, LEVELS)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
 		
 		
 		final State<Double> first = state(firstState);
@@ -243,17 +254,18 @@ class StateServiceTest {
 		Mockito.doReturn(Long.valueOf(map.get(AbstractStateConverter.KEY_ID))).when(state).id();
 		Mockito.doReturn(map.get(AbstractStateConverter.KEY_NAME)).when(state).name();
 		Mockito.doReturn(Double.valueOf(map.get(AbstractStateConverter.KEY_VALUE))).when(state).value();
+		Mockito.doReturn(Optional.of(FUNCTION)).when(state).function();
 		return state;
 	}
 
 	@Test
 	void deviceStates() {
 
-		Mockito.when(stateRepository.findChannelIds(resourceIdentifier,  Arrays.asList(StateServiceImpl.FUNCTION))).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(FIRST_CHANNEL, FUNCTION),new AbstractMap.SimpleImmutableEntry<>(SECOND_CHANNEL,FUNCTION), new AbstractMap.SimpleImmutableEntry<>(THIRD_CHANNEL, FUNCTION)));
+		Mockito.when(stateRepository.findChannelIds(resourceIdentifier,  Arrays.asList(FUNCTION))).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(FIRST_CHANNEL, FUNCTION),new AbstractMap.SimpleImmutableEntry<>(SECOND_CHANNEL,FUNCTION), new AbstractMap.SimpleImmutableEntry<>(THIRD_CHANNEL, FUNCTION)));
 		Mockito.when(stateRepository.findCannelsRooms(resourceIdentifier)).thenReturn(rooms);
-		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
+		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier, LEVELS)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
 
-		final List<Room> results = new ArrayList<>(stateService.deviceStates());
+		final List<Room> results = new ArrayList<>(stateService.deviceStates(Arrays.asList(FUNCTION), LEVELS));
 
 		assertEquals(2, results.size());
 		assertEquals(SECOND_ROOM, results.get(0).name());
@@ -275,15 +287,19 @@ class StateServiceTest {
 		assertEquals(SECOND_CHANNEL, second.get(1).id());
 		assertEquals(SECOND_CHANNEL + ":" + FIRST_ROOM, second.get(1).name());
 		assertEquals(0.5d, second.get(1).value());	
+		
+		
+		results.get(0).states().forEach( state -> Mockito.verify(state).assignFunction(FUNCTION));
 	
+		second.stream().forEach(state ->  Mockito.verify(state).assignFunction(FUNCTION) );
 	}
 
 	@Test
 	void deviceStatesNoRoom() {
-		Mockito.when(stateRepository.findChannelIds(resourceIdentifier,  Arrays.asList(StateServiceImpl.FUNCTION))).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(FIRST_CHANNEL, FUNCTION), new AbstractMap.SimpleImmutableEntry<>(SECOND_CHANNEL, FUNCTION), new AbstractMap.SimpleImmutableEntry<>(THIRD_CHANNEL,FUNCTION)));
-		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
+		Mockito.when(stateRepository.findChannelIds(resourceIdentifier,  Arrays.asList(FUNCTION))).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(FIRST_CHANNEL, FUNCTION), new AbstractMap.SimpleImmutableEntry<>(SECOND_CHANNEL, FUNCTION), new AbstractMap.SimpleImmutableEntry<>(THIRD_CHANNEL,FUNCTION)));
+		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier, LEVELS)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
 
-		final List<Room> results = new ArrayList<>(stateService.deviceStates());
+		final List<Room> results = new ArrayList<>(stateService.deviceStates(Arrays.asList(FUNCTION),LEVELS));
 
 		assertEquals(1, results.size());
 		assertEquals(StateServiceImpl.MISSING_ROOM_NAME, results.stream().findFirst().get().name());

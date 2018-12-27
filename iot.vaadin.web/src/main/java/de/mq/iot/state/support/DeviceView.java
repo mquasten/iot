@@ -1,8 +1,8 @@
 package de.mq.iot.state.support;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-
 
 import org.springframework.context.MessageSource;
 import org.springframework.util.CollectionUtils;
@@ -71,7 +71,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 		createUI(deviveModel, buttonBox);
 
-		grid.setItems(stateService.deviceStates());
+		grid.setItems(stateService.deviceStates(Arrays.asList("Rolladen", "funcLight"), Arrays.asList("LEVEL")));
 		
 		
 		deviveModel.register(DeviceModel.Events.SeclectionChanged, () -> {

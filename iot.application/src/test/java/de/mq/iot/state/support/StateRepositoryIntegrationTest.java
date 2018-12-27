@@ -118,7 +118,7 @@ class StateRepositoryIntegrationTest {
 	@Test
 	@Disabled
 	void findDeviceStates() {
-		 final Collection<Map<String,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findDeviceStates(resourceIdentifier);
+		 final Collection<Map<String,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findDeviceStates(resourceIdentifier, Arrays.asList("LEVEL"));
 		 assertEquals(3, results.size());
 		
 		 results.stream().forEach(map -> {

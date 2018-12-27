@@ -78,11 +78,12 @@ abstract   class AbstractState<T> implements State<T> {
 		validators.add(validator);
 	}
 	
-	/**
-	 * Assign a function to a State
-	 * @param function sttaes function
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.State#assignFunction(java.lang.String)
 	 */
-	final void assignFunction(final String function) {
+	@Override
+	public final void assignFunction(final String function) {
 		Assert.notNull(function , "Function is required.");
 		this.function=function;
 	}

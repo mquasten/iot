@@ -54,5 +54,10 @@ public interface State<T> {
 		return Optional.empty();
 		
 	}
+	/**
+	 * Assign a function to a State
+	 * @param function sttaes function
+	 */
+	void assignFunction(String function);
 
 }

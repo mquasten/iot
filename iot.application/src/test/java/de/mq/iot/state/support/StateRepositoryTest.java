@@ -349,7 +349,7 @@ class StateRepositoryTest {
 	@Test
 	final void findDeviceStates() {
 		Mockito.doReturn(XML_STATES).when(resonseEntity).getBody();
-		final Collection<Map<String,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findDeviceStates(resourceIdentifier);
+		final Collection<Map<String,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findDeviceStates(resourceIdentifier, Arrays.asList("LEVEL"));
 
 		assertEquals(3, results.size());
 		
@@ -367,7 +367,7 @@ class StateRepositoryTest {
 	
 	@Test
 	final void xpath() {
-		final String result = stateRepository.xpath(Arrays.asList(FIRST_FUNCION , SECOND_FUNCTION));
+		final String result = stateRepository.xpath("name", Arrays.asList(FIRST_FUNCION , SECOND_FUNCTION));
 		assertEquals(String.format("@name='%s' or @name='%s'",  FIRST_FUNCION, SECOND_FUNCTION), result);
 	}
 

@@ -18,10 +18,12 @@ public interface StateService {
 	void update(State<?> state);
 
 	/**
-	 * A list of rooms with  deviceStates
-	 * @return rooms with deviceStates list
+	 * List of devices states
+	 * @param functions list of functions to query
+	 * @param types list of types to query
+	 * @return list of devices
 	 */
-	Collection<Room> deviceStates();
+	Collection<Room> deviceStates(final Collection<String> functions, final Collection<String> types);
 
 	/**
 	 * Update states
