@@ -31,6 +31,6 @@ public interface StateService {
 	 * @param states list of states 
 	 * @return list of Rooms, with changed State Values
 	 */
-	Collection<Room> update(Collection<State<?>> states);
+	Collection<Room> update(Collection<State<Object>> states);
 
 }

@@ -23,9 +23,9 @@ public class DeviceModelImpl implements DeviceModel {
 
 	private final Subject<DeviceModel.Events, DeviceModel> subject;
 
-	private final Map<String, Collection<State<Double>>> selectedDevices = new HashMap<>();
+	private final Map<String, Collection<State<Object>>> selectedDevices = new HashMap<>();
 	
-	private Integer value;
+	private Object value;
 
 	
 
@@ -73,7 +73,7 @@ public class DeviceModelImpl implements DeviceModel {
 	 * java.util.Collection)
 	 */
 	@Override
-	public void assign(final Room room, Collection<State<Double>> selectedDevices) {
+	public void assign(final Room room, Collection<State<Object>> selectedDevices) {
 		Assert.notNull(room, "Room is required.");
 		Assert.notNull(selectedDevices, "Should not be null.");
 		this.selectedDevices.put(room.name(), selectedDevices);
@@ -86,8 +86,8 @@ public class DeviceModelImpl implements DeviceModel {
 	 * @see de.mq.iot.state.support.DeviceModel#selectedDevices()
 	 */
 	@Override
-	public Collection<State<Double>> selectedDevices() {
-		final Set<State<Double>> states = new HashSet<>();
+	public Collection<State<Object>> selectedDevices() {
+		final Set<State<Object>> states = new HashSet<>();
 		selectedDevices.values().forEach(devices4Room -> states.addAll(devices4Room));
 
 		return Collections.unmodifiableSet(states);
@@ -98,14 +98,14 @@ public class DeviceModelImpl implements DeviceModel {
 	 * (non-Javadoc)
 	 * @see de.mq.iot.state.support.DeviceModel#selectedDistinctPercentValue()
 	 */
-	public Optional<Integer> selectedDistinctSinglePercentValue() {
+	public Optional<Object> selectedDistinctSinglePercentValue() {
 		
-		final List<Double>  states = selectedDevices().stream().map(state -> state.value()).distinct().limit(2).collect(Collectors.toList());
+		final List<?>   states = selectedDevices().stream().map(state -> (Object)  state.value()).distinct().limit(2).collect(Collectors.toList());
 		if( states.size() != 1) {
 			
 			return Optional.empty();
 		}
-		return Optional.of((int) Math.round(100d * states.get(0)));
+		return Optional.of(states.get(0));
 		
 	}
 	@Override
@@ -122,7 +122,7 @@ public class DeviceModelImpl implements DeviceModel {
 	 * @see de.mq.iot.state.support.DeviceModel#value()
 	 */
 	@Override
-	public Optional<Integer> value() {
+	public Optional<Object> value() {
 		return Optional.ofNullable(value);
 	}
 
@@ -146,7 +146,7 @@ public class DeviceModelImpl implements DeviceModel {
 			notifyObservers(DeviceModel.Events.ValueChanged);
 			return; 
 		}
-		this.value=result;
+		this.value=new Double(result/100d);
 		notifyObservers(DeviceModel.Events.ValueChanged);
 	}
 }

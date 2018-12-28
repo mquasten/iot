@@ -24,7 +24,7 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	 * @param room the room where the devices are placed 
 	 * @param selectedDevices selected devices
 	 */
-	void assign(final Room room, final Collection<State<Double>> selectedDevices);
+	void assign(final Room room, final Collection<State<Object>> selectedDevices);
 	
 	
 
@@ -32,7 +32,7 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	 * Collection of all devices in all rooms
 	 * @return all devices
 	 */
-	 Collection<State<Double>>  selectedDevices();
+	 Collection<State<Object>>  selectedDevices();
 
 
 
@@ -40,7 +40,7 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	  * if all selected devices have the same value, that value * 100  is returned. otherwise Optional.empty() is returned
 	  * @return the value of all devicesStates, if all values are equals. Otherwise return 0
 	  */
-	Optional<Integer> selectedDistinctSinglePercentValue();
+	Optional<Object> selectedDistinctSinglePercentValue();
 
 
 	/**
@@ -54,7 +54,7 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	 * The value to that the devices values should be set
 	 * @return devives new value
 	 */
-	Optional<Integer> value();
+	Optional<Object> value();
 
 
 

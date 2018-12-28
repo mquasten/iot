@@ -33,9 +33,9 @@ class DeviceModelTest {
 	final Room firstRoom = Mockito.mock(Room.class);
 	final Room secondRoom = Mockito.mock(Room.class);
 	@SuppressWarnings("unchecked")
-	final State<Double> firstState = Mockito.mock(State.class);
+	final State<Object> firstState = Mockito.mock(State.class);
 	@SuppressWarnings("unchecked")
-	final State<Double> secondState = Mockito.mock(State.class);
+	final State<Object> secondState = Mockito.mock(State.class);
 
 	@BeforeEach
 	void setup() {
@@ -94,7 +94,7 @@ class DeviceModelTest {
 		deviceModel.assign(firstRoom, Arrays.asList(firstState, secondState));
 		deviceModel.assign(secondRoom, Arrays.asList(secondState));
 
-		assertEquals(Optional.of((int) (STATE_VALUE * 100d)), deviceModel.selectedDistinctSinglePercentValue());
+		assertEquals(Optional.of(STATE_VALUE ), deviceModel.selectedDistinctSinglePercentValue());
 	}
 
 	@Test
@@ -121,7 +121,7 @@ class DeviceModelTest {
 		final int value = 50;
 		deviceModel.assign("" +value);
 		
-		assertEquals(Optional.of(value), deviceModel.value());
+		assertEquals(Optional.of(value/100d), deviceModel.value());
 		Mockito.verify(subject).notifyObservers(DeviceModel.Events.ValueChanged);
 
 	}

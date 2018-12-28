@@ -83,7 +83,7 @@ class StateServiceTest {
 	private final Map<String,String> fourthState= new HashMap<>();
 	
 	
-	private List<State<Double>> convertedStates = new ArrayList<>();
+	private List<State<Object>> convertedStates = new ArrayList<>();
 	
 	
 	@SuppressWarnings({ "unchecked" })
@@ -104,7 +104,7 @@ class StateServiceTest {
 		convertedStates.clear();
 		Mockito.doAnswer(answere -> {
 			final Map<String,String> map = answere.getArgument(0);
-			final State<Double> state = state(map);
+			final State<Object> state = state(map);
 			convertedStates.add(state);
 			return state;
 		}).when(doubleStateConverter).convert(Mockito.anyMap());
@@ -196,9 +196,9 @@ class StateServiceTest {
 		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier, LEVELS)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
 		
 		
-		final State<Double> first = state(firstState);
-		final State<Double> second = state(secondState);
-		final State<Double> third = state(thirdState);
+		final State<Object> first = state(firstState);
+		final State<Object> second = state(secondState);
+		final State<Object> third = state(thirdState);
 		
 		final List<Room> results = new ArrayList<>(stateService.update(Arrays.asList(first, second, third)));
 		
@@ -249,8 +249,8 @@ class StateServiceTest {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private State<Double> state(final Map<String,String> map) {
-		final State<Double>  state = Mockito.mock(State.class);
+	private State<Object> state(final Map<String,String> map) {
+		final State<Object>  state = Mockito.mock(State.class);
 		Mockito.doReturn(Long.valueOf(map.get(AbstractStateConverter.KEY_ID))).when(state).id();
 		Mockito.doReturn(map.get(AbstractStateConverter.KEY_NAME)).when(state).name();
 		Mockito.doReturn(Double.valueOf(map.get(AbstractStateConverter.KEY_VALUE))).when(state).value();

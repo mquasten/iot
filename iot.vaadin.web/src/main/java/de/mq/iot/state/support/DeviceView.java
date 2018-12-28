@@ -65,18 +65,21 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 	private Column<?> devicesColumn; 
 	
 	private Collection<Column<?>> devicesValueColumn= new ArrayList<>();
+	
+	
 
-	DeviceView(final StateService stateService, final DeviceModel deviveModel, final MessageSource messageSource, final ButtonBox buttonBox) {
+	DeviceView(final StateService stateService, final DeviceModel deviveModel, final MessageSource messageSource, final ButtonBox buttonBox,  final StateToStringConverter  stateToStringConverter ) {
 
+	
 
-		createUI(deviveModel, buttonBox);
+		createUI(deviveModel, buttonBox, stateToStringConverter);
 
-		grid.setItems(stateService.deviceStates(Arrays.asList("Rolladen", "funcLight"), Arrays.asList("LEVEL")));
+		grid.setItems(stateService.deviceStates(Arrays.asList("Rolladen", "funcLight"), Arrays.asList("LEVEL", "STATE")));
 		
 		
 		deviveModel.register(DeviceModel.Events.SeclectionChanged, () -> {
 			valueField.setEnabled(deviveModel.isSelected());
-			deviveModel.selectedDistinctSinglePercentValue().ifPresent(value -> valueField.setValue("" + value));
+			deviveModel.selectedDistinctSinglePercentValue().ifPresent(value -> valueField.setValue("" + stateToStringConverter.convertValue(value)));
 			if (!deviveModel.isSelected()) {
 				valueField.setInvalid(false);
 				saveButton.setEnabled(false);
@@ -114,11 +117,11 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 			
 			deviveModel.value().ifPresent(value -> {
 				
-				 final Collection<State<Double>>  states = deviveModel.selectedDevices();
+				 final Collection<State<Object>>  states = deviveModel.selectedDevices();
 				 
-				 states.forEach(state -> state.assign(new Double(value/100d)));
+				 states.forEach(state -> state.assign( value));
 			
-				 final Collection<Room> rooms = stateService.update((Collection)  states);
+				 final Collection<Room> rooms = stateService.update(  states);
 				
 				 grid.setItems(rooms);
 				 valueField.setValue("");
@@ -135,7 +138,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 	}
 
-	private void createUI(final DeviceModel deviceModel, final ButtonBox buttonBox) {
+	private void createUI(final DeviceModel deviceModel, final ButtonBox buttonBox, final  StateToStringConverter  stateToStringConverter ) {
 
 		saveButton.setEnabled(false);
 
@@ -177,20 +180,20 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		devicesValueColumn.clear();
 		devicesColumn=grid.addColumn(new ComponentRenderer<>(room -> {
 
-			final Grid<State<Double>> devices = new Grid<State<Double>>();
+			final Grid<State<Object>> devices = new Grid<State<Object>>();
 		
 
 			devices.setSelectionMode(SelectionMode.MULTI);
-			devices.addColumn((ValueProvider<State<Double>, String>) state -> state.name()).setFlexGrow(80).setResizable(true).setHeader(room.name());
+			devices.addColumn((ValueProvider<State<Object>, String>) state -> state.name()).setFlexGrow(80).setResizable(true).setHeader(room.name());
 			
 		
-			final Column<State<Double>> column = devices.addColumn((ValueProvider<State<Double>, String>) state -> "" + (int) ( Math.round(100d *state.value())  ) + " %" );
+			final Column<State<Object>> column = devices.addColumn((ValueProvider<State<Object>, String>) state -> stateToStringConverter.convert(state));
 			devicesValueColumn.add(column);
 			column.addAttachListener(event -> deviceModel.notifyObservers(DeviceModel.Events.ChangeLocale));
 		
 			
 			
-			devices.setItems(room.states());
+			devices.setItems((Collection<State<Object>>)room.states());
 
 			devices.setHeightByRows(true);
 
