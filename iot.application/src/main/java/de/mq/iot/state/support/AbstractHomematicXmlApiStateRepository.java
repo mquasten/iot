@@ -211,14 +211,8 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.mq.iot.state.support.StateRepository#findChannelIds(de.mq.iot.resource.ResourceIdentifier, java.lang.String)
+	 * @see de.mq.iot.state.support.StateRepository#findChannelIds(de.mq.iot.resource.ResourceIdentifier)
 	 */
-	@Override
-	public Collection<Entry<Long,String>> findChannelIds(final ResourceIdentifier resourceIdentifier, final Collection<String> functions) {
-		Assert.notEmpty(functions, "Functions are mandatory.");
-		return findChannelIds(resourceIdentifier, String.format("/functionList/function[%s]/channel", xpath("name", functions)));
-
-	}
 	
 	@Override
 	public Collection<Entry<Long,String>> findChannelIds(final ResourceIdentifier resourceIdentifier) {

@@ -74,7 +74,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 		createUI(deviveModel, buttonBox, stateToStringConverter);
 
-		grid.setItems(stateService.deviceStates(Arrays.asList("Rolladen", "funcLight"), Arrays.asList("LEVEL", "STATE")));
+		grid.setItems(stateService.deviceStates( Arrays.asList("LEVEL")));
 		
 		
 		deviveModel.register(DeviceModel.Events.SeclectionChanged, () -> {

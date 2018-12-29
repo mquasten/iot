@@ -48,7 +48,7 @@ import reactor.core.publisher.Mono;
 
 class StateRepositoryTest {
 
-	private static final String SECOND_FUNCTION = "funcLight";
+	private static final String SECOND_FUNCTION = "Licht";
 	private static final String FIRST_FUNCION = "Rolladen";
 	private static final double SECOUND_DOUBLE_VALUE = 0.5;
 	private static final double DOUNBLE_VALUE = 1.0;
@@ -322,10 +322,10 @@ class StateRepositoryTest {
 	final void findChannelIds() {
 		Mockito.doReturn(XML_FUNCTIONS).when(resonseEntity).getBody();
 
-		final Collection<Entry<Long,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findChannelIds(resourceIdentifier, Arrays.asList(FIRST_FUNCION));
+		final Collection<Entry<Long,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findChannelIds(resourceIdentifier);
 
-		assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().map(Entry::getKey).collect(Collectors.toList()));
-		results.stream().map(Entry::getValue).forEach(value -> assertEquals(FIRST_FUNCION, value));
+		assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().filter(entry-> entry.getValue().equals(FIRST_FUNCION)).map(Entry::getKey).collect(Collectors.toList()));
+	
 		assertEquals(URI, uriCaptor.getValue());
 		assertEquals(HOST, parameterCaptor.getValue().get(HOST_PARMETER));
 		assertEquals(PORT, parameterCaptor.getValue().get(PORT_PARAMETER));

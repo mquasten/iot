@@ -191,7 +191,7 @@ class StateServiceTest {
 		final ArgumentCaptor<Collection<Entry<Long,String>>> entryListCaptor = ArgumentCaptor.forClass(Collection.class);
 		
 		
-		Mockito.when(stateRepository.findChannelIds(resourceIdentifier, Arrays.asList(FUNCTION))).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(FIRST_CHANNEL, FUNCTION) , new AbstractMap.SimpleImmutableEntry<>(SECOND_CHANNEL, FUNCTION), new AbstractMap.SimpleImmutableEntry<>(THIRD_CHANNEL, FUNCTION)));
+		Mockito.when(stateRepository.findChannelIds(resourceIdentifier)).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(FIRST_CHANNEL, FUNCTION) , new AbstractMap.SimpleImmutableEntry<>(SECOND_CHANNEL, FUNCTION), new AbstractMap.SimpleImmutableEntry<>(THIRD_CHANNEL, FUNCTION)));
 		Mockito.when(stateRepository.findCannelsRooms(resourceIdentifier)).thenReturn(rooms);
 		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier, LEVELS)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
 		
@@ -261,11 +261,11 @@ class StateServiceTest {
 	@Test
 	void deviceStates() {
 
-		Mockito.when(stateRepository.findChannelIds(resourceIdentifier,  Arrays.asList(FUNCTION))).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(FIRST_CHANNEL, FUNCTION),new AbstractMap.SimpleImmutableEntry<>(SECOND_CHANNEL,FUNCTION), new AbstractMap.SimpleImmutableEntry<>(THIRD_CHANNEL, FUNCTION)));
+		Mockito.when(stateRepository.findChannelIds(resourceIdentifier)).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(FIRST_CHANNEL, FUNCTION),new AbstractMap.SimpleImmutableEntry<>(SECOND_CHANNEL,FUNCTION), new AbstractMap.SimpleImmutableEntry<>(THIRD_CHANNEL, FUNCTION)));
 		Mockito.when(stateRepository.findCannelsRooms(resourceIdentifier)).thenReturn(rooms);
 		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier, LEVELS)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
 
-		final List<Room> results = new ArrayList<>(stateService.deviceStates(Arrays.asList(FUNCTION), LEVELS));
+		final List<Room> results = new ArrayList<>(stateService.deviceStates(LEVELS));
 
 		assertEquals(2, results.size());
 		assertEquals(SECOND_ROOM, results.get(0).name());
@@ -296,10 +296,10 @@ class StateServiceTest {
 
 	@Test
 	void deviceStatesNoRoom() {
-		Mockito.when(stateRepository.findChannelIds(resourceIdentifier,  Arrays.asList(FUNCTION))).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(FIRST_CHANNEL, FUNCTION), new AbstractMap.SimpleImmutableEntry<>(SECOND_CHANNEL, FUNCTION), new AbstractMap.SimpleImmutableEntry<>(THIRD_CHANNEL,FUNCTION)));
+		Mockito.when(stateRepository.findChannelIds(resourceIdentifier)).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(FIRST_CHANNEL, FUNCTION), new AbstractMap.SimpleImmutableEntry<>(SECOND_CHANNEL, FUNCTION), new AbstractMap.SimpleImmutableEntry<>(THIRD_CHANNEL,FUNCTION)));
 		Mockito.when(stateRepository.findDeviceStates(resourceIdentifier, LEVELS)).thenReturn(Arrays.asList(firstState, secondState, thirdState, fourthState));
 
-		final List<Room> results = new ArrayList<>(stateService.deviceStates(Arrays.asList(FUNCTION),LEVELS));
+		final List<Room> results = new ArrayList<>(stateService.deviceStates(LEVELS));
 
 		assertEquals(1, results.size());
 		assertEquals(StateServiceImpl.MISSING_ROOM_NAME, results.stream().findFirst().get().name());

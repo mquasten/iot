@@ -1,9 +1,6 @@
 package de.mq.iot.state;
 
 import java.util.Collection;
-import java.util.Map.Entry;
-import java.util.Set;
-
 /**
  * Service Statehandling
  * @author Admin
@@ -21,11 +18,10 @@ public interface StateService {
 
 	/**
 	 * List of devices states
-	 * @param functions list of functions to query
 	 * @param types list of types to query
 	 * @return list of devices
 	 */
-	Collection<Room> deviceStates(final Collection<String> functions, final Collection<String> types);
+	Collection<Room> deviceStates(final Collection<String> types);
 
 	/**
 	 * Update states
@@ -34,11 +30,5 @@ public interface StateService {
 	 * @return list of Rooms, with changed State Values
 	 */
 	Collection<Room> update(Collection<State<Object>> states);
-
-	/**
-	 * List of entries with functions and supported types
-	 * @return list functions  and supported types
-	 */
-	Collection<Entry<String, Set<String>>> functions();
 
 }

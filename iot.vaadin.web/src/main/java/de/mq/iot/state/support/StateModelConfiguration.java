@@ -45,6 +45,10 @@ class StateModelConfiguration  {
 		return new StateValueConverterImpl(conversionService);
 
 	}
+	@Bean
+	StateToStringConverter stateToStringConverter() {
+		return new StateToStringConverterImpl();
+	}
 
 	@Bean
 	//@UIScope

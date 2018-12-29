@@ -4,11 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -42,21 +38,7 @@ class StateServiceIntegrationTest {
 		assertTrue(workingDayState.get() instanceof BooleanStateImpl);
 	}
 	
-	@Test
-	@Disabled
-	void functions() {
-		final Map<String, Set<String>> functions  = stateService.functions().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue)); 
-		
-		assertEquals(2, functions.size());
-		assertTrue(functions.containsKey("Rolladen"));
-		assertTrue(functions.containsKey("Licht"));
 	
-		
-		functions.values().forEach(value -> assertEquals(1,value.size()));
-		functions.entrySet().stream().filter(entry -> entry.getKey().equals("Rolladen")).map(entry -> entry.getValue().iterator().next()).forEach(value -> assertEquals("LEVEL", value));
-	
-		functions.entrySet().stream().filter(entry -> entry.getKey().equals("Licht")).map(entry -> entry.getValue().iterator().next()).forEach(value -> assertEquals("STATE", value));
-	}
 	
 
 }

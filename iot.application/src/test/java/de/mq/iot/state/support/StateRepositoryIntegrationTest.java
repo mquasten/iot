@@ -71,8 +71,9 @@ class StateRepositoryIntegrationTest {
 		return values.stream().findAny().orElseThrow(() -> new IllegalStateException("Result is mandatory."));
 	}
 	
-	@Disabled
+	
 	@Test
+	@Disabled
 	void changeState() {
 		final State<?> state = Mockito.mock(State.class);
 		Mockito.when(state.id()).thenReturn(2261L);
@@ -81,33 +82,10 @@ class StateRepositoryIntegrationTest {
 		stateRepository.changeState(resourceIdentifier, state);
 	}
 
+	
 	@Test
 	@Disabled
 	void findChannelIds() {
-		
-		final String function = "Rolladen";
-		final Collection<Entry<Long, String>> results =  stateRepository.findChannelIds(resourceIdentifier, Arrays.asList(function));
-		
-		assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().map(Entry::getKey).collect(Collectors.toList()));
-	    results.stream().map(Entry::getValue).forEach(value -> {
-			
-			assertEquals(function, value);
-		});
-	}
-	
-	@Test
-	@Disabled
-	void findChannelIdsLight() {
-		final String function = "Licht";
-		final Collection<Entry<Long,String>> results =  stateRepository.findChannelIds(resourceIdentifier, Arrays.asList(function));
-		
-		assertEquals(Arrays.asList(5775L), results.stream().map(Entry::getKey).collect(Collectors.toList()));
-		 results.stream().map(Entry::getValue).forEach(value -> assertEquals(function, value));
-	}
-	
-	@Test
-	@Disabled
-	void findChannelIdsALL() {
 	
 		final Collection<Entry<Long,String>> results =  stateRepository.findChannelIds(resourceIdentifier);
 		assertTrue(results.stream().map(Entry::getKey).collect(Collectors.toList()).containsAll(Arrays.asList(1431L, 1952L, 4669L,5775L)));
@@ -115,11 +93,12 @@ class StateRepositoryIntegrationTest {
 		assertTrue(results.stream().map(Entry::getValue).collect(Collectors.toList()).containsAll(Arrays.asList("Licht" , "Rolladen")));
 	}
 	
-	@Disabled
+	
 	@Test
+	@Disabled
 	void findCannelsRooms() {
 		final Map<Long,String> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findCannelsRooms(resourceIdentifier);
-		assertEquals(9, results.size());
+		assertEquals(10, results.size());
 		
 		Arrays.asList(4661L,4665L,4669L).forEach(id -> assertEquals("Eßzimmer (unten)", results.get(id)));
 		
@@ -143,21 +122,19 @@ class StateRepositoryIntegrationTest {
 			assertTrue(map.get(AbstractStateConverter.KEY_NAME).matches(".*:3.Fenster.*"));
 		 });
 		 
-		/* results.stream().map(result  -> result.value()).forEach(value -> assertTrue((Double) value >= 0d && (Double) value <=1d ));
-		 assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().map(result  -> new Long(result.id())).collect(Collectors.toList()));
-		 results.stream().map(result  -> result.name()).forEach(name -> assertTrue(name.matches(".*:3.Fenster.*"))); */
+		
 	}
 	
 	@Test
 	@Disabled
 	void findVersion() {
 		final Map<String, String> parameters = resourceIdentifier.parameters();
-		parameters.put("host", "192.168.2.101");
+		parameters.put("host", "192.168.2.102");
 		
 		Mockito.doReturn(parameters).when(resourceIdentifier).parameters();
 	    final double version =  stateRepository.findVersion(resourceIdentifier);
 		 
-		assertEquals(1.15 ,version);
+		assertEquals(1.2 ,version);
 		
 	}
 	
@@ -165,8 +142,8 @@ class StateRepositoryIntegrationTest {
 	@Disabled
 	void changeStates() {
 		Map<Long, String> states = new HashMap<>();
-		states.put(1431L, "1.00");
-		states.put(1952L, "1.00");
+		states.put(1431L, "0.00");
+		states.put(1952L, "0.00");
 		stateRepository.changeState(resourceIdentifier, states.entrySet());
 	}
 	

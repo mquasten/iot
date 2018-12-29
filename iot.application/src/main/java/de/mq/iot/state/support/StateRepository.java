@@ -15,16 +15,6 @@ public interface StateRepository {
 
 	double findVersion(ResourceIdentifier resourceIdentifier);
 
-	/**
-	 * List of channelIds for the given functions
-	 * 
-	 * @param resourceIdentifier
-	 *            the resourceIdentifier for the HomematicXmlApi
-	 * @param functions
-	 *            the devices functions
-	 * @return devices channelIds and funtion 
-	 */
-	 Collection<Entry<Long,String>> findChannelIds(final ResourceIdentifier resourceIdentifier, final Collection<String> functions);
 
 	/**
 	 * Map of ChannelIds (key) and Rooms (Value)
