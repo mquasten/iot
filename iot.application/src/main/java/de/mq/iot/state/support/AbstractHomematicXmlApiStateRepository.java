@@ -216,12 +216,26 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	@Override
 	public Collection<Entry<Long,String>> findChannelIds(final ResourceIdentifier resourceIdentifier, final Collection<String> functions) {
 		Assert.notEmpty(functions, "Functions are mandatory.");
+		return findChannelIds(resourceIdentifier, String.format("/functionList/function[%s]/channel", xpath("name", functions)));
 
+	}
+	
+	@Override
+	public Collection<Entry<Long,String>> findChannelIds(final ResourceIdentifier resourceIdentifier) {
+		return findChannelIds(resourceIdentifier, "/functionList/function/channel");
+
+	}
+
+	private Collection<Entry<Long, String>> findChannelIds(final ResourceIdentifier resourceIdentifier, final String xpath) {
 		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.FunctionList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
 
 		httpStatusGuard(res);
 
-		final NodeList nodes = evaluate(res.getBody(), String.format("/functionList/function[%s]/channel", xpath("name", functions)));
+		
+		
+		
+		
+		final NodeList nodes = evaluate(res.getBody(),xpath);
 
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> {
 		
@@ -230,11 +244,18 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		
 		
 		}).collect(Collectors.toList());
-
 	}
 	
 	final String xpath(final String key, final Collection<String> names) {
+		
+		
 		final StringBuffer  stringBuffer = new StringBuffer();
+		
+		
+		if( names.isEmpty()) {
+			return "";
+		}
+		
 		
 		names.forEach(name -> {
 			if( stringBuffer.length() > 0 ) {
@@ -244,7 +265,7 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 			
 		});
 		
-		return stringBuffer.substring(0);
+		return stringBuffer.substring(0) ;
 		
 	}
 
@@ -274,6 +295,9 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 
 		httpStatusGuard(res);
 
+		
+	
+		
 		final NodeList nodes = evaluate(res.getBody(),String.format( "/stateList/device/channel/datapoint[(%s)  and string-length(@value) > 0]", xpath("type", types)));
 		 IntStream.range(0, nodes.getLength()).mapToObj(i -> attributesToMap(nodes.item(i).getAttributes())).collect(Collectors.toList());
 		return IntStream.range(0, nodes.getLength()).mapToObj(i -> {

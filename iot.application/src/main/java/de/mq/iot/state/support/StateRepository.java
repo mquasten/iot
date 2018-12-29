@@ -56,5 +56,14 @@ public interface StateRepository {
 	 *            devices should be set
 	 */
 	void changeState(final ResourceIdentifier resourceIdentifier, final Collection<Entry<Long, String>> states);
+	/**
+	 * List of all channelIds 
+	 * 
+	 * @param resourceIdentifier
+	 *            the resourceIdentifier for the HomematicXmlApi
+	
+	 * @return devices channelIds and funtion 
+	 */
+	Collection<Entry<Long, String>> findChannelIds(ResourceIdentifier resourceIdentifier);
 
 }

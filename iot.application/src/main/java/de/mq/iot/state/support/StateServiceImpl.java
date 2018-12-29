@@ -1,10 +1,14 @@
 package de.mq.iot.state.support;
 
 import java.time.Duration;
+import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,6 +143,26 @@ class StateServiceImpl implements StateService {
 	
 		deviceStates.forEach(room -> room.states().stream().filter(state -> values.containsKey(state.id())).forEach(state -> state.assign( values.get(state.id()))));
 		return deviceStates;
+		
+	}
+	
+	@Override
+	public Collection<Entry<String,Set<String>>> functions() {
+		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
+		final Map<Long,String> functions =  stateRepository.findChannelIds(resourceIdentifier).stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		
+		final Map<String, Set<String>>  results = functions.values().stream().distinct().map(value -> new AbstractMap.SimpleImmutableEntry<>(value, new HashSet<String>())).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+	
+		stateRepository.findDeviceStates(resourceIdentifier, Arrays.asList("LEVEL" , "STATE")).forEach(map -> {
+			final String type = map.get(AbstractStateConverter.KEY_TYPE);
+			final Long id = conversionService.convert(map.get(AbstractStateConverter.KEY_ID), Long.class);
+			Assert.isTrue(functions.containsKey(id), "Function not found.");
+			final String function = functions.get(id);
+			Assert.isTrue(results.containsKey(function), "Function not found.");
+			results.get(function).add(type);
+		});
+		
+		return results.entrySet().stream().filter(entry -> entry.getValue().size()>0).collect(Collectors.toList());
 		
 	}
 

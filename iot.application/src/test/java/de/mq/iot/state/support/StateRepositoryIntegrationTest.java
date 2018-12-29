@@ -98,12 +98,23 @@ class StateRepositoryIntegrationTest {
 	@Test
 	@Disabled
 	void findChannelIdsLight() {
-		final String function = "funcLight";
+		final String function = "Licht";
 		final Collection<Entry<Long,String>> results =  stateRepository.findChannelIds(resourceIdentifier, Arrays.asList(function));
 		
 		assertEquals(Arrays.asList(5775L), results.stream().map(Entry::getKey).collect(Collectors.toList()));
 		 results.stream().map(Entry::getValue).forEach(value -> assertEquals(function, value));
 	}
+	
+	@Test
+	@Disabled
+	void findChannelIdsALL() {
+	
+		final Collection<Entry<Long,String>> results =  stateRepository.findChannelIds(resourceIdentifier);
+		assertTrue(results.stream().map(Entry::getKey).collect(Collectors.toList()).containsAll(Arrays.asList(1431L, 1952L, 4669L,5775L)));
+		
+		assertTrue(results.stream().map(Entry::getValue).collect(Collectors.toList()).containsAll(Arrays.asList("Licht" , "Rolladen")));
+	}
+	
 	@Disabled
 	@Test
 	void findCannelsRooms() {
@@ -158,5 +169,7 @@ class StateRepositoryIntegrationTest {
 		states.put(1952L, "1.00");
 		stateRepository.changeState(resourceIdentifier, states.entrySet());
 	}
+	
+	
 }
 

@@ -1,6 +1,8 @@
 package de.mq.iot.state;
 
 import java.util.Collection;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Service Statehandling
@@ -32,5 +34,11 @@ public interface StateService {
 	 * @return list of Rooms, with changed State Values
 	 */
 	Collection<Room> update(Collection<State<Object>> states);
+
+	/**
+	 * List of entries with functions and supported types
+	 * @return list functions  and supported types
+	 */
+	Collection<Entry<String, Set<String>>> functions();
 
 }
