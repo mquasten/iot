@@ -22,8 +22,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.vaadin.flow.component.dialog.Dialog;
 
+import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 import de.mq.iot.state.State;
+import de.mq.iot.state.support.DeviceModel.Events;
 
 
 public class StateModelConfigurationTest {
@@ -105,6 +107,27 @@ public class StateModelConfigurationTest {
 	@Test
 	void buttonBox() {
 		assertNotNull(stateModelConfiguration.buttonBox());
+	}
+	
+	
+	@Test
+	void deviceModel() {
+		
+		@SuppressWarnings("unchecked")
+		final Subject<DeviceModel.Events , DeviceModel> subject = Mockito.mock(Subject.class);
+		final Observer observer = Mockito.mock(Observer.class);
+		
+		final DeviceModel model = stateModelConfiguration.deviceModel(subject); 
+		
+		assertNotNull(model);
+		model.register(Events.SeclectionChanged, observer);
+		Mockito.verify(subject).register(Events.SeclectionChanged, observer);
+	}
+	
+	
+	@Test
+	void  stateToStringConverter() {
+		assertTrue(stateModelConfiguration.stateToStringConverter() instanceof StateToStringConverter); 
 	}
 	
 }

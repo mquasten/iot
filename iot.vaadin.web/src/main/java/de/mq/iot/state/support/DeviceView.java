@@ -147,7 +147,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 			
 				 grid.setItems(stateService.update(  states));
 				
-				 deviveModel.assignType(comboBox.getValue());
+				deviveModel.clearSelection();
 			
 				
 				 

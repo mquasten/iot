@@ -5,13 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
@@ -20,6 +24,8 @@ import de.mq.iot.state.State;
 import de.mq.iot.state.support.DeviceModel.Events;
 
 class DeviceModelTest {
+
+	private static final String TYPE_STATE = "STATE";
 
 	private static final double STATE_VALUE = 0.5d;
 
@@ -149,5 +155,49 @@ class DeviceModelTest {
 		assertEquals(Optional.empty(), deviceModel.value());
 		Mockito.verify(subject).notifyObservers(DeviceModel.Events.ValueChanged);
 	}
+	
+	
+	@Test
+	void assignType() {
+		ReflectionTestUtils.setField(deviceModel, "value" , STATE_VALUE);
+		final Map<String,Collection<State<?>>> selected = new HashMap<>();
+		selected.put(firstRoom.name(), Arrays.asList(firstState));
+		ReflectionTestUtils.setField(deviceModel, "selectedDevices" , selected);
+		assertTrue(deviceModel.value().isPresent());
+		assertTrue(deviceModel.isSelected());
+		assertEquals(Optional.empty(), deviceModel.type());
+		
+		deviceModel.assignType(TYPE_STATE);
+		
+		assertEquals(Optional.of(TYPE_STATE), Optional.of(TYPE_STATE));
+		assertFalse(deviceModel.value().isPresent());
+		assertFalse(deviceModel.isSelected());
+		Mockito.verify(subject).notifyObservers(DeviceModel.Events.SeclectionChanged);
+		Mockito.verify(subject).notifyObservers(DeviceModel.Events.TypeChanged);
+		
+		
+	}
+	
+	@Test
+	void  type() {
+		assertFalse(deviceModel.isSelected());
+		ReflectionTestUtils.setField(deviceModel, "type" , TYPE_STATE);
+		assertEquals(Optional.of(TYPE_STATE), Optional.of(TYPE_STATE));
+		
+	}
+	
+	@Test
+	void clearSelection() {
+		final Map<String,Collection<State<?>>> selected = new HashMap<>();
+		selected.put(firstRoom.name(), Arrays.asList(firstState));
+		ReflectionTestUtils.setField(deviceModel, "selectedDevices" , selected);
+		assertTrue(deviceModel.isSelected());
+		
+		deviceModel.clearSelection();
+		
+		assertFalse(deviceModel.isSelected());
+		Mockito.verify(subject).notifyObservers(DeviceModel.Events.SeclectionChanged);
+	}
+	
 
 }

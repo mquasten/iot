@@ -175,4 +175,14 @@ public class DeviceModelImpl implements DeviceModel {
 		return  Optional.ofNullable(type);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.DeviceModel#clearSelection()
+	 */
+	@Override
+	public void clearSelection() {
+		this.selectedDevices.clear();
+		notifyObservers(DeviceModel.Events.SeclectionChanged);
+	}
+	
 }

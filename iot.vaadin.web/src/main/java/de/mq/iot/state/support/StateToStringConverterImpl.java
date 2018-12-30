@@ -22,7 +22,7 @@ class StateToStringConverterImpl implements StateToStringConverter {
 	 * @see de.mq.iot.state.support.StateToStringConverter#convert(de.mq.iot.state.State)
 	 */
 	@Override
-	public String convert(final State<Object> state) {
+	public String convert(final State<?> state) {
 		final ParameterizedType t = (ParameterizedType) state.getClass().getGenericSuperclass(); 
 		final Class<?> clazz = (Class<?>) t.getActualTypeArguments()[0]; 
 		Assert.isTrue(mappings.containsKey(clazz), String.format("Mapping not defined for %s", clazz));
@@ -36,5 +36,7 @@ class StateToStringConverterImpl implements StateToStringConverter {
 		Assert.isTrue(mappings.containsKey(value.getClass()), String.format("Mapping not defined for %s", value.getClass()));
 		return mappings.get(value.getClass()).apply(value);
 	}
+
+	
 
 }

@@ -78,5 +78,12 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	 * Device type
 	 * @return devives type
 	 */
-	Optional<String> type(); 
+	Optional<String> type();
+
+
+
+	/**
+	 * Reset all selected values
+	 */
+	void clearSelection(); 
 }
