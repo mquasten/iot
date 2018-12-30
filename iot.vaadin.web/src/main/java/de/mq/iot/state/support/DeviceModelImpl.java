@@ -25,6 +25,9 @@ public class DeviceModelImpl implements DeviceModel {
 
 	private final Map<String, Collection<State<Object>>> selectedDevices = new HashMap<>();
 	
+	
+	private String type;
+	
 	private Object value;
 
 	
@@ -149,4 +152,27 @@ public class DeviceModelImpl implements DeviceModel {
 		this.value=new Double(result/100d);
 		notifyObservers(DeviceModel.Events.ValueChanged);
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.DeviceModel#assignType(java.lang.String)
+	 */
+	@Override
+	public void assignType(final String type) {
+		this.type=type;
+		selectedDevices.clear();
+		this.value = null;
+		notifyObservers(DeviceModel.Events.SeclectionChanged);
+		notifyObservers(DeviceModel.Events.TypeChanged);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.DeviceModel#type()
+	 */
+	@Override
+	public Optional<String> type() {
+		return  Optional.ofNullable(type);
+	}
+	
 }

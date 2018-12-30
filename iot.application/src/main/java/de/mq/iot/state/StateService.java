@@ -31,4 +31,10 @@ public interface StateService {
 	 */
 	Collection<Room> update(Collection<State<Object>> states);
 
+	/**
+	 * Supported device types
+	 * @return possible types of devices
+	 */
+	Collection<String> deviceTypes();
+
 }

@@ -15,7 +15,8 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 
 		ChangeLocale,
 		SeclectionChanged,
-		ValueChanged;
+		ValueChanged,
+		TypeChanged
 
 	}
 
@@ -62,5 +63,20 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	 * Assign value to that the selected Devices should be set
 	 * @param value new value
 	 */
-	void assign(String value); 
+	void assign(String value);
+
+
+
+	/**
+	 * Change device type
+	 * @param type the type of the devives
+	 */
+	void assignType(String type);
+
+
+	/**
+	 * Device type
+	 * @return devives type
+	 */
+	Optional<String> type(); 
 }

@@ -3,11 +3,14 @@ package de.mq.iot.state.support;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.context.MessageSource;
 import org.springframework.util.CollectionUtils;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
@@ -17,6 +20,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
@@ -66,15 +70,27 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 	
 	private Collection<Column<?>> devicesValueColumn= new ArrayList<>();
 	
+	private final ComboBox<String> comboBox = new ComboBox<>();
+	
+	@I18NKey("type_state")
+	private final Label typeStateLabel = new Label();
+	@I18NKey("type_level")
+	private final Label typeLevelLabel = new Label();
+	
+	private Map<String,Label> typeLabels = new HashMap<>();
 	
 
 	DeviceView(final StateService stateService, final DeviceModel deviveModel, final MessageSource messageSource, final ButtonBox buttonBox,  final StateToStringConverter  stateToStringConverter ) {
 
-	
+		typeLabels.put("STATE", typeStateLabel);
+		typeLabels.put("LEVEL", typeLevelLabel);
 
-		createUI(deviveModel, buttonBox, stateToStringConverter);
+		createUI(stateService, deviveModel, buttonBox, stateToStringConverter);
 
-		grid.setItems(stateService.deviceStates( Arrays.asList("LEVEL")));
+	  
+		
+		
+		
 		
 		
 		deviveModel.register(DeviceModel.Events.SeclectionChanged, () -> {
@@ -102,16 +118,24 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 			});
 			
 		});
+		
+		deviveModel.register(DeviceModel.Events.TypeChanged, () -> {
+			grid.setItems(Arrays.asList());
+			deviveModel.type().ifPresent(type -> grid.setItems(stateService.deviceStates(Arrays.asList(type))));
+			
+		});
+		
+		
+		
 
 		valueField.addValueChangeListener(event -> deviveModel.assign(event.getValue()));
 		
 		
 		deviveModel.register(DeviceModel.Events.ChangeLocale, () -> {
 			localize(messageSource, deviveModel.locale());
-			devicesColumn.setHeader(devicesLabel.getText());
 			devicesValueColumn.forEach(column -> column.setHeader(deviceValueLabel.getText()));
+			
 		});
-		
 		
 		saveButton.addClickListener(event -> {
 			
@@ -121,10 +145,9 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 				 
 				 states.forEach(state -> state.assign( value));
 			
-				 final Collection<Room> rooms = stateService.update(  states);
+				 grid.setItems(stateService.update(  states));
 				
-				 grid.setItems(rooms);
-				 valueField.setValue("");
+				 deviveModel.assignType(comboBox.getValue());
 			
 				
 				 
@@ -132,13 +155,17 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 			
 		});
 		
+		
+		
 
 		deviveModel.notifyObservers(DeviceModel.Events.ChangeLocale);
+		comboBox.setItems(stateService.deviceTypes());
 		
+		comboBox.getDataProvider().fetch(new Query<>()).findFirst().ifPresent(value -> comboBox.setValue(value));
 
 	}
 
-	private void createUI(final DeviceModel deviceModel, final ButtonBox buttonBox, final  StateToStringConverter  stateToStringConverter ) {
+	private void createUI(final StateService stateService, final DeviceModel deviceModel, final ButtonBox buttonBox, final  StateToStringConverter  stateToStringConverter ) {
 
 		saveButton.setEnabled(false);
 
@@ -147,6 +174,22 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
 
+		final FormLayout searchLayout = new FormLayout();
+		searchLayout.add(devicesLabel);
+		comboBox.setItemLabelGenerator(value -> typeLabels.get(value).getText());
+		
+		comboBox.addValueChangeListener(event -> deviceModel.assignType(event.getValue()));
+		
+		
+		comboBox.setAllowCustomValue(false);
+		
+		
+		
+		
+		
+		searchLayout.add(comboBox);
+	
+		
 		formLayout.setSizeFull();
 
 		formLayout.setResponsiveSteps(new ResponsiveStep("10vH", 1));
@@ -211,7 +254,8 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 			return devices;
 		}));
 	
-
+		
+		devicesColumn.setHeader(searchLayout);
 		grid.setHeightByRows(true);
 
 		

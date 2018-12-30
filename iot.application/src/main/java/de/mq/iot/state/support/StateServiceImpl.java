@@ -1,6 +1,7 @@
 package de.mq.iot.state.support;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -139,6 +140,15 @@ class StateServiceImpl implements StateService {
 		deviceStates.forEach(room -> room.states().stream().filter(state -> values.containsKey(state.id())).forEach(state -> state.assign( values.get(state.id()))));
 		return deviceStates;
 		
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.StateService#deviceTypes()
+	 */
+	@Override
+	public final Collection<String> deviceTypes() {
+		return Arrays.asList("LEVEL", "STATE" );
 	}
 	
 
