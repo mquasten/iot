@@ -278,7 +278,7 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 
 		return IntStream.range(0, nodes.getLength())
 				.mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(conversionService.convert(nodes.item(i).getAttributes().getNamedItem(ID_ATTRIBUTE).getNodeValue(), Long.class), nodes.item(i).getParentNode().getAttributes().getNamedItem(NAME_ATTRIBUTE).getNodeValue()))
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (first, second) -> first));
 
 	}
 

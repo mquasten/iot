@@ -94,7 +94,7 @@ class StateServiceImpl implements StateService {
 	public Collection<Room> deviceStates(final Collection<String> types) {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
 
-		final Map<Long,String> channelIds = stateRepository.findChannelIds(resourceIdentifier).stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		final Map<Long,String> channelIds = stateRepository.findChannelIds(resourceIdentifier).stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue, (first,second) -> first));
 
 		final Map<Long, String> rooms = stateRepository.findCannelsRooms(resourceIdentifier);
 
