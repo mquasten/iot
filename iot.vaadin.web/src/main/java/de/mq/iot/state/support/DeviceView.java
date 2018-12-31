@@ -50,8 +50,11 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 	@I18NKey("devices_value")
 	private final Label deviceValueLabel = new Label();
 
-	@I18NKey("invalid_value")
-	private final Label invalidValueLabel = new Label();
+	@I18NKey("invalid_value_level")
+	private final Label invalidLevelValueLabel = new Label();
+	
+	@I18NKey("invalid_value_state")
+	private final Label invalidStateValueLabel = new Label();
 
 	@I18NKey("devices")
 	private final Label devicesLabel = new Label();
@@ -79,12 +82,15 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 	
 	private Map<DeviceType,Label> typeLabels = new HashMap<>();
 	
+	private Map<DeviceType, Label> errorMessages= new HashMap<>();
 
 	DeviceView(final StateService stateService, final DeviceModel deviveModel, final MessageSource messageSource, final ButtonBox buttonBox,  final StateToStringConverter  stateToStringConverter ) {
 
 		typeLabels.put(DeviceType.State, typeStateLabel);
 		typeLabels.put(DeviceType.Level, typeLevelLabel);
 
+		errorMessages.put(DeviceType.Level, invalidLevelValueLabel);
+		errorMessages.put(DeviceType.State, invalidStateValueLabel);
 		createUI(stateService, deviveModel, buttonBox, stateToStringConverter);
 
 	  
@@ -107,7 +113,8 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		deviveModel.register(DeviceModel.Events.ValueChanged, () ->{
 			if (deviveModel.isSelected()) {
 				saveButton.setEnabled(false);
-				stateValueField.setErrorMessage(Optional.of(invalidValueLabel.getText()));
+				deviveModel.type().ifPresent(type -> stateValueField.setErrorMessage(Optional.ofNullable(errorMessages.get(type).getText())));
+				
 			}
 			
 			deviveModel.value().ifPresent(value -> {
@@ -120,6 +127,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		deviveModel.register(DeviceModel.Events.TypeChanged, () -> {
 			grid.setItems(Arrays.asList());
 			deviveModel.type().ifPresent(type -> grid.setItems(stateService.deviceStates(Arrays.asList(type))));
+			deviveModel.type().ifPresent(type -> stateValueField.setDeviceType(type));
 			
 		});
 		

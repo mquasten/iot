@@ -143,10 +143,14 @@ public class DeviceModelImpl implements DeviceModel {
 			
 		}
 		
+		if( value instanceof Boolean) {
+			this.value=value;
+		}
+		
 		notifyObservers(DeviceModel.Events.ValueChanged);
 	}
 
-	protected void assignDouble(final String value) {
+	private void assignDouble(final String value) {
 		if( StringUtils.isEmpty(value) ) {
 			
 			return;
