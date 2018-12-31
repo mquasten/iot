@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.context.MessageSource;
 import org.springframework.util.CollectionUtils;
@@ -19,7 +20,6 @@ import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.ValueProvider;
@@ -32,6 +32,7 @@ import de.mq.iot.model.LocalizeView;
 import de.mq.iot.state.Room;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
+import de.mq.iot.state.StateService.DeviceType;
 import de.mq.iot.support.ButtonBox;
 
 @Route("devices")
@@ -54,9 +55,8 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 	@I18NKey("devices")
 	private final Label devicesLabel = new Label();
+	
 
-
-	private final TextField valueField = new TextField();
 
 	@I18NKey("value")
 	private Label valueLabel = new Label();
@@ -64,26 +64,26 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 	@I18NKey("info")
 	private final Label stateInfoLabel = new Label();
 
-	private final FormLayout formLayout = new FormLayout();
+	private final DeviceStateValueField stateValueField = new DeviceStateValueField();
 	
 	private Column<?> devicesColumn; 
 	
 	private Collection<Column<?>> devicesValueColumn= new ArrayList<>();
 	
-	private final ComboBox<String> comboBox = new ComboBox<>();
+	private final ComboBox<DeviceType> comboBox = new ComboBox<>();
 	
 	@I18NKey("type_state")
 	private final Label typeStateLabel = new Label();
 	@I18NKey("type_level")
 	private final Label typeLevelLabel = new Label();
 	
-	private Map<String,Label> typeLabels = new HashMap<>();
+	private Map<DeviceType,Label> typeLabels = new HashMap<>();
 	
 
 	DeviceView(final StateService stateService, final DeviceModel deviveModel, final MessageSource messageSource, final ButtonBox buttonBox,  final StateToStringConverter  stateToStringConverter ) {
 
-		typeLabels.put("STATE", typeStateLabel);
-		typeLabels.put("LEVEL", typeLevelLabel);
+		typeLabels.put(DeviceType.State, typeStateLabel);
+		typeLabels.put(DeviceType.Level, typeLevelLabel);
 
 		createUI(stateService, deviveModel, buttonBox, stateToStringConverter);
 
@@ -93,28 +93,26 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		
 		
 		
+		
 		deviveModel.register(DeviceModel.Events.SeclectionChanged, () -> {
-			valueField.setEnabled(deviveModel.isSelected());
-			deviveModel.selectedDistinctSinglePercentValue().ifPresent(value -> valueField.setValue("" + stateToStringConverter.convertValue(value)));
+			
+			stateValueField.setEnabled(deviveModel.isSelected());
+			
+			deviveModel.selectedDistinctSinglePercentValue().ifPresent(value -> stateValueField.setValue( stateToStringConverter.convertValue(value)));
 			if (!deviveModel.isSelected()) {
-				valueField.setInvalid(false);
 				saveButton.setEnabled(false);
-				valueField.clear();
-
+				stateValueField.setErrorMessage(Optional.empty());
 			}
 		});
 		deviveModel.register(DeviceModel.Events.ValueChanged, () ->{
 			if (deviveModel.isSelected()) {
-				valueField.setInvalid(true);
 				saveButton.setEnabled(false);
-				valueField.setErrorMessage(invalidValueLabel.getText());
+				stateValueField.setErrorMessage(Optional.of(invalidValueLabel.getText()));
 			}
 			
 			deviveModel.value().ifPresent(value -> {
-				valueField.setErrorMessage("");
-				valueField.setInvalid(false);
+				stateValueField.setErrorMessage(Optional.empty());
 				saveButton.setEnabled(true);
-				
 			});
 			
 		});
@@ -127,12 +125,12 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		
 		
 		
-
-		valueField.addValueChangeListener(event -> deviveModel.assign(event.getValue()));
+		stateValueField.addConsumer( value ->  deviveModel.assign(value));
 		
 		
 		deviveModel.register(DeviceModel.Events.ChangeLocale, () -> {
 			localize(messageSource, deviveModel.locale());
+			stateValueField.localize(valueLabel.getText());
 			devicesValueColumn.forEach(column -> column.setHeader(deviceValueLabel.getText()));
 			
 		});
@@ -167,9 +165,12 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 	private void createUI(final StateService stateService, final DeviceModel deviceModel, final ButtonBox buttonBox, final  StateToStringConverter  stateToStringConverter ) {
 
+		
 		saveButton.setEnabled(false);
 
-		valueField.setEnabled(false);
+		
+		
+		stateValueField.setEnabled(false);
 
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
@@ -190,19 +191,18 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		searchLayout.add(comboBox);
 	
 		
-		formLayout.setSizeFull();
+		stateValueField.setSizeFull();
 
-		formLayout.setResponsiveSteps(new ResponsiveStep("10vH", 1));
+		stateValueField.setResponsiveSteps(new ResponsiveStep("10vH", 1));
 
-		valueField.setSizeFull();
+		stateValueField.setSizeFull();
 
-		formLayout.addFormItem(valueField, valueLabel);
 
 		final VerticalLayout buttonLayout = new VerticalLayout(saveButton);
 
-		final HorizontalLayout editorLayout = new HorizontalLayout(formLayout, buttonLayout);
+		final HorizontalLayout editorLayout = new HorizontalLayout(stateValueField, buttonLayout);
 
-		editorLayout.setVerticalComponentAlignment(Alignment.CENTER, formLayout, buttonLayout);
+		editorLayout.setVerticalComponentAlignment(Alignment.CENTER, stateValueField, buttonLayout);
 
 		editorLayout.setSizeFull();
 

@@ -34,6 +34,7 @@ import org.xml.sax.InputSource;
 
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.state.State;
+import de.mq.iot.state.StateService.DeviceType;
 
 @Repository
 abstract class AbstractHomematicXmlApiStateRepository implements StateRepository {
@@ -240,7 +241,7 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 		}).collect(Collectors.toList());
 	}
 	
-	final String xpath(final String key, final Collection<String> names) {
+	final String xpath(final String key, final Collection<DeviceType> names) {
 		
 		
 		final StringBuffer  stringBuffer = new StringBuffer();
@@ -283,7 +284,7 @@ abstract class AbstractHomematicXmlApiStateRepository implements StateRepository
 	}
 
 	@Override
-	public Collection<Map<String,String>> findDeviceStates(final ResourceIdentifier resourceIdentifier, Collection<String> types) {
+	public Collection<Map<String,String>> findDeviceStates(final ResourceIdentifier resourceIdentifier, Collection<DeviceType> types) {
 
 		final ResponseEntity<byte[]> res = webClientBuilder().build().get().uri(resourceIdentifier.uri(), XmlApiParameters.StateList.parameters(resourceIdentifier)).exchange().block(timeout).toEntity(byte[].class).block(timeout);
 

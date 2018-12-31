@@ -11,11 +11,11 @@ import de.mq.iot.state.State;
 
 class StateToStringConverterImpl implements StateToStringConverter {
 	
-	private Map<Class<?>, Function<Object,String>> mappings = new HashMap<>();
+	private Map<Class<?>, Function<Object,Object>> mappings = new HashMap<>();
 	
 	StateToStringConverterImpl() {
 		mappings.put(Double.class, value -> ""  + (int)  Math.round(((Double) value) * 100d));
-		mappings.put(Boolean.class, value -> value.toString()   );
+		mappings.put(Boolean.class, value -> value   );
 	}
 
 	/* (non-Javadoc)
@@ -27,12 +27,12 @@ class StateToStringConverterImpl implements StateToStringConverter {
 		final Class<?> clazz = (Class<?>) t.getActualTypeArguments()[0]; 
 		Assert.isTrue(mappings.containsKey(clazz), String.format("Mapping not defined for %s", clazz));
 		
-		return mappings.get(clazz).apply(state.value());
+		return  mappings.get(clazz).apply(state.value()).toString();
 		
 	}
 
-	@Override
-	public String convertValue(final Object value) {
+	
+	public Object convertValue(final Object value) {
 		Assert.isTrue(mappings.containsKey(value.getClass()), String.format("Mapping not defined for %s", value.getClass()));
 		return mappings.get(value.getClass()).apply(value);
 	}

@@ -21,11 +21,12 @@ import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 import de.mq.iot.state.Room;
 import de.mq.iot.state.State;
+import de.mq.iot.state.StateService.DeviceType;
 import de.mq.iot.state.support.DeviceModel.Events;
 
 class DeviceModelTest {
 
-	private static final String TYPE_STATE = "STATE";
+	
 
 	private static final double STATE_VALUE = 0.5d;
 
@@ -167,9 +168,9 @@ class DeviceModelTest {
 		assertTrue(deviceModel.isSelected());
 		assertEquals(Optional.empty(), deviceModel.type());
 		
-		deviceModel.assignType(TYPE_STATE);
+		deviceModel.assignType(DeviceType.Level);
 		
-		assertEquals(Optional.of(TYPE_STATE), Optional.of(TYPE_STATE));
+		assertEquals(Optional.of(DeviceType.Level), deviceModel.type());
 		assertFalse(deviceModel.value().isPresent());
 		assertFalse(deviceModel.isSelected());
 		Mockito.verify(subject).notifyObservers(DeviceModel.Events.SeclectionChanged);
@@ -181,8 +182,8 @@ class DeviceModelTest {
 	@Test
 	void  type() {
 		assertFalse(deviceModel.isSelected());
-		ReflectionTestUtils.setField(deviceModel, "type" , TYPE_STATE);
-		assertEquals(Optional.of(TYPE_STATE), Optional.of(TYPE_STATE));
+		ReflectionTestUtils.setField(deviceModel, "type" , DeviceType.State);
+		assertEquals(Optional.of(DeviceType.State), deviceModel.type());
 		
 	}
 	

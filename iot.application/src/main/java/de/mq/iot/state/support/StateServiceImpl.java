@@ -34,10 +34,10 @@ class StateServiceImpl implements StateService {
 	private final StateRepository stateRepository;
 	private final Map<String, StateConverter<State<?>>> stateConverters = new HashMap<>();
 	private final ConversionService conversionService;
-	private final Converter<State<?>, String> stateTypeConverter;
+	private final Converter<State<?>, DeviceType> stateTypeConverter;
 	@SuppressWarnings("unchecked")
 	@Autowired
-	StateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository, final StateRepository stateRepository, final Collection<StateConverter<?>> stateConverters, final ConversionService conversionService, @Qualifier("stateTypeInfoConverter") final Converter<State<?>, String> stateTypeConverter,  @Value("${mongo.timeout:500}") final Integer timeout) {
+	StateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository, final StateRepository stateRepository, final Collection<StateConverter<?>> stateConverters, final ConversionService conversionService, @Qualifier("stateTypeInfoConverter") final Converter<State<?>, DeviceType> stateTypeConverter,  @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.resourceIdentifierRepository = resourceIdentifierRepository;
 		this.stateRepository = stateRepository;
 		this.conversionService=conversionService;
@@ -91,7 +91,7 @@ class StateServiceImpl implements StateService {
 	 * @see de.mq.iot.state.StateService#deviceStates()
 	 */
 	@Override
-	public Collection<Room> deviceStates(final Collection<String> types) {
+	public Collection<Room> deviceStates(final Collection<DeviceType> types) {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
 
 		final Map<Long,String> channelIds = stateRepository.findChannelIds(resourceIdentifier).stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue, (first,second) -> first));
@@ -132,7 +132,7 @@ class StateServiceImpl implements StateService {
 		stateRepository.changeState(resourceIdentifier,  entries);
 		
 		
-		final Collection<String> types = states.stream().map(state -> stateTypeConverter.convert(state)).distinct().collect(Collectors.toList());
+		final Collection<DeviceType> types = states.stream().map(state -> stateTypeConverter.convert(state)).distinct().collect(Collectors.toList());
 		
 		
 		final Collection<Room> deviceStates = deviceStates(types);
@@ -147,8 +147,8 @@ class StateServiceImpl implements StateService {
 	 * @see de.mq.iot.state.StateService#deviceTypes()
 	 */
 	@Override
-	public final Collection<String> deviceTypes() {
-		return Arrays.asList("LEVEL", "STATE" );
+	public final Collection<DeviceType> deviceTypes() {
+		return Arrays.asList(DeviceType.Level, DeviceType.State );
 	}
 	
 

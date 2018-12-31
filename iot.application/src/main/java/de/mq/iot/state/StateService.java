@@ -9,6 +9,29 @@ import java.util.Collection;
 public interface StateService {
 	
 	/**
+	 * DeviceTypes
+	 * @author Admin
+	 *
+	 */
+	public enum DeviceType {
+		Level,
+		State;
+
+		/*
+		 * (non-Javadoc)
+		 * @see java.lang.Enum#toString()
+		 */
+		@Override
+		public String toString() {
+			return name().toUpperCase();
+		}
+		
+		
+
+	}
+	
+	
+	/**
 	 * Read all  state form CCU2
 	 * @return Collection of State from CCU2
 	 */
@@ -21,7 +44,7 @@ public interface StateService {
 	 * @param types list of types to query
 	 * @return list of devices
 	 */
-	Collection<Room> deviceStates(final Collection<String> types);
+	Collection<Room> deviceStates(final Collection<DeviceType> types);
 
 	/**
 	 * Update states
@@ -35,6 +58,6 @@ public interface StateService {
 	 * Supported device types
 	 * @return possible types of devices
 	 */
-	Collection<String> deviceTypes();
+	Collection<DeviceType> deviceTypes();
 
 }

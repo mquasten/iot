@@ -26,6 +26,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.state.State;
+import de.mq.iot.state.StateService.DeviceType;
 import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
@@ -108,7 +109,7 @@ class StateRepositoryIntegrationTest {
 	@Test
 	@Disabled
 	void findDeviceStates() {
-		 final Collection<Map<String,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findDeviceStates(resourceIdentifier, Arrays.asList("LEVEL"));
+		 final Collection<Map<String,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findDeviceStates(resourceIdentifier, Arrays.asList(DeviceType.Level));
 		 assertEquals(3, results.size());
 		
 		 results.stream().forEach(map -> {

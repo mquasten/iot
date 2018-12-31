@@ -18,6 +18,7 @@ import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 import de.mq.iot.state.Room;
 import de.mq.iot.state.State;
+import de.mq.iot.state.StateService.DeviceType;
 
 public class DeviceModelImpl implements DeviceModel {
 
@@ -26,7 +27,7 @@ public class DeviceModelImpl implements DeviceModel {
 	private final Map<String, Collection<State<Object>>> selectedDevices = new HashMap<>();
 	
 	
-	private String type;
+	private DeviceType type;
 	
 	private Object value;
 
@@ -134,23 +135,33 @@ public class DeviceModelImpl implements DeviceModel {
 	 * @see de.mq.iot.state.support.DeviceModel#assign(java.lang.String)
 	 */
 	@Override
-	public void assign(final String value) {
+	public void assign(final Object value) {
 		this.value = null;
+		
+		if (value instanceof String) {
+			assignDouble((String) value);
+			
+		}
+		
+		notifyObservers(DeviceModel.Events.ValueChanged);
+	}
+
+	protected void assignDouble(final String value) {
 		if( StringUtils.isEmpty(value) ) {
-			notifyObservers(DeviceModel.Events.ValueChanged);
+			
 			return;
 		}
 		if(!value.matches("[0-9]{1,3}")) {
-			notifyObservers(DeviceModel.Events.ValueChanged);
+			
 			return;
 		}
 		int result = Integer.parseInt(value);
 		if( result > 100) {
-			notifyObservers(DeviceModel.Events.ValueChanged);
+			
 			return; 
 		}
 		this.value=new Double(result/100d);
-		notifyObservers(DeviceModel.Events.ValueChanged);
+		
 	}
 	
 	/*
@@ -158,7 +169,7 @@ public class DeviceModelImpl implements DeviceModel {
 	 * @see de.mq.iot.state.support.DeviceModel#assignType(java.lang.String)
 	 */
 	@Override
-	public void assignType(final String type) {
+	public void assignType(final DeviceType type) {
 		this.type=type;
 		selectedDevices.clear();
 		this.value = null;
@@ -171,7 +182,7 @@ public class DeviceModelImpl implements DeviceModel {
 	 * @see de.mq.iot.state.support.DeviceModel#type()
 	 */
 	@Override
-	public Optional<String> type() {
+	public Optional<DeviceType> type() {
 		return  Optional.ofNullable(type);
 	}
 	

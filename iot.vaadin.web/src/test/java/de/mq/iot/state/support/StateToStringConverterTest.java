@@ -49,7 +49,7 @@ public class StateToStringConverterTest {
 	
 	@Test
 	void convertValueBoolean() {
-		assertEquals(Boolean.TRUE.toString(), stateToStringConverter.convertValue(Boolean.TRUE));
+		assertEquals(Boolean.TRUE, stateToStringConverter.convertValue(Boolean.TRUE));
 	}
 	
 	@Test

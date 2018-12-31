@@ -8,6 +8,7 @@ import de.mq.iot.model.LocaleAware;
 import de.mq.iot.model.Subject;
 import de.mq.iot.state.Room;
 import de.mq.iot.state.State;
+import de.mq.iot.state.StateService.DeviceType;
 
 public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel> , LocaleAware  {
 
@@ -63,7 +64,7 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	 * Assign value to that the selected Devices should be set
 	 * @param value new value
 	 */
-	void assign(String value);
+	void assign(Object value);
 
 
 
@@ -71,14 +72,14 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	 * Change device type
 	 * @param type the type of the devives
 	 */
-	void assignType(String type);
+	void assignType(DeviceType type);
 
 
 	/**
 	 * Device type
 	 * @return devives type
 	 */
-	Optional<String> type();
+	Optional<DeviceType> type();
 
 
 

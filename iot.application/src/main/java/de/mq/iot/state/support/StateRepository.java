@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.state.State;
+import de.mq.iot.state.StateService.DeviceType;
 
 public interface StateRepository {
 
@@ -34,7 +35,7 @@ public interface StateRepository {
 	 *            the types that will be selected , LEVEL or STATE
 	 * @return List of DeviceStates as a map
 	 */
-	 Collection<Map<String,String>> findDeviceStates(ResourceIdentifier resourceIdentifier, Collection<String> types);
+	 Collection<Map<String,String>> findDeviceStates(ResourceIdentifier resourceIdentifier, Collection<DeviceType> types);
 
 	/**
 	 * Change values for the given devices

@@ -43,13 +43,14 @@ import org.springframework.web.reactive.function.client.WebClient.RequestHeaders
 
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.state.State;
+import de.mq.iot.state.StateService.DeviceType;
 import de.mq.iot.state.support.AbstractHomematicXmlApiStateRepository.XmlApiParameters;
 import reactor.core.publisher.Mono;
 
 class StateRepositoryTest {
 
-	private static final String SECOND_FUNCTION = "Licht";
-	private static final String FIRST_FUNCION = "Rolladen";
+	
+
 	private static final double SECOUND_DOUBLE_VALUE = 0.5;
 	private static final double DOUNBLE_VALUE = 1.0;
 	private static final Long SECOND_ID = 19680528L;
@@ -324,7 +325,7 @@ class StateRepositoryTest {
 
 		final Collection<Entry<Long,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findChannelIds(resourceIdentifier);
 
-		assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().filter(entry-> entry.getValue().equals(FIRST_FUNCION)).map(Entry::getKey).collect(Collectors.toList()));
+		assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().filter(entry-> entry.getValue().equals("Rolladen")).map(Entry::getKey).collect(Collectors.toList()));
 	
 		assertEquals(URI, uriCaptor.getValue());
 		assertEquals(HOST, parameterCaptor.getValue().get(HOST_PARMETER));
@@ -349,7 +350,7 @@ class StateRepositoryTest {
 	@Test
 	final void findDeviceStates() {
 		Mockito.doReturn(XML_STATES).when(resonseEntity).getBody();
-		final Collection<Map<String,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findDeviceStates(resourceIdentifier, Arrays.asList("LEVEL"));
+		final Collection<Map<String,String>> results = ((AbstractHomematicXmlApiStateRepository) stateRepository).findDeviceStates(resourceIdentifier, Arrays.asList(DeviceType.Level));
 
 		assertEquals(3, results.size());
 		
@@ -367,8 +368,8 @@ class StateRepositoryTest {
 	
 	@Test
 	final void xpath() {
-		final String result = stateRepository.xpath("name", Arrays.asList(FIRST_FUNCION , SECOND_FUNCTION));
-		assertEquals(String.format("@name='%s' or @name='%s'",  FIRST_FUNCION, SECOND_FUNCTION), result);
+		final String result = stateRepository.xpath("type", Arrays.asList(DeviceType.values()));
+		assertEquals(String.format("@type='%s' or @type='%s'",  DeviceType.Level, DeviceType.State), result);
 	}
 
 }
