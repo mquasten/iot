@@ -9,8 +9,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.core.convert.ConversionService;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -30,11 +33,25 @@ public class DeviceModelImpl implements DeviceModel {
 	private DeviceType type;
 	
 	private Object value;
-
+	
+	private Map<DeviceType, Consumer<Object>> consumers = new HashMap<>();
+	
+	
+private Map<DeviceType, Function<Object,Object>> converters = new HashMap<>();
+	
+	
+private final ConversionService conversionService;
 	
 
-	DeviceModelImpl(Subject<Events, DeviceModel> subject) {
+	DeviceModelImpl(final Subject<Events, DeviceModel> subject, final ConversionService conversionService) {
 		this.subject = subject;
+		this.conversionService=conversionService;
+		consumers.put(DeviceType.Level, val -> assignDouble( (String) val) ) ;
+		consumers.put(DeviceType.State, val -> this.value=val ) ;
+		
+		
+		converters.put(DeviceType.Level, value -> ""  + (int)  Math.round(((Double) value) * 100d) );
+		converters.put(DeviceType.State, value -> value   );
 	}
 
 	@Override
@@ -102,14 +119,17 @@ public class DeviceModelImpl implements DeviceModel {
 	 * (non-Javadoc)
 	 * @see de.mq.iot.state.support.DeviceModel#selectedDistinctPercentValue()
 	 */
-	public Optional<Object> selectedDistinctSinglePercentValue() {
+	public Optional<Object> selectedDistinctSingleViewValue() {
 		
 		final List<?>   states = selectedDevices().stream().map(state -> (Object)  state.value()).distinct().limit(2).collect(Collectors.toList());
 		if( states.size() != 1) {
 			
 			return Optional.empty();
 		}
-		return Optional.of(states.get(0));
+		
+		converterAwareGuard();
+		
+		return Optional.of(converters.get(type).apply(states.get(0)));
 		
 	}
 	@Override
@@ -138,14 +158,10 @@ public class DeviceModelImpl implements DeviceModel {
 	public void assign(final Object value) {
 		this.value = null;
 		
-		if (value instanceof String) {
-			assignDouble((String) value);
-			
-		}
+		Assert.notNull(type, "DeviceType must be aware.");
+		Assert.isTrue(consumers.containsKey(type), "Consumer undefined for" + type);
 		
-		if( value instanceof Boolean) {
-			this.value=value;
-		}
+		consumers.get(this.type).accept(value);
 		
 		notifyObservers(DeviceModel.Events.ValueChanged);
 	}
@@ -199,5 +215,30 @@ public class DeviceModelImpl implements DeviceModel {
 		this.selectedDevices.clear();
 		notifyObservers(DeviceModel.Events.SeclectionChanged);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.core.convert.converter.Converter#convert(java.lang.Object)
+	 */
+	@Override
+	public String convert(final State<?> state) {
+		converterAwareGuard();
+		return conversionService.convert(converters.get(type).apply(state.value()), String.class);
+	}
+
+	private void converterAwareGuard() {
+		Assert.notNull(type, "DeviceType must be aware.");
+		Assert.isTrue(converters.containsKey(type), "Converter undefined for " + type);
+	}
+	
+	@Override
+	public final Collection<State<Object>> changedValues() {
+	
+		final Collection<State<Object>> results = 	selectedDevices();
+		results.forEach(state -> state.assign(value));
+		
+		return results;
+	}
+	
 	
 }

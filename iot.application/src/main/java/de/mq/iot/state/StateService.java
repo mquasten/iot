@@ -50,9 +50,8 @@ public interface StateService {
 	 * Update states
 	 * Every state will be set to its value. 
 	 * @param states list of states 
-	 * @return list of Rooms, with changed State Values
 	 */
-	Collection<Room> update(Collection<State<Object>> states);
+	void update(Collection<State<Object>> states);
 
 	/**
 	 * Supported device types

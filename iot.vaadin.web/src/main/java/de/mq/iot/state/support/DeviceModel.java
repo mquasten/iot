@@ -1,7 +1,10 @@
 package de.mq.iot.state.support;
 
 import java.util.Collection;
+
 import java.util.Optional;
+
+import org.springframework.core.convert.converter.Converter;
 
 import de.mq.iot.calendar.support.CalendarModel;
 import de.mq.iot.model.LocaleAware;
@@ -10,7 +13,7 @@ import de.mq.iot.state.Room;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService.DeviceType;
 
-public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel> , LocaleAware  {
+public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel> , LocaleAware  , Converter<State<?>,String> {
 
 	public enum Events {
 
@@ -39,10 +42,10 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 
 
 	 /**
-	  * if all selected devices have the same value, that value * 100  is returned. otherwise Optional.empty() is returned
-	  * @return the value of all devicesStates, if all values are equals. Otherwise return 0
+	  * if all selected devices have the same value, that value will be converted to view representation andreturned. otherwise Optional.empty() is returned
+	  * @return the value of all devicesStates, if all values are equals. Otherwise return Optional.empty
 	  */
-	Optional<Object> selectedDistinctSinglePercentValue();
+	Optional<Object> selectedDistinctSingleViewValue();
 
 
 	/**
@@ -86,5 +89,19 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	/**
 	 * Reset all selected values
 	 */
-	void clearSelection(); 
+	void clearSelection();
+
+
+	/**
+	 * Selected states as Map with new Value from model
+	 * @return changed states;
+	 */
+	Collection<State<Object>> changedValues();
+
+
+	
+
+
+
+	
 }

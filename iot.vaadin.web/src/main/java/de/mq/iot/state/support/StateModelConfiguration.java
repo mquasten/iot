@@ -45,10 +45,7 @@ class StateModelConfiguration  {
 		return new StateValueConverterImpl(conversionService);
 
 	}
-	@Bean
-	StateToStringConverter stateToStringConverter() {
-		return new StateToStringConverterImpl();
-	}
+	
 
 	@Bean
 	//@UIScope
@@ -62,8 +59,8 @@ class StateModelConfiguration  {
 	@Bean
 	//@UIScope
 	@Scope("prototype")
-	DeviceModel deviceModel(final Subject<DeviceModel.Events, DeviceModel> subject) {
-		return new DeviceModelImpl(subject);
+	DeviceModel deviceModel(final Subject<DeviceModel.Events, DeviceModel> subject, final ConversionService conversionService) {
+		return new DeviceModelImpl(subject, conversionService);
 
 	}
 

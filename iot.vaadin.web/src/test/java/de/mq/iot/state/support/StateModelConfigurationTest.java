@@ -116,18 +116,15 @@ public class StateModelConfigurationTest {
 		@SuppressWarnings("unchecked")
 		final Subject<DeviceModel.Events , DeviceModel> subject = Mockito.mock(Subject.class);
 		final Observer observer = Mockito.mock(Observer.class);
+		final ConversionService conversionService = Mockito.mock(ConversionService.class);
 		
-		final DeviceModel model = stateModelConfiguration.deviceModel(subject); 
+		final DeviceModel model = stateModelConfiguration.deviceModel(subject, conversionService); 
 		
 		assertNotNull(model);
 		model.register(Events.SeclectionChanged, observer);
 		Mockito.verify(subject).register(Events.SeclectionChanged, observer);
-	}
-	
-	
-	@Test
-	void  stateToStringConverter() {
-		assertTrue(stateModelConfiguration.stateToStringConverter() instanceof StateToStringConverter); 
+		
+		assertEquals(conversionService, ReflectionTestUtils.getField(model, "conversionService"));
 	}
 	
 }

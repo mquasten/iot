@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.model.Observer;
@@ -33,7 +34,7 @@ class DeviceModelTest {
 	@SuppressWarnings("unchecked")
 	private Subject<Events, DeviceModel> subject = Mockito.mock(Subject.class);
 
-	private final DeviceModel deviceModel = new DeviceModelImpl(subject);
+	private final DeviceModel deviceModel = new DeviceModelImpl(subject, new DefaultConversionService());
 
 	private final Observer observer = Mockito.mock(Observer.class);
 
@@ -96,12 +97,13 @@ class DeviceModelTest {
 
 	@Test
 	void selectedDistinctSinglePercentValue() {
-		assertFalse(deviceModel.selectedDistinctSinglePercentValue().isPresent());
+		deviceModel.assignType(DeviceType.Level);
+		assertFalse(deviceModel.selectedDistinctSingleViewValue().isPresent());
 
 		deviceModel.assign(firstRoom, Arrays.asList(firstState, secondState));
 		deviceModel.assign(secondRoom, Arrays.asList(secondState));
 
-		assertEquals(Optional.of(STATE_VALUE ), deviceModel.selectedDistinctSinglePercentValue());
+		assertEquals(Optional.of("" + (int) (STATE_VALUE *100d)), deviceModel.selectedDistinctSingleViewValue());
 	}
 
 	@Test
@@ -111,7 +113,7 @@ class DeviceModelTest {
 		deviceModel.assign(firstRoom, Arrays.asList(firstState, secondState));
 		deviceModel.assign(secondRoom, Arrays.asList(secondState));
 
-		assertEquals(Optional.empty(), deviceModel.selectedDistinctSinglePercentValue());
+		assertEquals(Optional.empty(), deviceModel.selectedDistinctSingleViewValue());
 	}
 
 	@Test
@@ -125,6 +127,7 @@ class DeviceModelTest {
 
 	@Test
 	void assign() {
+		deviceModel.assignType(DeviceType.Level);
 		final int value = 50;
 		deviceModel.assign("" +value);
 		
@@ -135,6 +138,8 @@ class DeviceModelTest {
 	
 	@Test
 	void assignEmpty() {
+		deviceModel.assignType(DeviceType.Level);
+		
 		deviceModel.assign("");
 		
 		assertEquals(Optional.empty(), deviceModel.value());
@@ -143,6 +148,7 @@ class DeviceModelTest {
 	
 	@Test
 	void assignInvalid() {
+		deviceModel.assignType(DeviceType.Level);
 		deviceModel.assign("x");
 		
 		assertEquals(Optional.empty(), deviceModel.value());
@@ -151,6 +157,7 @@ class DeviceModelTest {
 	
 	@Test
 	void assignOutOfRange() {
+		deviceModel.assignType(DeviceType.Level);
 		deviceModel.assign("101");
 		
 		assertEquals(Optional.empty(), deviceModel.value());

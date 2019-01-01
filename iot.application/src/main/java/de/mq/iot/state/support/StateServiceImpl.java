@@ -9,10 +9,8 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -34,16 +32,14 @@ class StateServiceImpl implements StateService {
 	private final StateRepository stateRepository;
 	private final Map<String, StateConverter<State<?>>> stateConverters = new HashMap<>();
 	private final ConversionService conversionService;
-	private final Converter<State<?>, DeviceType> stateTypeConverter;
+	
 	@SuppressWarnings("unchecked")
 	@Autowired
-	StateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository, final StateRepository stateRepository, final Collection<StateConverter<?>> stateConverters, final ConversionService conversionService, @Qualifier("stateTypeInfoConverter") final Converter<State<?>, DeviceType> stateTypeConverter,  @Value("${mongo.timeout:500}") final Integer timeout) {
+	StateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository, final StateRepository stateRepository, final Collection<StateConverter<?>> stateConverters, final ConversionService conversionService,  @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.resourceIdentifierRepository = resourceIdentifierRepository;
 		this.stateRepository = stateRepository;
 		this.conversionService=conversionService;
-		this.stateTypeConverter=stateTypeConverter;
-		//this.stateConverters.putAll((Map<? extends String, ? extends StateConverter<State<?>>>) (Map<?, ?>) stateConverters.stream().collect(Collectors.toMap(StateConverter::key, stateConverter -> stateConverter)));
-		
+	
 		stateConverters.forEach(converter -> converter.keys().forEach(key -> this.stateConverters.put(key, (StateConverter<State<?>>) converter)));
 		
 		this.timeout = Duration.ofMillis(timeout);
@@ -124,21 +120,14 @@ class StateServiceImpl implements StateService {
 	 * @see de.mq.iot.state.StateService#update(java.util.Collection)
 	 */
 	@Override
-	public Collection<Room> update(final Collection<State<Object>> states) {
+	public void update(final Collection<State<Object>> states) {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
 		
 		final Collection<Entry<Long,String>> entries = states.stream().collect(Collectors.toMap(State::id, state-> conversionService.convert(state.value(), String.class))).entrySet();
-		final Map<Long,? > values = states.stream().collect(Collectors.toMap(State::id, state-> state.value()));
 		stateRepository.changeState(resourceIdentifier,  entries);
 		
 		
-		final Collection<DeviceType> types = states.stream().map(state -> stateTypeConverter.convert(state)).distinct().collect(Collectors.toList());
 		
-		
-		final Collection<Room> deviceStates = deviceStates(types);
-	
-		deviceStates.forEach(room -> room.states().stream().filter(state -> values.containsKey(state.id())).forEach(state -> state.assign( values.get(state.id()))));
-		return deviceStates;
 		
 	}
 	

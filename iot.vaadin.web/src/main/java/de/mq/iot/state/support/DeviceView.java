@@ -52,14 +52,12 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 	@I18NKey("invalid_value_level")
 	private final Label invalidLevelValueLabel = new Label();
-	
+
 	@I18NKey("invalid_value_state")
 	private final Label invalidStateValueLabel = new Label();
 
 	@I18NKey("devices")
 	private final Label devicesLabel = new Label();
-	
-
 
 	@I18NKey("value")
 	private Label valueLabel = new Label();
@@ -68,116 +66,94 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 	private final Label stateInfoLabel = new Label();
 
 	private final DeviceStateValueField stateValueField = new DeviceStateValueField();
-	
-	private Column<?> devicesColumn; 
-	
-	private Collection<Column<?>> devicesValueColumn= new ArrayList<>();
-	
+
+	private Column<?> devicesColumn;
+
+	private Collection<Column<?>> devicesValueColumn = new ArrayList<>();
+
 	private final ComboBox<DeviceType> comboBox = new ComboBox<>();
-	
+
 	@I18NKey("type_state")
 	private final Label typeStateLabel = new Label();
 	@I18NKey("type_level")
 	private final Label typeLevelLabel = new Label();
-	
-	private Map<DeviceType,Label> typeLabels = new HashMap<>();
-	
-	private Map<DeviceType, Label> errorMessages= new HashMap<>();
 
-	DeviceView(final StateService stateService, final DeviceModel deviveModel, final MessageSource messageSource, final ButtonBox buttonBox,  final StateToStringConverter  stateToStringConverter ) {
+	private Map<DeviceType, Label> typeLabels = new HashMap<>();
+
+	private Map<DeviceType, Label> errorMessages = new HashMap<>();
+
+	DeviceView(final StateService stateService, final DeviceModel deviveModel, final MessageSource messageSource, final ButtonBox buttonBox) {
 
 		typeLabels.put(DeviceType.State, typeStateLabel);
 		typeLabels.put(DeviceType.Level, typeLevelLabel);
 
 		errorMessages.put(DeviceType.Level, invalidLevelValueLabel);
 		errorMessages.put(DeviceType.State, invalidStateValueLabel);
-		createUI(stateService, deviveModel, buttonBox, stateToStringConverter);
+		createUI(stateService, deviveModel, buttonBox);
 
-	  
-		
-		
-		
-		
-		
-		
 		deviveModel.register(DeviceModel.Events.SeclectionChanged, () -> {
-			
+
 			stateValueField.setEnabled(deviveModel.isSelected());
-			
-			deviveModel.selectedDistinctSinglePercentValue().ifPresent(value -> stateValueField.setValue( stateToStringConverter.convertValue(value)));
+
+			deviveModel.selectedDistinctSingleViewValue().ifPresent(value -> stateValueField.setValue(value));
 			if (!deviveModel.isSelected()) {
 				saveButton.setEnabled(false);
 				stateValueField.setErrorMessage(Optional.empty());
 			}
 		});
-		deviveModel.register(DeviceModel.Events.ValueChanged, () ->{
+		deviveModel.register(DeviceModel.Events.ValueChanged, () -> {
 			if (deviveModel.isSelected()) {
 				saveButton.setEnabled(false);
 				deviveModel.type().ifPresent(type -> stateValueField.setErrorMessage(Optional.ofNullable(errorMessages.get(type).getText())));
-				
+
 			}
-			
+
 			deviveModel.value().ifPresent(value -> {
 				stateValueField.setErrorMessage(Optional.empty());
 				saveButton.setEnabled(true);
 			});
-			
+
 		});
-		
+
 		deviveModel.register(DeviceModel.Events.TypeChanged, () -> {
 			grid.setItems(Arrays.asList());
 			deviveModel.type().ifPresent(type -> grid.setItems(stateService.deviceStates(Arrays.asList(type))));
 			deviveModel.type().ifPresent(type -> stateValueField.setDeviceType(type));
-			
+
 		});
-		
-		
-		
-		stateValueField.addConsumer( value ->  deviveModel.assign(value));
-		
-		
+
+		stateValueField.addConsumer(value -> deviveModel.assign(value));
+
 		deviveModel.register(DeviceModel.Events.ChangeLocale, () -> {
 			localize(messageSource, deviveModel.locale());
 			stateValueField.localize(valueLabel.getText());
 			devicesValueColumn.forEach(column -> column.setHeader(deviceValueLabel.getText()));
-			
+
 		});
-		
-		saveButton.addClickListener(event -> {
-			
-			deviveModel.value().ifPresent(value -> {
-				
-				 final Collection<State<Object>>  states = deviveModel.selectedDevices();
-				 
-				 states.forEach(state -> state.assign( value));
-			
-				 grid.setItems(stateService.update(  states));
-				
-				deviveModel.clearSelection();
-			
-				
-				 
-			});
-			
-		});
-		
-		
-		
+
+		saveButton.addClickListener(event -> deviveModel.value().ifPresent(value -> update(stateService, deviveModel)));
 
 		deviveModel.notifyObservers(DeviceModel.Events.ChangeLocale);
 		comboBox.setItems(stateService.deviceTypes());
-		
+
 		comboBox.getDataProvider().fetch(new Query<>()).findFirst().ifPresent(value -> comboBox.setValue(value));
 
 	}
 
-	private void createUI(final StateService stateService, final DeviceModel deviceModel, final ButtonBox buttonBox, final  StateToStringConverter  stateToStringConverter ) {
+	protected void update(final StateService stateService, final DeviceModel deviveModel) {
+		final Collection<State<Object>> states = deviveModel.changedValues();
 
-		
+		stateService.update(states);
+
+		grid.getDataProvider().refreshAll();
+
+		deviveModel.clearSelection();
+	}
+
+	private void createUI(final StateService stateService, final DeviceModel deviceModel, final ButtonBox buttonBox) {
+
 		saveButton.setEnabled(false);
 
-		
-		
 		stateValueField.setEnabled(false);
 
 		final HorizontalLayout layout = new HorizontalLayout(grid);
@@ -186,25 +162,18 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		final FormLayout searchLayout = new FormLayout();
 		searchLayout.add(devicesLabel);
 		comboBox.setItemLabelGenerator(value -> typeLabels.get(value).getText());
-		
+
 		comboBox.addValueChangeListener(event -> deviceModel.assignType(event.getValue()));
-		
-		
+
 		comboBox.setAllowCustomValue(false);
-		
-		
-		
-		
-		
+
 		searchLayout.add(comboBox);
-	
-		
+
 		stateValueField.setSizeFull();
 
 		stateValueField.setResponsiveSteps(new ResponsiveStep("10vH", 1));
 
 		stateValueField.setSizeFull();
-
 
 		final VerticalLayout buttonLayout = new VerticalLayout(saveButton);
 
@@ -227,24 +196,19 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 		grid.setSelectionMode(SelectionMode.SINGLE);
 
-	
 		devicesValueColumn.clear();
-		devicesColumn=grid.addColumn(new ComponentRenderer<>(room -> {
+		devicesColumn = grid.addColumn(new ComponentRenderer<>(room -> {
 
 			final Grid<State<Object>> devices = new Grid<State<Object>>();
-		
 
 			devices.setSelectionMode(SelectionMode.MULTI);
 			devices.addColumn((ValueProvider<State<Object>, String>) state -> state.name()).setFlexGrow(80).setResizable(true).setHeader(room.name());
-			
-		
-			final Column<State<Object>> column = devices.addColumn((ValueProvider<State<Object>, String>) state -> stateToStringConverter.convert(state));
+
+			final Column<State<Object>> column = devices.addColumn((ValueProvider<State<Object>, String>) state -> deviceModel.convert(state));
 			devicesValueColumn.add(column);
 			column.addAttachListener(event -> deviceModel.notifyObservers(DeviceModel.Events.ChangeLocale));
-		
-			
-			
-			devices.setItems((Collection<State<Object>>)room.states());
+
+			devices.setItems((Collection<State<Object>>) room.states());
 
 			devices.setHeightByRows(true);
 
@@ -252,23 +216,15 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 				deviceModel.assign(room, event.getAllSelectedItems());
 
-				if (CollectionUtils.isEmpty(event.getAllSelectedItems())) {
-
-					devices.setItems(room.states());
-				}
+				if (CollectionUtils.isEmpty(event.getAllSelectedItems())) devices.setItems(room.states());
 
 			});
 
 			return devices;
 		}));
-	
-		
+
 		devicesColumn.setHeader(searchLayout);
 		grid.setHeightByRows(true);
-
-		
-		
-	
 
 	}
 
