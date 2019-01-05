@@ -2,6 +2,7 @@ package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -136,6 +137,19 @@ class DeviceModelTest {
 
 	}
 	
+	
+	@Test
+	void assignBoolean() {
+		deviceModel.assignType(DeviceType.State);
+		
+		deviceModel.assign(Boolean.TRUE);
+		
+		assertEquals(Optional.of(Boolean.TRUE), deviceModel.value());
+		Mockito.verify(subject).notifyObservers(DeviceModel.Events.ValueChanged);
+
+	}
+	
+	
 	@Test
 	void assignEmpty() {
 		deviceModel.assignType(DeviceType.Level);
@@ -205,6 +219,31 @@ class DeviceModelTest {
 		
 		assertFalse(deviceModel.isSelected());
 		Mockito.verify(subject).notifyObservers(DeviceModel.Events.SeclectionChanged);
+	}
+	
+	@Test
+	public final void convertBoolean() {
+		
+		@SuppressWarnings("unchecked")
+		final State<Boolean> state = Mockito.mock(State.class);
+		Mockito.when(state.value()).thenReturn(Boolean.TRUE);
+		deviceModel.assignType(DeviceType.State);
+		assertEquals(String.valueOf(Boolean.TRUE), deviceModel.convert(state));
+	}
+	
+	@Test
+	public final void convertDouble() {
+		
+		@SuppressWarnings("unchecked")
+		final State<Double> state = Mockito.mock(State.class);
+		Mockito.when(state.value()).thenReturn(STATE_VALUE);
+		deviceModel.assignType(DeviceType.Level);
+		assertEquals(String.valueOf(Integer.valueOf((int) (100*STATE_VALUE))), deviceModel.convert(state));
+	}
+	
+	@Test
+	public final void convertMissingType() {
+		assertThrows(IllegalArgumentException.class, () -> deviceModel.convert((State<?>) Mockito.mock(State.class)));
 	}
 	
 
