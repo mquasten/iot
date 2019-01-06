@@ -10,9 +10,12 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.StringUtils;
 
@@ -26,6 +29,7 @@ import de.mq.iot.state.StateService.DeviceType;
 public class DeviceStateValueFieldTest {
 	
 	
+	private static final String MESSAGE = "Message";
 	private static final String DOUBLE_VALUE = "50";
 	private static final String VALUE_LABEL = "Value";
 	private final DeviceStateValueField deviceStateValueField = new DeviceStateValueField();
@@ -139,6 +143,47 @@ public class DeviceStateValueFieldTest {
 		deviceStateValueField.setValue(Boolean.TRUE);
 			
 		assertEquals(Boolean.TRUE, comboBox.getValue());
+		
+	}
+	
+	
+	@Test
+	void  setErrorMessage() {
+		deviceStateValueField.setErrorMessage(Optional.of(MESSAGE));
+		
+		final TextField textField = getTextField();
+		final ComboBox<Boolean> comboBox = getComboBox();
+		
+		assertTrue(textField.isInvalid());
+		assertTrue(comboBox.isInvalid());
+		assertEquals(MESSAGE, textField.getErrorMessage());
+		assertEquals(MESSAGE, comboBox.getErrorMessage());
+		
+		deviceStateValueField.setErrorMessage(Optional.empty());
+		
+		assertFalse(textField.isInvalid());
+		assertFalse(comboBox.isInvalid());
+		
+		
+	}
+	
+	@Test
+	void  addConsumer() {
+		@SuppressWarnings("unchecked")
+		Consumer<Object> consumer = Mockito.mock(Consumer.class);
+		final TextField textField = getTextField();
+		final ComboBox<Boolean> comboBox = getComboBox();
+		
+		deviceStateValueField.addConsumer(consumer);
+		
+		textField.setValue(DOUBLE_VALUE);
+		
+		Mockito.verify(consumer).accept(DOUBLE_VALUE);
+		
+		
+		comboBox.setValue(Boolean.TRUE);
+		Mockito.verify(consumer).accept(Boolean.TRUE);
+		
 		
 	}
 
