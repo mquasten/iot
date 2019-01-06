@@ -222,7 +222,7 @@ class DeviceModelTest {
 	}
 	
 	@Test
-	public final void convertBoolean() {
+	 final void convertBoolean() {
 		
 		@SuppressWarnings("unchecked")
 		final State<Boolean> state = Mockito.mock(State.class);
@@ -232,7 +232,7 @@ class DeviceModelTest {
 	}
 	
 	@Test
-	public final void convertDouble() {
+	 final void convertDouble() {
 		
 		@SuppressWarnings("unchecked")
 		final State<Double> state = Mockito.mock(State.class);
@@ -242,9 +242,28 @@ class DeviceModelTest {
 	}
 	
 	@Test
-	public final void convertMissingType() {
+	 final void convertMissingType() {
 		assertThrows(IllegalArgumentException.class, () -> deviceModel.convert((State<?>) Mockito.mock(State.class)));
 	}
 	
+	@Test
+	final void changedValues() {
+		deviceModel.assignType(DeviceType.Level);
+		deviceModel.assign("47");
+		
+		deviceModel.assign(firstRoom, Arrays.asList(firstState));
+		deviceModel.assign(secondRoom, Arrays.asList(secondState));
+	
+		
+		
+		
+		final Collection<State<Object>> results = deviceModel.changedValues();
+		assertEquals(2, results.size());
+		assertTrue(results.containsAll(Arrays.asList(firstState, secondState)));
+		
+		Mockito.verify(firstState).assign(0.47d);
+		Mockito.verify(secondState).assign(0.47d);
+		
+	}
 
 }

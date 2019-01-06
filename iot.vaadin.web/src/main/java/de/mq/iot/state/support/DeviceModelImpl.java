@@ -231,12 +231,14 @@ private final ConversionService conversionService;
 		Assert.isTrue(converters.containsKey(type), "Converter undefined for " + type);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.DeviceModel#changedValues()
+	 */
 	@Override
 	public final Collection<State<Object>> changedValues() {
-	
 		final Collection<State<Object>> results = 	selectedDevices();
 		results.forEach(state -> state.assign(value));
-		
 		return results;
 	}
 	
