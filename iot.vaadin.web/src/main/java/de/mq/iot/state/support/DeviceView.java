@@ -116,6 +116,8 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		});
 
 		deviveModel.register(DeviceModel.Events.TypeChanged, () -> {
+			
+			
 			grid.setItems(Arrays.asList());
 			deviveModel.type().ifPresent(type -> grid.setItems(stateService.deviceStates(Arrays.asList(type))));
 			deviveModel.type().ifPresent(type -> stateValueField.setDeviceType(type));
@@ -134,6 +136,8 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		saveButton.addClickListener(event -> deviveModel.value().ifPresent(value -> update(stateService, deviveModel)));
 
 		deviveModel.notifyObservers(DeviceModel.Events.ChangeLocale);
+		
+		
 		comboBox.setItems(stateService.deviceTypes());
 
 		comboBox.getDataProvider().fetch(new Query<>()).findFirst().ifPresent(value -> comboBox.setValue(value));
@@ -198,7 +202,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 		devicesValueColumn.clear();
 		devicesColumn = grid.addColumn(new ComponentRenderer<>(room -> {
-
+			
 			final Grid<State<Object>> devices = new Grid<State<Object>>();
 
 			devices.setSelectionMode(SelectionMode.MULTI);
