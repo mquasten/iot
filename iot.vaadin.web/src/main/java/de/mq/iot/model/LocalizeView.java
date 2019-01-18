@@ -15,6 +15,7 @@ public interface LocalizeView {
 			field.setAccessible(true);
 	
 			final String key = prefix + field.getAnnotation(I18NKey.class).value();
+			
 			final HasText component = (HasText) ReflectionUtils.getField(field, this);
 			component.setText(messageSource.getMessage(key, null, "???", locale));
 

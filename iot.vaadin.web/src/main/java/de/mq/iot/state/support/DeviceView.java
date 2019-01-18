@@ -144,7 +144,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 	}
 
-	protected void update(final StateService stateService, final DeviceModel deviveModel) {
+	private void update(final StateService stateService, final DeviceModel deviveModel) {
 		final Collection<State<Object>> states = deviveModel.changedValues();
 
 		stateService.update(states);
