@@ -29,6 +29,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
@@ -40,7 +41,24 @@ import de.mq.iot.state.StateService;
 import de.mq.iot.state.StateService.DeviceType;
 import de.mq.iot.support.ButtonBox;
 
+
 class DeviceViewTest {
+
+	private static final String I18N_DEVICES_TYPE_LEVEL = "devices_type_level";
+
+	private static final String I18N_DEVICES_TYPE_STATE = "devices_type_state";
+
+	private static final String I18N_DEVICES_VALUE = "devices_value";
+
+	private static final String I18N_DEVICES_DEVICES = "devices_devices";
+
+	private static final String I18N_DEVICES_DEVICES_VALUE = "devices_devices_value";
+
+	private static final String I18N_DEVICES_CHANGE = "devices_change";
+
+	private static final String I18N_DEVICES_INFO = "devices_info";
+
+	private static final String I18N_DEVICES_INVALID_VALUE_STATE = "devices_invalid_value_state";
 
 	private static final String I18N_DEVICES_INVALID_VALUE_LEVEL = "devices_invalid_value_level";
 
@@ -86,7 +104,7 @@ class DeviceViewTest {
 		deviceView = new DeviceView(stateService, deviceModel, messageSource, new ButtonBox());
 		fields.putAll(Arrays.asList(deviceView.getClass().getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).collect(Collectors.toMap(Field::getName, field -> ReflectionTestUtils.getField(deviceView, field.getName()))));
 
-		Arrays.asList("devices_change", "devices_info", "devices_devices_value", "devices_devices", "devices_value", I18N_DEVICES_INVALID_VALUE_LEVEL, "devices_invalid_value_state", "devices_type_state", "devices_type_level").forEach(key -> {
+		Arrays.asList(I18N_DEVICES_CHANGE, I18N_DEVICES_INFO, I18N_DEVICES_DEVICES_VALUE, I18N_DEVICES_DEVICES, I18N_DEVICES_VALUE, I18N_DEVICES_INVALID_VALUE_LEVEL, I18N_DEVICES_INVALID_VALUE_STATE, I18N_DEVICES_TYPE_STATE, I18N_DEVICES_TYPE_LEVEL).forEach(key -> {
 			Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN);
 		});
 
@@ -101,10 +119,10 @@ class DeviceViewTest {
 		Mockito.doReturn(Optional.of(DeviceType.Level)).when(deviceModel).type();
 		observers.get(DeviceModel.Events.TypeChanged).process();
 
-		final Grid<?> grid = grid();
+		final Grid<Room> grid = grid();
 		assertEquals(1, grid.getColumns().size());
 
-		Collection<?> rooms = (Collection<?>) grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+		Collection<Room> rooms =  (Collection<Room>) grid.getDataProvider().fetch( new Query()).collect(Collectors.toList());
 
 		assertEquals(1, rooms.size());
 		assertEquals(room, rooms.stream().findFirst().get());
@@ -113,19 +131,26 @@ class DeviceViewTest {
 		final FormItem textItem = textItem(stateValueField);
 		assertTrue(textItem.isVisible());
 
-		final ComboBox<?> comboBox = comboBox();
-		final Collection<?> items = comboBox.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+	
+	
+		final ComboBox<DeviceType> comboBox = comboBox();
+		Collection<DeviceView> items = (Collection<DeviceView>) comboBox.getDataProvider().fetch(new Query(null)).collect(Collectors.toList());
+			
 		assertEquals(Arrays.asList(DeviceType.Level, DeviceType.State), items);
 
 	}
 
-	private ComboBox<?> comboBox() {
-		return (ComboBox<?>) fields.get("comboBox");
+	@SuppressWarnings("unchecked")
+	private ComboBox<DeviceType> comboBox() {
+		return (ComboBox<DeviceType>) fields.get("comboBox");
 	}
 
 	private Button saveButton() {
 		return (Button) fields.get("saveButton");
 	}
+	
+	
+	
 
 	private FormItem textItem(final DeviceStateValueField stateValueField) {
 		return (FormItem) ReflectionTestUtils.getField(stateValueField, "textItem");
@@ -134,17 +159,55 @@ class DeviceViewTest {
 	private TextField textField(final DeviceStateValueField stateValueField) {
 		return (TextField) ReflectionTestUtils.getField(stateValueField, "textField");
 	}
+	
+	private Label textLabel(final DeviceStateValueField stateValueField) {
+		return (Label) ReflectionTestUtils.getField(stateValueField, "textLabel");
+	}
 
 	private DeviceStateValueField stateValueField() {
 		return (DeviceStateValueField) fields.get("stateValueField");
+	}
+	
+	@SuppressWarnings("unchecked")
+	final Collection<Column<?>> devicesValueColumn() {
+		return  (Collection<Column<?>>) fields.get("devicesValueColumn");
 	}
 
 	private Label invalidLevelValueLabel() {
 		return (Label) fields.get("invalidLevelValueLabel");
 	}
+	
+	private Label invalidStateValueLabel() {
+		return (Label) fields.get("invalidStateValueLabel");
+	}
+	
+	
+	private Label infoLabel() {
+		return (Label) fields.get("stateInfoLabel");
+	}
 
-	private Grid<?> grid() {
-		return (Grid<?>) fields.get("grid");
+	@SuppressWarnings("unchecked")
+	private Grid<Room> grid() {
+		return (Grid<Room>) fields.get("grid");
+	}
+	
+	private Label deviceValueLabel() {
+		return (Label) fields.get("deviceValueLabel");
+	}
+	
+	private Label devicesLabel() {
+		return (Label) fields.get("devicesLabel");
+	}
+	
+	private Label valueLabel() {
+		return (Label) fields.get("valueLabel");
+	}
+	
+	private Label typeStateLabel() {
+		return (Label) fields.get("typeStateLabel");
+	}
+	private Label typeLevelLabel() {
+		return (Label) fields.get("typeLevelLabel");
 	}
 
 	@Test
@@ -235,6 +298,10 @@ class DeviceViewTest {
 	final void i18n() {
 		final Observer observer = observers.get(DeviceModel.Events.ChangeLocale);
 
+		Collection<Column<?>> columns =  devicesValueColumn();
+		Column<?> column =  Mockito.mock(Column.class);
+		columns.add(column);
+		
 		assertNotNull(observer);
 
 		Mockito.doReturn(Locale.GERMAN).when(deviceModel).locale();
@@ -242,7 +309,29 @@ class DeviceViewTest {
 		observer.process();
 
 		assertEquals(I18N_DEVICES_INVALID_VALUE_LEVEL, invalidLevelValueLabel().getText());
+		
+		assertEquals(I18N_DEVICES_INVALID_VALUE_STATE, invalidStateValueLabel().getText());
+		
+		assertEquals(I18N_DEVICES_INFO, infoLabel().getText());
+		
+		assertEquals(I18N_DEVICES_CHANGE, saveButton().getText());
+		
+		assertEquals(I18N_DEVICES_DEVICES_VALUE,deviceValueLabel().getText());
+		
+		assertEquals(I18N_DEVICES_DEVICES, devicesLabel().getText());
+		
+		assertEquals(I18N_DEVICES_VALUE, valueLabel().getText());
+		
+		assertEquals(I18N_DEVICES_TYPE_STATE, typeStateLabel().getText());
+		
+		assertEquals(I18N_DEVICES_TYPE_LEVEL, typeLevelLabel().getText());
+		
+		final DeviceStateValueField stateValueField = stateValueField();
+		
+		assertEquals(I18N_DEVICES_VALUE,textLabel(stateValueField).getText());
+		
 
+		Mockito.verify(column).setHeader(I18N_DEVICES_DEVICES_VALUE);
 	}
 
 }
