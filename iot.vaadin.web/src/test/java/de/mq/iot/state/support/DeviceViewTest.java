@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -110,6 +111,7 @@ class DeviceViewTest {
 
 	}
 
+	
 	@Test
 	final void init() {
 		assertEquals(16, fields.size());
@@ -122,7 +124,8 @@ class DeviceViewTest {
 		final Grid<Room> grid = grid();
 		assertEquals(1, grid.getColumns().size());
 
-		Collection<Room> rooms =  (Collection<Room>) grid.getDataProvider().fetch( new Query()).collect(Collectors.toList());
+	
+		Collection<Room> rooms =  (Collection<Room>) grid.getDataProvider().fetch( new Query<>()).collect(Collectors.toList());
 
 		assertEquals(1, rooms.size());
 		assertEquals(room, rooms.stream().findFirst().get());
@@ -134,7 +137,8 @@ class DeviceViewTest {
 	
 	
 		final ComboBox<DeviceType> comboBox = comboBox();
-		Collection<DeviceView> items = (Collection<DeviceView>) comboBox.getDataProvider().fetch(new Query(null)).collect(Collectors.toList());
+		
+		List<DeviceType> items =  comboBox.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
 			
 		assertEquals(Arrays.asList(DeviceType.Level, DeviceType.State), items);
 
