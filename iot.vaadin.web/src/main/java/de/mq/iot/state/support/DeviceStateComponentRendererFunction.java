@@ -1,15 +1,9 @@
 package de.mq.iot.state.support;
 
 import java.util.Collection;
-import java.util.Map;
 
-import org.springframework.dao.support.DataAccessUtils;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.CollectionUtils;
 
-import com.vaadin.flow.component.ComponentEventBus;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
@@ -23,22 +17,31 @@ class DeviceStateComponentRendererFunction  implements SerializableFunction<Room
 
 	private static final long serialVersionUID = 1L;
 	private final DeviceModel deviceModel;
+	private final  Collection<Column<?>> devicesValueColumn;
+	private final ValueProvider<State<Object>, String> stateNameProvider = (ValueProvider<State<Object>, String>) state -> state.name();
+	private final ValueProvider<State<Object>, String> stateValueProvider;
 	
 	DeviceStateComponentRendererFunction(DeviceModel deviceModel, Collection<Column<?>> devicesValueColumn) {
 		this.deviceModel = deviceModel;
 		this.devicesValueColumn = devicesValueColumn;
+		stateValueProvider = (ValueProvider<State<Object>, String>) state -> deviceModel.convert(state);
 	}
 
-	private final  Collection<Column<?>> devicesValueColumn;
+	
 
+	
+	
+	
 	@Override
-	public Grid<State<Object>> apply(Room room) {
+	public Grid<State<Object>> apply(final Room room) {
 		final Grid<State<Object>> devices = new Grid<State<Object>>();
 
 		devices.setSelectionMode(SelectionMode.MULTI);
-		devices.addColumn((ValueProvider<State<Object>, String>) state -> state.name()).setFlexGrow(80).setResizable(true).setHeader(room.name());
+		
+		devices.addColumn(stateNameProvider).setFlexGrow(80).setResizable(true).setHeader(room.name());
 
-		final Column<State<Object>> column = devices.addColumn((ValueProvider<State<Object>, String>) state -> deviceModel.convert(state));
+		
+		final Column<State<Object>> column = devices.addColumn(stateValueProvider);
 		devicesValueColumn.add(column);
 		column.addAttachListener(event -> deviceModel.notifyObservers(DeviceModel.Events.ChangeLocale));
 
