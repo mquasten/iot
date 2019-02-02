@@ -56,6 +56,25 @@ class ButtonBoxTest {
 		Mockito.verify(event.getSource().getUI().get()).navigate("calendar");
 		
 	}
+	
+	
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	void navigateToDevices() {
+		
+		final Button specialdaysButton =  fields.get("deviceButton");
+		assertNotNull(specialdaysButton);
+		
+		final Button.ClickEvent<?> event = clickEvent();
+		
+		@SuppressWarnings("rawtypes")
+		final ComponentEventListener listener = listener(specialdaysButton);
+		listener.onComponentEvent(event);
+		
+		Mockito.verify(event.getSource().getUI().get()).navigate("devices");
+		
+	}
 
 	@SuppressWarnings("rawtypes")
 	private Button.ClickEvent clickEvent() {

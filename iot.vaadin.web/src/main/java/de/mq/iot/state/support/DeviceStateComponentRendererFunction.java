@@ -18,13 +18,15 @@ class DeviceStateComponentRendererFunction  implements SerializableFunction<Room
 	private static final long serialVersionUID = 1L;
 	private final DeviceModel deviceModel;
 	private final  Collection<Column<?>> devicesValueColumn;
-	private final ValueProvider<State<Object>, String> stateNameProvider = (ValueProvider<State<Object>, String>) state -> state.name();
+	
+	private final ValueProvider<State<Object>, String>stateNameProvider;
 	private final ValueProvider<State<Object>, String> stateValueProvider;
 	
 	DeviceStateComponentRendererFunction(DeviceModel deviceModel, Collection<Column<?>> devicesValueColumn) {
 		this.deviceModel = deviceModel;
 		this.devicesValueColumn = devicesValueColumn;
 		stateValueProvider = (ValueProvider<State<Object>, String>) state -> deviceModel.convert(state);
+		stateNameProvider = (ValueProvider<State<Object>, String>) state -> deviceModel.synonym(state);
 	}
 
 	
@@ -37,6 +39,7 @@ class DeviceStateComponentRendererFunction  implements SerializableFunction<Room
 		final Grid<State<Object>> devices = new Grid<State<Object>>();
 
 		devices.setSelectionMode(SelectionMode.MULTI);
+		
 		
 		devices.addColumn(stateNameProvider).setFlexGrow(80).setResizable(true).setHeader(room.name());
 

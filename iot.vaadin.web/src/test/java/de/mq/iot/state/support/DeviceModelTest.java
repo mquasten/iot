@@ -30,6 +30,12 @@ class DeviceModelTest {
 
 	
 
+	private static final String FUNCTION = "Licht";
+
+	private static final String SYNONYM = "Stehlampe";
+
+	private static final String DEVIVE_NAME = "HM-LC-Sw1-Pl-DN-R1 PEQ0088080:1";
+
 	private static final double STATE_VALUE = 0.5d;
 
 	@SuppressWarnings("unchecked")
@@ -265,5 +271,59 @@ class DeviceModelTest {
 		Mockito.verify(secondState).assign(0.47d);
 		
 	}
+	
+	@Test
+	final void assignSynonyms() {
+		
+		final Map<?,?> synonyms = synonymsField();
+		assertTrue(synonyms.isEmpty());
+		
+		deviceModel.assign(synonymsMap().entrySet());
+		
+		assertEquals(synonymsMap(), synonyms);
+		
+	}
+
+	protected Map<String, String> synonymsMap() {
+		final Map<String,String> expectedSynonyms = new HashMap<>();
+		expectedSynonyms.put(DEVIVE_NAME, SYNONYM);
+		return expectedSynonyms;
+	}
+
+	private Map<?, ?> synonymsField() {
+		return (Map<?, ?>) ReflectionTestUtils.getField(deviceModel, "deviceSynonyms");
+	}
+	
+	@Test
+	final void synonyms() {
+		final State<?> state = Mockito.mock(State.class);
+		Mockito.when(state.name()).thenReturn(DEVIVE_NAME);
+		Mockito.when(state.function()).thenReturn(Optional.of(FUNCTION));
+		
+		deviceModel.assign(synonymsMap().entrySet());
+		
+		assertEquals(FUNCTION+": " +SYNONYM, deviceModel.synonym(state));
+	}
+	
+	@Test
+	final void synonymsFunctionMissing() {
+		final State<?> state = Mockito.mock(State.class);
+		Mockito.when(state.name()).thenReturn(DEVIVE_NAME);
+		
+		deviceModel.assign(synonymsMap().entrySet());
+		
+		assertEquals(SYNONYM, deviceModel.synonym(state));
+	}
+	
+	@Test
+	final void synonymsSynonymMissing() {
+		final State<?> state = Mockito.mock(State.class);
+		Mockito.when(state.name()).thenReturn(DEVIVE_NAME);
+		Mockito.when(state.function()).thenReturn(Optional.of(FUNCTION));
+		
+		
+		assertEquals(FUNCTION+": " +DEVIVE_NAME, deviceModel.synonym(state));
+	}
+
 
 }

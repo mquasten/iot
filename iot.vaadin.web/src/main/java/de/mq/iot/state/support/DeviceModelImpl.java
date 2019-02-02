@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -36,6 +37,8 @@ public class DeviceModelImpl implements DeviceModel {
 	
 	private Map<DeviceType, Consumer<Object>> consumers = new HashMap<>();
 	
+	private Map<String, String> deviceSynonyms = new HashMap<>();
+	
 	
 private Map<DeviceType, Function<Object,Object>> converters = new HashMap<>();
 	
@@ -52,6 +55,7 @@ private final ConversionService conversionService;
 		
 		converters.put(DeviceType.Level, value -> ""  + (int)  Math.round(((Double) value) * 100d) );
 		converters.put(DeviceType.State, value -> value   );
+		
 	}
 
 	@Override
@@ -233,13 +237,37 @@ private final ConversionService conversionService;
 	
 	/*
 	 * (non-Javadoc)
-	 * @see de.mq.iot.state.support.DeviceModel#changedValues()
+	 * @see de.
+	 * mq.iot.state.support.DeviceModel#changedValues()
 	 */
 	@Override
 	public final Collection<State<Object>> changedValues() {
 		final Collection<State<Object>> results = 	selectedDevices();
 		results.forEach(state -> state.assign(value));
 		return results;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.DeviceModel#description(de.mq.iot.state.State)
+	 */
+	@Override
+	public String synonym(final State<?> state) {
+		final String function = state.function().isPresent() ? state.function().get() + ": " : "";
+		final String name =  deviceSynonyms.containsKey(state.name()) ? deviceSynonyms.get(state.name()) : state.name();
+		
+		return function + name;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.support.DeviceModel#assign(java.util.Collection)
+	 */
+	@Override
+	public void assign(final Collection<Entry<String, String>> deviceSynonyms) {
+		this.deviceSynonyms.clear();
+		this.deviceSynonyms.putAll(deviceSynonyms.stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+		
 	}
 	
 	

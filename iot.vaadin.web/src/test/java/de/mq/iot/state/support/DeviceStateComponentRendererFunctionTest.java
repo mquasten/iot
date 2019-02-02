@@ -122,7 +122,7 @@ public class DeviceStateComponentRendererFunctionTest {
 		 @SuppressWarnings("unchecked")
 		 final ValueProvider<State<?>, String> stateNameProvider = (ValueProvider<State<?>, String>) ReflectionTestUtils.getField(function, "stateNameProvider");
 	
-		 Mockito.doReturn(DEVICE_NAME).when(firstState).name();
+		 Mockito.doReturn(DEVICE_NAME).when(deviceModel).synonym(firstState);
 		 
 		assertEquals(DEVICE_NAME, stateNameProvider.apply( firstState));
 	}

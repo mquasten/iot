@@ -337,5 +337,7 @@ class DeviceViewTest {
 
 		Mockito.verify(column).setHeader(I18N_DEVICES_DEVICES_VALUE);
 	}
+	
+	
 
 }

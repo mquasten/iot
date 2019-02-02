@@ -21,7 +21,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 
 @Configuration
-@EnableReactiveMongoRepositories(basePackages= {"de.mq.iot.resource.support","de.mq.iot.authentication.support", "de.mq.iot.calendar.support"})
+@EnableReactiveMongoRepositories(basePackages= {"de.mq.iot.resource.support","de.mq.iot.authentication.support", "de.mq.iot.calendar.support", "de.mq.iot.synonym.support"})
 @ComponentScan(basePackages = "de.mq.iot.state.support,de.mq.iot.authentication,de.mq.iot.calendar,de.mq.iot.openweather.support,de.mq.iot.support,de.mq.iot.resource.support")
 
 @PropertySources({
