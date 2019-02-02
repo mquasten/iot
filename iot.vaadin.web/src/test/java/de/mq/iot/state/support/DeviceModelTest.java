@@ -25,6 +25,7 @@ import de.mq.iot.state.Room;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService.DeviceType;
 import de.mq.iot.state.support.DeviceModel.Events;
+import de.mq.iot.synonym.Synonym;
 
 class DeviceModelTest {
 
@@ -278,16 +279,19 @@ class DeviceModelTest {
 		final Map<?,?> synonyms = synonymsField();
 		assertTrue(synonyms.isEmpty());
 		
-		deviceModel.assign(synonymsMap().entrySet());
+		deviceModel.assign(synonymList());
 		
-		assertEquals(synonymsMap(), synonyms);
+		assertEquals(1, synonyms.size());
+		assertTrue(synonyms.containsKey(DEVIVE_NAME));
+		assertEquals(SYNONYM, synonyms.get(DEVIVE_NAME));
 		
 	}
 
-	protected Map<String, String> synonymsMap() {
-		final Map<String,String> expectedSynonyms = new HashMap<>();
-		expectedSynonyms.put(DEVIVE_NAME, SYNONYM);
-		return expectedSynonyms;
+	private Collection<Synonym> synonymList() {
+		final Synonym synonym = Mockito.mock(Synonym.class);
+		Mockito.when(synonym.key()).thenReturn(DEVIVE_NAME);
+		Mockito.when(synonym.value()).thenReturn(SYNONYM);
+		return Arrays.asList(synonym);
 	}
 
 	private Map<?, ?> synonymsField() {
@@ -300,7 +304,7 @@ class DeviceModelTest {
 		Mockito.when(state.name()).thenReturn(DEVIVE_NAME);
 		Mockito.when(state.function()).thenReturn(Optional.of(FUNCTION));
 		
-		deviceModel.assign(synonymsMap().entrySet());
+		deviceModel.assign(synonymList());
 		
 		assertEquals(FUNCTION+": " +SYNONYM, deviceModel.synonym(state));
 	}
@@ -310,7 +314,7 @@ class DeviceModelTest {
 		final State<?> state = Mockito.mock(State.class);
 		Mockito.when(state.name()).thenReturn(DEVIVE_NAME);
 		
-		deviceModel.assign(synonymsMap().entrySet());
+		deviceModel.assign(synonymList());
 		
 		assertEquals(SYNONYM, deviceModel.synonym(state));
 	}

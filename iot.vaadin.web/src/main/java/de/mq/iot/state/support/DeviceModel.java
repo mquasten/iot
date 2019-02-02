@@ -1,7 +1,6 @@
 package de.mq.iot.state.support;
 
 import java.util.Collection;
-import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.springframework.core.convert.converter.Converter;
@@ -12,6 +11,7 @@ import de.mq.iot.model.Subject;
 import de.mq.iot.state.Room;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService.DeviceType;
+import de.mq.iot.synonym.Synonym;
 
 public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel> , LocaleAware  , Converter<State<?>,String> {
 
@@ -110,9 +110,10 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	 /**
 	  * Add Synonyms for device names
 	  * Assign Synonyms for device names to be independent  from technical device names
-	  * @param deviceSynonyms Entry: key deviceName , value deviceSynonym
+	  * @param synonyms Entry: Collection with Synonyms for Devices
 	  */
-	 void assign(Collection<Entry<String,String>> deviceSynonyms);
+	
+	void assign(Collection<Synonym> synonyms);
 
 	
 }

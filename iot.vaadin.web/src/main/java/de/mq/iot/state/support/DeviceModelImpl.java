@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -23,6 +22,7 @@ import de.mq.iot.model.Subject;
 import de.mq.iot.state.Room;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService.DeviceType;
+import de.mq.iot.synonym.Synonym;
 
 public class DeviceModelImpl implements DeviceModel {
 
@@ -259,14 +259,15 @@ private final ConversionService conversionService;
 		return function + name;
 	}
 
+	
 	/*
 	 * (non-Javadoc)
 	 * @see de.mq.iot.state.support.DeviceModel#assign(java.util.Collection)
 	 */
 	@Override
-	public void assign(final Collection<Entry<String, String>> deviceSynonyms) {
+	public void assign(final Collection<Synonym> deviceSynonyms) {
 		this.deviceSynonyms.clear();
-		this.deviceSynonyms.putAll(deviceSynonyms.stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+		this.deviceSynonyms.putAll(deviceSynonyms.stream().collect(Collectors.toMap(Synonym::key, Synonym::value)));
 		
 	}
 	

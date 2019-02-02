@@ -41,6 +41,8 @@ import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.StateService.DeviceType;
 import de.mq.iot.support.ButtonBox;
+import de.mq.iot.synonym.Synonym.Type;
+import de.mq.iot.synonym.SynonymService;
 
 
 class DeviceViewTest {
@@ -76,6 +78,8 @@ class DeviceViewTest {
 	private final State<Double> doubleState01 = new DoubleStateImpl(4711L, "Rolladen Fenster rechts", LocalDateTime.now());
 	private final State<Double> doubleState02 = new DoubleStateImpl(4712L, "Rolladen Fenster links", LocalDateTime.now());
 	private final State<Boolean> booleanState = new BooleanStateImpl(4713L, "Lampe", LocalDateTime.now());
+	
+	private final SynonymService synonymService = Mockito.mock(SynonymService.class);
 
 	private final Room room = new RoomImpl("Schlafzimmer");
 
@@ -102,7 +106,7 @@ class DeviceViewTest {
 
 		}).when(deviceModel).register(Mockito.any(), Mockito.any());
 
-		deviceView = new DeviceView(stateService, deviceModel, messageSource, new ButtonBox());
+		deviceView = new DeviceView(stateService, synonymService, deviceModel, messageSource, new ButtonBox());
 		fields.putAll(Arrays.asList(deviceView.getClass().getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).collect(Collectors.toMap(Field::getName, field -> ReflectionTestUtils.getField(deviceView, field.getName()))));
 
 		Arrays.asList(I18N_DEVICES_CHANGE, I18N_DEVICES_INFO, I18N_DEVICES_DEVICES_VALUE, I18N_DEVICES_DEVICES, I18N_DEVICES_VALUE, I18N_DEVICES_INVALID_VALUE_LEVEL, I18N_DEVICES_INVALID_VALUE_STATE, I18N_DEVICES_TYPE_STATE, I18N_DEVICES_TYPE_LEVEL).forEach(key -> {
@@ -141,6 +145,8 @@ class DeviceViewTest {
 		List<DeviceType> items =  comboBox.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
 			
 		assertEquals(Arrays.asList(DeviceType.Level, DeviceType.State), items);
+		
+		Mockito.verify(synonymService).synonyms(Type.Devive);
 
 	}
 
