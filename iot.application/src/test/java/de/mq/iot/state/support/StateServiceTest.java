@@ -303,5 +303,9 @@ class StateServiceTest {
 		assertEquals(THIRD_CHANNEL +":" +SECOND_ROOM, states.get(2).name());
 		
 	}
+	@Test
+	void deviceTypes() {
+		assertEquals(Arrays.asList(DeviceType.Level, DeviceType.State), stateService.deviceTypes());
+	}
 
 }

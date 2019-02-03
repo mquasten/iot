@@ -17,25 +17,23 @@ class SynonymImpl implements Synonym {
 	private final String value;
 
 	private final String description;
-	
+
 	@SuppressWarnings("unused")
 	private SynonymImpl() {
-		key=null;
-		type=null;
-		value=null;
-		description=null;
-	} 
+		key = null;
+		type = null;
+		value = null;
+		description = null;
+	}
 
-	
 	SynonymImpl(final String key, final String value) {
 		this(key, value, Type.Devive, null);
 	}
-	
-	
+
 	SynonymImpl(final String key, final String value, final Type type, final String description) {
 		Assert.hasText(key, "Key is mandatory");
 		Assert.hasText(value, "Value is mandatory");
-		Assert.notNull(type,  "Type is mandatory");
+		Assert.notNull(type, "Type is mandatory");
 		this.key = key;
 		this.type = type;
 		this.value = value;
@@ -46,9 +44,9 @@ class SynonymImpl implements Synonym {
 		this(key, value, type, null);
 	}
 
-	
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.synonym.Synonym#key()
 	 */
 	@Override
@@ -56,7 +54,9 @@ class SynonymImpl implements Synonym {
 		return key;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.synonym.Synonym#value()
 	 */
 	@Override
@@ -64,7 +64,9 @@ class SynonymImpl implements Synonym {
 		return value;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.synonym.Synonym#type()
 	 */
 	@Override
@@ -72,7 +74,9 @@ class SynonymImpl implements Synonym {
 		return type;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.synonym.Synonym#description()
 	 */
 	@Override
@@ -80,23 +84,29 @@ class SynonymImpl implements Synonym {
 		return description;
 	}
 
-
+	/*
+	 * @Override(non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		return key.hashCode();
 	}
 
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(final Object other) {
 
-		if (!( other instanceof Synonym)) {
+		if (!(other instanceof Synonym)) {
 			return super.equals(other);
 		}
-		return key.equals(((Synonym)other).key());
-		
+		return key.equals(((Synonym) other).key());
+
 	}
-	
-	
 
 }
