@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.SynonymService;
+import de.mq.iot.synonym.Synonym.Type;
 
 
 
@@ -30,8 +31,8 @@ import de.mq.iot.synonym.SynonymService;
 		 * @see de.mq.iot.synonym.support.SynonymService#synonyms(de.mq.iot.synonym.Synonym.Type)
 		 */
 		@Override
-		public final Collection<Synonym> synonyms(Synonym.Type type) {
-			return synonymRepository.findByType(type).collectList().block(duration);
+		public final Collection<Synonym> deviveSynonyms() {
+			return synonymRepository.findByType(Type.Devive).collectList().block(duration);
 			
 		}
 

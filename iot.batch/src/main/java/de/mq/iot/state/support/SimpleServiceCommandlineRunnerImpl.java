@@ -65,6 +65,7 @@ public class SimpleServiceCommandlineRunnerImpl {
 		try {
 			final Class<?> clazz = Class.forName(beanDefinition.getBeanClassName());
 			Arrays.asList(clazz.getMethods()).stream().filter(method -> method.isAnnotationPresent(Commands.class)).forEach(method -> Arrays.asList(AnnotationUtils.findAnnotation(method, Commands.class).commands()).stream().filter(command -> command.name().equalsIgnoreCase(commandName)).forEach(command -> methods.put(method, command)));
+		
 		} catch (final ClassNotFoundException ex) {
 			throw new IllegalStateException(ex);
 		}

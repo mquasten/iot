@@ -31,7 +31,7 @@ public class SynonymServiceTest {
 	
 	@Test
 	void synonyms() {
-		assertEquals(synonyms, synonymService.synonyms(Type.Devive));
+		assertEquals(synonyms, synonymService.deviveSynonyms());
 	}
 	
 	

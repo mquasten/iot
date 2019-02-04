@@ -13,10 +13,9 @@ public interface SynonymService {
 
 	
 	/**
-	 * All synonym for the given Type
-	 * @param type the Type of the Synonyms
-	 * @return Collection with synonyms for the given type
+	 * All synonym for devices
+	 * @return Collection with synonyms for devices
 	 */
-	Collection<Synonym> synonyms(final Synonym.Type type);
+	Collection<Synonym> deviveSynonyms();
 
 }

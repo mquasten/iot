@@ -126,6 +126,12 @@
 			<version>1.6.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>4.4</version>
+		</dependency>
+
 
 
 		<dependency>

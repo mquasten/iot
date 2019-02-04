@@ -146,7 +146,7 @@ class DeviceViewTest {
 			
 		assertEquals(Arrays.asList(DeviceType.Level, DeviceType.State), items);
 		
-		Mockito.verify(synonymService).synonyms(Type.Devive);
+		Mockito.verify(synonymService).deviveSynonyms();
 
 	}
 
