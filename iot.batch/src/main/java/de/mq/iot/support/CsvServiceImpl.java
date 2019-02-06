@@ -1,14 +1,14 @@
-package de.mq.iot.synonym.support;
+package de.mq.iot.support;
 
 
 
-import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.function.Function;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
@@ -21,13 +21,23 @@ import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.SynonymService;
 
 @Service
-public class SynonymServiceBatchImpl implements SynonymServiceBatch {
+public class CsvServiceImpl  {
+	
+	private Function<String, Writer> supplier = name -> newWriter(name);
+
+	private Writer newWriter(String name)  {
+		try {
+			return Files.newBufferedWriter(Paths.get(name));
+		} catch (final IOException ex) {
+			throw new IllegalStateException(ex);
+		}
+	}
 	
 	
 	private  final SynonymService synonymService; 
 	
 	@Autowired
-	public SynonymServiceBatchImpl(SynonymService synonymService) {
+	public CsvServiceImpl(SynonymService synonymService) {
 		this.synonymService = synonymService;
 	}
 
@@ -35,27 +45,14 @@ public class SynonymServiceBatchImpl implements SynonymServiceBatch {
 	
 	
 	
-	/* (non-Javadoc)
-	 * @see de.mq.iot.synonym.support.SynonymService#exportSynonyms()
-	 */
-	@Override
+	
 	@Commands(commands = {  @Command( name = "exportSynonyms", arguments = {}) })
-	public  void exportSynonyms() throws Exception {
+	public  void export()   {
 		final List<Synonym> synonyms = new ArrayList<>(synonymService.deviveSynonyms());
-		try(final BufferedWriter writer = Files.newBufferedWriter(Paths.get("synonyms.csv"));) {
-		write(synonyms, writer);}
-	}
-
-
-
-
-
-	private void write(final List<Synonym> synonyms, final BufferedWriter writer) throws IOException {
-		try(final CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-                .withHeader("key", "value", "type", "description").withQuoteMode(QuoteMode.MINIMAL).withDelimiter(';'))) {
-		
-		
-				synonyms.forEach(synonym -> print(csvPrinter,synonym));
+		try(final Writer writer = supplier.apply("export.csv");) {
+		write(synonyms, writer);
+		} catch (IOException ex) {
+			throw new IllegalStateException(ex);
 		}
 	}
 
@@ -63,7 +60,22 @@ public class SynonymServiceBatchImpl implements SynonymServiceBatch {
 
 
 
-	protected void print(final CSVPrinter csvPrinter, final Synonym synonym) {
+	private void write(final List<Synonym> synonyms, final Writer writer)   {
+		try(final CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
+                .withHeader("key", "value", "type", "description").withQuoteMode(QuoteMode.MINIMAL).withDelimiter(';'))) {
+		
+		
+				synonyms.forEach(synonym -> print(csvPrinter,synonym));
+		} catch (IOException ex) {
+			throw new IllegalStateException(ex);
+		}
+	}
+
+
+
+
+
+	private void print(final CSVPrinter csvPrinter, final Synonym synonym) {
 		try {
 			csvPrinter.printRecord(synonym.key(), synonym.value(), synonym.type(), synonym.description());
 			
@@ -73,4 +85,9 @@ public class SynonymServiceBatchImpl implements SynonymServiceBatch {
 		}
 	}
 
+
+
+
+
+	
 }
