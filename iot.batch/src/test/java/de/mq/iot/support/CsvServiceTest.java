@@ -27,7 +27,7 @@ class CsvServiceTest {
 	
 	@Test
 	void export() {
-		csvService.export();
+		csvService.export("Synonym", "export.csv");
 		
 		System.out.println(writer.getBuffer());
 	}

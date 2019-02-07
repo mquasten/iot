@@ -23,6 +23,11 @@ import de.mq.iot.synonym.SynonymService;
 @Service
 public class CsvServiceImpl  {
 	
+	enum Type {
+		Synonym,
+		User
+	}
+	
 	private Function<String, Writer> supplier = name -> newWriter(name);
 
 	private Writer newWriter(String name)  {
@@ -43,13 +48,20 @@ public class CsvServiceImpl  {
 
 
 	
+
 	
 	
-	
-	@Commands(commands = {  @Command( name = "exportSynonyms", arguments = {}) })
-	public  void export()   {
+	@Commands(commands = {  @Command( name = "export", arguments = {"c", "f"}) })
+	public  void export(final String typeName, final String fileName )   {
+		
+		
+		
+		final Type type = Type.valueOf(typeName);
+		
+		System.out.println(type);
+		System.out.println(fileName);
 		final List<Synonym> synonyms = new ArrayList<>(synonymService.deviveSynonyms());
-		try(final Writer writer = supplier.apply("export.csv");) {
+		try(final Writer writer = supplier.apply(fileName);) {
 		write(synonyms, writer);
 		} catch (IOException ex) {
 			throw new IllegalStateException(ex);
@@ -79,9 +91,8 @@ public class CsvServiceImpl  {
 		try {
 			csvPrinter.printRecord(synonym.key(), synonym.value(), synonym.type(), synonym.description());
 			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (final IOException e) {
+			throw new IllegalStateException();
 		}
 	}
 

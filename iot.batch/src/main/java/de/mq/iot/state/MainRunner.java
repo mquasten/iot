@@ -29,7 +29,7 @@ import de.mq.iot.support.ApplicationConfiguration;
 @Main(name = "updateAll", parameters = { }), 
 @Main(name = "updateIP", parameters = { }) ,
 @Main(name = "updateResources", parameters = { }), 
-@Main(name = "exportSynonyms", parameters = { }) 
+@Main(name = "export", parameters = { @MainParameter(name = "c", desc = "Class that should be exported"),  @MainParameter(name = "f", desc = "Filename (default: export.csv)", defaultValue="export.csv")}) 
 })
 public class MainRunner {
 	private final Class<MainRunner> mainDefinitionClass = MainRunner.class;
