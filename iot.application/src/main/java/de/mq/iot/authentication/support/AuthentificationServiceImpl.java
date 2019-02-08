@@ -1,6 +1,7 @@
 package de.mq.iot.authentication.support;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,15 @@ class AuthentificationServiceImpl implements AuthentificationService {
 	@Override
 	public Optional<Authentication> authentification(final String username) {
 		return Optional.ofNullable(authenticationRepository.findByUsername(username).block(timeout));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.authentication.AuthentificationService#authentifications()
+	 */
+	@Override
+	public Collection<Authentication> authentifications() {
+		return authenticationRepository.findAll().collectList().block(timeout);
 	}
 
 }

@@ -8,7 +8,7 @@ import de.mq.iot.synonym.Synonym;
 
 @Document(collection = "Synonym")
 class SynonymImpl implements Synonym {
-
+	
 	@Id
 	private final String key;
 

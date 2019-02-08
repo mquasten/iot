@@ -7,17 +7,21 @@ import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.mq.iot.authentication.AuthentificationService;
 import de.mq.iot.synonym.SynonymService;
 
 class CsvServiceTest {
 	
-	private SynonymService synonymService = Mockito.mock(SynonymService.class);
+	private final SynonymService synonymService = Mockito.mock(SynonymService.class);
 	
-	private final CsvServiceImpl csvService = new CsvServiceImpl(synonymService);
+	private final AuthentificationService authentificationService = Mockito.mock(AuthentificationService.class);
 	
-	private StringWriter writer = new StringWriter();
+	private final CsvServiceImpl csvService = new CsvServiceImpl(synonymService,authentificationService, new DefaultConversionService());
+	
+	private final StringWriter writer = new StringWriter();
 	
 	@BeforeEach
 	void setup() {
