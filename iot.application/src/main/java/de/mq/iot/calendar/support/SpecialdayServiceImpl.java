@@ -70,7 +70,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	public final Collection<Specialday>vacation(final LocalDate begin, final LocalDate end) {
 		Assert.isTrue(!begin.isAfter(end), "Begin should be before or equals end.");
 		final Collection<LocalDate> publicHolidays = new HashSet<>();
-		final Collection<Specialday> specialdays = specialdaysRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss)).collectList().block();
+		final Collection<Specialday> specialdays = specialdaysRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss)).collectList().block(duration);
 		publicHolidays.addAll(specialdays.stream().map(specialday -> specialday.date(begin.getYear())).collect(Collectors.toList()));
 		if( begin.getYear() != end.getYear()) {
 			publicHolidays.addAll(specialdays.stream().map(specialday -> specialday.date(end.getYear())).collect(Collectors.toList()));
@@ -98,6 +98,11 @@ class SpecialdayServiceImpl implements SpecialdayService {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public Collection<Specialday> specialdays() {
+		return specialdaysRepository.findByTypeIn(Arrays.asList(Type.values())).collectList().block(duration);
 	}
 
 }
