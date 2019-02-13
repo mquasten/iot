@@ -25,7 +25,9 @@ import org.mockito.Mockito;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.AuthentificationService;
+import de.mq.iot.authentication.support.TestAuthentication;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.support.CsvServiceImpl.Type;
 import de.mq.iot.synonym.Synonym;
@@ -43,6 +45,8 @@ class CsvServiceTest {
 	private final CsvServiceImpl csvService = new CsvServiceImpl(synonymService,authentificationService, specialdayService, new DefaultConversionService());
 	
 	private final StringWriter writer = new StringWriter();
+	
+
 	
 	@BeforeEach
 	void setup() {
@@ -71,6 +75,27 @@ class CsvServiceTest {
 		assertEquals(synonym.value(), map.get("value"));
 		assertEquals(synonym.type().name(), map.get("type"));
 		assertEquals(synonym.description(), map.get("description"));
+		
+	}
+	
+	
+	@Test
+	void authentication() {
+	    final Authentication authentication = TestAuthentication.authentication();
+		Mockito.when(authentificationService.authentifications()).thenReturn(Arrays.asList(authentication));
+		csvService.export("User", "export.csv");
+		final List<List<String>> results = lines();
+		
+		assertEquals(2, results.get(0).size());
+		
+		assertEquals(2, results.get(1).size());
+		final Map<String,String> map = new HashMap<>();
+		IntStream.range(0, 2).forEach(i -> map.put(results.get(0).get(i).trim(),results.get(1).get(i).trim() ));
+		Type.User.fields().stream().map(Field::getName).forEach(field -> map.containsKey(field));
+		
+		assertEquals(authentication.username(), map.get("username"));
+		assertEquals(ReflectionTestUtils.getField(authentication, "credentials"), map.get("credentials"));
+		
 		
 	}
 
