@@ -14,7 +14,7 @@ public interface TestAuthentication {
 	
 	
 	public static  Authentication authentication() {
-		return  new UserAuthenticationImpl("kminogue", "fever", Arrays.asList(Authority.ModifySystemvariables));
+		return  new UserAuthenticationImpl("kminogue", "fever", Arrays.asList(Authority.ModifySystemvariables, Authority.ModifySystemvariables));
 	}
 
 }

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.StringUtils;
 
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.AuthentificationService;
@@ -86,20 +87,24 @@ class CsvServiceTest {
 		csvService.export("User", "export.csv");
 		final List<List<String>> results = lines();
 		
-		assertEquals(2, results.get(0).size());
+		assertEquals(3, results.get(0).size());
 		
-		assertEquals(2, results.get(1).size());
+		assertEquals(3, results.get(1).size());
 		final Map<String,String> map = new HashMap<>();
-		IntStream.range(0, 2).forEach(i -> map.put(results.get(0).get(i).trim(),results.get(1).get(i).trim() ));
+		IntStream.range(0, 3).forEach(i -> map.put(results.get(0).get(i).trim(),results.get(1).get(i).trim() ));
 		Type.User.fields().stream().map(Field::getName).forEach(field -> map.containsKey(field));
 		
 		assertEquals(authentication.username(), map.get("username"));
 		assertEquals(ReflectionTestUtils.getField(authentication, "credentials"), map.get("credentials"));
+		assertEquals(StringUtils.collectionToCommaDelimitedString(authentication.authorities()), map.get("authorities"));
+		
+		
 		
 		
 	}
 
 	private List<List<String>>  lines() {
+		
 		 return  Arrays.asList(writer.getBuffer().toString().split("\n")).stream().map(line -> Arrays.asList(line.split(";"))).collect(Collectors.toList());
 	}
 	
