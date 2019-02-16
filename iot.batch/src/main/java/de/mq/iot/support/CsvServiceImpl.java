@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -37,7 +38,9 @@ import de.mq.iot.synonym.SynonymService;
 public class CsvServiceImpl {
 
 	enum Type {
-		Synonym("de.mq.iot.synonym.support.SynonymImpl"), User("de.mq.iot.authentication.support.UserAuthenticationImpl", "authorities"), Specialday("de.mq.iot.calendar.support.SpecialdayImpl");
+		Synonym("de.mq.iot.synonym.support.SynonymImpl"), 
+		User("de.mq.iot.authentication.support.UserAuthenticationImpl", "authorities"), 
+		Specialday("de.mq.iot.calendar.support.SpecialdayImpl");
 
 		private final Class<?> clazz;
 		
@@ -46,8 +49,12 @@ public class CsvServiceImpl {
 
 		private Type(final String clazz, final String ...nonSimpleFields) {
 			this.clazz = ClassUtils.resolveClassName(clazz, CsvServiceImpl.class.getClassLoader());
-			fields = Arrays.asList(this.clazz.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).filter(field -> BeanUtils.isSimpleValueType(field.getType())|| Arrays.asList(nonSimpleFields).contains(field.getName())).collect(Collectors.toList());
+			fields = fields(this.clazz, nonSimpleFields);
 			
+		}
+
+		List<Field> fields(final Class<?> clazz, final String... nonSimpleFields) {
+			return Arrays.asList(this.clazz.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).filter(field -> BeanUtils.isSimpleValueType(field.getType())|| Arrays.asList(nonSimpleFields).contains(field.getName())).collect(Collectors.toList());
 		}
 
 		final Collection<Field> fields() {
@@ -112,5 +119,7 @@ public class CsvServiceImpl {
 			csvPrinter.printRecord(values.toArray(new Object[values.size()]));
 		}
 	}
+	
+
 
 }

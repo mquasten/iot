@@ -1,5 +1,7 @@
 package de.mq.iot.support;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -8,9 +10,12 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
+import java.time.LocalDate;
+import java.time.Year;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -29,11 +34,14 @@ import org.springframework.util.StringUtils;
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.AuthentificationService;
 import de.mq.iot.authentication.support.TestAuthentication;
+import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.calendar.support.TestSpecialday;
 import de.mq.iot.support.CsvServiceImpl.Type;
 import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.SynonymService;
 import de.mq.iot.synonym.support.TestSynonym;
+
 
 class CsvServiceTest {
 	
@@ -70,7 +78,7 @@ class CsvServiceTest {
 		final Map<String,String> map = new HashMap<>();
 		IntStream.range(0, 4).forEach(i -> map.put(results.get(0).get(i).trim(),results.get(1).get(i).trim() ));
 		
-		Type.Synonym.fields().stream().map(Field::getName).forEach(field -> map.containsKey(field));
+		Type.Synonym.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
 		
 		assertEquals(synonym.key(), map.get("key"));
 		assertEquals(synonym.value(), map.get("value"));
@@ -92,7 +100,7 @@ class CsvServiceTest {
 		assertEquals(3, results.get(1).size());
 		final Map<String,String> map = new HashMap<>();
 		IntStream.range(0, 3).forEach(i -> map.put(results.get(0).get(i).trim(),results.get(1).get(i).trim() ));
-		Type.User.fields().stream().map(Field::getName).forEach(field -> map.containsKey(field));
+		Type.User.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
 		
 		assertEquals(authentication.username(), map.get("username"));
 		assertEquals(ReflectionTestUtils.getField(authentication, "credentials"), map.get("credentials"));
@@ -152,5 +160,39 @@ class CsvServiceTest {
 		assertThrows(IllegalStateException.class, () -> ( (CsvServiceImpl) csvService).newWriter(path));
 	}
 	
+	@Test
+	void specialdays() {
+			Specialday specialday = TestSpecialday.specialday();
+			Mockito.when(specialdayService.specialdays()).thenReturn(Arrays.asList(specialday));
+			csvService.export("Specialday", "export.csv");
+			final List<List<String>> results = lines();
+			
+			
+			assertEquals(6, results.get(0).size());
+			assertEquals(6, results.get(1).size());
+			
+			final Map<String,String> map = new HashMap<>();
+			IntStream.range(0, 6).forEach(i -> map.put(results.get(0).get(i).trim(),results.get(1).get(i).trim() ));
+			
+			Type.Specialday.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
+			
+			assertEquals(ReflectionTestUtils.getField(specialday, "id"), map.get("id"));
+			assertEquals("Vacation", map.get("type"));
+			assertFalse(StringUtils.hasText(map.get("offset")));
+			assertEquals(LocalDate.now().getDayOfMonth(),(int) Integer.valueOf( map.get("dayOfMonth")));
+			assertEquals(LocalDate.now().getMonthValue(),(int) Integer.valueOf(map.get("month")));
+			assertEquals(Year.now().getValue(), (int) Integer.valueOf(map.get("year")));
+	}
+	
+	
+	@Test
+	void type()  {
+		
+		
+		Type.User.fields(Long.class ).stream().forEach(field -> assertFalse(Modifier.isStatic( field.getModifiers())));
+		
+		
+	
+	}
 
 }
