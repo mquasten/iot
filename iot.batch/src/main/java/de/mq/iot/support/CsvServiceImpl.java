@@ -62,7 +62,7 @@ public class CsvServiceImpl {
 		}
 	}
 
-	private Function<String, Writer> supplier = name -> newWriter(Paths.get(name));
+	private final Function<String, Writer> supplier = name -> newWriter(Paths.get(name));
 
 	private Map<Type, Supplier<Collection<?>>> suppliers = new HashMap<>();
 
