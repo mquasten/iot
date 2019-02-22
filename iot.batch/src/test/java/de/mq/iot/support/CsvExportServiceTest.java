@@ -40,12 +40,11 @@ import de.mq.iot.authentication.support.TestAuthentication;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.support.TestSpecialday;
-import de.mq.iot.support.CsvServiceImpl.Type;
 import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.SynonymService;
 import de.mq.iot.synonym.support.TestSynonym;
 
-class CsvServiceTest {
+class CsvExportServiceTest {
 
 	private static final String FILENAME = "filename.csv";
 
@@ -55,7 +54,7 @@ class CsvServiceTest {
 
 	private final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
 
-	private final CsvServiceImpl csvService = new CsvServiceImpl(synonymService, authentificationService, specialdayService, new DefaultConversionService());
+	private final CsvExportServiceImpl csvService = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, new DefaultConversionService());
 
 	private final StringWriter writer = new StringWriter();
 
@@ -80,7 +79,7 @@ class CsvServiceTest {
 		final Map<String, String> map = new HashMap<>();
 		IntStream.range(0, 4).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
 
-		Type.Synonym.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
+		CsvType.Synonym.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
 
 		assertEquals(synonym.key(), map.get("key"));
 		assertEquals(synonym.value(), map.get("value"));
@@ -101,7 +100,7 @@ class CsvServiceTest {
 		assertEquals(3, results.get(1).size());
 		final Map<String, String> map = new HashMap<>();
 		IntStream.range(0, 3).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
-		Type.User.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
+		CsvType.User.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
 
 		assertEquals(authentication.username(), map.get("username"));
 		assertEquals(ReflectionTestUtils.getField(authentication, "credentials"), map.get("credentials"));
@@ -143,7 +142,7 @@ class CsvServiceTest {
 		Mockito.doReturn(fileSystem).when(path).getFileSystem();
 		OutputStream os = Mockito.mock(OutputStream.class);
 		Mockito.when(provider.newOutputStream(Mockito.any(), Mockito.any())).thenReturn(os);
-		try (final Writer writer = ((CsvServiceImpl) csvService).newWriter(path);) {
+		try (final Writer writer = ((CsvExportServiceImpl) csvService).newWriter(path);) {
 
 		}
 
@@ -155,7 +154,7 @@ class CsvServiceTest {
 	void writerException() throws IOException {
 		Path path = Mockito.mock(Path.class);
 		Mockito.doThrow(IOException.class).when(path).getFileSystem();
-		assertThrows(IllegalStateException.class, () -> ((CsvServiceImpl) csvService).newWriter(path));
+		assertThrows(IllegalStateException.class, () -> ((CsvExportServiceImpl) csvService).newWriter(path));
 	}
 
 	@Test
@@ -171,7 +170,7 @@ class CsvServiceTest {
 		final Map<String, String> map = new HashMap<>();
 		IntStream.range(0, 6).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
 
-		Type.Specialday.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
+		CsvType.Specialday.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
 
 		assertEquals(ReflectionTestUtils.getField(specialday, "id"), map.get("id"));
 		assertEquals("Vacation", map.get("type"));
@@ -184,18 +183,18 @@ class CsvServiceTest {
 	@Test
 	void type() {
 
-		Type.User.fields(Long.class).stream().forEach(field -> assertFalse(Modifier.isStatic(field.getModifiers())));
+		CsvType.User.fields(Long.class).stream().forEach(field -> assertFalse(Modifier.isStatic(field.getModifiers())));
 
 	}
 
 	@Test()
 	void supplier() {
 
-		final CsvServiceImpl service = new CsvServiceImpl(synonymService, authentificationService, specialdayService, new DefaultConversionService());
+		final CsvExportServiceImpl service = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, new DefaultConversionService());
 
 		@SuppressWarnings("unchecked")
 		final Function<String, Writer> function = (Function<String, Writer>) DataAccessUtils
-				.requiredSingleResult(Arrays.asList(CsvServiceImpl.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(Function.class)).map(field -> ReflectionTestUtils.getField(service, field.getName())).collect(Collectors.toList()));
+				.requiredSingleResult(Arrays.asList(CsvExportServiceImpl.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(Function.class)).map(field -> ReflectionTestUtils.getField(service, field.getName())).collect(Collectors.toList()));
 
 		final String property = "java.io.tmpdir";
 
