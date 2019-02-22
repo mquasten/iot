@@ -22,7 +22,7 @@ enum CsvType {
 	private final Collection<Field> fields;
 
 	private CsvType(final String clazz, final String ...nonSimpleFields) {
-		this.clazz = ClassUtils.resolveClassName(clazz, CsvType.class.getClassLoader());
+		this.clazz = ClassUtils.resolveClassName(clazz, CsvImportServiceImpl.class.getClassLoader());
 		fields = fields(this.clazz, nonSimpleFields);
 		
 	}
