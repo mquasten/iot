@@ -34,4 +34,8 @@ enum CsvType {
 	final Collection<Field> fields() {
 		return Collections.unmodifiableCollection(fields);
 	}
+	
+	Class<?> target() {
+		return clazz;
+	}
 }
