@@ -7,6 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -22,6 +25,8 @@ import org.springframework.util.StringUtils;
 
 import de.mq.iot.state.Command;
 import de.mq.iot.state.Commands;
+import de.mq.iot.synonym.Synonym;
+import de.mq.iot.synonym.SynonymService;
 
 public class CsvImportServiceImpl {
 	
@@ -29,8 +34,12 @@ public class CsvImportServiceImpl {
 	
 	private final ConversionService conversionService;
 	
-	CsvImportServiceImpl(ConversionService conversionService) {
+	
+	private final Map<CsvType,Consumer<Object>> consumers = new HashMap<>();
+	
+	CsvImportServiceImpl(final ConversionService conversionService, final SynonymService synonymService) {
 		this.conversionService = conversionService;
+		consumers.put(CsvType.Synonym, synonym -> synonymService.save((Synonym) synonym));
 	}
 
 	BufferedReader newReaderr(final Path path) {
@@ -64,11 +73,9 @@ public class CsvImportServiceImpl {
 			
 			Assert.isTrue(parser.getHeaderMap().keySet().containsAll(fieldNames), String.format("Header did not match to type expected: %s, found:  %s" , StringUtils.collectionToCommaDelimitedString(fieldNames), StringUtils.collectionToCommaDelimitedString(parser.getHeaderMap().keySet())));
 			
+			Assert.isTrue(consumers.containsKey(type), String.format("No persistence defined for type: %s", type));
+			parser.getRecords().stream().map(record -> newEntity(type, fieldNames, record)).collect(Collectors.toList()).forEach(entity -> consumers.get(type).accept(entity));
 			
-			final Collection<Object> entities = parser.getRecords().stream().map(record -> newEntity(type, fieldNames, record)).collect(Collectors.toList());
-			
-			
-			System.out.println(entities);
 			
 		}
 	}
@@ -78,6 +85,7 @@ public class CsvImportServiceImpl {
 		fieldNames.forEach(name -> {
 			
 			final Field field = ReflectionUtils.findField(type.target(), name);
+			
 			final Object value = conversionService.convert(record.get(name), field.getType());
 			field.setAccessible(true);
 			ReflectionUtils.setField(field, entity, value);

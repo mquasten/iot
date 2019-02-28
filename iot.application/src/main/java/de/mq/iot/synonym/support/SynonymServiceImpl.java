@@ -35,5 +35,13 @@ import de.mq.iot.synonym.Synonym.Type;
 			return synonymRepository.findByType(Type.Devive).collectList().block(duration);
 			
 		}
+		/*
+		 * (non-Javadoc)
+		 * @see de.mq.iot.synonym.SynonymService#save(de.mq.iot.synonym.Synonym)
+		 */
+		@Override
+		public final void save(final Synonym synonym) {
+			synonymRepository.save(synonym).block(duration);
+		}
 
 }

@@ -18,4 +18,10 @@ public interface SynonymService {
 	 */
 	Collection<Synonym> deviveSynonyms();
 
+	/**
+	 * update/persist Synonym 
+	 * @param synonym the should be updated
+	 */
+	void save(Synonym synonym);
+
 }
