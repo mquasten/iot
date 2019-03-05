@@ -23,6 +23,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
+import de.mq.iot.calendar.Specialday;
+import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.state.Command;
 import de.mq.iot.state.Commands;
 import de.mq.iot.synonym.Synonym;
@@ -37,9 +39,11 @@ public class CsvImportServiceImpl {
 	
 	private final Map<CsvType,Consumer<Object>> consumers = new HashMap<>();
 	
-	CsvImportServiceImpl(final ConversionService conversionService, final SynonymService synonymService) {
+	CsvImportServiceImpl(final ConversionService conversionService, final SynonymService synonymService,final SpecialdayService specialdayService) {
 		this.conversionService = conversionService;
 		consumers.put(CsvType.Synonym, synonym -> synonymService.save((Synonym) synonym));
+		
+		consumers.put(CsvType.Specialday, specialday -> specialdayService.save((Specialday)specialday));
 	}
 
 	BufferedReader newReaderr(final Path path) {
