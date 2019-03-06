@@ -2,6 +2,7 @@ package de.mq.iot.support;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.BufferedReader;
@@ -17,6 +18,9 @@ import org.mockito.Mockito;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.Authority;
+import de.mq.iot.authentication.support.AuthenticationRepository;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.synonym.Synonym;
@@ -32,7 +36,9 @@ public class CsvImportServiceTest {
 	
 	private final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
 	
-	private final CsvImportServiceImpl csvImportService = new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService);
+	private final AuthenticationRepository authenticationRepository = Mockito.mock(AuthenticationRepository.class);
+	
+	private final CsvImportServiceImpl csvImportService = new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService,authenticationRepository);
 	
 	private final String firstKey = "HMW-LC-Bl1-DR OEQ2305342:3";
 	
@@ -48,6 +54,10 @@ public class CsvImportServiceTest {
 	private final String month="12";
 	private final String offset="-2";
 	private final String secondId="00000000-0416-625b-ffff-fffffffffffe";
+	
+	private final String user="mquasten";
+	private final String password = "0b6bff8b997f50c48bfaea170eab7ce7";
+
 	
 	@BeforeEach
 	void setup() {
@@ -102,6 +112,27 @@ public class CsvImportServiceTest {
 		final LocalDate fixDateOffsetEaster= offsetEasterHoliday.date(EASTER_2019.getYear());
 		
 		assertEquals(EASTER_2019, fixDateOffsetEaster);
+		
+	}
+	
+	
+	@Test
+	void authentication() {
+		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("username;credentials;authorities\r\n" + 
+				String.format("%s;%s;ModifySystemvariables\r\n", user, password)));
+		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
+		
+		csvImportService.importCsv(CsvType.User.name(), "egal");
+		
+		final ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
+		
+		Mockito.verify(authenticationRepository, Mockito.times(1)).save(authenticationCaptor.capture());
+		
+		assertEquals(user, authenticationCaptor.getValue().username());
+		assertEquals(1, authenticationCaptor.getValue().authorities().size());
+		assertTrue(authenticationCaptor.getValue().authenticate("manfred01"));
+		assertEquals(Authority.ModifySystemvariables.name(),  authenticationCaptor.getValue().authorities().stream().findAny().get().name());
+		
 		
 	}
 

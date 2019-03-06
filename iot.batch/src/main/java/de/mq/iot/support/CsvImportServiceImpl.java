@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,10 +20,14 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.csv.QuoteMode;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.Authority;
+import de.mq.iot.authentication.support.AuthenticationRepository;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.state.Command;
@@ -39,11 +44,17 @@ public class CsvImportServiceImpl {
 	
 	private final Map<CsvType,Consumer<Object>> consumers = new HashMap<>();
 	
-	CsvImportServiceImpl(final ConversionService conversionService, final SynonymService synonymService,final SpecialdayService specialdayService) {
+	CsvImportServiceImpl(final ConversionService conversionService, final SynonymService synonymService,final SpecialdayService specialdayService, final AuthenticationRepository authenticationRepository) {
 		this.conversionService = conversionService;
 		consumers.put(CsvType.Synonym, synonym -> synonymService.save((Synonym) synonym));
 		
 		consumers.put(CsvType.Specialday, specialday -> specialdayService.save((Specialday)specialday));
+		
+		consumers.put(CsvType.User, user -> authenticationRepository.save((Authentication) user));
+		
+		
+		
+		
 	}
 
 	BufferedReader newReaderr(final Path path) {
@@ -90,12 +101,23 @@ public class CsvImportServiceImpl {
 			
 			final Field field = ReflectionUtils.findField(type.target(), name);
 			
-			final Object value = conversionService.convert(record.get(name), field.getType());
+			final Object value = convert(record, name, field);
+			
+			
 			field.setAccessible(true);
 			ReflectionUtils.setField(field, entity, value);
 			
 		});
 		return entity;
+	}
+
+	private Object convert(CSVRecord record, String name, final Field field) {
+		if (Collection.class.isAssignableFrom(field.getType())) {
+		
+			return conversionService.convert(Arrays.asList(StringUtils.commaDelimitedListToStringArray(record.get(name))), TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf(String.class)), TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf(Authority.class)));
+		}
+		
+		return  conversionService.convert(record.get(name), field.getType());
 	}
 
 }
