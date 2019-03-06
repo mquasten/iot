@@ -28,7 +28,6 @@ import de.mq.iot.synonym.Synonym.Type;
 import de.mq.iot.synonym.SynonymService;
 
 public class CsvImportServiceTest {
-	
 
 	private static final LocalDate EASTER_2019 = LocalDate.of(2019, 4, 19);
 
