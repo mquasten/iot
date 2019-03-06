@@ -3,6 +3,7 @@ package de.mq.iot.support;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,7 +27,6 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 import de.mq.iot.authentication.Authentication;
-import de.mq.iot.authentication.Authority;
 import de.mq.iot.authentication.support.AuthenticationRepository;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
@@ -113,8 +113,7 @@ public class CsvImportServiceImpl {
 
 	private Object convert(CSVRecord record, String name, final Field field) {
 		if (Collection.class.isAssignableFrom(field.getType())) {
-		
-			return conversionService.convert(Arrays.asList(StringUtils.commaDelimitedListToStringArray(record.get(name))), TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf(String.class)), TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf(Authority.class)));
+			return conversionService.convert(Arrays.asList(StringUtils.commaDelimitedListToStringArray(record.get(name))), TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf(String.class)), TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf((Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0])));
 		}
 		
 		return  conversionService.convert(record.get(name), field.getType());
