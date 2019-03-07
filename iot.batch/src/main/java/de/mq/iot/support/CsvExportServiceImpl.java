@@ -24,6 +24,7 @@ import org.springframework.util.ReflectionUtils;
 
 import de.mq.iot.authentication.AuthentificationService;
 import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.resource.support.ResourceIdentifierRepository;
 import de.mq.iot.state.Command;
 import de.mq.iot.state.Commands;
 import de.mq.iot.synonym.SynonymService;
@@ -38,10 +39,14 @@ public class CsvExportServiceImpl {
 	private final ConversionService conversionService;
 
 	@Autowired
-	public CsvExportServiceImpl(final SynonymService synonymService, final AuthentificationService authentificationService, final SpecialdayService specialdayService, final ConversionService conversionService) {
+	public CsvExportServiceImpl(final SynonymService synonymService, final AuthentificationService authentificationService, final SpecialdayService specialdayService, final ResourceIdentifierRepository resourceIdentifierRepository, final ConversionService conversionService) {
 		suppliers.put(CsvType.Synonym, () -> synonymService.deviveSynonyms());
 		suppliers.put(CsvType.User, () -> authentificationService.authentifications());
 		suppliers.put(CsvType.Specialday, () -> specialdayService.specialdays());
+		
+		suppliers.put(CsvType.ResourceIdentifier, () -> resourceIdentifierRepository.findAll().collectList().block());
+		
+		
 		this.conversionService = conversionService;
 	}
 
@@ -84,9 +89,23 @@ public class CsvExportServiceImpl {
 			final Collection<String> values = fields.stream().map(field -> {
 				field.setAccessible(true);
 				return ReflectionUtils.getField(field, entity);
-			}).map(value -> conversionService.convert(value, String.class)).collect(Collectors.toList());
+			}).map(value -> convert(value)).collect(Collectors.toList());
 			csvPrinter.printRecord(values.toArray(new Object[values.size()]));
 		}
+	}
+
+	protected String convert(Object value) {
+		
+		if (value instanceof Map) {
+			
+		return ((Map<?,?>)value).entrySet()
+                .stream()
+                .map(e -> e.getKey() + "=" +  conversionService.convert(e.getValue(), String.class)  )
+                .collect(Collectors.joining(","));
+
+		}
+		
+		return conversionService.convert(value, String.class);
 	}
 	
 

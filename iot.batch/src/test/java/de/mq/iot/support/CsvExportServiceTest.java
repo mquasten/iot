@@ -40,9 +40,14 @@ import de.mq.iot.authentication.support.TestAuthentication;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.support.TestSpecialday;
+import de.mq.iot.resource.ResourceIdentifier;
+import de.mq.iot.resource.ResourceIdentifier.ResourceType;
+import de.mq.iot.resource.support.ResourceIdentifierRepository;
+import de.mq.iot.resource.support.TestResourceIdentifier;
 import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.SynonymService;
 import de.mq.iot.synonym.support.TestSynonym;
+import reactor.core.publisher.Flux;
 
 class CsvExportServiceTest {
 
@@ -53,8 +58,10 @@ class CsvExportServiceTest {
 	private final AuthentificationService authentificationService = Mockito.mock(AuthentificationService.class);
 
 	private final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
+	
+	private final ResourceIdentifierRepository resourceIdentifierRepository = Mockito.mock(ResourceIdentifierRepository.class);
 
-	private final CsvExportServiceImpl csvService = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, new DefaultConversionService());
+	private final CsvExportServiceImpl csvService = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, resourceIdentifierRepository, new DefaultConversionService());
 
 	private final StringWriter writer = new StringWriter();
 
@@ -190,7 +197,7 @@ class CsvExportServiceTest {
 	@Test()
 	void supplier() {
 
-		final CsvExportServiceImpl service = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, new DefaultConversionService());
+		final CsvExportServiceImpl service = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, resourceIdentifierRepository, new DefaultConversionService());
 
 		@SuppressWarnings("unchecked")
 		final Function<String, Writer> function = (Function<String, Writer>) DataAccessUtils
@@ -217,6 +224,24 @@ class CsvExportServiceTest {
 		} catch (Exception ex) {
 
 		}
+	}
+	
+	@Test()
+	void resourceIdentifier() {
+		final ResourceIdentifier resourceIdentifier = TestResourceIdentifier.resourceIdentifier();
+		Mockito.when(resourceIdentifierRepository.findAll()).thenReturn(Flux.just(resourceIdentifier));
+		csvService.export("ResourceIdentifier", "export.csv");
+		
+		final List<List<String>> results = lines();
+		assertEquals(3, results.get(0).size());
+		assertEquals(3, results.get(1).size());
+		final Map<String, String> map = new HashMap<>();
+		IntStream.range(0, 3).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
+		assertEquals(ResourceType.XmlApi.name(), map.get("id"));
+		assertEquals(TestResourceIdentifier.URI, map.get("uri"));
+		
+		assertEquals(String.format("%s=%s,%s=%s", TestResourceIdentifier.HOST_KEY, TestResourceIdentifier.HOST_VALUE, TestResourceIdentifier.PORT_KEY, TestResourceIdentifier.PORT_VALUE), map.get("parameters"));;
+		
 	}
 
 }
