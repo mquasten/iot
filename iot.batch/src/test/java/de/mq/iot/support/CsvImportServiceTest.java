@@ -8,8 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Year;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,11 +26,17 @@ import de.mq.iot.authentication.Authority;
 import de.mq.iot.authentication.support.AuthenticationRepository;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.resource.ResourceIdentifier;
+import de.mq.iot.resource.ResourceIdentifier.ResourceType;
+import de.mq.iot.resource.support.ResourceIdentifierRepository;
 import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.Synonym.Type;
 import de.mq.iot.synonym.SynonymService;
+import reactor.core.publisher.Mono;
 
 public class CsvImportServiceTest {
+
+	private static final int TIMEOUT = 500;
 
 	private static final LocalDate EASTER_2019 = LocalDate.of(2019, 4, 19);
 
@@ -38,7 +46,8 @@ public class CsvImportServiceTest {
 	
 	private final AuthenticationRepository authenticationRepository = Mockito.mock(AuthenticationRepository.class);
 	
-	private final CsvImportServiceImpl csvImportService = new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService,authenticationRepository);
+	private final ResourceIdentifierRepository resourceIdentifierRepository = Mockito.mock(ResourceIdentifierRepository.class);
+	private final CsvImportServiceImpl csvImportService = new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService,authenticationRepository, resourceIdentifierRepository, TIMEOUT);
 	
 	private final String firstKey = "HMW-LC-Bl1-DR OEQ2305342:3";
 	
@@ -57,6 +66,14 @@ public class CsvImportServiceTest {
 	
 	private final String user="mquasten";
 	private final String password = "0b6bff8b997f50c48bfaea170eab7ce7";
+	
+	private final String XML_API_URI = "http://{host}:{port}/addons/xmlapi/{resource}";
+	
+	private final String XML_API_HOST_KEY = "host";
+	private final String XML_API_HOST_VALUE =	"192.168.2.102";
+	
+	private final String XML_API_PORT_KEY = "port";
+	private final String XML_API_PORT_VALUE =	"80";
 
 	
 	@BeforeEach
@@ -121,17 +138,49 @@ public class CsvImportServiceTest {
 		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("username;credentials;authorities\r\n" + 
 				String.format("%s;%s;ModifySystemvariables\r\n", user, password)));
 		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
+		@SuppressWarnings("unchecked")
+		final Mono<Authentication> mono = Mockito.mock(Mono.class);
+		Mockito.when(authenticationRepository.save(Mockito.any())).thenReturn(mono);
 		
 		csvImportService.importCsv(CsvType.User.name(), "egal");
 		
 		final ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 		
 		Mockito.verify(authenticationRepository, Mockito.times(1)).save(authenticationCaptor.capture());
-		
+		Mockito.verify(mono).block(Duration.ofMillis(TIMEOUT));
 		assertEquals(user, authenticationCaptor.getValue().username());
 		assertEquals(1, authenticationCaptor.getValue().authorities().size());
 		assertTrue(authenticationCaptor.getValue().authenticate("manfred01"));
 		assertEquals(Authority.ModifySystemvariables.name(),  authenticationCaptor.getValue().authorities().stream().findAny().get().name());
+		
+		
+	}
+	@Test
+	void resourceIdentifier() {
+	
+		
+		
+		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("id;uri;parameters\r\n" + 
+				String.format("XmlApi;%s;%s=%s,%s=%s\r\n", XML_API_URI, XML_API_HOST_KEY, XML_API_HOST_VALUE , XML_API_PORT_KEY, XML_API_PORT_VALUE)));
+		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
+		@SuppressWarnings("unchecked")
+		final Mono<ResourceIdentifier> mono = Mockito.mock(Mono.class);
+		Mockito.when(resourceIdentifierRepository.save(Mockito.any())).thenReturn(mono);
+		csvImportService.importCsv(CsvType.ResourceIdentifier.name(), "egal");
+		
+		final ArgumentCaptor<ResourceIdentifier> resourceIdentifierCaptor = ArgumentCaptor.forClass(ResourceIdentifier.class);
+		
+		Mockito.verify(resourceIdentifierRepository, Mockito.times(1)).save(resourceIdentifierCaptor.capture());
+		Mockito.verify(mono).block(Duration.ofMillis(TIMEOUT));
+		
+		assertEquals(ResourceType.XmlApi, resourceIdentifierCaptor.getValue().id());
+		assertEquals(XML_API_URI, resourceIdentifierCaptor.getValue().uri());
+		
+		final Map<String,String> parameters =  resourceIdentifierCaptor.getValue().parameters();
+		assertEquals(2, parameters.size());
+		
+		assertEquals(XML_API_HOST_VALUE, parameters.get(XML_API_HOST_KEY));
+		assertEquals(XML_API_PORT_VALUE, parameters.get(XML_API_PORT_KEY));
 		
 		
 	}

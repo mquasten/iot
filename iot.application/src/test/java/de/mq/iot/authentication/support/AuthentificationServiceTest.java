@@ -3,12 +3,14 @@ package de.mq.iot.authentication.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import de.mq.iot.authentication.Authentication;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class AuthentificationServiceTest {
@@ -34,6 +36,15 @@ public class AuthentificationServiceTest {
 		assertEquals(Optional.of(authentication), authentificationService.authentification(USER));
 	}
 	
+	
+	@Test
+	void authentifications() {
+		Mockito.doReturn(Flux.just(authentication)).when(authenticationRepository).findAll();
+		final Collection<Authentication> authentications = authentificationService.authentifications();
+		
+		assertEquals(1, authentications.size());
+		assertEquals(authentication, authentications.stream().findAny().get());
+	}
 	
 
 }

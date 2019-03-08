@@ -7,10 +7,13 @@ import java.lang.reflect.ParameterizedType;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -20,6 +23,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.csv.QuoteMode;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.util.Assert;
@@ -30,6 +34,8 @@ import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.support.AuthenticationRepository;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.resource.ResourceIdentifier;
+import de.mq.iot.resource.support.ResourceIdentifierRepository;
 import de.mq.iot.state.Command;
 import de.mq.iot.state.Commands;
 import de.mq.iot.synonym.Synonym;
@@ -44,15 +50,15 @@ public class CsvImportServiceImpl {
 	
 	private final Map<CsvType,Consumer<Object>> consumers = new HashMap<>();
 	
-	CsvImportServiceImpl(final ConversionService conversionService, final SynonymService synonymService,final SpecialdayService specialdayService, final AuthenticationRepository authenticationRepository) {
+	CsvImportServiceImpl(final ConversionService conversionService, final SynonymService synonymService,final SpecialdayService specialdayService, final AuthenticationRepository authenticationRepository, final ResourceIdentifierRepository resourceIdentifierRepository, @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.conversionService = conversionService;
 		consumers.put(CsvType.Synonym, synonym -> synonymService.save((Synonym) synonym));
 		
 		consumers.put(CsvType.Specialday, specialday -> specialdayService.save((Specialday)specialday));
 		
-		consumers.put(CsvType.User, user -> authenticationRepository.save((Authentication) user));
+		consumers.put(CsvType.User, user -> authenticationRepository.save((Authentication) user).block(Duration.ofMillis(timeout)));
 		
-		
+		consumers.put(CsvType.ResourceIdentifier, resourceIdentifier -> resourceIdentifierRepository.save((ResourceIdentifier) resourceIdentifier).block(Duration.ofMillis(timeout)) );
 		
 		
 	}
@@ -114,6 +120,11 @@ public class CsvImportServiceImpl {
 	private Object convert(CSVRecord record, String name, final Field field) {
 		if (Collection.class.isAssignableFrom(field.getType())) {
 			return conversionService.convert(Arrays.asList(StringUtils.commaDelimitedListToStringArray(record.get(name))), TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf(String.class)), TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf((Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0])));
+		}
+		
+		
+		if(Map.class.isAssignableFrom(field.getType())) {
+			return StringUtils.commaDelimitedListToSet(record.get(name)).stream().map(str -> str.split("[=]")).filter(stringArray -> stringArray.length==2).map(array -> new SimpleEntry<>(array[0], array[1])).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		}
 		
 		return  conversionService.convert(record.get(name), field.getType());

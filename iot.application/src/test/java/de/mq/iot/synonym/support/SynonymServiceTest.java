@@ -2,6 +2,7 @@ package de.mq.iot.synonym.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,14 +14,19 @@ import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.Synonym.Type;
 import de.mq.iot.synonym.SynonymService;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class SynonymServiceTest {
 	
-	private static final List<Synonym> synonyms = Arrays.asList(Mockito.mock(Synonym.class));
+	private static final int TIMEOUT = 500;
+
+	private  final Synonym synonym = Mockito.mock(Synonym.class);
+
+	private  final List<Synonym> synonyms = Arrays.asList(synonym);
 
 	private final SynonymRepository synonymRepository = Mockito.mock(SynonymRepository.class);
 	
-	private final SynonymService synonymService = new SynonymServiceImpl(synonymRepository, 500);
+	private final SynonymService synonymService = new SynonymServiceImpl(synonymRepository, TIMEOUT);
 	
 	
 	@BeforeEach
@@ -34,7 +40,15 @@ public class SynonymServiceTest {
 		assertEquals(synonyms, synonymService.deviveSynonyms());
 	}
 	
-	
-	
+	@Test
+	void save() {
+		@SuppressWarnings("unchecked")
+		final Mono<Synonym> mono = Mockito.mock(Mono.class);
+		Mockito.doReturn(mono).when(synonymRepository).save(synonym);
+		synonymService.save(synonym);
+		
+		Mockito.verify(synonymRepository).save(synonym);
+		Mockito.verify(mono).block(Duration.ofMillis(TIMEOUT));
+	}
 
 }
