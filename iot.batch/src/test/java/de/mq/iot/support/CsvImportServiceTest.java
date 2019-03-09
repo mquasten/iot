@@ -4,22 +4,35 @@ package de.mq.iot.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.spi.FileSystemProvider;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Year;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.FileCopyUtils;
 
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
@@ -35,6 +48,8 @@ import de.mq.iot.synonym.SynonymService;
 import reactor.core.publisher.Mono;
 
 public class CsvImportServiceTest {
+	
+	private static final String FILENAME = "filename";
 
 	private static final int TIMEOUT = 500;
 
@@ -183,6 +198,113 @@ public class CsvImportServiceTest {
 		assertEquals(XML_API_PORT_VALUE, parameters.get(XML_API_PORT_KEY));
 		
 		
+	}
+	
+	
+	@Test
+	void resourceIdentifierWrongMapalues() {
+	
+		
+		
+		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("id;uri;parameters\r\n" + 
+				String.format("XmlApi;%s;%s,%s\r\n", XML_API_URI, XML_API_HOST_KEY , XML_API_PORT_KEY )));
+		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
+		@SuppressWarnings("unchecked")
+		final Mono<ResourceIdentifier> mono = Mockito.mock(Mono.class);
+		Mockito.when(resourceIdentifierRepository.save(Mockito.any())).thenReturn(mono);
+		csvImportService.importCsv(CsvType.ResourceIdentifier.name(), "egal");
+		
+		final ArgumentCaptor<ResourceIdentifier> resourceIdentifierCaptor = ArgumentCaptor.forClass(ResourceIdentifier.class);
+		
+		Mockito.verify(resourceIdentifierRepository, Mockito.times(1)).save(resourceIdentifierCaptor.capture());
+		Mockito.verify(mono).block(Duration.ofMillis(TIMEOUT));
+		
+		assertEquals(ResourceType.XmlApi, resourceIdentifierCaptor.getValue().id());
+		assertEquals(XML_API_URI, resourceIdentifierCaptor.getValue().uri());
+		
+		final Map<String,String> parameters =  resourceIdentifierCaptor.getValue().parameters();
+		assertEquals(0, parameters.size());
+		
+		
+		
+		
+	}
+	
+	
+	@Test
+	void readerException() throws IOException {
+		BufferedReader reader = Mockito.mock(BufferedReader.class);
+		final Function<String, BufferedReader> supplier = name -> reader;
+		
+		
+		
+		Mockito.doThrow(IOException.class).when(reader).read(Mockito.any(), Mockito.anyInt(), Mockito.anyInt());
+		
+		
+		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
+	
+		assertThrows(IllegalStateException.class, () ->  csvImportService.importCsv(CsvType.User.name(), "egal"));
+	}
+	
+	@Test
+	void newReaderException() {
+		CsvImportServiceImpl csvImportService=new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService, authenticationRepository, resourceIdentifierRepository, TIMEOUT);
+		assertThrows(IllegalStateException.class, () ->  csvImportService.importCsv(CsvType.User.name(), "don'tLetMeGetMe"));
+	}
+	
+	@Test
+	void newReader() throws IOException {
+		final Path path = Mockito.mock(Path.class);
+		final FileSystem fileSystem = Mockito.mock(FileSystem.class);
+		final FileSystemProvider provider = Mockito.mock(FileSystemProvider.class);
+		Mockito.doReturn(provider).when(fileSystem).provider();
+		Mockito.doReturn(fileSystem).when(path).getFileSystem();
+		InputStream is = Mockito.mock(InputStream.class);
+		Mockito.when(provider.newInputStream(Mockito.any(), Mockito.any())).thenReturn(is);
+		try (final BufferedReader writer = ((CsvImportServiceImpl) csvImportService).newReader(path);) {
+
+		}
+
+		Mockito.verify(is).close();
+
+	}
+	
+	
+	
+	@Test()
+	void supplier() throws IOException {
+
+		final CsvImportServiceImpl service = new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService, authenticationRepository, resourceIdentifierRepository, TIMEOUT);
+
+		@SuppressWarnings("unchecked")
+		final Function<String, BufferedReader> function = (Function<String, BufferedReader>) DataAccessUtils
+				.requiredSingleResult(Arrays.asList(CsvImportServiceImpl.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(Function.class)).map(field -> ReflectionTestUtils.getField(service, field.getName())).collect(Collectors.toList()));
+
+		
+		final File file =  File.createTempFile(FILENAME , ".csv");
+		
+		
+		
+		final String text = "ein test";
+		FileCopyUtils.copy(text.getBytes(), file);
+		
+		try {
+			assertEquals(text, function.apply(file.getPath()).readLine());
+			
+		} finally {
+
+			clean(file.getPath());
+		}
+
+	}
+
+	private void clean(String file) {
+		try {
+			
+			Files.deleteIfExists(Paths.get(file));
+		} catch (Exception ex) {
+
+		}
 	}
 
 }

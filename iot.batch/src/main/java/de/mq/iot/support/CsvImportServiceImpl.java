@@ -43,7 +43,7 @@ import de.mq.iot.synonym.SynonymService;
 
 public class CsvImportServiceImpl {
 	
-	private final Function<String, BufferedReader> supplier = name -> newReaderr(Paths.get(name));
+	private final Function<String, BufferedReader> supplier = name -> newReader(Paths.get(name));
 	
 	private final ConversionService conversionService;
 	
@@ -63,7 +63,7 @@ public class CsvImportServiceImpl {
 		
 	}
 
-	BufferedReader newReaderr(final Path path) {
+	BufferedReader newReader(final Path path) {
 		try {
 			return Files.newBufferedReader(path);
 		} catch (final IOException ex) {
@@ -129,5 +129,7 @@ public class CsvImportServiceImpl {
 		
 		return  conversionService.convert(record.get(name), field.getType());
 	}
+	
+	
 
 }
