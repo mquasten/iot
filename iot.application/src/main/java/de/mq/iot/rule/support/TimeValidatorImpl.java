@@ -1,6 +1,6 @@
 package de.mq.iot.rule.support;
 
-
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.StringUtils;
@@ -8,11 +8,21 @@ import org.springframework.validation.Errors;
 
 import org.springframework.validation.Validator;
 
-public class TimeValidatorImpl implements  Validator {
-	
+class TimeValidatorImpl implements Validator {
+
+	static final String INVALID = "invalid";
+
+	static final String MANDATORY = "mandatory";
+
+	static final String DELIMITER = "[:.|,]";
+
 	private ConversionService conversionService = new DefaultConversionService();
-	
-	private boolean mandatory = true;
+
+	private final boolean mandatory;
+
+	TimeValidatorImpl(final boolean mandatory) {
+		this.mandatory = mandatory;
+	}
 
 	@Override
 	public boolean supports(final Class<?> clazz) {
@@ -21,44 +31,41 @@ public class TimeValidatorImpl implements  Validator {
 
 	@Override
 	public void validate(final Object target, final Errors errors) {
-		
-		
+
 		final String timeString = (String) target;
-		if( mandatory && !StringUtils.hasText(timeString)) {
-			errors.rejectValue(null,"mandatory");
+		if (mandatory && timeString == null) {
+			errors.rejectValue(null, MANDATORY);
 			return;
 		}
-		
-		if(! validTimeString(splitTimeString(timeString)) ) {
-			errors.rejectValue(null, "invalid");
+
+		if (timeString == null) {
+			return;
+		}
+
+		if (!validTimeString(splitTimeString(timeString))) {
+			errors.rejectValue(null, INVALID);
 		}
 	}
-	
+
 	private boolean validTimeString(final String[] values) {
-		if( values.length != 2) {
+		if (values.length != 2) {
 			return false;
 		}
-		
+
 		return validInt(values[0], 24) && validInt(values[1], 60);
 	}
 
-
-
-
-	private boolean validInt(String value, final int limit ) {
+	private boolean validInt(String value, final int limit) {
 		try {
-		int intValue = 	conversionService.convert(value, int.class);
-		return  intValue >= 0 && intValue < limit;
-		} catch (IllegalArgumentException ia) {
+			int intValue = conversionService.convert(StringUtils.trimWhitespace(value), int.class);
+			return intValue >= 0 && intValue < limit;
+		} catch (ConversionFailedException ce) {
 			return false;
 		}
 	}
-	
-	private String[] splitTimeString(final String stringValue) {
-		return stringValue.split("[:.| ,\t]");
-	}
-		
 
-	
+	private String[] splitTimeString(final String stringValue) {
+		return stringValue.split(DELIMITER);
+	}
 
 }

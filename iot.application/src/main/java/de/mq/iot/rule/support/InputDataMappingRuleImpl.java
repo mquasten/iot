@@ -41,7 +41,7 @@ class InputDataMappingRuleImpl {
 
 
 	private String[] splitTimeString(final String stringValue) {
-		return stringValue.split("[:.| ,\t]");
+		return stringValue.split(TimeValidatorImpl.DELIMITER);
 	}
 		
 		
@@ -52,7 +52,7 @@ class InputDataMappingRuleImpl {
 		 final Map<?,?> map = new HashMap<>();
 		 final Errors errors = new MapBindingResult(map, "ruleInputData");
 		 
-		 final Validator validator = new TimeValidatorImpl();
+		 final Validator validator = new TimeValidatorImpl(true);
 		 
 		 errors.setNestedPath(WORKINGDAY_ALARM_TIME_KEY);
 		 validator.validate(ruleInputMap.get(WORKINGDAY_ALARM_TIME_KEY), errors);
