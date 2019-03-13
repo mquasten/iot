@@ -10,8 +10,12 @@ class DefaultRuleInput {
 	
 	private LocalTime holidayAlarmTime;
 	
-	private boolean updateMode=false;
+	private Boolean updateMode=false;
 	
+	private Boolean testMode=false;
+	
+	
+
 	DefaultRuleInput() {
 		workingdayAlarmTime=LocalTime.MIDNIGHT;
 		holidayAlarmTime=LocalTime.MIDNIGHT;
@@ -39,7 +43,9 @@ class DefaultRuleInput {
 		return updateMode;
 	}
 
-	
+	boolean isTestMode() {
+		return testMode;
+	}
 	
 	
 

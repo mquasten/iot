@@ -22,6 +22,9 @@ class InputDataMappingRuleImpl {
 	
 	static final String WORKINGDAY_ALARM_TIME_KEY =  "workingdayAlarmTime";
 	static final String HOLIDAY_ALARM_TIME_KEY =  "holidayAlarmTime";
+	static final String UPDATE_MODE_KEY = "updateMode";
+	static final String TEST_MODE_KEY = "testMode";
+	
 	
 	
 	private final DefaultConversionService conversionService = new DefaultConversionService(); 
@@ -35,6 +38,10 @@ class InputDataMappingRuleImpl {
 			}
 			return LocalTime.of(conversionService.convert(values[0], Integer.class), conversionService.convert(values[1], Integer.class));
 		});
+		
+		
+		
+		
 	}
 
 
@@ -52,14 +59,21 @@ class InputDataMappingRuleImpl {
 		 final Map<?,?> map = new HashMap<>();
 		 final Errors errors = new MapBindingResult(map, "ruleInputData");
 		 
-		 final Validator validator = new TimeValidatorImpl(true);
+		 final Validator timeValidator = new TimeValidatorImpl(true);
 		 
 		 errors.setNestedPath(WORKINGDAY_ALARM_TIME_KEY);
-		 validator.validate(ruleInputMap.get(WORKINGDAY_ALARM_TIME_KEY), errors);
+		 timeValidator.validate(ruleInputMap.get(WORKINGDAY_ALARM_TIME_KEY), errors);
 		 errors.setNestedPath(HOLIDAY_ALARM_TIME_KEY);
-		 validator.validate(ruleInputMap.get(HOLIDAY_ALARM_TIME_KEY), errors);
+		 timeValidator.validate(ruleInputMap.get(HOLIDAY_ALARM_TIME_KEY), errors);
 		 
+		 final Validator booleanValidator = new BooleanValidatorImpl(false);
+		 errors.setNestedPath(UPDATE_MODE_KEY);
 		 
+		 booleanValidator.validate(ruleInputMap.get(UPDATE_MODE_KEY), errors);
+		 
+		 errors.setNestedPath(TEST_MODE_KEY);
+		 
+		 booleanValidator.validate(ruleInputMap.get(TEST_MODE_KEY), errors);
 		 return !errors.hasErrors();
 		
 		
@@ -77,8 +91,8 @@ class InputDataMappingRuleImpl {
 		 ruleInputMap.entrySet().stream().forEach(entry -> {
 			  final Field field = ReflectionUtils.findField(DefaultRuleInput.class, entry.getKey());
 			  field.setAccessible(true);
-			 
-			  ReflectionUtils.setField(field, ruleInput, conversionService.convert(entry.getValue(), field.getType()));
+			  
+			  ReflectionUtils.setField(field, ruleInput,  conversionService.convert(entry.getValue(), field.getType()) );
 			 
 		 });
 		 
