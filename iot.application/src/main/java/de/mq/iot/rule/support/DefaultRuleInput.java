@@ -30,6 +30,10 @@ class DefaultRuleInput {
 		this.updateMode=true;
 	}
 	
+	void useTestMode() {
+		this.testMode=true;
+	}
+	
 	LocalTime workingdayAlarmTime() {
 		return workingdayAlarmTime;
 	}

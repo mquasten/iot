@@ -8,7 +8,7 @@ import java.time.LocalTime;
 
 import org.junit.jupiter.api.Test;
 
-public class DefaultRuleInputTest {
+class DefaultRuleInputTest {
 	
 	private final LocalTime workingdayAlarmTime = LocalTime.of(5, 15);
 	
@@ -32,6 +32,13 @@ public class DefaultRuleInputTest {
 		assertFalse(ruleInput.isUpdateMode());
 		ruleInput.useUpdateMode();
 		assertTrue(ruleInput.isUpdateMode());
+	}
+	
+	@Test
+	void testMode() {
+		assertFalse(ruleInput.isTestMode());
+		ruleInput.useTestMode();
+		assertTrue(ruleInput.isTestMode());
 	}
 	@Test
 	void defaultConstructor() {
