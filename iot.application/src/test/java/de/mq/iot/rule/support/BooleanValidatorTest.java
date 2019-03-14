@@ -8,14 +8,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.MapBindingResult;
 import org.springframework.validation.Validator;
 
+
 class BooleanValidatorTest {
 
-	private final Validator validator = new BooleanValidatorImpl(true);
+	
+	
+	private final Validator validator = new BooleanValidatorImpl(new DefaultConversionService(), true);
 
 	private final Map<String, String> map = new HashMap<>();
 
@@ -62,7 +66,7 @@ class BooleanValidatorTest {
 	@Test
 	void validateValidMandatory() {
 
-		final Validator validator = new BooleanValidatorImpl(false);
+		final Validator validator = new BooleanValidatorImpl(new DefaultConversionService(), false);
 		validator.validate(null, errors);
 		assertEquals(0, errors.getAllErrors().size());
 	}

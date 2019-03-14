@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.MapBindingResult;
@@ -22,7 +23,7 @@ class TimeValidatorTest {
 
 	private final Errors errors = new MapBindingResult(map, "ruleInputData");
 
-	private final Validator validator = new TimeValidatorImpl(true);
+	private final Validator validator = new TimeValidatorImpl(new DefaultConversionService(), true);
 
 	private final String validTimestamp = " 5:15 ";
 
@@ -50,7 +51,7 @@ class TimeValidatorTest {
 
 	@Test
 	void validTimeStampNull() {
-		final Validator validator = new TimeValidatorImpl(false);
+		final Validator validator = new TimeValidatorImpl(new DefaultConversionService(), false);
 		validator.validate(null, errors);
 		assertEquals(0, errors.getAllErrors().size());
 	}

@@ -1,7 +1,6 @@
 package de.mq.iot.rule.support;
 
 import java.lang.reflect.Field;
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +9,7 @@ import javax.xml.ws.Action;
 import org.jeasy.rules.annotation.Condition;
 import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Rule;
-import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.MapBindingResult;
@@ -27,29 +26,17 @@ class InputDataMappingRuleImpl {
 	
 	
 	
-	private final DefaultConversionService conversionService = new DefaultConversionService(); 
+	private final ConversionService conversionService; 
 	
 	
-	InputDataMappingRuleImpl() {
-		conversionService.addConverter(String.class, LocalTime.class, stringValue -> {
-			String[] values = splitTimeString(stringValue);
-			if( values.length!=2) {
-				return null;
-			}
-			return LocalTime.of(conversionService.convert(values[0], Integer.class), conversionService.convert(values[1], Integer.class));
-		});
-		
-		
-		
-		
+	
+
+	InputDataMappingRuleImpl(final ConversionService conversionService){
+		this.conversionService=conversionService;
 	}
 
 
-
-
-	private String[] splitTimeString(final String stringValue) {
-		return stringValue.split(TimeValidatorImpl.DELIMITER);
-	}
+	
 		
 		
 		
@@ -59,14 +46,14 @@ class InputDataMappingRuleImpl {
 		 final Map<?,?> map = new HashMap<>();
 		 final Errors errors = new MapBindingResult(map, "ruleInputData");
 		 
-		 final Validator timeValidator = new TimeValidatorImpl(true);
+		 final Validator timeValidator = new TimeValidatorImpl(conversionService, true);
 		 
 		 errors.setNestedPath(WORKINGDAY_ALARM_TIME_KEY);
 		 timeValidator.validate(ruleInputMap.get(WORKINGDAY_ALARM_TIME_KEY), errors);
 		 errors.setNestedPath(HOLIDAY_ALARM_TIME_KEY);
 		 timeValidator.validate(ruleInputMap.get(HOLIDAY_ALARM_TIME_KEY), errors);
 		 
-		 final Validator booleanValidator = new BooleanValidatorImpl(false);
+		 final Validator booleanValidator = new BooleanValidatorImpl(conversionService, false);
 		 errors.setNestedPath(UPDATE_MODE_KEY);
 		 
 		 booleanValidator.validate(ruleInputMap.get(UPDATE_MODE_KEY), errors);

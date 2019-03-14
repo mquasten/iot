@@ -2,8 +2,6 @@ package de.mq.iot.rule.support;
 
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
-
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -13,13 +11,14 @@ class BooleanValidatorImpl implements Validator {
 
 	static final String MANDATORY = "mandatory";
 
-	private ConversionService conversionService = new DefaultConversionService();
+	private final ConversionService conversionService;
 
 	private final boolean mandatory;
 
-	BooleanValidatorImpl(final boolean mandatory) {
+	BooleanValidatorImpl(final ConversionService conversionService, final boolean mandatory) {
 
 		this.mandatory = mandatory;
+		this.conversionService=conversionService;
 	}
 
 	@Override

@@ -9,9 +9,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+
+import de.mq.iot.support.ApplicationConfiguration;
 public class InputDataMappingRuleTest {
 	
-	private final InputDataMappingRuleImpl inputDataMappingRule = new InputDataMappingRuleImpl();
+	
+	private final ApplicationConfiguration configuration = new ApplicationConfiguration();
+	private final InputDataMappingRuleImpl inputDataMappingRule = new InputDataMappingRuleImpl(configuration.conversionService());
 	
 	
 	private final int workingdayAlarmHour = 5;

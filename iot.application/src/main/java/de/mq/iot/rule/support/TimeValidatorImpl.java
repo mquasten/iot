@@ -2,7 +2,6 @@ package de.mq.iot.rule.support;
 
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 
@@ -16,11 +15,12 @@ class TimeValidatorImpl implements Validator {
 
 	static final String DELIMITER = "[:.|,]";
 
-	private ConversionService conversionService = new DefaultConversionService();
+	private ConversionService conversionService;
 
 	private final boolean mandatory;
 
-	TimeValidatorImpl(final boolean mandatory) {
+	TimeValidatorImpl(final ConversionService conversionService, final boolean mandatory) {
+		this.conversionService=conversionService;
 		this.mandatory = mandatory;
 	}
 
