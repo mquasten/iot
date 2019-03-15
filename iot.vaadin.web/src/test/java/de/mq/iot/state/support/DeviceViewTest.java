@@ -41,7 +41,6 @@ import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.StateService.DeviceType;
 import de.mq.iot.support.ButtonBox;
-import de.mq.iot.synonym.Synonym.Type;
 import de.mq.iot.synonym.SynonymService;
 
 

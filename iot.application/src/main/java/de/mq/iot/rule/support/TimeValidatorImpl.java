@@ -64,7 +64,7 @@ class TimeValidatorImpl implements Validator {
 		}
 	}
 
-	private String[] splitTimeString(final String stringValue) {
+	static String[] splitTimeString(final String stringValue) {
 		return stringValue.split(DELIMITER);
 	}
 

@@ -10,11 +10,10 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import de.mq.iot.support.ApplicationConfiguration;
 public class InputDataMappingRuleTest {
 	
 	
-	private final ApplicationConfiguration configuration = new ApplicationConfiguration();
+	private final RuleConfiguration configuration = new RuleConfiguration();
 	private final InputDataMappingRuleImpl inputDataMappingRule = new InputDataMappingRuleImpl(configuration.conversionService());
 	
 	

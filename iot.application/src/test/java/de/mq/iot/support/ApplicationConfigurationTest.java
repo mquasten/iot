@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import javax.xml.xpath.XPath;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -31,10 +30,6 @@ class ApplicationConfigurationTest {
 		assertEquals(DATABASE_NAME, reactiveMongoTemplate.getMongoDatabase().getName());
 	}
 
-	@Test
-	final void conversionService() {
-		assertTrue(configuration.conversionService()  instanceof DefaultConversionService);
-	}
 	
 	
 }
