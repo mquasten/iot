@@ -42,6 +42,8 @@ dom.RTUpdate(0);
 
 
 real c_zeit = (1.0*system.Date("%H").ToInteger()) +(0.01*system.Date("%M").ToInteger());
+
+if( c_zeit <= 23.45 ) {
 object liste = dom.GetObject("EventExecutions");
 string index;
 string todo="";
@@ -89,5 +91,13 @@ foreach (index, liste.State().Split(";")){
 liste.State(todo);
 !WriteLine("neue Liste setzen:" #todo);
 !WriteLine("neue Liste setzen:" #todo);
+} else {
+
+string dailyEventList = dom.GetObject("DailyEvents").State();
+string eventExecutions = dom.GetObject("EventExecutions");
+eventExecutions.State(dailyEventList);
+object timerEvents = dom.GetObject("TimerEvents");
+timerEvents.State(0);
+}
 
 dom.GetObject("SystemTime").State(c_zeit);
