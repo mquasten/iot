@@ -19,6 +19,7 @@ import org.springframework.validation.Validator;
 @Rule(name = "inputDataMappingRule", priority = 0)
 class InputDataMappingRuleImpl {
 	
+	
 	static final String WORKINGDAY_ALARM_TIME_KEY =  "workingdayAlarmTime";
 	static final String HOLIDAY_ALARM_TIME_KEY =  "holidayAlarmTime";
 	static final String UPDATE_MODE_KEY = "updateMode";
@@ -42,7 +43,7 @@ class InputDataMappingRuleImpl {
 		
 	
 	 @Condition
-	 public boolean evaluate(@Fact("ruleInputMap") final Map<String,String> ruleInputMap) {
+	 public boolean evaluate(@Fact(RulesAggregate.RULE_INPUT_MAP_FACT) final Map<String,String> ruleInputMap) {
 		 final Map<?,?> map = new HashMap<>();
 		 final Errors errors = new MapBindingResult(map, "ruleInputData");
 		 
@@ -72,7 +73,7 @@ class InputDataMappingRuleImpl {
 	
 	 
 	 @Action
-	 public void mapping(@Fact("ruleInputMap") final Map<String,String> ruleInputMap, @Fact("ruleInput") DefaultRuleInput ruleInput) {
+	 public void mapping(@Fact(RulesAggregate.RULE_INPUT_MAP_FACT) final Map<String,String> ruleInputMap, @Fact("ruleInput") DefaultRuleInput ruleInput) {
 		
 		
 		 ruleInputMap.entrySet().stream().forEach(entry -> {

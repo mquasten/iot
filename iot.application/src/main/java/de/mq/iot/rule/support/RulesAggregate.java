@@ -1,16 +1,16 @@
 package de.mq.iot.rule.support;
 
-import org.jeasy.rules.api.Facts;
-import org.jeasy.rules.api.Rules;
+import de.mq.iot.rule.support.RulesDefinition.Id;
 
 public interface RulesAggregate {
-	enum Type {
-		DefaultDailyIotBtach
-	}
+	static final String RULE_INPUT_MAP_FACT = "ruleInputMap";
 	
-	Type type();
+	static final String RULE_OUTPUT_MAP_FACT = "ruleOutputMap";
+	Id id();
+	
+	
+	RulesAggregate with(final RulesDefinition rulesDefinition);
+	RulesAggregateResult fire();
 
-	Rules rules();
 	
-	Facts facts();
 }
