@@ -1,6 +1,7 @@
 package de.mq.iot.rule.support;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -13,7 +14,6 @@ import org.jeasy.rules.api.RulesEngine;
 import org.jeasy.rules.core.DefaultRulesEngine;
 import org.jeasy.rules.core.RuleProxy;
 import org.jeasy.rules.core.RulesEngineParameters;
-import org.mockito.internal.util.collections.Sets;
 import org.springframework.util.Assert;
 
 import de.mq.iot.rule.support.RulesDefinition.Id;
@@ -41,7 +41,7 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 		this.rulesEngine = new DefaultRulesEngine(new RulesEngineParameters().skipOnFirstFailedRule(true));
 		this.id = id;
 		this.rules = rules;
-		this.optionalRules.addAll(Sets.newSet(optionalRules));
+		this.optionalRules.addAll(new HashSet<>(Arrays.asList(optionalRules)));
 		facts.put(RulesAggregate.RULE_OUTPUT_MAP_FACT, new ArrayList<State<?>>());		
 	}
 
@@ -53,18 +53,22 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 
 	@Override
 	public final RulesAggregate with(final RulesDefinition rulesDefinition) {
+		
 		validRulesDefinitionGuard(rulesDefinition);
 		
-		Assert.isTrue(! inputDataAware(), "InputData is already assigned.");
+		Assert.isTrue( ! inputDataAware(), "InputData is already assigned.");
 		facts.put(RulesAggregate.RULE_INPUT_MAP_FACT, rulesDefinition.inputData());
 		
-		Assert.isTrue(optionalRules.isEmpty(), "Optional Rules already assigned.");
 		optionalRules.stream().filter(rule -> rulesDefinition.optionalRules().contains(RuleProxy.asRule(rule).getName())).forEach(rule -> rules.register(rule));
+		
+		
+		
 		return this;
 	}
 
 	private void validRulesDefinitionGuard(final RulesDefinition rulesDefinition) {
 		Assert.notNull(rulesDefinition , "RulesDefinition is required.");
+		
 		Assert.isTrue(id == rulesDefinition.id(), "Ids should be identical.");
 		Assert.notNull(rulesDefinition.optionalRules(), "RulesDefinition.optionalRules() shouldn't be null.");
 	}
@@ -96,12 +100,12 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 
 			@Override
 			public Optional<Entry<String, Exception>> exception() {
-				return ruleListener.getError();
+				return ruleListener.error();
 			}
 
 			@Override
 			public Collection<String> processedRules() {
-				return ruleListener.getProcessedRules();
+				return ruleListener.processedRules();
 			}
 
 		};

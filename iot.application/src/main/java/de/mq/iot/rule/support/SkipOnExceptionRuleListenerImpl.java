@@ -18,11 +18,11 @@ class SkipOnExceptionRuleListenerImpl implements RuleListener {
 	private final Collection<String> processedRules = new ArrayList<>();
 	
 	
-	Optional<Entry<String, Exception>> getError() {
+	Optional<Entry<String, Exception>> error() {
 		return error;
 	}
 	
-	Collection<String> getProcessedRules() {
+	Collection<String> processedRules() {
 		return Collections.unmodifiableCollection(processedRules);
 	}
 
