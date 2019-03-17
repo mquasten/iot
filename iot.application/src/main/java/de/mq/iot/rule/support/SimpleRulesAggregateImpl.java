@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.jeasy.rules.api.Facts;
-import org.jeasy.rules.api.Rule;
 import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.api.RulesEngine;
 import org.jeasy.rules.core.DefaultRulesEngine;
@@ -37,7 +36,7 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 	
 	
 	
-	SimpleRulesAggregateImpl(final Id id, final Rules rules, final Rule ... optionalRules) {
+	SimpleRulesAggregateImpl(final Id id, final Rules rules, final Object ... optionalRules) {
 		this.rulesEngine = new DefaultRulesEngine(new RulesEngineParameters().skipOnFirstFailedRule(true));
 		this.id = id;
 		this.rules = rules;
