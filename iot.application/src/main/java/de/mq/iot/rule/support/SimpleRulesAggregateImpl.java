@@ -15,7 +15,8 @@ import org.jeasy.rules.core.RuleProxy;
 import org.jeasy.rules.core.RulesEngineParameters;
 import org.springframework.util.Assert;
 
-import de.mq.iot.rule.support.RulesDefinition.Id;
+import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.rule.RulesDefinition.Id;
 import de.mq.iot.state.State;
 
 

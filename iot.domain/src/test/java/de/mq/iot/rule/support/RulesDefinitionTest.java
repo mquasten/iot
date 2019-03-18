@@ -6,6 +6,8 @@ import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
+import de.mq.iot.rule.RulesDefinition;
+
 class RulesDefinitionTest {
 	
 	@Test

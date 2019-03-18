@@ -14,16 +14,11 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.MapBindingResult;
 import org.springframework.validation.Validator;
 
+import de.mq.iot.rule.RulesDefinition;
+
 
 @Rule(name = "inputDataMappingRule", priority = 0)
 class InputDataMappingRuleImpl {
-	
-	
-	static final String WORKINGDAY_ALARM_TIME_KEY =  "workingdayAlarmTime";
-	static final String HOLIDAY_ALARM_TIME_KEY =  "holidayAlarmTime";
-	static final String UPDATE_MODE_KEY = "updateMode";
-	static final String TEST_MODE_KEY = "testMode";
-	
 	
 	
 	private final ConversionService conversionService; 
@@ -48,19 +43,19 @@ class InputDataMappingRuleImpl {
 		 
 		 final Validator timeValidator = new TimeValidatorImpl(conversionService, true);
 		 
-		 errors.setNestedPath(WORKINGDAY_ALARM_TIME_KEY);
-		 timeValidator.validate(ruleInputMap.get(WORKINGDAY_ALARM_TIME_KEY), errors);
-		 errors.setNestedPath(HOLIDAY_ALARM_TIME_KEY);
-		 timeValidator.validate(ruleInputMap.get(HOLIDAY_ALARM_TIME_KEY), errors);
+		 errors.setNestedPath(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY);
+		 timeValidator.validate(ruleInputMap.get(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY), errors);
+		 errors.setNestedPath(RulesDefinition.HOLIDAY_ALARM_TIME_KEY);
+		 timeValidator.validate(ruleInputMap.get(RulesDefinition.HOLIDAY_ALARM_TIME_KEY), errors);
 		 
 		 final Validator booleanValidator = new BooleanValidatorImpl(conversionService, false);
-		 errors.setNestedPath(UPDATE_MODE_KEY);
+		 errors.setNestedPath(RulesDefinition.UPDATE_MODE_KEY);
 		 
-		 booleanValidator.validate(ruleInputMap.get(UPDATE_MODE_KEY), errors);
+		 booleanValidator.validate(ruleInputMap.get(RulesDefinition.UPDATE_MODE_KEY), errors);
 		 
-		 errors.setNestedPath(TEST_MODE_KEY);
+		 errors.setNestedPath(RulesDefinition.TEST_MODE_KEY);
 		 
-		 booleanValidator.validate(ruleInputMap.get(TEST_MODE_KEY), errors);
+		 booleanValidator.validate(ruleInputMap.get(RulesDefinition.TEST_MODE_KEY), errors);
 		 return !errors.hasErrors();
 		
 		

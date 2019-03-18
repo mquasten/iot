@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import de.mq.iot.rule.RulesDefinition;
+
 public class InputDataMappingRuleTest {
 	
 	
@@ -34,7 +36,7 @@ public class InputDataMappingRuleTest {
 		assertTrue(inputDataMappingRule.evaluate(newValidMap(false)));
 		
 		final Map<String,String> map = newValidMap(true);
-		map.put(InputDataMappingRuleImpl.UPDATE_MODE_KEY, "2");
+		map.put(RulesDefinition.UPDATE_MODE_KEY, "2");
 		assertFalse(inputDataMappingRule.evaluate(map));
 	}
 	
@@ -51,12 +53,12 @@ public class InputDataMappingRuleTest {
 	private  Map<String, String> newValidMap(final boolean withFlags) {
 		final Map<String,String> ruleInputMap = new HashMap<>();
 		
-		ruleInputMap.put(InputDataMappingRuleImpl.WORKINGDAY_ALARM_TIME_KEY, String.format("%s:%s", workingdayAlarmHour, workingdayAlarmMin));
+		ruleInputMap.put(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, String.format("%s:%s", workingdayAlarmHour, workingdayAlarmMin));
 		
-		ruleInputMap.put(InputDataMappingRuleImpl.HOLIDAY_ALARM_TIME_KEY, String.format("%s:%s", holidayAlarmHour, holidayAlarmMin));
+		ruleInputMap.put(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, String.format("%s:%s", holidayAlarmHour, holidayAlarmMin));
 		if( withFlags) {
-		ruleInputMap.put(InputDataMappingRuleImpl.UPDATE_MODE_KEY, "1");
-		ruleInputMap.put(InputDataMappingRuleImpl.TEST_MODE_KEY, "true");
+		ruleInputMap.put(RulesDefinition.UPDATE_MODE_KEY, "1");
+		ruleInputMap.put(RulesDefinition.TEST_MODE_KEY, "true");
 		}
 		
 		return ruleInputMap;

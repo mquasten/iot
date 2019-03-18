@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-
-import de.mq.iot.rule.support.RulesDefinition.Id;
+import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.rule.RulesDefinition.Id;
 import de.mq.iot.state.State;
 
 class SimpleRulesAggregateTest {
