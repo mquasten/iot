@@ -44,5 +44,11 @@ public interface RulesDefinition
 	Map<String,String> inputData();
 	
 	Collection<String> optionalRules();
+
+	void assign(String key, String value);
+
+	String value(String key);
+
+	void remove(String key);
 	
 }

@@ -14,8 +14,15 @@ import de.mq.iot.rule.RulesDefinition;
 @Document
 public class RuleDefinitionImpl implements RulesDefinition {
 
+	RuleDefinitionImpl(final Id id) {
+		this.id = id;
+	}
+
+
+
+
 	@org.springframework.data.annotation.Id
-	private Id id;
+	private final Id id;
 	
 	private final Map<String,String> inputData = new HashMap<>();
 	
@@ -37,7 +44,7 @@ public class RuleDefinitionImpl implements RulesDefinition {
 		data.putAll(parameter);
 		return Collections.unmodifiableMap(data);
 	}
-	
+	@Override
 	public void assign(final String key, final String value) {
 		if ( id.input().contains(key)) {
 			inputData.put(key, value);
@@ -51,6 +58,15 @@ public class RuleDefinitionImpl implements RulesDefinition {
 		throw new IllegalArgumentException(String.format("Key %s is undefined for %s.", key, id));
 	}
 	
+	@Override
+	public String value(final String key ) {
+		if ( inputData.containsKey(key)) {
+			return  inputData.get(key);
+		}
+		return parameter.get(key);
+	}
+
+	@Override
 	public void remove(final String key) {
 		inputData.remove(key);
 		inputData.remove(key);
