@@ -50,5 +50,9 @@ public interface RulesDefinition
 	String value(String key);
 
 	void remove(String key);
+
+	void assignRule(String rule);
+
+	void removeOptionalRule(String rule);
 	
 }

@@ -69,15 +69,22 @@ public class RuleDefinitionImpl implements RulesDefinition {
 	@Override
 	public void remove(final String key) {
 		inputData.remove(key);
-		inputData.remove(key);
+		parameter.remove(key);
 	}
 	
-	
-	
+	@Override
+	public void assignRule(final String rule) {
+		optionalRules.add(rule);
+	}
 
 	@Override
 	public Collection<String> optionalRules() {
 		return Collections.unmodifiableCollection(optionalRules);
+	}
+	
+	@Override
+	public void removeOptionalRule(final String rule) {
+		optionalRules.remove(rule);
 	}
 
 }
