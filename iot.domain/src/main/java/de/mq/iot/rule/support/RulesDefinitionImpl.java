@@ -8,13 +8,15 @@ import java.util.Map;
 
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.Assert;
 
 import de.mq.iot.rule.RulesDefinition;
 
-@Document
-public class RuleDefinitionImpl implements RulesDefinition {
+@Document(collection="RulesDefinition")
+public class RulesDefinitionImpl implements RulesDefinition {
 
-	RuleDefinitionImpl(final Id id) {
+	RulesDefinitionImpl(final Id id) {
+		Assert.notNull(id, "Id is requiers.");
 		this.id = id;
 	}
 
@@ -86,5 +88,36 @@ public class RuleDefinitionImpl implements RulesDefinition {
 	public void removeOptionalRule(final String rule) {
 		optionalRules.remove(rule);
 	}
+
+	@Override
+	public int hashCode() {
+		if (invalid(this)) {
+			return super.hashCode();
+		}
+		return id.hashCode();
+	}
+	
+	private boolean invalid(RulesDefinition rulesDefinition) {
+		return rulesDefinition.id() == null;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if(invalid(this)) {
+			return super.equals(obj);
+		}
+		if (!(obj instanceof RulesDefinition)) {
+			return super.equals(obj);
+			
+		}
+		final RulesDefinition other = (RulesDefinition) obj;
+		if (invalid(other)) {
+			return super.equals(obj);
+		}
+		return id == other.id();
+	}
+	
+	
+	
 
 }

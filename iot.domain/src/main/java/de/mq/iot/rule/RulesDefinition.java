@@ -18,7 +18,10 @@ public interface RulesDefinition
 	static final String TEST_MODE_KEY = "testMode";
 	
 	enum Id {
-		DefaultDailyIotBatch(Arrays.asList(WORKINGDAY_ALARM_TIME_KEY, HOLIDAY_ALARM_TIME_KEY), Arrays.asList(UPDATE_MODE_KEY, TEST_MODE_KEY));
+		DefaultDailyIotBatch(Arrays.asList(WORKINGDAY_ALARM_TIME_KEY, HOLIDAY_ALARM_TIME_KEY), Arrays.asList(UPDATE_MODE_KEY, TEST_MODE_KEY)),
+		EndOfDayBatch(Arrays.asList(WORKINGDAY_ALARM_TIME_KEY, HOLIDAY_ALARM_TIME_KEY), Arrays.asList(UPDATE_MODE_KEY, TEST_MODE_KEY));
+		
+		
 		private final Collection<String> input;
 		private final Collection<String> parameter;
 		private Id(Collection<String> input,Collection<String> parameter) {
