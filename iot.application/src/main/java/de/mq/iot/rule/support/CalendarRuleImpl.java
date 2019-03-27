@@ -29,6 +29,7 @@ public class CalendarRuleImpl {
 			return false;
 		}
 		final Collection<LocalDate> specialdates = specialdayService.specialdays(Year.from(date)).stream().map(specialday -> specialday.date(date.getYear())).collect(Collectors.toSet());
+		
 		if (specialdates.contains(date)) {
 
 			return false;
@@ -40,10 +41,10 @@ public class CalendarRuleImpl {
 	 
 	
 	 @Condition
-	 public void calculateCalendar(@Fact("ruleInput") final DefaultRuleInput ruleInput) {
+	 public void calculateCalendar(@Fact("ruleInput") final DefaultRuleInput ruleInput, @Fact("calendar") final Calendar calendar) {
 		final int offset = ruleInput.isUpdateMode() ? 0 : 1;
-		final LocalDate date =  dateSupplier.get().plusDays(offset);
-		final boolean workingday = isWorkingsday(date);
+		calendar.assignDate(dateSupplier.get().plusDays(offset));
+		calendar.assignWorkingDay(isWorkingsday(calendar.date()));
 	 }
 
 }
