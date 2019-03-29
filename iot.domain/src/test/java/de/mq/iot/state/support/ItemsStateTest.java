@@ -73,5 +73,31 @@ class ItemsStateTest {
 		assertEquals(VALUE, items.get(VALUE).getKey());
 		assertEquals(VALUE_1_LABLE, items.get(VALUE).getValue());
 	}
+	
+	@Test
+	final void assignString() {
+		setPermittedValues();
+		assertEquals(DEFAULT_VALUE, state.value());
+		
+		state.assign(VALUE_1_LABLE.toLowerCase());
+		
+		assertEquals(VALUE, state.value());
+	}
+	
+	@Test
+	final void assignStringInvalid() {
+		setPermittedValues();
+		assertThrows(IllegalArgumentException.class, () -> state.assign("don'tLetMeGetMe"));
+	}
+	
+	@Test
+	final void stringValue() {
+		setPermittedValues();
+		assertEquals(VALUE_0_LABLE, state.stringValue());
+		
+		state.assign(VALUE);
+		
+		assertEquals(VALUE_1_LABLE, state.stringValue());
+	}
 
 }

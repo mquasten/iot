@@ -1,5 +1,7 @@
 package de.mq.iot.state.support;
 
+
+
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -7,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
 
 class ItemsStateImpl extends AbstractState<Integer> implements ItemList {
 
@@ -28,6 +31,18 @@ class ItemsStateImpl extends AbstractState<Integer> implements ItemList {
 		this.value = value != null ? value : 0;
 		valueInListGuard(this.value);
 
+	}
+	
+	@Override
+	public final void assign(final String value) {
+		this.value=items.entrySet().stream().filter(entry -> entry.getValue().equalsIgnoreCase(value)).map(Entry::getKey).findFirst().orElseThrow(() -> new IllegalArgumentException("Value is not in valueList."));
+	}
+	
+	@Override
+	public final String stringValue() {
+		valueInListGuard(value);
+		return items.get(value);
+		
 	}
 
 	private void valueInListGuard(final Integer value) {
