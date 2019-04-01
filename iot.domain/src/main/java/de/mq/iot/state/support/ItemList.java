@@ -9,6 +9,9 @@ public interface ItemList {
 	
 	void assign(final String value);
 
-	String stringValue(); 
+	String stringValue();
+
+
+	boolean hasLabel(String stringValue); 
 
 }

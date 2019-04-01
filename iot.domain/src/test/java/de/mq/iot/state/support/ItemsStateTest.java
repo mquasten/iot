@@ -17,8 +17,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 class ItemsStateTest {
 
-	private static final String VALUE_1_LABLE = "Value1";
-	private static final String VALUE_0_LABLE = "Value0";
+	private static final String INVALID_LABEL= "don'tLetMeGetMe";
+	private static final String VALUE_1_LABEL = "Value1";
+	private static final String VALUE_0_LABEL = "Value0";
 	private static final Integer DEFAULT_VALUE = Integer.valueOf(0);
 	private static final Integer VALUE = 1;
 	private static final String NAME = "ItemState";
@@ -45,8 +46,8 @@ class ItemsStateTest {
 
 	private void setPermittedValues() {
 		final Map<Integer, String> permittedValues = new HashMap<>();
-		permittedValues.put(DEFAULT_VALUE, VALUE_0_LABLE);
-		permittedValues.put(VALUE, VALUE_1_LABLE);
+		permittedValues.put(DEFAULT_VALUE, VALUE_0_LABEL);
+		permittedValues.put(VALUE, VALUE_1_LABEL);
 		ReflectionTestUtils.setField(state, "items", permittedValues);
 	}
 
@@ -69,9 +70,9 @@ class ItemsStateTest {
 		assertEquals(2, items.size());
 
 		assertEquals(DEFAULT_VALUE, items.get(DEFAULT_VALUE).getKey());
-		assertEquals(VALUE_0_LABLE, items.get(DEFAULT_VALUE).getValue());
+		assertEquals(VALUE_0_LABEL, items.get(DEFAULT_VALUE).getValue());
 		assertEquals(VALUE, items.get(VALUE).getKey());
-		assertEquals(VALUE_1_LABLE, items.get(VALUE).getValue());
+		assertEquals(VALUE_1_LABEL, items.get(VALUE).getValue());
 	}
 	
 	@Test
@@ -79,7 +80,7 @@ class ItemsStateTest {
 		setPermittedValues();
 		assertEquals(DEFAULT_VALUE, state.value());
 		
-		state.assign(VALUE_1_LABLE.toLowerCase());
+		state.assign(VALUE_1_LABEL.toLowerCase());
 		
 		assertEquals(VALUE, state.value());
 	}
@@ -87,17 +88,46 @@ class ItemsStateTest {
 	@Test
 	final void assignStringInvalid() {
 		setPermittedValues();
-		assertThrows(IllegalArgumentException.class, () -> state.assign("don'tLetMeGetMe"));
+		assertThrows(IllegalArgumentException.class, () -> state.assign(INVALID_LABEL));
 	}
 	
 	@Test
 	final void stringValue() {
 		setPermittedValues();
-		assertEquals(VALUE_0_LABLE, state.stringValue());
+		assertEquals(VALUE_0_LABEL, state.stringValue());
 		
 		state.assign(VALUE);
 		
-		assertEquals(VALUE_1_LABLE, state.stringValue());
+		assertEquals(VALUE_1_LABEL, state.stringValue());
+	}
+	
+	@Test
+	final void hasValue() {
+		setPermittedValues();
+		
+		assertFalse(state.hasValue(null));
+		
+		assertFalse(state.hasValue(VALUE));
+		
+		state.assign(VALUE);
+		assertTrue(state.hasValue(VALUE));
+	}
+	
+	@Test
+	final void hasLabel() {
+		setPermittedValues();
+		
+		assertFalse(state.hasLabel(null));
+		
+		assertFalse(state.hasLabel(VALUE_1_LABEL));
+		
+		assertFalse(state.hasLabel(INVALID_LABEL));
+		
+		state.assign(VALUE);
+		
+		assertTrue(state.hasLabel(VALUE_1_LABEL));
+	
+		
 	}
 
 }

@@ -85,10 +85,23 @@ class DoubleStateTest {
 	}
 	
 	@Test
-	public final void function() {
+	final void function() {
 		assertEquals(Optional.empty(), doubleState.function());
 		((AbstractState<?>) doubleState).assignFunction(FUNCTION);
 		assertEquals(Optional.of(FUNCTION), doubleState.function());
 	}
+	
+	@Test
+	final void hasValue() {
+		assertFalse(doubleState.hasValue(null));
+		
+		assertFalse(doubleState.hasValue(VALUE));
+		
+		doubleState.assign(VALUE);
+		assertTrue(doubleState.hasValue(VALUE));
+		
+		
+	}
+	
 	
 }

@@ -98,6 +98,15 @@ abstract   class AbstractState<T> implements State<T> {
 		return Optional.ofNullable(function);
 	}
 	
-	
-	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.State#hasValue(java.lang.Object)
+	 */
+	@Override
+	public boolean hasValue(final T value) {
+		if( value == null ) {
+			return false;
+		}
+		return this.value().equals(value);
+	}
 }

@@ -61,4 +61,18 @@ class BooleanStateTest {
 		assertFalse(state.value());
 	}
 	
+	
+	@Test
+	final void hasValue() {
+		assertFalse(state.hasValue(null));
+		
+		assertTrue(state.hasValue(false));
+		
+		state.assign(true);
+		
+		assertTrue(state.hasValue(true));
+	}
+	
+	
+	
 }

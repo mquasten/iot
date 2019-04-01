@@ -60,4 +60,12 @@ public interface State<T> {
 	 */
 	void assignFunction(String function);
 
+	
+	/**
+	 * check if the value is equals.
+	 * @param value value that should be compared
+	 * @return true if the value is equals the current state value otherwise false
+	 */
+	boolean hasValue(T value);
+
 }

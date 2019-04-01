@@ -63,5 +63,15 @@ class StringStateTest {
 	final void assignInValid() {
 		assertThrows(IllegalArgumentException.class, () -> state.assign(VALUE_INVALID));
 	}
+	
+	@Test
+	final void hasValue() {
+		assertFalse(state.hasValue(null));
+		
+		assertFalse(state.hasValue(VALUE));
+		
+		state.assign(VALUE);
+		assertTrue(state.hasValue(VALUE));
+	}
 
 }

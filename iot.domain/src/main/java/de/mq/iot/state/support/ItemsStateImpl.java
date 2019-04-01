@@ -8,7 +8,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.util.StringUtils;
 
 
 class ItemsStateImpl extends AbstractState<Integer> implements ItemList {
@@ -54,6 +57,19 @@ class ItemsStateImpl extends AbstractState<Integer> implements ItemList {
 	@Override
 	public final Collection<Entry<Integer, String>> items() {
 		return Collections.unmodifiableList(items.entrySet().stream().sorted((e1, e2) -> (int) Math.signum(e1.getKey() - e2.getKey())).collect(Collectors.toList()));
+	}
+	
+	@Override
+	public boolean hasLabel(final String stringValue) {
+		if(! StringUtils.hasText(stringValue) ) {
+			return false;
+		}
+		
+		final Optional<Integer> value = items.entrySet().stream().filter(entry -> entry.getValue().equalsIgnoreCase(stringValue)).map(Entry::getKey).findFirst();
+		if (! value.isPresent()) {
+			return false;
+		}
+		return hasValue(value.get());
 	}
 
 }
