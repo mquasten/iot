@@ -84,5 +84,25 @@ class SystemVariablesRuleTest {
 		
 
 	 }
+	
+	@Test
+	 void updateSystemVariablesNothingChanged() throws ParseException {
+		final Calendar calendar = new Calendar();
+		calendar.assignTime(Time.Summer);
+		final LocalDate now = LocalDate.now();
+		calendar.assignDate(now);
+		calendar.assignWorkingDay(true);
+		 
+		Mockito.when(((ItemList) timeState).hasLabel(Time.Summer.name())).thenReturn(true);
+		
+		Mockito.when(((ItemList) monthState).hasLabel(now.getMonth().name())).thenReturn(true);
+		Mockito.doReturn(true).when(workingdayState).hasValue(true);
+		Mockito.doReturn(true).when(lastupdateState).hasValue(Mockito.anyString());
+		
+		systemVariablesRule.updateSystemVariables(calendar,results);
+		
+		assertEquals(0, results.size());
+	
+	}
 
 }
