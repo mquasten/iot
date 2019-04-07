@@ -1,18 +1,26 @@
 package de.mq.iot.rule.support;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.support.ConditionalRuleGroup;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
+import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.state.StateService;
 @Configuration
 class RuleConfiguration {
+	
+	
 	@Bean
 	ConversionService conversionService() {
 	DefaultConversionService conversionService= new DefaultConversionService();
@@ -26,12 +34,22 @@ class RuleConfiguration {
 		return conversionService;
 	}
 	
-	@Bean
-	@Scope(scopeName="protoType")
-	RulesAggregate rulesAggregate(final ConversionService conversionService) {
+	@Bean()
+	@Scope(value = "prototype")
+	Collection<RulesAggregate> rulesAggregates(final ConversionService conversionService,final SpecialdayService specialdayService, final StateService stateService) {
+		return Arrays.asList(rulesAggregate(conversionService,specialdayService, stateService));
+	}
+	
+	
+	
+	private RulesAggregate rulesAggregate(final ConversionService conversionService, final SpecialdayService specialdayService, final StateService stateService) {
+		
+		
 	
 		final ConditionalRuleGroup group = new ConditionalRuleGroup("ConditionalDefaultDailyIotBatchRuleGroup");
-		group.addRule(new InputDataMappingRuleImpl(conversionService));
+		group.addRule(new InputDataMappingRuleImpl(conversionService) );
+		group.addRule( new CalendarRuleImpl(specialdayService, () -> LocalDate.now()));
+		group.addRule(new SystemVariablesRuleImpl(stateService));
 		final Rules rules = new Rules(group);
 		return new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, rules);
 	}

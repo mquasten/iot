@@ -11,6 +11,8 @@ import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rule;
 import org.jeasy.rules.api.RuleListener;
 
+
+
 class SkipOnExceptionRuleListenerImpl implements RuleListener {
 
 	private Optional<Entry<String, Exception>> error = Optional.empty();
@@ -45,6 +47,8 @@ class SkipOnExceptionRuleListenerImpl implements RuleListener {
 
 	@Override
 	public final void onSuccess(final Rule rule, final Facts facts) {
+		
+		
 		processedRules.add(rule.getName());
 	}
 

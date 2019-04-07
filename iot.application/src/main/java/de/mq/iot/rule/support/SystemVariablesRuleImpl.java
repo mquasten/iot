@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.jeasy.rules.annotation.Action;
 import org.jeasy.rules.annotation.Condition;
 import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Rule;
@@ -17,7 +18,7 @@ import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.support.ItemList;
 
-@Rule(name = "calendarRule", priority = 2)
+@Rule(name = "systemVariablesRule")
 public class SystemVariablesRuleImpl {
 
 	static final String TEMPERATURE_STATE_NAME = "Temperature";
@@ -32,14 +33,26 @@ public class SystemVariablesRuleImpl {
 	SystemVariablesRuleImpl(StateService stateService) {
 		this.stateService = stateService;
 	}
-
+	
+	
 	@Condition
-	public void updateSystemVariables(@Fact("calendar") final Calendar calendar, @Fact("states") final Collection<State<?>> results) {
+	public  boolean evaluate() {
+		return true;
+	}
+
+	@Action
+	public void updateSystemVariables(@Fact("calendar") final Calendar calendar, @Fact(RulesAggregate.RULE_OUTPUT_MAP_FACT) final Collection<State<?>> results) {
+	
+		
 		final Map<String, State<?>> states = stateService.states().stream().collect(Collectors.toMap(State::name, state -> state));
 		final Consumer<? super State<?>> addState = state -> results.add(state);
+		
+		
 		itemValues(calendar).entrySet().stream().filter(entry -> states.containsKey(entry.getKey())).forEach(entry -> changedState(states.get(entry.getKey()), entry.getValue()).ifPresent(addState));
 		
 		stateValues(calendar).entrySet().stream().filter(entry -> states.containsKey(entry.getKey())).forEach(entry -> changedState(states.get(entry.getKey()), entry.getValue()).ifPresent(addState));
+	
+	    System.out.println("*systemVariablesRule*");
 	}
 
 	private Map<String, Object> stateValues(final Calendar calendar) {
@@ -50,13 +63,19 @@ public class SystemVariablesRuleImpl {
 	}
 
 	private Map<String, Enum<?>> itemValues(final Calendar calendar) {
+		
+		
 		final Map<String,Enum<?>> itemValues = new HashMap<>();
 		itemValues.put(TIME_STATE_NAME, calendar.time());
 		itemValues.put(MONTH_STATE_NAME, calendar.month());
+		
+		
 		return itemValues;
 	}
 
 	private Optional<State<?>> changedState(final State<?> state, final Enum<?> value) {
+		
+		
 		final ItemList itemState = (ItemList) state;
 		if (itemState.hasLabel(value.name())) {
 			return Optional.empty();

@@ -17,8 +17,8 @@ import org.springframework.validation.Validator;
 import de.mq.iot.rule.RulesDefinition;
 
 
-@Rule(name = "inputDataMappingRule", priority = 0)
-class InputDataMappingRuleImpl {
+@Rule(name = "inputDataMappingRule", priority = Integer.MAX_VALUE)
+public class InputDataMappingRuleImpl {
 	
 	
 	private final ConversionService conversionService; 
@@ -76,9 +76,8 @@ class InputDataMappingRuleImpl {
 			  
 			  ReflectionUtils.setField(field, ruleInput,  conversionService.convert(entry.getValue(), field.getType()) );
 			 
-		 });
-		 
-		 
+		 }); 
+		 System.out.println("*inputDataMappingRule*");
      }
 
 }

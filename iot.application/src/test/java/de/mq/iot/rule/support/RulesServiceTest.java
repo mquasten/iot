@@ -29,7 +29,7 @@ public class RulesServiceTest {
 		
 		Mockito.doReturn(RulesDefinition.Id.DefaultDailyIotBatch).when(defaultDailyIotBatchRulesAggregate).id();
 		Mockito.doReturn(RulesDefinition.Id.EndOfDayBatch).when(endOfDayBatchRulesAggregate).id();
-		Mockito.doReturn(Arrays.asList(endOfDayBatchRulesAggregate, defaultDailyIotBatchRulesAggregate)).when(rulesService).rulesDefinitions();
+		Mockito.doReturn(Arrays.asList(endOfDayBatchRulesAggregate, defaultDailyIotBatchRulesAggregate)).when(rulesService).rulesAggregates();
 		
 		Arrays.asList(RulesServiceImpl.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(RulesDefinitionRepository.class)).forEach(field -> ReflectionTestUtils.setField(rulesService, field.getName(), rulesDefinitionRepository));
 		

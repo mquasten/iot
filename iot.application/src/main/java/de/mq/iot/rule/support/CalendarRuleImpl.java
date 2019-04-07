@@ -10,13 +10,15 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.jeasy.rules.annotation.Action;
 import org.jeasy.rules.annotation.Condition;
 import org.jeasy.rules.annotation.Fact;
+
 import org.jeasy.rules.annotation.Rule;
 
 import de.mq.iot.calendar.SpecialdayService;
 
-@Rule(name="calendarRule", priority=1)
+@Rule(name="calendarRule")
 public class CalendarRuleImpl {
 	private final SpecialdayService specialdayService;
 	private final Supplier<LocalDate> dateSupplier;
@@ -24,7 +26,7 @@ public class CalendarRuleImpl {
 		this.specialdayService=specialdayService;
 		this.dateSupplier=dateSupplier;
 	}
-
+	
 	 
 	 private boolean isWorkingsday(final LocalDate date) {
 		if (Arrays.asList(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY).contains(date.getDayOfWeek())) {
@@ -40,14 +42,20 @@ public class CalendarRuleImpl {
 		return true;
 	}
 	
+	 @Condition
+	 public boolean evaluate() {
+		 return true;
+	 }
 	 
 	
-	 @Condition
+	 @Action
 	 public void calculateCalendar(@Fact("ruleInput") final DefaultRuleInput ruleInput, @Fact("calendar") final Calendar calendar) {
 		final int offset = ruleInput.isUpdateMode() ? 0 : 1;
 		calendar.assignDate(dateSupplier.get().plusDays(offset));
 		calendar.assignWorkingDay(isWorkingsday(calendar.date()));
 		calendar.assignTime(time(calendar.date()));
+		
+		System.out.println("*calendarRule");
 	 }
 	 
 	 

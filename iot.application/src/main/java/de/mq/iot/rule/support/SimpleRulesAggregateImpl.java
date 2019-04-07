@@ -3,6 +3,7 @@ package de.mq.iot.rule.support;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -42,7 +43,10 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 		this.id = id;
 		this.rules = rules;
 		this.optionalRules.addAll(new HashSet<>(Arrays.asList(optionalRules)));
-		facts.put(RulesAggregate.RULE_OUTPUT_MAP_FACT, new ArrayList<State<?>>());		
+		facts.put(RulesAggregate.RULE_OUTPUT_MAP_FACT, new ArrayList<State<?>>());	
+		facts.put("ruleInput", new DefaultRuleInput());
+		facts.put("calendar", new Calendar());
+		
 	}
 
 	@Override

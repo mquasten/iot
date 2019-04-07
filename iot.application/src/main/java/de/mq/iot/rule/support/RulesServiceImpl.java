@@ -13,7 +13,7 @@ import de.mq.iot.rule.RulesDefinition;
 
 
 @Service
-abstract class RulesServiceImpl {
+abstract class RulesServiceImpl implements RulesService {
 	
 	private final RulesDefinitionRepository rulesDefinitionRepository;
 	
@@ -26,16 +26,22 @@ abstract class RulesServiceImpl {
 	} 
 	
 	
-	public RulesAggregate rulesAggregate (final RulesDefinition.Id id) {
+	/* (non-Javadoc)
+	 * @see de.mq.iot.rule.support.RulesService#rulesAggregate(de.mq.iot.rule.RulesDefinition.Id)
+	 */
+	@Override
+	public final RulesAggregate rulesAggregate (final RulesDefinition.Id id) {
 		final RulesDefinition rulesDefinition = rulesDefinitionRepository.findById(id).block(timeout);
-		
-		final RulesAggregate result = DataAccessUtils.requiredSingleResult(rulesDefinitions().stream().filter(rd -> rd.id() == rulesDefinition.id()).collect(Collectors.toList()));
+		final RulesAggregate result = DataAccessUtils.requiredSingleResult(rulesAggregates().stream().filter(rd -> rd.id() == rulesDefinition.id()).collect(Collectors.toList()));
 		result.with(rulesDefinition);
 		
 		return result;
 	}
 	
-	@Lookup
-	abstract Collection<RulesAggregate> rulesDefinitions() ;
+	
+	
+	
+	@Lookup("rulesAggregates")
+	abstract Collection<RulesAggregate> rulesAggregates();
 
 }

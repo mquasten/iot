@@ -44,7 +44,9 @@ class RuleConfigurationTest {
 	@Test
 	void  rulesAggregate() throws Exception {
 		final ConversionService conversionService = Mockito.mock(ConversionService.class);
-		final RulesAggregate rulesAggregate = ruleConfiguration.rulesAggregate(conversionService);
+		final Collection<RulesAggregate> aggregates = ruleConfiguration.rulesAggregates(conversionService, null,null);
+		assertEquals(1, aggregates.size());
+		final RulesAggregate rulesAggregate = aggregates.iterator().next();
 		
 		assertEquals(RulesDefinition.Id.DefaultDailyIotBatch, rulesAggregate.id());
 		
