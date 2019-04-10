@@ -18,7 +18,7 @@ import org.jeasy.rules.annotation.Rule;
 
 import de.mq.iot.calendar.SpecialdayService;
 
-@Rule(name="calendarRule")
+@Rule(name="calendarRule", priority=1)
 public class CalendarRuleImpl {
 	private final SpecialdayService specialdayService;
 	private final Supplier<LocalDate> dateSupplier;
@@ -43,8 +43,8 @@ public class CalendarRuleImpl {
 	}
 	
 	 @Condition
-	 public boolean evaluate() {
-		 return true;
+	 public boolean evaluate(@Fact("ruleInput") final DefaultRuleInput ruleInput) {
+		 return ruleInput.valid();
 	 }
 	 
 	

@@ -2,11 +2,16 @@ package de.mq.iot.rule.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 class DefaultRuleInputTest {
 	
@@ -44,7 +49,22 @@ class DefaultRuleInputTest {
 	void defaultConstructor() {
 		final DefaultRuleInput ruleInput = new DefaultRuleInput();
 		assertFalse(ruleInput.isUpdateMode());
-		assertEquals(LocalTime.MIDNIGHT, ruleInput.workingdayAlarmTime());
-		assertEquals(LocalTime.MIDNIGHT, ruleInput.holidayAlarmTime());
+		assertNull(ruleInput.workingdayAlarmTime());
+		assertNull(ruleInput.holidayAlarmTime());
+		assertFalse(ruleInput.valid());
+	}
+	@Test
+	void valid() {
+		assertTrue(ruleInput.valid());
+		
+		final List<String> fields = Arrays.asList(DefaultRuleInput.class.getDeclaredFields()).stream().filter(field->field.getType()==LocalTime.class).map(field -> field.getName()).collect(Collectors.toList());
+	
+	    fields.forEach(name -> ReflectionTestUtils.setField(ruleInput, name, null));
+	    assertFalse(ruleInput.valid());
+	    ReflectionTestUtils.setField(ruleInput, fields.get(0), LocalTime.now());
+	    assertFalse(ruleInput.valid());
+	    ReflectionTestUtils.setField(ruleInput, fields.get(1), LocalTime.now());
+	    assertTrue(ruleInput.valid());
+	    
 	}
 }

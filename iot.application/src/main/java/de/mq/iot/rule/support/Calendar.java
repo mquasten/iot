@@ -58,5 +58,10 @@ class Calendar {
 		Assert.notNull(time, "Time not set.");
 		return time;
 	}
+	
+	final boolean valid() {
+		return workingDay!=null&&date!=null&&time!=null;
+		
+	}
 
 }

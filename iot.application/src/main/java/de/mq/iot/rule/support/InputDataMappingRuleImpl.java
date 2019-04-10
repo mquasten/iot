@@ -17,7 +17,7 @@ import org.springframework.validation.Validator;
 import de.mq.iot.rule.RulesDefinition;
 
 
-@Rule(name = "inputDataMappingRule", priority = Integer.MAX_VALUE)
+@Rule(name = "inputDataMappingRule", priority = 0)
 public class InputDataMappingRuleImpl {
 	
 	

@@ -18,7 +18,7 @@ import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.support.ItemList;
 
-@Rule(name = "systemVariablesRule")
+@Rule(name = "systemVariablesRule", priority=2)
 public class SystemVariablesRuleImpl {
 
 	static final String TEMPERATURE_STATE_NAME = "Temperature";
@@ -36,8 +36,8 @@ public class SystemVariablesRuleImpl {
 	
 	
 	@Condition
-	public  boolean evaluate() {
-		return true;
+	public  boolean evaluate(@Fact("calendar") final Calendar calendar) {
+		return calendar.valid();
 	}
 
 	@Action
