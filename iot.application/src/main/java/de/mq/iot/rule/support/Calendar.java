@@ -5,7 +5,7 @@ import java.time.Month;
 
 import org.springframework.util.Assert;
 
-class Calendar {
+class Calendar implements ValidFieldValues{
 	
 	enum  Time {
 		Winter,
@@ -33,7 +33,7 @@ class Calendar {
 	}
 	
 	final int dayOfYear() {
-		return date.getDayOfYear();
+		return date().getDayOfYear();
 	}
 
 	final void assignDate(final LocalDate date) {
@@ -59,9 +59,6 @@ class Calendar {
 		return time;
 	}
 	
-	final boolean valid() {
-		return workingDay!=null&&date!=null&&time!=null;
-		
-	}
+	
 
 }

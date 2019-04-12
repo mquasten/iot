@@ -4,7 +4,7 @@ import java.time.LocalTime;
 
 
 
-class DefaultRuleInput {
+class DefaultRuleInput implements ValidFieldValues {
 	
 	private LocalTime workingdayAlarmTime;
 	
@@ -25,33 +25,30 @@ class DefaultRuleInput {
 		this.holidayAlarmTime=holidayAlarmTime;
 	}
 	
-	void useUpdateMode() {
+	final void useUpdateMode() {
 		this.updateMode=true;
 	}
 	
-	void useTestMode() {
+	final void useTestMode() {
 		this.testMode=true;
 	}
 	
-	LocalTime workingdayAlarmTime() {
+	final LocalTime workingdayAlarmTime() {
 		return workingdayAlarmTime;
 	}
 
-	LocalTime holidayAlarmTime() {
+	final LocalTime holidayAlarmTime() {
 		return holidayAlarmTime;
 		
 	}
 
-	boolean isUpdateMode() {
+	final boolean isUpdateMode() {
 		return updateMode;
 	}
 
-	boolean isTestMode() {
+	final boolean isTestMode() {
 		return testMode;
 	}
 	
-	boolean valid() {
-		return workingdayAlarmTime!=null && holidayAlarmTime!=null;
-	}
-
+	
 }
