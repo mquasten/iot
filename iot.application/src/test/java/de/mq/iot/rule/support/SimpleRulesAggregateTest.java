@@ -93,7 +93,7 @@ class SimpleRulesAggregateTest {
 		rulesAggregate.with(rulesDefinition);
 		final RulesAggregateResult result = rulesAggregate.fire();
 		
-		assertFalse(result.exception().isPresent());
+		assertFalse(result.hasErrors());
 		assertEquals(1, result.states().size());
 		assertEquals(state, result.states().iterator().next());
 		
@@ -113,8 +113,52 @@ class SimpleRulesAggregateTest {
 		
 		
 		factsCapture.getAllValues().forEach(facts -> assertEquals(inputData, facts.get(RulesAggregate.RULE_INPUT_MAP_FACT)));
+		
 				
 	}
+	
+	@Test
+	void fireMandatoryRuleException() throws Exception {
+		rulesAggregate.with(rulesDefinition);
+		
+		final IllegalStateException exception = new IllegalStateException();
+		Mockito.doThrow(exception).when(mandatoryRule).execute(Mockito.any());
+		
+		final RulesAggregateResult result = rulesAggregate.fire();
+		
+		assertTrue(result.hasErrors());
+		assertEquals(0, result.states().size());
+		assertEquals(1, result.processedRules().size());
+		assertTrue(result.processedRules().contains(USED_OPTIONAL_RULE_NAME));
+		
+		assertEquals(1, result.exceptions().size());
+		assertEquals(exception, result.exceptions().iterator().next().getValue());
+		assertEquals(MANDATORY_RULE_NAME, result.exceptions().iterator().next().getKey());
+
+		
+		
+	}
+	
+	@Test
+	void fireOptionalRuleException() throws Exception {
+		rulesAggregate.with(rulesDefinition);
+		
+		final IllegalStateException exception = new IllegalStateException();
+		Mockito.doThrow(exception).when(usedOptionalRule).execute(Mockito.any());
+		
+		final RulesAggregateResult result = rulesAggregate.fire();
+		
+		assertFalse(result.hasErrors());
+		assertEquals(1, result.states().size());
+		assertEquals(1, result.processedRules().size());
+		assertTrue(result.processedRules().contains(MANDATORY_RULE_NAME));
+		
+		assertEquals(1, result.exceptions().size());
+		assertEquals(exception, result.exceptions().iterator().next().getValue());
+		assertEquals(USED_OPTIONAL_RULE_NAME, result.exceptions().iterator().next().getKey());
+		
+	}
+	
 	
 	@Test
 	void fireInputDataAware()  {

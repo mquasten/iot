@@ -3,10 +3,9 @@ package de.mq.iot.rule.support;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-
 import java.util.HashSet;
 import java.util.Map.Entry;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rules;
@@ -39,7 +38,7 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 	
 	
 	SimpleRulesAggregateImpl(final Id id, final Rules rules, final Object ... optionalRules) {
-		this.rulesEngine = new DefaultRulesEngine(new RulesEngineParameters().skipOnFirstFailedRule(true));
+		this.rulesEngine = new DefaultRulesEngine(new RulesEngineParameters().skipOnFirstFailedRule(false));
 		this.id = id;
 		this.rules = rules;
 		this.optionalRules.addAll(new HashSet<>(Arrays.asList(optionalRules)));
@@ -87,9 +86,10 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 		
 		
 		inputDataAwareGuard();
-		
+		final Collection<String> optionalRules = this.optionalRules.stream().map(rule -> RuleProxy.asRule(rule).getName()).collect(Collectors.toList());
 	
-		final SkipOnExceptionRuleListenerImpl ruleListener =  new SkipOnExceptionRuleListenerImpl();
+		
+		final SkipOnExceptionRuleListenerImpl ruleListener =  new SkipOnExceptionRuleListenerImpl(optionalRules);
 		((DefaultRulesEngine)rulesEngine).registerRuleListener(ruleListener);
 		
 		
@@ -103,13 +103,18 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 			}
 
 			@Override
-			public Optional<Entry<String, Exception>> exception() {
-				return ruleListener.error();
+			public Collection<Entry<String, Exception>> exceptions() {
+				return ruleListener.exceptions();
 			}
 
 			@Override
 			public Collection<String> processedRules() {
 				return ruleListener.processedRules();
+			}
+
+			@Override
+			public boolean hasErrors() {
+				return ruleListener.hasErrors();
 			}
 
 		};

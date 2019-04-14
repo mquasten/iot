@@ -1,11 +1,11 @@
 package de.mq.iot.rule.support;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rule;
@@ -15,13 +15,19 @@ import org.jeasy.rules.api.RuleListener;
 
 class SkipOnExceptionRuleListenerImpl implements RuleListener {
 
-	private Optional<Entry<String, Exception>> error = Optional.empty();
+	private Map<String, Exception> exceptions = new HashMap<>();
 
 	private final Collection<String> processedRules = new ArrayList<>();
 	
+	private final Collection<String> optionalRules = new ArrayList<>();
 	
-	Optional<Entry<String, Exception>> error() {
-		return error;
+	SkipOnExceptionRuleListenerImpl(final Collection<String> optionalRules ) {
+		this.optionalRules.addAll(optionalRules);
+	}
+	
+	
+	boolean hasErrors() {
+		return exceptions.keySet().stream().filter(key -> ! optionalRules.contains(key)).findAny().isPresent();
 	}
 	
 	Collection<String> processedRules() {
@@ -29,12 +35,15 @@ class SkipOnExceptionRuleListenerImpl implements RuleListener {
 	}
 
 
+	Collection<Entry<String, Exception>> exceptions() { 
+	   return Collections.unmodifiableCollection(this.exceptions.entrySet());	
+	}
 	
 
 	
 	@Override
 	public final  boolean beforeEvaluate(final Rule rule, final Facts facts) {
-		return ! error.isPresent();
+		return !hasErrors() ;
 	}
 
 	@Override
@@ -47,17 +56,12 @@ class SkipOnExceptionRuleListenerImpl implements RuleListener {
 
 	@Override
 	public final void onSuccess(final Rule rule, final Facts facts) {
-		
-		
 		processedRules.add(rule.getName());
 	}
 
 	@Override
 	public void onFailure(final Rule rule, final Facts facts, final Exception exception) {
-		if( !error.isPresent()) {
-			error=Optional.of(new AbstractMap.SimpleImmutableEntry<>(rule.getName(), exception));
-		}
-
+			this.exceptions.put(rule.getName(), exception);
 	}
 
 }

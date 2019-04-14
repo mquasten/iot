@@ -2,7 +2,6 @@ package de.mq.iot.rule.support;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
-@Disabled
+
 class SystemVariablesRuleIntegrationTest {
 	
 	@Autowired
@@ -30,11 +29,13 @@ class SystemVariablesRuleIntegrationTest {
 		RulesAggregateResult result = rulesAggregate.fire();
 		
 		
-		System.out.println(result.exception().isPresent());
+		System.out.println(result.hasErrors());
 		
 		System.out.println(result.processedRules());
 		
-		//System.out.println(result.exception().get().getValue());
+		
+		result.exceptions().forEach(exception ->   exception.getValue().printStackTrace());
+		
 	}
 
 }
