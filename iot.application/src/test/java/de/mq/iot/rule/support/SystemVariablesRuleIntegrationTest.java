@@ -2,6 +2,7 @@ package de.mq.iot.rule.support;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
-
+@Disabled
 class SystemVariablesRuleIntegrationTest {
 	
 	@Autowired
