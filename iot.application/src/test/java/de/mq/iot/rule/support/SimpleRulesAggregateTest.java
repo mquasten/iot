@@ -35,7 +35,7 @@ class SimpleRulesAggregateTest {
 	private final Rule notUsedOptionalRule = Mockito.mock(Rule.class);
 	
 	private final Rules rules = new Rules(mandatoryRule);
-	private final RulesAggregate rulesAggregate = new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, rules, usedOptionalRule, notUsedOptionalRule);
+	private final RulesAggregate rulesAggregate = new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, new RuleConfiguration().factsConsumer(),  rules, usedOptionalRule, notUsedOptionalRule);
 
     
 	private final RulesDefinition rulesDefinition = Mockito.mock(RulesDefinition.class);

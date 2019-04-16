@@ -1,10 +1,10 @@
 package de.mq.iot.rule.support;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.jeasy.rules.api.Facts;
@@ -37,16 +37,16 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 	
 	
 	
-	SimpleRulesAggregateImpl(final Id id, final Rules rules, final Object ... optionalRules) {
+	SimpleRulesAggregateImpl(final Id id, final Consumer<Facts> factsConsumer, final Rules rules,  final Object ... optionalRules) {
 		this.rulesEngine = new DefaultRulesEngine(new RulesEngineParameters().skipOnFirstFailedRule(false));
 		this.id = id;
+		factsConsumer.accept(facts);
 		this.rules = rules;
 		this.optionalRules.addAll(new HashSet<>(Arrays.asList(optionalRules)));
-		facts.put(RulesAggregate.RULE_OUTPUT_MAP_FACT, new ArrayList<State<?>>());	
-		facts.put("ruleInput", new DefaultRuleInput());
-		facts.put("calendar", new Calendar());
 		
 	}
+
+	
 
 	@Override
 	public final Id id() {

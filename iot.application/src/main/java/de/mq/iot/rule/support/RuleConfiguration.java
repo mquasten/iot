@@ -2,23 +2,32 @@ package de.mq.iot.rule.support;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Consumer;
 
+import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rules;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 @Configuration
 class RuleConfiguration {
+	private final Consumer<Facts> factsConsumer = facts -> {
+		
+		facts.put(RulesAggregate.RULE_OUTPUT_MAP_FACT, new ArrayList<State<?>>());	
+		facts.put(RulesAggregate.RULE_INPUT, new DefaultRuleInput());
+		facts.put(RulesAggregate.RULE_CALENDAR, new Calendar()); 
 	
+	};
 	
 	@Bean
 	ConversionService conversionService() {
@@ -41,10 +50,17 @@ class RuleConfiguration {
 	
 	
 	
-	private RulesAggregate rulesAggregate(final ConversionService conversionService, final SpecialdayService specialdayService, final StateService stateService) {
-		return new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, new Rules(new InputDataMappingRuleImpl(conversionService) , new CalendarRuleImpl(specialdayService, () -> LocalDate.now()), new SystemVariablesRuleImpl(stateService)));
+	RulesAggregate rulesAggregate(final ConversionService conversionService, final SpecialdayService specialdayService, final StateService stateService) {
+		
+		
+		return new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, factsConsumer(),  new Rules(new InputDataMappingRuleImpl(conversionService) , new CalendarRuleImpl(specialdayService, () ->  LocalDate.now()), new SystemVariablesRuleImpl(stateService)));
 	}
 	
+	
+	final Consumer<Facts> factsConsumer() {
+		return factsConsumer;
+		
+	}
 	
 
 }
