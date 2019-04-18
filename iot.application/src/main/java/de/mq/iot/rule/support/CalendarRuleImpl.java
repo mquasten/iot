@@ -43,19 +43,17 @@ public class CalendarRuleImpl {
 	}
 	
 	 @Condition
-	 public boolean evaluate(@Fact("ruleInput") final DefaultRuleInput ruleInput) {
+	 public boolean evaluate(@Fact(RulesAggregate.RULE_INPUT) final DefaultRuleInput ruleInput) {
 		 return ruleInput.valid();
 	 }
 	 
 	
 	 @Action
-	 public void calculateCalendar(@Fact("ruleInput") final DefaultRuleInput ruleInput, @Fact("calendar") final Calendar calendar) {
+	 public void calculateCalendar(@Fact(RulesAggregate.RULE_INPUT) final DefaultRuleInput ruleInput, @Fact(RulesAggregate.RULE_CALENDAR) final Calendar calendar) {
 		final int offset = ruleInput.isUpdateMode() ? 0 : 1;
 		calendar.assignDate(dateSupplier.get().plusDays(offset));
 		calendar.assignWorkingDay(isWorkingsday(calendar.date()));
 		calendar.assignTime(time(calendar.date()));
-		
-		System.out.println("*calendarRule");
 	 }
 	 
 	 

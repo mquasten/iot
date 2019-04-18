@@ -53,7 +53,7 @@ class RuleConfiguration {
 	RulesAggregate rulesAggregate(final ConversionService conversionService, final SpecialdayService specialdayService, final StateService stateService) {
 		
 		
-		return new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, factsConsumer(),  new Rules(new InputDataMappingRuleImpl(conversionService) , new CalendarRuleImpl(specialdayService, () ->  LocalDate.now()), new SystemVariablesRuleImpl(stateService)));
+		return new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, factsConsumer(),  new Rules(new InputDataMappingRuleImpl(conversionService) , new CalendarRuleImpl(specialdayService, () ->  LocalDate.now()), new SystemVariablesRuleImpl(stateService), new SystemVariablesUploadRuleImpl(stateService)));
 	}
 	
 	

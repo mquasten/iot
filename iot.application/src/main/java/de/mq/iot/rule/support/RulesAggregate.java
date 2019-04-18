@@ -10,7 +10,7 @@ public interface RulesAggregate {
 	
 	static final String RULE_INPUT = "ruleInput";
 	
-	static final String RULE_CALENDAR = "ruleCalendar";
+	static final String RULE_CALENDAR = "calendar";
 	Id id();
 	
 	

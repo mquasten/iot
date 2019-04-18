@@ -49,13 +49,14 @@ class RuleConfigurationTest {
 		final Collection<org.jeasy.rules.api.Rule> rulesList = new ArrayList<>();
 		rules.forEach(rule -> rulesList.add(rule) );
 		
-		assertEquals(3, rulesList.size());
+		assertEquals(4, rulesList.size());
 		
 		final List<String> ruleNames = rulesList.stream().map(rule -> rule.getName()).collect(Collectors.toList());
 		
 		assertEquals(InputDataMappingRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(0));
 		assertEquals(CalendarRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(1));
 		assertEquals(SystemVariablesRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(2));
+		assertEquals(SystemVariablesUploadRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(3));
 		System.out.println(ruleNames);
 		
 		

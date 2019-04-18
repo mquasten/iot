@@ -20,7 +20,7 @@ public class SystemVariablesUploadRuleImpl {
 	}
 
 	@Condition
-	public  boolean evaluate(@Fact("ruleInput") final DefaultRuleInput ruleInput) {
+	public  boolean evaluate(@Fact(RulesAggregate.RULE_INPUT) final DefaultRuleInput ruleInput) {
 		return ! ruleInput.isTestMode();
 		
 	}

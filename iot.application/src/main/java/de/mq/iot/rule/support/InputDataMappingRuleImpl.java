@@ -67,7 +67,7 @@ public class InputDataMappingRuleImpl {
 	
 	 
 	 @Action
-	 public void mapping(@Fact(RulesAggregate.RULE_INPUT_MAP_FACT) final Map<String,String> ruleInputMap, @Fact("ruleInput") DefaultRuleInput ruleInput) {
+	 public void mapping(@Fact(RulesAggregate.RULE_INPUT_MAP_FACT) final Map<String,String> ruleInputMap, @Fact(RulesAggregate.RULE_INPUT) DefaultRuleInput ruleInput) {
 		
 		
 		 ruleInputMap.entrySet().stream().forEach(entry -> {
@@ -77,7 +77,6 @@ public class InputDataMappingRuleImpl {
 			  ReflectionUtils.setField(field, ruleInput,  conversionService.convert(entry.getValue(), field.getType()) );
 			 
 		 }); 
-		 System.out.println("*inputDataMappingRule*");
      }
 
 }

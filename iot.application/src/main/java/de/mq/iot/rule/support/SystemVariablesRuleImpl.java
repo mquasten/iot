@@ -2,8 +2,10 @@ package de.mq.iot.rule.support;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -13,6 +15,7 @@ import org.jeasy.rules.annotation.Action;
 import org.jeasy.rules.annotation.Condition;
 import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Rule;
+
 
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
@@ -36,12 +39,12 @@ public class SystemVariablesRuleImpl {
 	
 	
 	@Condition
-	public  boolean evaluate(@Fact("calendar") final Calendar calendar) {
+	public  boolean evaluate(@Fact(RulesAggregate.RULE_CALENDAR) final Calendar calendar) {
 		return calendar.valid();
 	}
 
 	@Action
-	public void updateSystemVariables(@Fact("calendar") final Calendar calendar, @Fact(RulesAggregate.RULE_OUTPUT_MAP_FACT) final Collection<State<?>> results) {
+	public void updateSystemVariables(@Fact(RulesAggregate.RULE_CALENDAR) final Calendar calendar, @Fact(RulesAggregate.RULE_OUTPUT_MAP_FACT) final Collection<State<?>> results) {
 	
 		
 		final Map<String, State<?>> states = stateService.states().stream().collect(Collectors.toMap(State::name, state -> state));
@@ -52,9 +55,13 @@ public class SystemVariablesRuleImpl {
 		
 		stateValues(calendar).entrySet().stream().filter(entry -> states.containsKey(entry.getKey())).forEach(entry -> changedState(states.get(entry.getKey()), entry.getValue()).ifPresent(addState));
 	
-	    System.out.println("*systemVariablesRule*");
+	    Collections.sort((List<State<?>>) results, (s1, s2) -> priority(s1.name()) - priority(s2.name()) );
 	}
 
+	private int priority(final String name ) {
+		return LAST_BATCHRUN_STATE_NAME.equals(name) ? 1 :0;
+	}
+	
 	private Map<String, Object> stateValues(final Calendar calendar) {
 		final Map<String,Object> stateValues = new HashMap<>();
 		stateValues.put(WORKINGDAY_STATE_NAME, calendar.workingDay());

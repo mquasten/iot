@@ -30,12 +30,17 @@ class SystemVariablesRuleIntegrationTest {
 		RulesAggregateResult result = rulesAggregate.fire();
 		
 		
-		System.out.println(result.hasErrors());
+		System.out.println("Errors: " +result.hasErrors());
 		
-		System.out.println(result.processedRules());
+		System.out.println("Verarbeitete Regeln: " + result.processedRules());
 		
 		
-		result.exceptions().forEach(exception ->   exception.getValue().printStackTrace());
+		result.exceptions().forEach(exception ->  {
+		System.out.println(exception.getKey() +":");
+		exception.getValue().printStackTrace();
+		});
+		
+		result.states().forEach(state -> System.out.println(state.name()));
 		
 	}
 

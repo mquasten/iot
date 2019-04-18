@@ -69,6 +69,8 @@ class SystemVariablesRuleTest {
 		assertTrue(results.contains(monthState));
 		assertTrue(results.contains(workingdayState));
 		assertTrue(results.contains(lastupdateState));
+		
+		assertEquals(lastupdateState, results.get(results.size()-1));
 		 
 		Mockito.verify(((ItemList)timeState)).assign(Time.Summer.name());
 		
