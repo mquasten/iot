@@ -4,12 +4,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.ReflectionUtils;
 
 public interface ValidFieldValues {
 	
 	default boolean valid() {
-		return ! Arrays.asList(getClass().getDeclaredFields()).stream().filter(field -> ! Modifier.isStatic(field.getModifiers())).filter(field -> isNull(this, field)).findAny().isPresent();
+		return ! Arrays.asList(getClass().getDeclaredFields()).stream().filter(field -> ! Modifier.isStatic(field.getModifiers())).filter(field -> ! field.isAnnotationPresent(Nullable.class)).filter(field -> isNull(this, field)).findAny().isPresent();
 	
 	}
 

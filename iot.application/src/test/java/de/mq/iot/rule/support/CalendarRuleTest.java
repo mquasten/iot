@@ -13,6 +13,7 @@ import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
@@ -121,5 +122,14 @@ public class CalendarRuleTest {
 		assertEquals(89, calendar.dayOfYear());
 	}
 	
+	@Test
+	void evaluate() {
+		final  CalendarRuleImpl calendarRule = new CalendarRuleImpl(specialdayService, () -> DATE);
+		
+		assertTrue(calendarRule.evaluate(ruleInput));
+		
+		Arrays.asList(DefaultRuleInput.class.getDeclaredFields()).forEach(field -> ReflectionTestUtils.setField(ruleInput, field.getName(), null));
+		assertFalse(calendarRule.evaluate(ruleInput));
+	}
 
 }

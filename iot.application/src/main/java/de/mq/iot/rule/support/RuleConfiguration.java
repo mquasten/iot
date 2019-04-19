@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rules;
@@ -21,13 +22,7 @@ import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 @Configuration
 class RuleConfiguration {
-	private final Consumer<Facts> factsConsumer = facts -> {
-		
-		facts.put(RulesAggregate.RULE_OUTPUT_MAP_FACT, new ArrayList<State<?>>());	
-		facts.put(RulesAggregate.RULE_INPUT, new DefaultRuleInput());
-		facts.put(RulesAggregate.RULE_CALENDAR, new Calendar()); 
 	
-	};
 	
 	@Bean
 	ConversionService conversionService() {
@@ -53,14 +48,24 @@ class RuleConfiguration {
 	RulesAggregate rulesAggregate(final ConversionService conversionService, final SpecialdayService specialdayService, final StateService stateService) {
 		
 		
-		return new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, factsConsumer(),  new Rules(new InputDataMappingRuleImpl(conversionService) , new CalendarRuleImpl(specialdayService, () ->  LocalDate.now()), new SystemVariablesRuleImpl(stateService), new SystemVariablesUploadRuleImpl(stateService)));
+		
+		return new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, factsConsumer(),  new Rules(new InputDataMappingRuleImpl(conversionService) , new CalendarRuleImpl(specialdayService, dateSupplier() ), new SystemVariablesRuleImpl(stateService), new SystemVariablesUploadRuleImpl(stateService)));
 	}
 	
 	
 	final Consumer<Facts> factsConsumer() {
-		return factsConsumer;
+		return facts -> {
+			
+			facts.put(RulesAggregate.RULE_OUTPUT_MAP_FACT, new ArrayList<State<?>>());	
+			facts.put(RulesAggregate.RULE_INPUT, new DefaultRuleInput());
+			facts.put(RulesAggregate.RULE_CALENDAR, new Calendar()); 
+		};
 		
 	}
 	
+	
+	final Supplier<LocalDate> dateSupplier() {
+		return  () -> LocalDate.now();
+	}
 
 }

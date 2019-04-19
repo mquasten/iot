@@ -2,7 +2,9 @@ package de.mq.iot.rule.support;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Optional;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 class Calendar implements ValidFieldValues{
@@ -21,6 +23,9 @@ class Calendar implements ValidFieldValues{
 	private LocalDate date;
 	
 	private Time time;
+	
+	@Nullable
+	private Double temperature;
 	
 	final LocalDate date() {
 		Assert.notNull(date, "Date not set.");
@@ -59,6 +64,12 @@ class Calendar implements ValidFieldValues{
 		return time;
 	}
 	
-	
+	final Optional<Double> temperature() {
+		return Optional.ofNullable(temperature);
+		
+	}
 
+	final void assignTemperature(final double temperature) {
+		this.temperature=temperature;
+	}
 }

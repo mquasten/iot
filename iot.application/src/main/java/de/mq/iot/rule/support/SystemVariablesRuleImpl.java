@@ -31,6 +31,7 @@ public class SystemVariablesRuleImpl {
 	static final String TIME_STATE_NAME = "Time";
 	static final String LAST_BATCHRUN_DATE_FORMAT = "dd.MM.yyyy-HH:mm:ss";
 
+
 	private final StateService stateService;
 
 	SystemVariablesRuleImpl(StateService stateService) {
@@ -65,6 +66,8 @@ public class SystemVariablesRuleImpl {
 	private Map<String, Object> stateValues(final Calendar calendar) {
 		final Map<String,Object> stateValues = new HashMap<>();
 		stateValues.put(WORKINGDAY_STATE_NAME, calendar.workingDay());
+		
+		calendar.temperature().ifPresent(temperature -> stateValues.put(TEMPERATURE_STATE_NAME, temperature));
 		stateValues.put(LAST_BATCHRUN_STATE_NAME, new SimpleDateFormat(LAST_BATCHRUN_DATE_FORMAT).format(new Date(System.currentTimeMillis())));
 		return stateValues;
 	}

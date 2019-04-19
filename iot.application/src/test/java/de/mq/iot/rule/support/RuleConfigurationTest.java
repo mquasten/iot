@@ -2,13 +2,16 @@ package de.mq.iot.rule.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rules;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,6 +19,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.rule.RulesDefinition;
+
 
 class RuleConfigurationTest {
 	
@@ -46,7 +50,7 @@ class RuleConfigurationTest {
 		assertEquals(RulesDefinition.Id.DefaultDailyIotBatch, rulesAggregate.id());
 		
 		final Rules rules = (Rules) ReflectionTestUtils.getField(rulesAggregate, "rules");
-		final Collection<org.jeasy.rules.api.Rule> rulesList = new ArrayList<>();
+		final List<org.jeasy.rules.api.Rule> rulesList = new ArrayList<>();
 		rules.forEach(rule -> rulesList.add(rule) );
 		
 		assertEquals(4, rulesList.size());
@@ -57,10 +61,23 @@ class RuleConfigurationTest {
 		assertEquals(CalendarRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(1));
 		assertEquals(SystemVariablesRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(2));
 		assertEquals(SystemVariablesUploadRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(3));
-		System.out.println(ruleNames);
+	
+
+	
+	}
+	@Test
+	void dateSupplier() {
+		assertEquals(LocalDate.now(), ruleConfiguration.dateSupplier().get());
+	}
+	
+	@Test
+	void factsConsumer() {
+		final Facts facts = new Facts();
+		ruleConfiguration.factsConsumer().accept(facts);
 		
-		
-		
+		assertTrue(facts.get(RulesAggregate.RULE_OUTPUT_MAP_FACT) instanceof Collection);
+		assertTrue(facts.get(RulesAggregate.RULE_INPUT) instanceof DefaultRuleInput);
+		assertTrue(facts.get(RulesAggregate.RULE_CALENDAR) instanceof Calendar);
 	}
 
 }
