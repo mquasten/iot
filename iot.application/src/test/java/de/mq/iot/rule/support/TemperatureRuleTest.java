@@ -58,9 +58,9 @@ class TemperatureRuleTest {
 		calendar.assignTime(Time.Summer);
 		calendar.assignWorkingDay(true);
 		
-	temperatureRule.forecast(calendar);
+		temperatureRule.forecast(calendar);
 	
-	assertEquals(Optional.of(TEMPERATURE), calendar.temperature());
+		assertEquals(Optional.of(TEMPERATURE), calendar.temperature());
 		
 	}
 
