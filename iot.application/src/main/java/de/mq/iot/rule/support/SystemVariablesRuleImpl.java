@@ -21,7 +21,7 @@ import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.support.ItemList;
 
-@Rule(name = "systemVariablesRule", priority=2)
+@Rule(name = "systemVariablesRule", priority=9)
 public class SystemVariablesRuleImpl {
 
 	static final String TEMPERATURE_STATE_NAME = "Temperature";
