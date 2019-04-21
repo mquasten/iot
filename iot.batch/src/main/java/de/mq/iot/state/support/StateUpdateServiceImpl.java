@@ -1,6 +1,6 @@
 package de.mq.iot.state.support;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
@@ -74,8 +74,7 @@ public class StateUpdateServiceImpl implements StateUpdateService {
 	public void processRules(final boolean update, final boolean test) {
 		
 		final RulesAggregate rulesAggregate = rulesService.rulesAggregate(Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, String.valueOf(update)), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, String.valueOf(test))));
-		
-		assertNotNull(rulesAggregate);
+	
 		
 		System.out.println("UpdateMode: "  + update);
 		System.out.println("TestMode: "  + test);

@@ -7,7 +7,7 @@ rem sleep 5
 
 rem java -jar iotBatch.jar updateIP   >>  iot.log 2>>&1
 
-java -jar iotBatch.jar processRules $* >> iot.log 2>>&1
+java -jar iotBatch.jar processRules %* >> iot.log 2>>&1
 
 rem java -jar iotBatch.jar updateAll  >>  iot.log 2>>&1
 
