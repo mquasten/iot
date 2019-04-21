@@ -68,6 +68,8 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 		
 		return this;
 	}
+	
+	
 
 	private void validRulesDefinitionGuard(final RulesDefinition rulesDefinition) {
 		Assert.notNull(rulesDefinition , "RulesDefinition is required.");

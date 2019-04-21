@@ -17,6 +17,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
 import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
@@ -39,17 +40,17 @@ class RuleConfiguration {
 	
 	@Bean()
 	@Scope(value = "prototype")
-	Collection<RulesAggregate> rulesAggregates(final ConversionService conversionService,final SpecialdayService specialdayService, final StateService stateService) {
-		return Arrays.asList(rulesAggregate(conversionService,specialdayService, stateService));
+	Collection<RulesAggregate> rulesAggregates(final ConversionService conversionService,final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService) {
+		return Arrays.asList(rulesAggregate(conversionService,specialdayService, stateService,meteorologicalDataService));
 	}
 	
 	
 	
-	RulesAggregate rulesAggregate(final ConversionService conversionService, final SpecialdayService specialdayService, final StateService stateService) {
+	RulesAggregate rulesAggregate(final ConversionService conversionService, final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService) {
 		
 		
 		
-		return new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, factsConsumer(),  new Rules(new InputDataMappingRuleImpl(conversionService) , new CalendarRuleImpl(specialdayService, dateSupplier() ), new SystemVariablesRuleImpl(stateService), new SystemVariablesUploadRuleImpl(stateService)));
+		return new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, factsConsumer(),  new Rules(new InputDataMappingRuleImpl(conversionService) , new CalendarRuleImpl(specialdayService, dateSupplier() ), new SystemVariablesRuleImpl(stateService), new SystemVariablesUploadRuleImpl(stateService)), new TemperatureRuleImpl(meteorologicalDataService));
 	}
 	
 	

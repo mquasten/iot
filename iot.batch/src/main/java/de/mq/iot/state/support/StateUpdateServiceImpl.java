@@ -1,5 +1,7 @@
 package de.mq.iot.state.support;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -7,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -22,6 +25,11 @@ import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.openweather.MeteorologicalDataService;
+import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.rule.RulesDefinition.Id;
+import de.mq.iot.rule.support.RulesAggregate;
+import de.mq.iot.rule.support.RulesAggregateResult;
+import de.mq.iot.rule.support.RulesService;
 import de.mq.iot.state.Command;
 import de.mq.iot.state.Commands;
 import de.mq.iot.state.State;
@@ -49,13 +57,43 @@ public class StateUpdateServiceImpl implements StateUpdateService {
 	private final MeteorologicalDataService meteorologicalDataService;
 	
 	private final SunDownCalculationService sunDownCalculationService; 
+	
+	private final  RulesService rulesService;
 	@Autowired
-	StateUpdateServiceImpl(final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService,final SunDownCalculationService sunDownCalculationService) {
+	StateUpdateServiceImpl(final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService,final SunDownCalculationService sunDownCalculationService,final  RulesService rulesService) {
 
 		this.specialdayService = specialdayService;
 		this.stateService = stateService;
 		this.meteorologicalDataService=meteorologicalDataService;
 		this.sunDownCalculationService=sunDownCalculationService;
+		this.rulesService=rulesService;
+	}
+	
+	@Override
+	@Commands(commands = {  @Command(arguments = { "u", "t" }, name = "processRules" ) })
+	public void processRules(final boolean update, final boolean test) {
+		
+		final RulesAggregate rulesAggregate = rulesService.rulesAggregate(Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, String.valueOf(update)), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, String.valueOf(test))));
+		
+		assertNotNull(rulesAggregate);
+		
+		System.out.println("UpdateMode: "  + update);
+		System.out.println("TestMode: "  + test);
+		RulesAggregateResult result = rulesAggregate.fire();
+		
+		
+		System.out.println("Errors: " +result.hasErrors());
+		
+		System.out.println("Verarbeitete Regeln: " + result.processedRules());
+		
+		
+		result.exceptions().forEach(exception ->  {
+		System.out.println(exception.getKey() +":");
+		exception.getValue().printStackTrace();
+		});
+		
+		result.states().forEach(state -> System.out.println(state.name() +": " + state.value()));
+		
 	}
 
 	/*

@@ -43,7 +43,7 @@ class RuleConfigurationTest {
 	@Test
 	void  rulesAggregate() throws Exception {
 		final ConversionService conversionService = Mockito.mock(ConversionService.class);
-		final Collection<RulesAggregate> aggregates = ruleConfiguration.rulesAggregates(conversionService, null,null);
+		final Collection<RulesAggregate> aggregates = ruleConfiguration.rulesAggregates(conversionService, null,null,null);
 		assertEquals(1, aggregates.size());
 		final RulesAggregate rulesAggregate = aggregates.iterator().next();
 		
@@ -62,6 +62,11 @@ class RuleConfigurationTest {
 		assertEquals(SystemVariablesRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(2));
 		assertEquals(SystemVariablesUploadRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(3));
 	
+		final Collection<?> optionalRules =  (Collection<?>) ReflectionTestUtils.getField(rulesAggregate, "optionalRules");
+		assertEquals(1, optionalRules.size());
+		
+		assertTrue(optionalRules.iterator().next() instanceof TemperatureRuleImpl);
+		
 
 	
 	}

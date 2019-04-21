@@ -2,6 +2,7 @@ package de.mq.iot.rule.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -38,11 +39,13 @@ public class RulesServiceTest {
 	@Test
 	void rulesAggregate() {
 		
-		final RulesAggregate result 	= rulesService.rulesAggregate(RulesDefinition.Id.DefaultDailyIotBatch);
+		final RulesAggregate result 	= rulesService.rulesAggregate(RulesDefinition.Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString())));
 		
 		assertEquals(defaultDailyIotBatchRulesAggregate, result);
 		
 		Mockito.verify(defaultDailyIotBatchRulesAggregate).with(rulesDefinition);
+		
+		Mockito.verify(rulesDefinition).assign(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString());
 		
 	}
 

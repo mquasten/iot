@@ -10,4 +10,8 @@ public interface StateUpdateService {
 
 	void update();
 
+
+
+	void processRules(boolean update, boolean test);
+
 }

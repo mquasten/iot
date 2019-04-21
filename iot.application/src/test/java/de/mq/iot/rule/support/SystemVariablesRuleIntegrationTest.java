@@ -2,6 +2,8 @@ package de.mq.iot.rule.support;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.Arrays;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +25,7 @@ class SystemVariablesRuleIntegrationTest {
 	@Test
 	final void createRulesEngine() {
 		
-		final RulesAggregate rulesAggregate = ruleService.rulesAggregate(Id.DefaultDailyIotBatch);
+		final RulesAggregate rulesAggregate = ruleService.rulesAggregate(Id.DefaultDailyIotBatch, Arrays.asList());
 		
 		assertNotNull(rulesAggregate);
 		

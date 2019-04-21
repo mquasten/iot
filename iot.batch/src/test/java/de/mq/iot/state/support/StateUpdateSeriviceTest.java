@@ -31,6 +31,7 @@ import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.openweather.MeteorologicalData;
 import de.mq.iot.openweather.MeteorologicalDataService;
+import de.mq.iot.rule.support.RulesService;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.StateUpdateService;
@@ -46,7 +47,9 @@ public class StateUpdateSeriviceTest {
 	
 	private final SunDownCalculationService sunDownCalculationService = Mockito.mock(SunDownCalculationService.class);
 	
-	private final StateUpdateService stateUpdateService = new StateUpdateServiceImpl(specialdayService, stateService, meteorologicalDataService, sunDownCalculationService);
+	private final  RulesService rulesService = Mockito.mock(RulesService.class);
+	
+	private final StateUpdateService stateUpdateService = new StateUpdateServiceImpl(specialdayService, stateService, meteorologicalDataService, sunDownCalculationService, rulesService);
 	
 	private final Map<Integer, String> timeItems = new HashMap<>();
 	
@@ -254,7 +257,7 @@ public class StateUpdateSeriviceTest {
 		Mockito.verify(monthState, Mockito.never()).assign(Mockito.any());
 		Mockito.verify(stateService, Mockito.never()).update(monthState);
 		
-	    Mockito.verify(timeState).assign(WINTER_VALUE);
+	    Mockito.verify(timeState).assign(SUMMER_VALUE);
 		Mockito.verify(stateService).update(timeState);
 	}
 	
