@@ -12,6 +12,6 @@ public interface StateUpdateService {
 
 
 
-	void processRules(boolean update, boolean test);
+	void processRules(final String name, final boolean update, final boolean test);
 
 }

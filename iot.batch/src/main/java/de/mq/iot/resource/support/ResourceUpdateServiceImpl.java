@@ -81,7 +81,6 @@ public class ResourceUpdateServiceImpl implements ResourceUpdateService {
 			parameters.put(HOST_PARAMETER_NAME,  IP_PREFIX + i);
 			result.assign(parameters);
 			
-			
 			if( tryGuessHomematicIp(result)) {
 				return Optional.of(result);
 			}
@@ -99,7 +98,7 @@ public class ResourceUpdateServiceImpl implements ResourceUpdateService {
 		
 			return stateRepository.findVersion(result) > 1d;
 		
-		} catch (final IllegalStateException ex) {
+		} catch (final Exception ex) {
 			return false;
 		}
 	}

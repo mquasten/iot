@@ -70,11 +70,13 @@ public class StateUpdateServiceImpl implements StateUpdateService {
 	}
 	
 	@Override
-	@Commands(commands = {  @Command(arguments = { "u", "t" }, name = "processRules" ) })
-	public void processRules(final boolean update, final boolean test) {
+	@Commands(commands = {  @Command(arguments = {"n", "u", "t" }, name = "processRules" ) })
+	public void processRules(final String name, final boolean update, final boolean test) {
+		final Id id = Id.valueOf(name);
 		
-		final RulesAggregate rulesAggregate = rulesService.rulesAggregate(Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, String.valueOf(update)), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, String.valueOf(test))));
+		final RulesAggregate rulesAggregate = rulesService.rulesAggregate(id, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, String.valueOf(update)), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, String.valueOf(test))));
 	
+		System.out.println("Name: " +id.name());
 		
 		System.out.println("UpdateMode: "  + update);
 		System.out.println("TestMode: "  + test);
