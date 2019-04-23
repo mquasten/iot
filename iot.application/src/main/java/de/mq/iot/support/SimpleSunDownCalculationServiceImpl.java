@@ -3,7 +3,7 @@ package de.mq.iot.support;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
-
+import java.time.Year;
 import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +80,7 @@ private final double  latitude;
 	
 	
 	private final LocalTime time(final Month month, final int timeZoneOffsetInHours, boolean isDown ) {
-		LocalDate firstDay = LocalDate.of(18, month, 01);
+		LocalDate firstDay = LocalDate.of(Year.now().getValue(), month, 01);
 		
 		
 		final int daysInMonth = firstDay.lengthOfMonth();

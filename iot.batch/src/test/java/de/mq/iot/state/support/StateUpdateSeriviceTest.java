@@ -13,7 +13,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +23,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.jeasy.rules.annotation.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -31,7 +34,11 @@ import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.openweather.MeteorologicalData;
 import de.mq.iot.openweather.MeteorologicalDataService;
+import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.rule.support.RulesAggregate;
+import de.mq.iot.rule.support.RulesAggregateResult;
 import de.mq.iot.rule.support.RulesService;
+import de.mq.iot.rule.support.TemperatureRuleImpl;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.StateUpdateService;
@@ -423,4 +430,37 @@ public class StateUpdateSeriviceTest {
 		
 		assertThrows(IllegalStateException.class, () -> ((StateUpdateServiceImpl) stateUpdateService).updateLastBatchrun());
 	}
+	
+	
+	@Test
+	final void processRules() {
+		
+		@SuppressWarnings("unchecked")
+		final State<String> state = Mockito.mock(State.class);
+		Mockito.when(state.name()).thenReturn(StateUpdateServiceImpl.LAST_BATCHRUN_STATE_NAME);
+		Mockito.when(state.value()).thenReturn("22:30");
+		final RulesAggregate rulesAggregate = Mockito.mock(RulesAggregate.class);
+		final RulesAggregateResult rulesAggregateResult = Mockito.mock(RulesAggregateResult.class);
+		Mockito.when(rulesAggregateResult.exceptions()).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(TemperatureRuleImpl.class.getAnnotation(Rule.class).name(), Mockito.mock(Exception.class))));
+		Mockito.when(rulesAggregateResult.states()).thenReturn(Arrays.asList(state));
+		ArgumentCaptor<RulesDefinition.Id> idCapture = ArgumentCaptor.forClass(RulesDefinition.Id.class);
+		Mockito.when(rulesAggregate.fire()).thenReturn(rulesAggregateResult);
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<Collection<Entry<String,String>>> parametersCapture = ArgumentCaptor.forClass(Collection.class);
+		Mockito.when(rulesService.rulesAggregate(idCapture.capture(), parametersCapture.capture())).thenReturn(rulesAggregate);
+		
+		stateUpdateService.processRules(RulesDefinition.Id.DefaultDailyIotBatch.name(), true, true);
+		
+		
+		Mockito.verify(rulesAggregate).fire();
+		
+		
+		assertEquals(RulesDefinition.Id.DefaultDailyIotBatch, idCapture.getValue());
+		
+		assertEquals(2, parametersCapture.getValue().size());
+		
+		assertTrue(parametersCapture.getValue().stream().map(Entry::getKey).collect(Collectors.toList()).containsAll(Arrays.asList(RulesDefinition.TEST_MODE_KEY, RulesDefinition.UPDATE_MODE_KEY )));
+		parametersCapture.getValue().stream().map(Entry::getValue).forEach(value -> assertTrue(Boolean.valueOf(value)));
+	}
+	
 }

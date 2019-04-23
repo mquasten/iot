@@ -10,11 +10,22 @@ import org.springframework.util.Assert;
 class Calendar implements ValidFieldValues{
 	
 	enum  Time {
-		Winter,
-		Summer;
+		Winter(2),
+		Summer(1);
+		
+		
+		
+		private final int offset;
+		Time(int offset){
+			this.offset=offset;
+		}
 		
 		String key() {
 			return name().toUpperCase();
+		}
+		
+		int offset() {
+			return offset;
 		}
 	}
 	

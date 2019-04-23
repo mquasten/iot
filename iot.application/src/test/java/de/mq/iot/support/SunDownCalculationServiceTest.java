@@ -2,6 +2,7 @@ package de.mq.iot.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
 import java.time.LocalTime;
 import java.time.Month;
 
@@ -41,7 +42,7 @@ class SunDownCalculationServiceTest {
 		final void sunDownTimeMonth() {
 		LocalTime result = sunDownCalculationService.sunDownTime(Month.MARCH ,2);
 		
-		//System.out.println(result);	
+	//	System.out.println(result);	
 		
 		assertEquals(LocalTime.of(19, 39), result);
 	
@@ -52,9 +53,11 @@ class SunDownCalculationServiceTest {
 	final void sunUpTimeMonth() {
 	LocalTime result = sunDownCalculationService.sunUpTime(Month.MARCH ,2);
 	
-
+//System.out.println(result);
 	
 	assertEquals(LocalTime.of(7, 48), result);
+	
+	
 
 	
 }
