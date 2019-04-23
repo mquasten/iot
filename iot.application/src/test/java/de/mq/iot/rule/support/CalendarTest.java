@@ -24,12 +24,12 @@ class CalendarTest {
 	
 	@Test
 	void offsetWinter() {
-		assertEquals(2,Time.Winter.offset());
+		assertEquals(1,Time.Winter.offset());
 	}
 	
 	@Test
 	void offsetSummer() {
-		assertEquals(1,Time.Summer.offset());
+		assertEquals(2,Time.Summer.offset());
 	}
 	
 	@Test

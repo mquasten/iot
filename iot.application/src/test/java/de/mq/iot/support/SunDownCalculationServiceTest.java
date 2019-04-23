@@ -17,12 +17,12 @@ class SunDownCalculationServiceTest {
 	
 	final void sunDownTime() {
 		
-		final double result = sunDownCalculationService.sunDownTime(86, 2);
+		final LocalTime result = sunDownCalculationService.sunDownTime(86, 2);
 	//	System.out.println(">>>"+(int) result +":"  + (int) Math.round(60 * (result % 1) ));	
 		
 		
-		assertEquals(19, (int) result); 
-		assertEquals(57, Math.round(60 *(result %1 )));
+		assertEquals(19,  result.getHour()); 
+		assertEquals(57,  result.getMinute());
 	}
 	
 	
@@ -31,11 +31,13 @@ class SunDownCalculationServiceTest {
 	
 	final void sunUpTime() {
 		
-		final double result = sunDownCalculationService.sunUpTime(86, 2);
+		final LocalTime result = sunDownCalculationService.sunUpTime(86, 2);
 		
 		
-		assertEquals(7, (int) result); 
-		assertEquals(23, Math.round(60 *(result %1 )));
+		//System.out.println(result);
+		
+		assertEquals(7,  result.getHour()); 
+		assertEquals(23, result.getMinute());
 	}
 	
 	@Test
@@ -61,4 +63,7 @@ class SunDownCalculationServiceTest {
 
 	
 }
+	
+	
+
 }

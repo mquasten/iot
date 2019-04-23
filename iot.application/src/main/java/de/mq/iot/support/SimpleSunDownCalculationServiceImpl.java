@@ -35,8 +35,8 @@ private final double  latitude;
 	 * @see de.mq.iot.support.SunDownCalculationService#sunDownTime(int, int)
 	 */
 	@Override
-	public double sunDownTime(final int dayOfYear, final int timeZoneOffsetInHours) {
-		return time(dayOfYear, timeZoneOffsetInHours, true);
+	public LocalTime sunDownTime(final int dayOfYear, final int timeZoneOffsetInHours) {
+		return localTime(time(dayOfYear, timeZoneOffsetInHours, true));
 	}
 	
 	
@@ -100,16 +100,20 @@ private final double  latitude;
 		
 	
 		
-		int min = (int)  Math.round(60 * (result % 1));
-		return LocalTime.of((int) result, (min  != 60) ?  min : 59);
+		return localTime(result);
 		
 		
 	}
 
+	private LocalTime localTime(final double result) {
+		int min = (int)  Math.round(60 * (result % 1));
+		return LocalTime.of((int) result, (min  != 60) ?  min : 59);
+	}
+
 	@Override
-	public double sunUpTime(int dayOfYear, int timeZoneOffsetInHours) {
+	public LocalTime sunUpTime(int dayOfYear, int timeZoneOffsetInHours) {
 	
-		return time(dayOfYear, timeZoneOffsetInHours, false);
+		return localTime(time(dayOfYear, timeZoneOffsetInHours, false));
 	}
 		
 		

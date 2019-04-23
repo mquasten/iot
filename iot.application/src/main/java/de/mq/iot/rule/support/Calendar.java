@@ -10,8 +10,8 @@ import org.springframework.util.Assert;
 class Calendar implements ValidFieldValues{
 	
 	enum  Time {
-		Winter(2),
-		Summer(1);
+		Winter(1),
+		Summer(2);
 		
 		
 		
