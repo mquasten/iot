@@ -50,5 +50,7 @@ class DefaultRuleInput implements ValidFieldValues {
 		return testMode;
 	}
 	
-	
+	final LocalTime minSunDown() {
+		return LocalTime.MIDNIGHT;
+	}
 }

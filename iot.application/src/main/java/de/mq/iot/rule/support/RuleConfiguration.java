@@ -21,6 +21,7 @@ import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
+import de.mq.iot.support.SunDownCalculationService;
 @Configuration
 class RuleConfiguration {
 	
@@ -40,17 +41,17 @@ class RuleConfiguration {
 	
 	@Bean()
 	@Scope(value = "prototype")
-	Collection<RulesAggregate> rulesAggregates(final ConversionService conversionService,final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService) {
-		return Arrays.asList(rulesAggregate(conversionService,specialdayService, stateService,meteorologicalDataService));
+	Collection<RulesAggregate> rulesAggregates(final ConversionService conversionService,final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService, final SunDownCalculationService sunDownCalculationService) {
+		return Arrays.asList(rulesAggregate(conversionService,specialdayService, stateService, meteorologicalDataService, sunDownCalculationService));
 	}
 	
 	
 	
-	RulesAggregate rulesAggregate(final ConversionService conversionService, final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService) {
+	RulesAggregate rulesAggregate(final ConversionService conversionService, final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService, final SunDownCalculationService sunDownCalculationService) {
 		
 		
 		
-		return new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, factsConsumer(),  new Rules(new InputDataMappingRuleImpl(conversionService) , new CalendarRuleImpl(specialdayService, dateSupplier() ), new SystemVariablesRuleImpl(stateService), new SystemVariablesUploadRuleImpl(stateService)), new TemperatureRuleImpl(meteorologicalDataService));
+		return new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, factsConsumer(),  new Rules(new InputDataMappingRuleImpl(conversionService) , new CalendarRuleImpl(specialdayService, dateSupplier() ), new TimerEventsRule(sunDownCalculationService), new SystemVariablesRuleImpl(stateService), new SystemVariablesUploadRuleImpl(stateService)), new TemperatureRuleImpl(meteorologicalDataService));
 	}
 	
 	

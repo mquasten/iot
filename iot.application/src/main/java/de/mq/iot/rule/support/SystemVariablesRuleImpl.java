@@ -68,6 +68,8 @@ public class SystemVariablesRuleImpl {
 		stateValues.put(WORKINGDAY_STATE_NAME, calendar.workingDay());
 		
 		calendar.temperature().ifPresent(temperature -> stateValues.put(TEMPERATURE_STATE_NAME, temperature));
+		
+		calendar.events().ifPresent(event -> stateValues.put(event.getKey(), event.getValue()));
 		stateValues.put(LAST_BATCHRUN_STATE_NAME, new SimpleDateFormat(LAST_BATCHRUN_DATE_FORMAT).format(new Date(System.currentTimeMillis())));
 		return stateValues;
 	}

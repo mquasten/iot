@@ -18,7 +18,11 @@ import org.mockito.Mockito;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.state.StateService;
+import de.mq.iot.support.SunDownCalculationService;
 
 
 class RuleConfigurationTest {
@@ -43,7 +47,12 @@ class RuleConfigurationTest {
 	@Test
 	void  rulesAggregate() throws Exception {
 		final ConversionService conversionService = Mockito.mock(ConversionService.class);
-		final Collection<RulesAggregate> aggregates = ruleConfiguration.rulesAggregates(conversionService, null,null,null);
+		final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
+		final StateService stateService =  Mockito.mock(StateService.class);
+		final MeteorologicalDataService meteorologicalDataService= Mockito.mock(MeteorologicalDataService.class);
+		final SunDownCalculationService sunDownCalculationService =  Mockito.mock(SunDownCalculationService.class);
+		
+		final Collection<RulesAggregate> aggregates = ruleConfiguration.rulesAggregates(conversionService, specialdayService,stateService,meteorologicalDataService, sunDownCalculationService);
 		assertEquals(1, aggregates.size());
 		final RulesAggregate rulesAggregate = aggregates.iterator().next();
 		
@@ -53,14 +62,16 @@ class RuleConfigurationTest {
 		final List<org.jeasy.rules.api.Rule> rulesList = new ArrayList<>();
 		rules.forEach(rule -> rulesList.add(rule) );
 		
-		assertEquals(4, rulesList.size());
+		assertEquals(5, rulesList.size());
 		
 		final List<String> ruleNames = rulesList.stream().map(rule -> rule.getName()).collect(Collectors.toList());
 		
 		assertEquals(InputDataMappingRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(0));
 		assertEquals(CalendarRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(1));
-		assertEquals(SystemVariablesRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(2));
-		assertEquals(SystemVariablesUploadRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(3));
+		
+		assertEquals(TimerEventsRule.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(2));
+		assertEquals(SystemVariablesRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(3));
+		assertEquals(SystemVariablesUploadRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNames.get(4));
 	
 		final Collection<?> optionalRules =  (Collection<?>) ReflectionTestUtils.getField(rulesAggregate, "optionalRules");
 		assertEquals(1, optionalRules.size());
