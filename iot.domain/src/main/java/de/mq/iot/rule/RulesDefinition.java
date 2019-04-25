@@ -17,8 +17,10 @@ public interface RulesDefinition
 	static final String UPDATE_MODE_KEY = "updateMode";
 	static final String TEST_MODE_KEY = "testMode";
 	
+	static final String MIN_SUN_DOWN_TIME_KEY=  "minSunDownTime";
+	
 	enum Id {
-		DefaultDailyIotBatch(Arrays.asList(WORKINGDAY_ALARM_TIME_KEY, HOLIDAY_ALARM_TIME_KEY), Arrays.asList(UPDATE_MODE_KEY, TEST_MODE_KEY)),
+		DefaultDailyIotBatch(Arrays.asList(WORKINGDAY_ALARM_TIME_KEY, HOLIDAY_ALARM_TIME_KEY,MIN_SUN_DOWN_TIME_KEY), Arrays.asList(UPDATE_MODE_KEY, TEST_MODE_KEY)),
 		EndOfDayBatch(Arrays.asList(WORKINGDAY_ALARM_TIME_KEY, HOLIDAY_ALARM_TIME_KEY), Arrays.asList(UPDATE_MODE_KEY, TEST_MODE_KEY));
 		
 		
@@ -29,7 +31,6 @@ public interface RulesDefinition
 			this.parameter=parameter;
 		}
 		public Collection<String> input() {
-			
 			return Collections.unmodifiableCollection(input);
 	       	
 		}

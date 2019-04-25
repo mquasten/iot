@@ -2,6 +2,8 @@ package de.mq.iot.rule.support;
 
 import java.time.LocalTime;
 
+import org.springframework.lang.Nullable;
+
 
 
 class DefaultRuleInput implements ValidFieldValues {
@@ -14,15 +16,17 @@ class DefaultRuleInput implements ValidFieldValues {
 	
 	private Boolean testMode=false;
 	
-	
+	@Nullable
+	private LocalTime minSunDownTime=LocalTime.MIDNIGHT;
 
 	DefaultRuleInput() {
 		
 	}
 	
-	DefaultRuleInput(final LocalTime workingdayAlarmTime, final LocalTime holidayAlarmTime) {
+	DefaultRuleInput(final LocalTime workingdayAlarmTime, final LocalTime holidayAlarmTime, final LocalTime minSunDownTime) {
 		this.workingdayAlarmTime=workingdayAlarmTime;
 		this.holidayAlarmTime=holidayAlarmTime;
+		this.minSunDownTime=minSunDownTime;
 	}
 	
 	final void useUpdateMode() {
@@ -50,7 +54,7 @@ class DefaultRuleInput implements ValidFieldValues {
 		return testMode;
 	}
 	
-	final LocalTime minSunDown() {
-		return LocalTime.MIDNIGHT;
+	final LocalTime minSunDownTime() {
+		return minSunDownTime;
 	}
 }

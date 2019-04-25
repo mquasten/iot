@@ -28,6 +28,12 @@ public class InputDataMappingRuleTest {
 	
 	private final int holidayAlarmMin = 30;
 	
+	
+	private final int minSunDownHour = 17;
+	
+	private final int minSunDownMin = 15;
+	
+	
 	private final DefaultRuleInput ruleInput = new DefaultRuleInput();
 	
 	@Test
@@ -47,15 +53,40 @@ public class InputDataMappingRuleTest {
 		
 		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin), ruleInput.workingdayAlarmTime());
 		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.holidayAlarmTime());
+		
+		assertEquals(LocalTime.of(minSunDownHour, minSunDownMin), ruleInput.minSunDownTime());
 		assertTrue(ruleInput.isTestMode());
 		assertTrue(ruleInput.isUpdateMode());
 	}
+	
+	
+	@Test
+	void mappingWithoutOptional() {
+		final Map<String, String> newValidMap = newValidMap(false);
+		
+		newValidMap.remove(RulesDefinition.MIN_SUN_DOWN_TIME_KEY);
+		inputDataMappingRule.mapping(newValidMap, ruleInput);
+		
+		
+		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin), ruleInput.workingdayAlarmTime());
+		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.holidayAlarmTime());
+		
+		assertEquals(LocalTime.MIDNIGHT, ruleInput.minSunDownTime());
+		
+	}
+	
 	private  Map<String, String> newValidMap(final boolean withFlags) {
 		final Map<String,String> ruleInputMap = new HashMap<>();
 		
 		ruleInputMap.put(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, String.format("%s:%s", workingdayAlarmHour, workingdayAlarmMin));
 		
 		ruleInputMap.put(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, String.format("%s:%s", holidayAlarmHour, holidayAlarmMin));
+		
+		
+		ruleInputMap.put(RulesDefinition.MIN_SUN_DOWN_TIME_KEY, String.format("%s:%s", minSunDownHour, minSunDownMin));
+		
+		
+		
 		if( withFlags) {
 		ruleInputMap.put(RulesDefinition.UPDATE_MODE_KEY, "1");
 		ruleInputMap.put(RulesDefinition.TEST_MODE_KEY, "true");

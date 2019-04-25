@@ -45,8 +45,16 @@ public class InputDataMappingRuleImpl {
 		 
 		 errors.setNestedPath(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY);
 		 timeValidator.validate(ruleInputMap.get(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY), errors);
+		 
 		 errors.setNestedPath(RulesDefinition.HOLIDAY_ALARM_TIME_KEY);
 		 timeValidator.validate(ruleInputMap.get(RulesDefinition.HOLIDAY_ALARM_TIME_KEY), errors);
+		 
+		 
+		 final Validator optionalTimeValidator = new TimeValidatorImpl(conversionService, false);
+		 
+		 errors.setNestedPath(RulesDefinition.MIN_SUN_DOWN_TIME_KEY);
+		 optionalTimeValidator.validate(ruleInputMap.get(RulesDefinition.MIN_SUN_DOWN_TIME_KEY), errors);
+		 
 		 
 		 final Validator booleanValidator = new BooleanValidatorImpl(conversionService, false);
 		 errors.setNestedPath(RulesDefinition.UPDATE_MODE_KEY);
@@ -56,6 +64,12 @@ public class InputDataMappingRuleImpl {
 		 errors.setNestedPath(RulesDefinition.TEST_MODE_KEY);
 		 
 		 booleanValidator.validate(ruleInputMap.get(RulesDefinition.TEST_MODE_KEY), errors);
+		 
+		 
+		 
+		 
+		 
+		 
 		 return !errors.hasErrors();
 		
 		

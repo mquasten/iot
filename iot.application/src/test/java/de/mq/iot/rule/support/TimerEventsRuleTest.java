@@ -30,7 +30,7 @@ class TimerEventsRuleTest {
 	private final TimerEventsRule timerEventsRule = new TimerEventsRule(sunDownCalculationService);
 	
 	
-	private final DefaultRuleInput ruleInput = new DefaultRuleInput(LocalTime.of(5, 15), LocalTime.of(7, 15));
+	private final DefaultRuleInput ruleInput = new DefaultRuleInput(LocalTime.of(5, 15), LocalTime.of(7, 15), LocalTime.of(17, 15));
 	
 	private final Calendar calendar = new Calendar();
 	

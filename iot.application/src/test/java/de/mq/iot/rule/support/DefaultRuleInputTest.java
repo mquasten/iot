@@ -19,7 +19,9 @@ class DefaultRuleInputTest {
 	
 	private final  LocalTime holidayAlarmTime = LocalTime.of(7, 15);
 	
-	private final DefaultRuleInput ruleInput = new DefaultRuleInput(workingdayAlarmTime, holidayAlarmTime);
+	private final  LocalTime minSunDownTime = LocalTime.of(17, 15);
+	
+	private final DefaultRuleInput ruleInput = new DefaultRuleInput(workingdayAlarmTime, holidayAlarmTime, minSunDownTime);
 	
 	@Test
 	void workingdayAlarmTime() {
@@ -30,6 +32,11 @@ class DefaultRuleInputTest {
 	@Test
 	void holidayAlarmTime() {
 		assertEquals(holidayAlarmTime, ruleInput.holidayAlarmTime());
+	}
+	
+	@Test
+	void  minSunDownTime() {
+		assertEquals(minSunDownTime, ruleInput.minSunDownTime());
 	}
 	
 	@Test
@@ -51,6 +58,7 @@ class DefaultRuleInputTest {
 		assertFalse(ruleInput.isUpdateMode());
 		assertNull(ruleInput.workingdayAlarmTime());
 		assertNull(ruleInput.holidayAlarmTime());
+		
 		assertFalse(ruleInput.valid());
 	}
 	@Test

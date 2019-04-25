@@ -26,7 +26,7 @@ public class CalendarRuleTest {
 
 	private final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
 	
-	private final DefaultRuleInput ruleInput = new DefaultRuleInput(LocalTime.of(5, 15), LocalTime.of(7, 15)); 
+	private final DefaultRuleInput ruleInput = new DefaultRuleInput(LocalTime.of(5, 15), LocalTime.of(7, 15), LocalTime.of(17, 15)); 
 	
 	
 	private final Specialday specialday = Mockito.mock(Specialday.class);
