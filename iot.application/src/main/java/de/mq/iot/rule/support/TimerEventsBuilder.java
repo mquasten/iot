@@ -41,7 +41,7 @@ public class TimerEventsBuilder{
 		Assert.notNull(key, "Key is required.");
 		Assert.notNull(localTime, "Value is required");
 		
-		Assert.isTrue(!events.containsKey(key), "Envent already assigned.");
+		Assert.isTrue(!events.containsKey(key), "Event already assigned.");
 		
 		events.put(key, localTime);
 		

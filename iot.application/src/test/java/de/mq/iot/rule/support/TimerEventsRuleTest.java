@@ -66,4 +66,17 @@ class TimerEventsRuleTest {
 		
 	}
 
+	@Test
+	void calculateEventsNonWorkingDay() {
+		vaidCalendar(calendar);
+		calendar.assignWorkingDay(false);
+		
+		Mockito.when(sunDownCalculationService.sunUpTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_UPTIME);
+		Mockito.when(sunDownCalculationService.sunDownTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_DOWNTIME);
+		timerEventsRule.calculateEvents(calendar, ruleInput);
+		
+		assertTrue(calendar.events().isPresent());
+		assertEquals(String.format("%s:7.15;%s:7.15;%s:21.45", Key.T0, Key.T1, Key.T6), calendar.events().get().getValue());
+		assertEquals(TimerEventsBuilder.DAILY_EVENTS_VARIABLE_NAME, calendar.events().get().getKey());
+	}
 }
