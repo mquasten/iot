@@ -1,6 +1,5 @@
 package de.mq.iot.rule.support;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import de.mq.iot.rule.support.Calendar.Time;
-import de.mq.iot.rule.support.TimerEventsBuilder.Key;
 import de.mq.iot.support.SunDownCalculationService;
 
 class TimerEventsRuleTest {
@@ -60,23 +58,9 @@ class TimerEventsRuleTest {
 		Mockito.when(sunDownCalculationService.sunDownTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_DOWNTIME);
 		timerEventsRule.calculateEvents(calendar, ruleInput);
 		
-		assertTrue(calendar.events().isPresent());
-		assertEquals(String.format("%s:5.15;%s:5.4;%s:21.45", Key.T0, Key.T1, Key.T6), calendar.events().get().getValue());
-		assertEquals(TimerEventsBuilder.DAILY_EVENTS_VARIABLE_NAME, calendar.events().get().getKey());
-		
-	}
 
-	@Test
-	void calculateEventsNonWorkingDay() {
-		vaidCalendar(calendar);
-		calendar.assignWorkingDay(false);
-		
-		Mockito.when(sunDownCalculationService.sunUpTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_UPTIME);
-		Mockito.when(sunDownCalculationService.sunDownTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_DOWNTIME);
-		timerEventsRule.calculateEvents(calendar, ruleInput);
-		
-		assertTrue(calendar.events().isPresent());
-		assertEquals(String.format("%s:7.15;%s:7.15;%s:21.45", Key.T0, Key.T1, Key.T6), calendar.events().get().getValue());
-		assertEquals(TimerEventsBuilder.DAILY_EVENTS_VARIABLE_NAME, calendar.events().get().getKey());
 	}
+	
+
+	
 }
