@@ -5,11 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+
 import java.time.LocalDate;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
-
 import de.mq.iot.rule.support.Calendar.Time;
 
 class CalendarTest {
@@ -104,4 +104,25 @@ class CalendarTest {
 		
 		assertFalse(calendar.valid());
 	}
+
+	@Test
+	void temperature() {
+		assertFalse(calendar.temperature().isPresent());
+		
+		calendar.assignTemperature(30.0);
+		
+		
+		assertEquals( calendar.temperature() , calendar.temperature());
+	}
+	
+	@Test
+	void assignEvents() {
+		calendar.assignEvents("T0:14:44");
+		
+		assertEquals(calendar.events() , calendar.events());
+	}
+
 }
+
+
+

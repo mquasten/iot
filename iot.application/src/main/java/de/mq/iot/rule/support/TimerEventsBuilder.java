@@ -30,10 +30,11 @@ public class TimerEventsBuilder{
 
 	}
 	
-	private Map<Key,LocalTime> events = new HashMap<>();
-	
+private Map<Key,LocalTime> events = new HashMap<>();
 	
 
+
+   
 	TimerEventsBuilder with(final Key key, LocalTime localTime){
 		Assert.notNull(key, "Key is required.");
 		Assert.notNull(localTime, "Value is required");
@@ -48,8 +49,7 @@ public class TimerEventsBuilder{
 	
 	
 	
-	
-	void build() {
+	String build() {
 		
 		
 		
@@ -57,14 +57,16 @@ public class TimerEventsBuilder{
 		
 		final StringBuilder builder = new StringBuilder();
 		
-	
+
+		
 		
 		events.keySet().stream().sorted().forEach(key -> {
 			
+		
 			
-			
-			
-			
+		
+				
+				
 			if( builder.length()!=0) {
 				builder.append(";");
 			}
@@ -75,7 +77,9 @@ public class TimerEventsBuilder{
 			
 		});
 		
-		
+ 
+	
+		return builder.toString();
 		
 		
 	}
