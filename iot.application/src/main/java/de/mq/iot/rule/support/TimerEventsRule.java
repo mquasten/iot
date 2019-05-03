@@ -28,22 +28,15 @@ public class TimerEventsRule {
 
 	
 	@Action
-	public void calculateEvents(@Fact(RulesAggregate.RULE_CALENDAR) final Calendar calendar,   @Fact(RulesAggregate.RULE_INPUT) DefaultRuleInput ruleInput ) {
-	
+	public void calculateEvents(@Fact(RulesAggregate.RULE_CALENDAR) final Calendar calendar,   @Fact(RulesAggregate.RULE_INPUT) DefaultRuleInput ruleInput) {
 		
 		final LocalTime alarmTime = calendar.workingDay() ?  ruleInput.workingdayAlarmTime() : ruleInput.holidayAlarmTime();
 		
-		
-		
 		final LocalTime uptime = sunDownCalculationService.sunUpTime(calendar.dayOfYear(), calendar.time().offset());
-		
-		
 		
 		final LocalTime downTime = sunDownCalculationService.sunDownTime(calendar.dayOfYear(), calendar.time().offset());
 		
-		TimerEventsBuilder.newBuilder().with(Key.T0, alarmTime).with(Key.T1,Collections.max(Arrays.asList(alarmTime,uptime)) ).with(Key.T6, Collections.max(Arrays.asList(downTime,ruleInput.minSunDownTime()))).build();
-	
-		
+		calendar.assignEvents(TimerEventsBuilder.newBuilder().with(Key.T0, alarmTime).with(Key.T1,Collections.max(Arrays.asList(alarmTime,uptime)) ).with(Key.T6, Collections.max(Arrays.asList(downTime,ruleInput.minSunDownTime()))).build());
 		
 	}
 	

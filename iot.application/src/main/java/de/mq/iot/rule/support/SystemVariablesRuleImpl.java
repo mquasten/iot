@@ -58,6 +58,8 @@ public class SystemVariablesRuleImpl {
 		stateValues(calendar).entrySet().stream().filter(entry -> states.containsKey(entry.getKey())).forEach(entry -> changedState(states.get(entry.getKey()), entry.getValue()).ifPresent(addState));
 	
 	    Collections.sort((List<State<?>>) results, (s1, s2) -> priority(s1.name()) - priority(s2.name()) );
+	    
+	   
 	}
 
 	private int priority(final String name ) {
@@ -69,21 +71,18 @@ public class SystemVariablesRuleImpl {
 		stateValues.put(WORKINGDAY_STATE_NAME, calendar.workingDay());
 		
 		calendar.temperature().ifPresent(temperature -> stateValues.put(TEMPERATURE_STATE_NAME, temperature));
-
 	
 		calendar.events().ifPresent( event ->   stateValues.put(DAILY_EVENTS,event));
-	
+		
 		stateValues.put(LAST_BATCHRUN_STATE_NAME, new SimpleDateFormat(LAST_BATCHRUN_DATE_FORMAT).format(new Date(System.currentTimeMillis())));
 		return stateValues;
 	}
 
 	private Map<String, Enum<?>> itemValues(final Calendar calendar) {
 		
-		
 		final Map<String,Enum<?>> itemValues = new HashMap<>();
 		itemValues.put(TIME_STATE_NAME, calendar.time());
 		itemValues.put(MONTH_STATE_NAME, calendar.month());
-		
 		
 		return itemValues;
 	}

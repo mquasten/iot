@@ -20,19 +20,25 @@ class TimerEventsRuleTest {
 	private static final LocalTime SUN_DOWNTIME = LocalTime.of(21, 45);
 
 	private static final LocalTime SUN_UPTIME = LocalTime.of(5, 40);
+	
+	
 
 	private static final LocalDate date = LocalDate.of(Year.now().getValue(),Month.JUNE.getValue(), 21);
+
+
 
 	private final SunDownCalculationService sunDownCalculationService = Mockito.mock(SunDownCalculationService.class);
 	
 	private final TimerEventsRule timerEventsRule = new TimerEventsRule(sunDownCalculationService);
 	
 	
-	private final DefaultRuleInput ruleInput = new DefaultRuleInput(LocalTime.of(5, 15), LocalTime.of(7, 15), LocalTime.of(17, 15));
+	private  DefaultRuleInput ruleInput = new DefaultRuleInput(LocalTime.of(5, 15), LocalTime.of(7, 15), LocalTime.of(17, 15));
 	
 	private final Calendar calendar = new Calendar();
+
 	
-	@Test
+	
+@Test
 	void evaluateValidCalendar() {
 		vaidCalendar(calendar);
 		assertTrue(timerEventsRule.evaluate(calendar));
@@ -51,15 +57,24 @@ class TimerEventsRuleTest {
 	}
 	
 	
+	
+	
 	@Test
 	void calculateEvents() {
 		vaidCalendar(calendar);
 		Mockito.when(sunDownCalculationService.sunUpTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_UPTIME);
 		Mockito.when(sunDownCalculationService.sunDownTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_DOWNTIME);
+		
+	
 		timerEventsRule.calculateEvents(calendar, ruleInput);
+		
+		
 		
 
 	}
+	
+	
+	
 	
 
 	
