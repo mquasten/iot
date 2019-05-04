@@ -4,8 +4,6 @@ import java.time.LocalTime;
 
 import org.springframework.lang.Nullable;
 
-
-
 class DefaultRuleInput implements ValidFieldValues {
 	
 	private LocalTime workingdayAlarmTime;
