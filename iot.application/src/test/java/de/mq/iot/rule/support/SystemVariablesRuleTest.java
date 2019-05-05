@@ -71,7 +71,7 @@ class SystemVariablesRuleTest {
 		
 		calendar.assignTemperature(TEMPERATURE_VALUE);
 		 
-		calendar.assignEvents(EVENTS);
+		calendar.assignEvents(SystemVariablesRuleImpl.DAILY_EVENTS, EVENTS);
 		
 		systemVariablesRule.updateSystemVariables(calendar,results);
 		 
@@ -112,7 +112,7 @@ class SystemVariablesRuleTest {
 		calendar.assignDate(now);
 		calendar.assignWorkingDay(true);
 		calendar.assignTemperature(TEMPERATURE_VALUE); 
-		calendar.assignEvents(EVENTS);
+		calendar.assignEvents(SystemVariablesRuleImpl.DAILY_EVENTS , EVENTS);
 		
 		Mockito.when(((ItemList) timeState).hasLabel(Time.Summer.name())).thenReturn(true);
 		

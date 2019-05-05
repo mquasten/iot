@@ -36,7 +36,10 @@ public class TimerEventsRule {
 		
 		final LocalTime downTime = sunDownCalculationService.sunDownTime(calendar.dayOfYear(), calendar.time().offset());
 		
-		calendar.assignEvents(TimerEventsBuilder.newBuilder().with(Key.T0, alarmTime).with(Key.T1,Collections.max(Arrays.asList(alarmTime,uptime)) ).with(Key.T6, Collections.max(Arrays.asList(downTime,ruleInput.minSunDownTime()))).build());
+	
+		
+		final String builder = TimerEventsBuilder.newBuilder().with(ruleInput.isUpdateMode()).with(Key.T0, alarmTime).with(Key.T1,Collections.max(Arrays.asList(alarmTime,uptime)) ).with(Key.T6, Collections.max(Arrays.asList(downTime,ruleInput.minSunDownTime()))).build();
+		calendar.assignEvents(ruleInput.isUpdateMode()?SystemVariablesRuleImpl.EVENT_EXECUTIONS:SystemVariablesRuleImpl.DAILY_EVENTS, builder);
 		
 	}
 	

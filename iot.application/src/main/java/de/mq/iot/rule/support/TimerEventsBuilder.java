@@ -32,7 +32,7 @@ public class TimerEventsBuilder{
 	
 private Map<Key,LocalTime> events = new HashMap<>();
 	
-
+private boolean updateMode=false;
 
    
 	TimerEventsBuilder with(final Key key, LocalTime localTime){
@@ -46,7 +46,10 @@ private Map<Key,LocalTime> events = new HashMap<>();
 	
 		return this;
 	}
-	
+	TimerEventsBuilder with(final boolean updateMode){
+		this.updateMode=updateMode;
+		return this;
+	}
 	
 	
 	String build() {
@@ -72,7 +75,15 @@ private Map<Key,LocalTime> events = new HashMap<>();
 			}
 			
 			
-			builder.append(String.format("%s:%s", key,  events.get(key).getHour() + 0.01 * (events.get(key).getMinute()  )));
+			if(  updateMode ) {
+				updateMode(builder, key);
+			} else {
+				builder.append(String.format("%s:%s", key,  events.get(key).getHour() + 0.01 * (events.get(key).getMinute()  )));
+			}
+					
+					
+		
+			
 			
 			
 		});
@@ -82,6 +93,11 @@ private Map<Key,LocalTime> events = new HashMap<>();
 		return builder.toString();
 		
 		
+	}
+	private void updateMode(final StringBuilder builder, Key key) {
+		if( (events.get(key).compareTo(LocalTime.now())>0)) {
+			builder.append(String.format("%s:%s", key,  events.get(key).getHour() + 0.01 * (events.get(key).getMinute()  )));
+		}
 	}
 	
 	

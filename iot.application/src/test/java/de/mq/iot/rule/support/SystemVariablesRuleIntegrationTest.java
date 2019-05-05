@@ -2,6 +2,7 @@ package de.mq.iot.rule.support;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Disabled;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.rule.RulesDefinition.Id;
 import de.mq.iot.support.ApplicationConfiguration;
 
@@ -25,7 +27,7 @@ class SystemVariablesRuleIntegrationTest {
 	@Test
 	final void createRulesEngine() {
 		
-		final RulesAggregate rulesAggregate = ruleService.rulesAggregate(Id.DefaultDailyIotBatch, Arrays.asList());
+		final RulesAggregate rulesAggregate = ruleService.rulesAggregate(Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY,"false")));
 		
 		assertNotNull(rulesAggregate);
 		
@@ -42,7 +44,7 @@ class SystemVariablesRuleIntegrationTest {
 		exception.getValue().printStackTrace();
 		});
 		
-		result.states().forEach(state -> System.out.println(state.name()));
+		result.states().forEach(state -> System.out.println(state.name()+":" +state.value()));
 		
 	}
 

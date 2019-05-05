@@ -25,6 +25,7 @@ import de.mq.iot.state.support.ItemList;
 public class SystemVariablesRuleImpl {
 
 	static final String DAILY_EVENTS = "DailyEvents";
+	static final String  EVENT_EXECUTIONS = "EventExecutions";
 	static final String TEMPERATURE_STATE_NAME = "Temperature";
 	static final String LAST_BATCHRUN_STATE_NAME = "LastBatchrun";
 	static final String MONTH_STATE_NAME = "Month";
@@ -72,7 +73,7 @@ public class SystemVariablesRuleImpl {
 		
 		calendar.temperature().ifPresent(temperature -> stateValues.put(TEMPERATURE_STATE_NAME, temperature));
 	
-		calendar.events().ifPresent( event ->   stateValues.put(DAILY_EVENTS,event));
+		calendar.events().ifPresent( event ->   stateValues.put(event.getKey(),event.getValue()));
 		
 		stateValues.put(LAST_BATCHRUN_STATE_NAME, new SimpleDateFormat(LAST_BATCHRUN_DATE_FORMAT).format(new Date(System.currentTimeMillis())));
 		return stateValues;

@@ -117,7 +117,7 @@ class CalendarTest {
 	
 	@Test
 	void assignEvents() {
-		calendar.assignEvents("T0:14:44");
+		calendar.assignEvents(SystemVariablesRuleImpl.DAILY_EVENTS, "T0:14:44");
 		
 		assertEquals(calendar.events() , calendar.events());
 	}
