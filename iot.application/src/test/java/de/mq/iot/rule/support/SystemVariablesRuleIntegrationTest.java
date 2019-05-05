@@ -27,7 +27,7 @@ class SystemVariablesRuleIntegrationTest {
 	@Test
 	final void createRulesEngine() {
 		
-		final RulesAggregate rulesAggregate = ruleService.rulesAggregate(Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY,"false")));
+		final RulesAggregate rulesAggregate = ruleService.rulesAggregate(Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY,"false"),new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY,"false")));
 		
 		assertNotNull(rulesAggregate);
 		
