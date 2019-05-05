@@ -30,12 +30,21 @@ class TimerEventsBuilderTest {
 	}
 	@Test
 	void build() {
-		timerEventsBuilder.with(Key.T0, LocalTime.of(5, 15)).with(Key.T1, LocalTime.of(6,45)).with(Key.T6, LocalTime.of(20, 45)).build();
-		final Map<?,?> fields = (Map<?, ?>) ReflectionTestUtils.getField(timerEventsBuilder, "events");
-		assertEquals(3, fields.size());
+		final String builder = timerEventsBuilder.with(Key.T0, LocalTime.of(5, 15)).with(Key.T1, LocalTime.of(6,45)).with(Key.T6, LocalTime.of(20, 45)).build();
+		
+		
+		assertEquals("T0:5.15;T1:6.45;T6:20.45", builder);
 				
 	}
 	
+	@Test
+	void buildUpdateMode() {
+	final String builder = timerEventsBuilder.with(true).with(Key.T0, LocalTime.of(5, 15)).with(Key.T1, LocalTime.of(6,45)).with(Key.T6, LocalTime.of(23, 59)).build();
+	
+	
+	assertEquals("T6:23.59", builder);
+	
+	}
 	
 	
 	

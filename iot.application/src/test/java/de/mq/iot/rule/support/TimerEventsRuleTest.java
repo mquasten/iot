@@ -1,5 +1,6 @@
 package de.mq.iot.rule.support;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,7 +18,7 @@ import de.mq.iot.support.SunDownCalculationService;
 class TimerEventsRuleTest {
 	
 
-	private static final LocalTime SUN_DOWNTIME = LocalTime.of(21, 45);
+	private static final LocalTime SUN_DOWNTIME = LocalTime.of(23 ,59);
 
 	private static final LocalTime SUN_UPTIME = LocalTime.of(5, 40);
 	
@@ -68,12 +69,27 @@ class TimerEventsRuleTest {
 	
 		timerEventsRule.calculateEvents(calendar, ruleInput);
 		
-		
-		
-
+		assertTrue(calendar.events().isPresent());
+		assertEquals(SystemVariablesRuleImpl.DAILY_EVENTS, calendar.events().get().getKey());
+		assertEquals("T0:5.15;T1:5.4;T6:23.59", calendar.events().get().getValue());
 	}
 	
+	@Test
+	void calculateEvents2() {
 	
+		vaidCalendar(calendar);
+		Mockito.when(sunDownCalculationService.sunUpTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_UPTIME);
+		Mockito.when(sunDownCalculationService.sunDownTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_DOWNTIME);
+		ruleInput.useUpdateMode();
+	
+		timerEventsRule.calculateEvents(calendar, ruleInput);
+		
+		
+		assertTrue(calendar.events().isPresent());
+		assertEquals(SystemVariablesRuleImpl.EVENT_EXECUTIONS, calendar.events().get().getKey());
+		assertEquals("T6:23.59", calendar.events().get().getValue());
+
+	}
 	
 	
 
