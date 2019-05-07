@@ -25,6 +25,7 @@ import org.springframework.util.ReflectionUtils;
 import de.mq.iot.authentication.AuthentificationService;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
+import de.mq.iot.rule.support.RulesDefinitionRepository;
 import de.mq.iot.state.Command;
 import de.mq.iot.state.Commands;
 import de.mq.iot.synonym.SynonymService;
@@ -39,11 +40,11 @@ public class CsvExportServiceImpl {
 	private final ConversionService conversionService;
 
 	@Autowired
-	public CsvExportServiceImpl(final SynonymService synonymService, final AuthentificationService authentificationService, final SpecialdayService specialdayService, final ResourceIdentifierRepository resourceIdentifierRepository, final ConversionService conversionService) {
+	public CsvExportServiceImpl(final SynonymService synonymService, final AuthentificationService authentificationService, final SpecialdayService specialdayService, final ResourceIdentifierRepository resourceIdentifierRepository, final ConversionService conversionService, final RulesDefinitionRepository rulesDefinitionRepository) {
 		suppliers.put(CsvType.Synonym, () -> synonymService.deviveSynonyms());
 		suppliers.put(CsvType.User, () -> authentificationService.authentifications());
 		suppliers.put(CsvType.Specialday, () -> specialdayService.specialdays());
-		
+		suppliers.put(CsvType.RulesDefinition, () -> rulesDefinitionRepository.findAll().collectList().block());
 		suppliers.put(CsvType.ResourceIdentifier, () -> resourceIdentifierRepository.findAll().collectList().block());
 		
 		

@@ -15,10 +15,11 @@ enum CsvType {
 	Synonym("de.mq.iot.synonym.support.SynonymImpl"), 
 	User("de.mq.iot.authentication.support.UserAuthenticationImpl", "authorities"), 
 	Specialday("de.mq.iot.calendar.support.SpecialdayImpl"),
-	ResourceIdentifier("de.mq.iot.resource.support.ResourceIdentifierImpl", "parameters");
+	ResourceIdentifier("de.mq.iot.resource.support.ResourceIdentifierImpl", "parameters"),
+	RulesDefinition("de.mq.iot.rule.support.RulesDefinitionImpl", "inputData", "optionalRules");
 
 	private final Class<?> clazz;
-	
+
 	
 	private final Collection<Field> fields;
 

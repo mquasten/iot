@@ -61,7 +61,7 @@ class CsvExportServiceTest {
 	
 	private final ResourceIdentifierRepository resourceIdentifierRepository = Mockito.mock(ResourceIdentifierRepository.class);
 
-	private final CsvExportServiceImpl csvService = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, resourceIdentifierRepository, new DefaultConversionService());
+	private final CsvExportServiceImpl csvService = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, resourceIdentifierRepository, new DefaultConversionService(), null);
 
 	private final StringWriter writer = new StringWriter();
 
@@ -197,7 +197,7 @@ class CsvExportServiceTest {
 	@Test()
 	void supplier() {
 
-		final CsvExportServiceImpl service = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, resourceIdentifierRepository, new DefaultConversionService());
+		final CsvExportServiceImpl service = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, resourceIdentifierRepository, new DefaultConversionService(), null);
 
 		@SuppressWarnings("unchecked")
 		final Function<String, Writer> function = (Function<String, Writer>) DataAccessUtils
