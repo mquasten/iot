@@ -44,6 +44,10 @@ import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
 import de.mq.iot.resource.support.TestResourceIdentifier;
+import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.rule.support.RulesDefinitionImpl;
+import de.mq.iot.rule.support.RulesDefinitionRepository;
+import de.mq.iot.rule.support.TestRulesDefinition;
 import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.SynonymService;
 import de.mq.iot.synonym.support.TestSynonym;
@@ -58,10 +62,12 @@ class CsvExportServiceTest {
 	private final AuthentificationService authentificationService = Mockito.mock(AuthentificationService.class);
 
 	private final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
-	
+
 	private final ResourceIdentifierRepository resourceIdentifierRepository = Mockito.mock(ResourceIdentifierRepository.class);
 
-	private final CsvExportServiceImpl csvService = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, resourceIdentifierRepository, new DefaultConversionService(), null);
+	private final RulesDefinitionRepository rulesDefinitionRepository = Mockito.mock(RulesDefinitionRepository.class);
+
+	private final CsvExportServiceImpl csvService = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, resourceIdentifierRepository, new DefaultConversionService(), rulesDefinitionRepository);
 
 	private final StringWriter writer = new StringWriter();
 
@@ -205,7 +211,6 @@ class CsvExportServiceTest {
 
 		final String property = "java.io.tmpdir";
 
-		
 		final String file = System.getProperty(property) + FILENAME;
 		clean(file);
 		try {
@@ -225,13 +230,13 @@ class CsvExportServiceTest {
 
 		}
 	}
-	
+
 	@Test()
 	void resourceIdentifier() {
 		final ResourceIdentifier resourceIdentifier = TestResourceIdentifier.resourceIdentifier();
 		Mockito.when(resourceIdentifierRepository.findAll()).thenReturn(Flux.just(resourceIdentifier));
 		csvService.export("ResourceIdentifier", "export.csv");
-		
+
 		final List<List<String>> results = lines();
 		assertEquals(3, results.get(0).size());
 		assertEquals(3, results.get(1).size());
@@ -239,10 +244,46 @@ class CsvExportServiceTest {
 		IntStream.range(0, 3).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
 		assertEquals(ResourceType.XmlApi.name(), map.get("id"));
 		assertEquals(TestResourceIdentifier.URI, map.get("uri"));
-		
-		assertEquals(String.format("%s=%s,%s=%s", TestResourceIdentifier.HOST_KEY, TestResourceIdentifier.HOST_VALUE, TestResourceIdentifier.PORT_KEY, TestResourceIdentifier.PORT_VALUE), map.get("parameters"));;
-		
+
+		assertEquals(String.format("%s=%s,%s=%s", TestResourceIdentifier.HOST_KEY, TestResourceIdentifier.HOST_VALUE, TestResourceIdentifier.PORT_KEY, TestResourceIdentifier.PORT_VALUE), map.get("parameters"));
+		;
+
 	}
-	
+
+	@Test
+	void rulesDefinition() {
+		final RulesDefinition rulesDefinition = TestRulesDefinition.rulesDefinition();
+		Mockito.when(rulesDefinitionRepository.findAll()).thenReturn(Flux.just(rulesDefinition));
+
+		csvService.export("RulesDefinition", "export.csv");
+
+		final List<List<String>> results = lines();
+		assertEquals(2, results.size());
+
+		assertEquals(3, results.get(0).size());
+		assertEquals(3, results.get(1).size());
+
+		final Map<String, String> map = new HashMap<>();
+		IntStream.range(0, 3).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
+
+		CsvType.RulesDefinition.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
+
+		assertEquals(rulesDefinition.id().name(), map.get("id"));
+
+		final Map<String, String> inputData = new HashMap<>();
+		Arrays.asList(map.get("inputData").split("[,]")).stream().forEach(line -> {
+			String[] cols = line.split("[=]");
+			assertTrue(cols.length == 2);
+			inputData.put(cols[0], cols[1]);
+		});
+
+		assertEquals(3, inputData.size());
+		assertEquals(TestRulesDefinition.WORKINGDAY_ALARM_TIME, inputData.get(RulesDefinitionImpl.WORKINGDAY_ALARM_TIME_KEY));
+		assertEquals(TestRulesDefinition.HOLIDAY_ALARM_TIME, inputData.get(RulesDefinitionImpl.HOLIDAY_ALARM_TIME_KEY));
+		assertEquals(TestRulesDefinition.MIN_SUN_DOWN_TIME, inputData.get(RulesDefinitionImpl.MIN_SUN_DOWN_TIME_KEY));
+
+		assertEquals(TestRulesDefinition.TEMPERATURE_RULE, map.get("optionalRules"));
+
+	}
 
 }
