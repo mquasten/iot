@@ -42,6 +42,10 @@ import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
+import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.rule.support.RulesDefinitionImpl;
+import de.mq.iot.rule.support.RulesDefinitionRepository;
+import de.mq.iot.rule.support.TestRulesDefinition;
 import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.Synonym.Type;
 import de.mq.iot.synonym.SynonymService;
@@ -61,8 +65,10 @@ public class CsvImportServiceTest {
 	
 	private final AuthenticationRepository authenticationRepository = Mockito.mock(AuthenticationRepository.class);
 	
+	private final RulesDefinitionRepository rulesDefinitionRepository = Mockito.mock(RulesDefinitionRepository.class);
+	
 	private final ResourceIdentifierRepository resourceIdentifierRepository = Mockito.mock(ResourceIdentifierRepository.class);
-	private final CsvImportServiceImpl csvImportService = new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService,authenticationRepository, resourceIdentifierRepository, TIMEOUT);
+	private final CsvImportServiceImpl csvImportService = new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService,authenticationRepository, resourceIdentifierRepository, rulesDefinitionRepository,TIMEOUT);
 	
 	private final String firstKey = "HMW-LC-Bl1-DR OEQ2305342:3";
 	
@@ -248,7 +254,7 @@ public class CsvImportServiceTest {
 	
 	@Test
 	void newReaderException() {
-		CsvImportServiceImpl csvImportService=new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService, authenticationRepository, resourceIdentifierRepository, TIMEOUT);
+		CsvImportServiceImpl csvImportService=new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService, authenticationRepository, resourceIdentifierRepository, rulesDefinitionRepository, TIMEOUT);
 		assertThrows(IllegalStateException.class, () ->  csvImportService.importCsv(CsvType.User.name(), "don'tLetMeGetMe"));
 	}
 	
@@ -274,7 +280,7 @@ public class CsvImportServiceTest {
 	@Test()
 	void supplier() throws IOException {
 
-		final CsvImportServiceImpl service = new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService, authenticationRepository, resourceIdentifierRepository, TIMEOUT);
+		final CsvImportServiceImpl service = new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService, authenticationRepository, resourceIdentifierRepository,rulesDefinitionRepository, TIMEOUT);
 
 		@SuppressWarnings("unchecked")
 		final Function<String, BufferedReader> function = (Function<String, BufferedReader>) DataAccessUtils
@@ -305,6 +311,36 @@ public class CsvImportServiceTest {
 		} catch (Exception ex) {
 
 		}
+	}
+	
+	
+	@Test
+	void rulesDefinition() {
+		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("id;inputData;optionalRules\r\n" + 
+				String.format("DefaultDailyIotBatch;workingdayAlarmTime=%s,minSunDownTime=%s,holidayAlarmTime=%s;temperatureRule\r\n", TestRulesDefinition.WORKINGDAY_ALARM_TIME, TestRulesDefinition.MIN_SUN_DOWN_TIME, TestRulesDefinition.HOLIDAY_ALARM_TIME)));
+		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
+		@SuppressWarnings("unchecked")
+		final Mono<RulesDefinition> mono = Mockito.mock(Mono.class);
+		Mockito.when(rulesDefinitionRepository.save(Mockito.any())).thenReturn(mono);
+		
+		csvImportService.importCsv(CsvType.RulesDefinition.name(), "egal");
+		
+		final ArgumentCaptor<RulesDefinition> rulesDefinitionCaptor = ArgumentCaptor.forClass(RulesDefinition.class);
+		Mockito.verify(mono).block(Duration.ofMillis(TIMEOUT));
+		Mockito.verify(rulesDefinitionRepository, Mockito.times(1)).save(rulesDefinitionCaptor.capture());
+	
+		assertEquals(RulesDefinition.Id.DefaultDailyIotBatch, rulesDefinitionCaptor.getValue().id());
+		
+		final Map<?,?> inputData = rulesDefinitionCaptor.getValue().inputData();
+		assertEquals(3, inputData.size());
+		assertEquals(TestRulesDefinition.HOLIDAY_ALARM_TIME, inputData.get(RulesDefinitionImpl.HOLIDAY_ALARM_TIME_KEY));
+		assertEquals(TestRulesDefinition.WORKINGDAY_ALARM_TIME, inputData.get(RulesDefinitionImpl.WORKINGDAY_ALARM_TIME_KEY));
+		assertEquals(TestRulesDefinition.MIN_SUN_DOWN_TIME, inputData.get(RulesDefinitionImpl.MIN_SUN_DOWN_TIME_KEY));
+		
+		assertEquals(1, rulesDefinitionCaptor.getValue().optionalRules().size());
+		assertEquals(TestRulesDefinition.TEMPERATURE_RULE, rulesDefinitionCaptor.getValue().optionalRules().stream().findAny().get());
+		
+		
 	}
 
 }

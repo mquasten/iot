@@ -33,7 +33,8 @@ import de.mq.iot.support.ApplicationConfiguration;
 @Main(name = "updateAll", parameters = { }), 
 @Main(name = "updateIP", parameters = { }) ,
 @Main(name = "updateResources", parameters = { }), 
-@Main(name = "export", parameters = { @MainParameter(name = "c", desc = "Class that should be exported"),  @MainParameter(name = "f", desc = "Filename (default: export.csv)", defaultValue="export.csv")}) 
+@Main(name = "export", parameters = { @MainParameter(name = "c", desc = "Class that should be exported"),  @MainParameter(name = "f", desc = "Filename (default: export.csv)", defaultValue="export.csv")}) ,
+@Main(name = "import", parameters = { @MainParameter(name = "c", desc = "Class that should be improrted"),  @MainParameter(name = "f", desc = "Filename (default: import.csv)", defaultValue="import.csv")}) 
 })
 public class MainRunner {
 	private final Class<MainRunner> mainDefinitionClass = MainRunner.class;

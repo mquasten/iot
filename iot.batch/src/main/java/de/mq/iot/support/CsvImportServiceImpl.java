@@ -26,6 +26,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -36,11 +37,14 @@ import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
+import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.rule.support.RulesDefinitionRepository;
 import de.mq.iot.state.Command;
 import de.mq.iot.state.Commands;
 import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.SynonymService;
 
+@Service
 public class CsvImportServiceImpl {
 	
 	private final Function<String, BufferedReader> supplier = name -> newReader(Paths.get(name));
@@ -50,7 +54,7 @@ public class CsvImportServiceImpl {
 	
 	private final Map<CsvType,Consumer<Object>> consumers = new HashMap<>();
 	
-	CsvImportServiceImpl(final ConversionService conversionService, final SynonymService synonymService,final SpecialdayService specialdayService, final AuthenticationRepository authenticationRepository, final ResourceIdentifierRepository resourceIdentifierRepository, @Value("${mongo.timeout:500}") final Integer timeout) {
+	CsvImportServiceImpl(final ConversionService conversionService, final SynonymService synonymService,final SpecialdayService specialdayService, final AuthenticationRepository authenticationRepository, final ResourceIdentifierRepository resourceIdentifierRepository, final RulesDefinitionRepository rulesDefinitionRepository, @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.conversionService = conversionService;
 		consumers.put(CsvType.Synonym, synonym -> synonymService.save((Synonym) synonym));
 		
@@ -60,6 +64,7 @@ public class CsvImportServiceImpl {
 		
 		consumers.put(CsvType.ResourceIdentifier, resourceIdentifier -> resourceIdentifierRepository.save((ResourceIdentifier) resourceIdentifier).block(Duration.ofMillis(timeout)) );
 		
+		consumers.put(CsvType.RulesDefinition, rulesDefinition -> rulesDefinitionRepository.save((RulesDefinition)rulesDefinition).block(Duration.ofMillis(timeout)));
 		
 	}
 
@@ -70,7 +75,7 @@ public class CsvImportServiceImpl {
 			throw new IllegalStateException(ex);
 		}
 	}
-	
+
 	@Commands(commands = { @Command(name = "import", arguments = { "c", "f" }) })
 	public void importCsv(final String typeName, final String fileName)  {
 

@@ -284,6 +284,8 @@ class CsvExportServiceTest {
 
 		assertEquals(TestRulesDefinition.TEMPERATURE_RULE, map.get("optionalRules"));
 
+		
+		
 	}
 
 }

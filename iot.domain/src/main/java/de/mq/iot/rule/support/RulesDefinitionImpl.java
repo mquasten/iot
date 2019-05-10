@@ -20,7 +20,11 @@ public class RulesDefinitionImpl implements RulesDefinition {
 		this.id = id;
 	}
 
-
+	@SuppressWarnings("unused")
+	private RulesDefinitionImpl() {
+		
+		this.id =null;
+	}
 
 
 	@org.springframework.data.annotation.Id
