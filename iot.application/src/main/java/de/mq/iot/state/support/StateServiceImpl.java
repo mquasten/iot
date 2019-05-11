@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
@@ -32,6 +32,8 @@ class StateServiceImpl implements StateService {
 	private final StateRepository stateRepository;
 	private final Map<String, StateConverter<State<?>>> stateConverters = new HashMap<>();
 	private final ConversionService conversionService;
+	
+	static final String HOST_PARAMETER_NAME = "host";
 	
 	@SuppressWarnings("unchecked")
 	@Autowired
@@ -139,6 +141,45 @@ class StateServiceImpl implements StateService {
 	public final Collection<DeviceType> deviceTypes() {
 		return Arrays.asList(DeviceType.Level, DeviceType.State );
 	}
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.state.StateService#pingAndUpdateIp(java.lang.String)
+	 */
+	@Override
+	public boolean pingAndUpdateIp(final String ip ) {
+		Assert.hasText(ip, "Ip is required.");
+		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
+		final String existingIp =Optional.ofNullable(resourceIdentifier.parameters().get(HOST_PARAMETER_NAME)).orElse("");
+		final Map<String,String> parameter = new HashMap<>(resourceIdentifier.parameters());
+		parameter.put(HOST_PARAMETER_NAME, ip.trim());
+		resourceIdentifier.assign(parameter);
+		if( ! tryGuessHomematicIp(resourceIdentifier)){
+			return false;
+		}
+		
+		if(existingIp.trim().equals(ip.trim())) {
+			return true;
+		}
+		
+		resourceIdentifierRepository.save(resourceIdentifier).block(timeout);
+		
+		return true;
+		
+	}
 	
 
+	
+	
+
+	private boolean tryGuessHomematicIp(final ResourceIdentifier result) {
+		try {
+		
+		
+			return stateRepository.findVersion(result) > 1d;
+		
+		} catch (final Exception ex) {
+			ex.printStackTrace();
+			return false;
+		}
+	}
 }

@@ -59,4 +59,11 @@ public interface StateService {
 	 */
 	Collection<DeviceType> deviceTypes();
 
+	/**
+	 * Chech if XmpApi is running under the given ip an update it, if the ping is successful
+	 * @param ip the ip of the XmlApi
+	 * @return true if ping is successful otherwise false
+	 */
+	boolean pingAndUpdateIp(String ip);
+
 }
