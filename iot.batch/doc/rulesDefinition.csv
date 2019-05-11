@@ -1,2 +1,3 @@
 id;inputData;optionalRules
 DefaultDailyIotBatch;workingdayAlarmTime=5:15,holidayAlarmTime=7:15,minSunDownTime=17:15;temperatureRule
+EndOfDayBatch;daysBack=10,maxIpCount=99;ceanupRule
