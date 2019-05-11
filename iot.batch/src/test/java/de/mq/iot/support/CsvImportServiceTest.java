@@ -12,12 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,7 +21,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Year;
 import java.util.Arrays;
-
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -349,12 +342,4 @@ public class CsvImportServiceTest {
 		
 		
 	}
-	@Test
-	void test() throws UnknownHostException, SocketException {
-		try(final DatagramSocket socket = new DatagramSocket()){
-			  socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-			  System.out.println(socket.getLocalAddress().getHostAddress());
-			}
-	}
-
 }

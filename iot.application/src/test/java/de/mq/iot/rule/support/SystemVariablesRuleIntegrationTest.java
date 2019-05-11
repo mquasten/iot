@@ -25,6 +25,7 @@ class SystemVariablesRuleIntegrationTest {
 	private  RulesService ruleService;
 	
 	@Test
+	@Disabled
 	final void createRulesEngine() {
 		
 		final RulesAggregate rulesAggregate = ruleService.rulesAggregate(Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY,"false"),new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY,"false")));
@@ -46,6 +47,15 @@ class SystemVariablesRuleIntegrationTest {
 		
 		result.states().forEach(state -> System.out.println(state.name()+":" +state.value()));
 		
+	}
+	
+	@Test
+	@Disabled
+	final void endOfDay() {
+		final RulesAggregate rulesAggregate = ruleService.rulesAggregate(Id.EndOfDayBatch, Arrays.asList());
+	
+	    System.out.println(rulesAggregate);
+	    rulesAggregate.fire();
 	}
 
 }

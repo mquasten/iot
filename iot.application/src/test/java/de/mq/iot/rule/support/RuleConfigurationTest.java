@@ -52,9 +52,11 @@ class RuleConfigurationTest {
 		final MeteorologicalDataService meteorologicalDataService= Mockito.mock(MeteorologicalDataService.class);
 		final SunDownCalculationService sunDownCalculationService =  Mockito.mock(SunDownCalculationService.class);
 		
+		
+		
 		final Collection<RulesAggregate> aggregates = ruleConfiguration.rulesAggregates(conversionService, specialdayService,stateService,meteorologicalDataService, sunDownCalculationService);
-		assertEquals(1, aggregates.size());
-		final RulesAggregate rulesAggregate = aggregates.iterator().next();
+		assertEquals(2, aggregates.size());
+		final RulesAggregate rulesAggregate = new ArrayList<>(aggregates).get(0);
 		
 		assertEquals(RulesDefinition.Id.DefaultDailyIotBatch, rulesAggregate.id());
 		
@@ -79,7 +81,22 @@ class RuleConfigurationTest {
 		assertTrue(optionalRules.iterator().next() instanceof TemperatureRuleImpl);
 		
 
+		
+		final RulesAggregate endOfDay = new ArrayList<>(aggregates).get(1);
+		assertEquals(RulesDefinition.Id.EndOfDayBatch, endOfDay.id());
+		
+		final Rules rulesEndOfDay = (Rules) ReflectionTestUtils.getField(endOfDay, "rules");
+		final List<org.jeasy.rules.api.Rule> rulesListEndOdDay = new ArrayList<>();
+		rulesEndOfDay.forEach(rule -> rulesListEndOdDay.add(rule) );
+		
+		assertEquals(1, rulesListEndOdDay.size());
+		
+		final List<String> ruleNamesEndOfDay = rulesListEndOdDay.stream().map(rule -> rule.getName()).collect(Collectors.toList());
+		assertEquals(1, ruleNamesEndOfDay.size());
+		assertEquals(HomematicGateWayFinderRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNamesEndOfDay.get(0));
 	
+		
+		
 	}
 	@Test
 	void dateSupplier() {
