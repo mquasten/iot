@@ -26,24 +26,24 @@ import de.mq.iot.state.StateService;
 class StateServiceImpl implements StateService {
 
 	static final String MISSING_ROOM_NAME = "?";
-	
+
 	private final Duration timeout;
 	private final ResourceIdentifierRepository resourceIdentifierRepository;
 	private final StateRepository stateRepository;
 	private final Map<String, StateConverter<State<?>>> stateConverters = new HashMap<>();
 	private final ConversionService conversionService;
-	
+
 	static final String HOST_PARAMETER_NAME = "host";
-	
+
 	@SuppressWarnings("unchecked")
 	@Autowired
-	StateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository, final StateRepository stateRepository, final Collection<StateConverter<?>> stateConverters, final ConversionService conversionService,  @Value("${mongo.timeout:500}") final Integer timeout) {
+	StateServiceImpl(final ResourceIdentifierRepository resourceIdentifierRepository, final StateRepository stateRepository, final Collection<StateConverter<?>> stateConverters, final ConversionService conversionService, @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.resourceIdentifierRepository = resourceIdentifierRepository;
 		this.stateRepository = stateRepository;
-		this.conversionService=conversionService;
-	
+		this.conversionService = conversionService;
+
 		stateConverters.forEach(converter -> converter.keys().forEach(key -> this.stateConverters.put(key, (StateConverter<State<?>>) converter)));
-		
+
 		this.timeout = Duration.ofMillis(timeout);
 	}
 
@@ -66,7 +66,7 @@ class StateServiceImpl implements StateService {
 
 		Assert.isTrue(stateMap.containsKey(StateConverter.KEY_TYPE), "Type must be specified.");
 		final String type = stateMap.get(StateConverter.KEY_TYPE);
-		
+
 		Assert.isTrue(stateConverters.containsKey(type), "No Converter found vor type " + type + ".");
 		final StateConverter<?> converter = stateConverters.get(type);
 		return converter.convert(stateMap);
@@ -92,7 +92,7 @@ class StateServiceImpl implements StateService {
 	public Collection<Room> deviceStates(final Collection<DeviceType> types) {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
 
-		final Map<Long,String> channelIds = stateRepository.findChannelIds(resourceIdentifier).stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue, (first,second) -> first));
+		final Map<Long, String> channelIds = stateRepository.findChannelIds(resourceIdentifier).stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue, (first, second) -> first));
 
 		final Map<Long, String> rooms = stateRepository.findCannelsRooms(resourceIdentifier);
 
@@ -116,69 +116,65 @@ class StateServiceImpl implements StateService {
 		return results.values().stream().sorted((r1, r2) -> r1.name().compareToIgnoreCase(r2.name())).collect(Collectors.toList());
 
 	}
-	
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.state.StateService#update(java.util.Collection)
 	 */
 	@Override
 	public void update(final Collection<State<Object>> states) {
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
-		
-		final Collection<Entry<Long,String>> entries = states.stream().collect(Collectors.toMap(State::id, state-> conversionService.convert(state.value(), String.class))).entrySet();
-		stateRepository.changeState(resourceIdentifier,  entries);
-		
-		
-		
-		
+
+		final Collection<Entry<Long, String>> entries = states.stream().collect(Collectors.toMap(State::id, state -> conversionService.convert(state.value(), String.class))).entrySet();
+		stateRepository.changeState(resourceIdentifier, entries);
+
 	}
-	
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.state.StateService#deviceTypes()
 	 */
 	@Override
 	public final Collection<DeviceType> deviceTypes() {
-		return Arrays.asList(DeviceType.Level, DeviceType.State );
+		return Arrays.asList(DeviceType.Level, DeviceType.State);
 	}
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.state.StateService#pingAndUpdateIp(java.lang.String)
 	 */
 	@Override
-	public boolean pingAndUpdateIp(final String ip ) {
+	public boolean pingAndUpdateIp(final String ip) {
 		Assert.hasText(ip, "Ip is required.");
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
-		final String existingIp =Optional.ofNullable(resourceIdentifier.parameters().get(HOST_PARAMETER_NAME)).orElse("");
-		final Map<String,String> parameter = new HashMap<>(resourceIdentifier.parameters());
+
+		final String existingIp = Optional.ofNullable(resourceIdentifier.parameters().get(HOST_PARAMETER_NAME)).orElse("");
+		final Map<String, String> parameter = new HashMap<>(resourceIdentifier.parameters());
 		parameter.put(HOST_PARAMETER_NAME, ip.trim());
 		resourceIdentifier.assign(parameter);
-		if( ! tryGuessHomematicIp(resourceIdentifier)){
+		if (!tryGuessHomematicIp(resourceIdentifier)) {
 			return false;
 		}
-		
-		if(existingIp.trim().equals(ip.trim())) {
+
+		if (existingIp.trim().equals(ip.trim())) {
 			return true;
 		}
-		
+
 		resourceIdentifierRepository.save(resourceIdentifier).block(timeout);
-		
+
 		return true;
-		
+
 	}
-	
 
-	
-	
-
-	private boolean tryGuessHomematicIp(final ResourceIdentifier result) {
+	private boolean tryGuessHomematicIp(final ResourceIdentifier resourceIdentifier) {
 		try {
-		
-		
-			return stateRepository.findVersion(result) > 1d;
-		
+
+			return stateRepository.findVersion(resourceIdentifier) > 1d;
+
 		} catch (final Exception ex) {
-			ex.printStackTrace();
 			return false;
 		}
 	}
