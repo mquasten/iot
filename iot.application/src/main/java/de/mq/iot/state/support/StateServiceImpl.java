@@ -172,7 +172,7 @@ class StateServiceImpl implements StateService {
 	private boolean tryGuessHomematicIp(final ResourceIdentifier resourceIdentifier) {
 		try {
 
-			return stateRepository.findVersion(resourceIdentifier) > 1d;
+			return stateRepository.findVersion(resourceIdentifier) >= 1d;
 
 		} catch (final Exception ex) {
 			return false;
