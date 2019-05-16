@@ -8,6 +8,6 @@ import de.mq.iot.rule.RulesDefinition;
 @FunctionalInterface
 public interface RulesService {
 
-	RulesAggregate rulesAggregate(final RulesDefinition.Id id,final Collection<Entry<String,String>> parameters);
+	RulesAggregate<?> rulesAggregate(final RulesDefinition.Id id,final Collection<Entry<String,String>> parameters);
 
 }

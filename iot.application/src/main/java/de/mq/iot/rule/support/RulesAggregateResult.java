@@ -3,11 +3,11 @@ package de.mq.iot.rule.support;
 
 import java.util.Collection;
 import java.util.Map.Entry;
-import de.mq.iot.state.State;
 
-public interface RulesAggregateResult {
+
+public interface RulesAggregateResult<T> {
 	
-	Collection<State<?>> states();
+	Collection<T> states();
 	
 	Collection<String> processedRules();
 	

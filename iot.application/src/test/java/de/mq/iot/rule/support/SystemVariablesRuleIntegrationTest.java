@@ -14,6 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.rule.RulesDefinition.Id;
+import de.mq.iot.state.State;
 import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
@@ -28,11 +29,12 @@ class SystemVariablesRuleIntegrationTest {
 	@Disabled
 	final void createRulesEngine() {
 		
-		final RulesAggregate rulesAggregate = ruleService.rulesAggregate(Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY,"false"),new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY,"false")));
+		@SuppressWarnings("unchecked")
+		final RulesAggregate<State<?>> rulesAggregate = (RulesAggregate<State<?>>) ruleService.rulesAggregate(Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY,"false"),new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY,"false")));
 		
 		assertNotNull(rulesAggregate);
 		
-		RulesAggregateResult result = rulesAggregate.fire();
+		RulesAggregateResult<State<?>> result = rulesAggregate.fire();
 		
 		
 		System.out.println("Errors: " +result.hasErrors());
@@ -52,7 +54,7 @@ class SystemVariablesRuleIntegrationTest {
 	@Test
 	@Disabled
 	final void endOfDay() {
-		final RulesAggregate rulesAggregate = ruleService.rulesAggregate(Id.EndOfDayBatch, Arrays.asList());
+		final RulesAggregate<?> rulesAggregate = ruleService.rulesAggregate(Id.EndOfDayBatch, Arrays.asList());
 	
 	    System.out.println(rulesAggregate);
 	    rulesAggregate.fire();

@@ -32,7 +32,7 @@ abstract class RulesServiceImpl implements RulesService {
 	 * @see de.mq.iot.rule.support.RulesService#rulesAggregate(de.mq.iot.rule.RulesDefinition.Id)
 	 */
 	@Override
-	public final RulesAggregate rulesAggregate (final RulesDefinition.Id id, final Collection<Entry<String,String>>parameters) {
+	public final RulesAggregate<?> rulesAggregate (final RulesDefinition.Id id, final Collection<Entry<String,String>>parameters) {
 		final RulesDefinition rulesDefinition = rulesDefinitionRepository.findById(id).block(timeout);
 		Assert.notNull(rulesDefinition, String.format("Ruledefinition not found in Database %s", id));
 		parameters.forEach(parameter -> {
@@ -40,7 +40,7 @@ abstract class RulesServiceImpl implements RulesService {
 			rulesDefinition.assign(parameter.getKey(), parameter.getValue());
 			
 		});
-		final RulesAggregate result = DataAccessUtils.requiredSingleResult(rulesAggregates().stream().filter(rd -> rd.id() == rulesDefinition.id()).collect(Collectors.toList()));
+		final RulesAggregate<?> result = DataAccessUtils.requiredSingleResult(rulesAggregates().stream().filter(rd -> rd.id() == rulesDefinition.id()).collect(Collectors.toList()));
 		result.with(rulesDefinition);
 		
 		return result;
@@ -50,6 +50,6 @@ abstract class RulesServiceImpl implements RulesService {
 	
 	
 	@Lookup("rulesAggregates")
-	abstract Collection<RulesAggregate> rulesAggregates();
+	abstract Collection<RulesAggregate<?>> rulesAggregates();
 
 }

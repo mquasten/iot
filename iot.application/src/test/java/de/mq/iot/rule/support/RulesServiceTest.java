@@ -16,9 +16,9 @@ import reactor.core.publisher.Mono;
 public class RulesServiceTest {
 	
 	private final RulesServiceImpl rulesService = Mockito.mock(RulesServiceImpl.class, Mockito.CALLS_REAL_METHODS); 
-	private final RulesAggregate defaultDailyIotBatchRulesAggregate = Mockito.mock(RulesAggregate.class);
+	private final RulesAggregate<?> defaultDailyIotBatchRulesAggregate = Mockito.mock(RulesAggregate.class);
 	
-	private final RulesAggregate endOfDayBatchRulesAggregate = Mockito.mock(RulesAggregate.class);
+	private final RulesAggregate<?> endOfDayBatchRulesAggregate = Mockito.mock(RulesAggregate.class);
 	private final  RulesDefinitionRepository rulesDefinitionRepository = Mockito.mock(RulesDefinitionRepository.class);
 	
 	private RulesDefinition rulesDefinition = Mockito.mock(RulesDefinition.class);
@@ -39,7 +39,7 @@ public class RulesServiceTest {
 	@Test
 	void rulesAggregate() {
 		
-		final RulesAggregate result 	= rulesService.rulesAggregate(RulesDefinition.Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString())));
+		final RulesAggregate<?> result 	= rulesService.rulesAggregate(RulesDefinition.Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString())));
 		
 		assertEquals(defaultDailyIotBatchRulesAggregate, result);
 		

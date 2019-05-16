@@ -54,9 +54,9 @@ class RuleConfigurationTest {
 		
 		
 		
-		final Collection<RulesAggregate> aggregates = ruleConfiguration.rulesAggregates(conversionService, specialdayService,stateService,meteorologicalDataService, sunDownCalculationService);
+		final Collection<RulesAggregate<?>> aggregates = ruleConfiguration.rulesAggregates(conversionService, specialdayService,stateService,meteorologicalDataService, sunDownCalculationService);
 		assertEquals(2, aggregates.size());
-		final RulesAggregate rulesAggregate = new ArrayList<>(aggregates).get(0);
+		final RulesAggregate<?> rulesAggregate = new ArrayList<>(aggregates).get(0);
 		
 		assertEquals(RulesDefinition.Id.DefaultDailyIotBatch, rulesAggregate.id());
 		
@@ -82,7 +82,7 @@ class RuleConfigurationTest {
 		
 
 		
-		final RulesAggregate endOfDay = new ArrayList<>(aggregates).get(1);
+		final RulesAggregate<?> endOfDay = new ArrayList<>(aggregates).get(1);
 		assertEquals(RulesDefinition.Id.EndOfDayBatch, endOfDay.id());
 		
 		final Rules rulesEndOfDay = (Rules) ReflectionTestUtils.getField(endOfDay, "rules");
@@ -93,7 +93,7 @@ class RuleConfigurationTest {
 		
 		final List<String> ruleNamesEndOfDay = rulesListEndOdDay.stream().map(rule -> rule.getName()).collect(Collectors.toList());
 		assertEquals(1, ruleNamesEndOfDay.size());
-		assertEquals(HomematicGateWayFinderRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNamesEndOfDay.get(0));
+		assertEquals(HomematicGatewayFinderRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNamesEndOfDay.get(0));
 	
 		
 		

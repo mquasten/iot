@@ -41,21 +41,21 @@ class RuleConfiguration {
 	
 	@Bean()
 	@Scope(value = "prototype")
-	Collection<RulesAggregate> rulesAggregates(final ConversionService conversionService,final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService, final SunDownCalculationService sunDownCalculationService) {
-		return Arrays.asList(rulesAggregate(conversionService,specialdayService, stateService, meteorologicalDataService, sunDownCalculationService), rulesAggregateEndOfDay(conversionService));
+	Collection<RulesAggregate<?>> rulesAggregates(final ConversionService conversionService,final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService, final SunDownCalculationService sunDownCalculationService) {
+		return Arrays.asList(rulesAggregate(conversionService,specialdayService, stateService, meteorologicalDataService, sunDownCalculationService), rulesAggregateEndOfDay(stateService,conversionService));
 	}
 	
 	
 	
-	RulesAggregate rulesAggregate(final ConversionService conversionService, final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService, final SunDownCalculationService sunDownCalculationService) {
+	RulesAggregate<?> rulesAggregate(final ConversionService conversionService, final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService, final SunDownCalculationService sunDownCalculationService) {
 		
 		
 		
-		return new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, factsConsumer(),  new Rules(new InputDataMappingRuleImpl(conversionService) , new CalendarRuleImpl(specialdayService, dateSupplier() ), new TimerEventsRule(sunDownCalculationService), new SystemVariablesRuleImpl(stateService), new SystemVariablesUploadRuleImpl(stateService)), new TemperatureRuleImpl(meteorologicalDataService));
+		return new SimpleRulesAggregateImpl<>(RulesDefinition.Id.DefaultDailyIotBatch, factsConsumer(),  new Rules(new InputDataMappingRuleImpl(conversionService) , new CalendarRuleImpl(specialdayService, dateSupplier() ), new TimerEventsRule(sunDownCalculationService), new SystemVariablesRuleImpl(stateService), new SystemVariablesUploadRuleImpl(stateService)), new TemperatureRuleImpl(meteorologicalDataService));
 	}
 	
-	RulesAggregate rulesAggregateEndOfDay(final ConversionService conversionService) {
-		return new SimpleRulesAggregateImpl(RulesDefinition.Id.EndOfDayBatch, factsConsumerEndOfDay(),  new Rules( new HomematicGateWayFinderRuleImpl(conversionService)));
+	RulesAggregate<?> rulesAggregateEndOfDay(final StateService stateService, final ConversionService conversionService) {
+		return new SimpleRulesAggregateImpl<>(RulesDefinition.Id.EndOfDayBatch, factsConsumerEndOfDay(),  new Rules( new HomematicGatewayFinderRuleImpl(stateService, conversionService)));
 	}
 	
 	
@@ -71,7 +71,7 @@ class RuleConfiguration {
 	
 	final Consumer<Facts> factsConsumerEndOfDay() {
 		return facts -> {
-			facts.put(RulesAggregate.RULE_OUTPUT_MAP_FACT, new ArrayList<State<?>>());	
+			facts.put(RulesAggregate.RULE_OUTPUT_MAP_FACT, new ArrayList<String>());	
 		};
 		
 	}

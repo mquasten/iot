@@ -17,11 +17,11 @@ import org.springframework.util.Assert;
 
 import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.rule.RulesDefinition.Id;
-import de.mq.iot.state.State;
+;
 
 
 
-class SimpleRulesAggregateImpl  implements RulesAggregate {
+class SimpleRulesAggregateImpl<T>  implements RulesAggregate<T> {
 	
 	static final String RULE_INPUT_MAP_FACT = "ruleInputMap";
 	
@@ -55,7 +55,7 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 	}
 
 	@Override
-	public final RulesAggregate with(final RulesDefinition rulesDefinition) {
+	public final RulesAggregate<T> with(final RulesDefinition rulesDefinition) {
 		
 		validRulesDefinitionGuard(rulesDefinition);
 		
@@ -84,7 +84,7 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 	
 
 	@Override
-	public final RulesAggregateResult fire() {
+	public final RulesAggregateResult<T> fire() {
 		
 		
 		inputDataAwareGuard();
@@ -97,10 +97,10 @@ class SimpleRulesAggregateImpl  implements RulesAggregate {
 		
 		
 		rulesEngine.fire(rules, facts);
-		return new RulesAggregateResult() {
+		return new RulesAggregateResult<T>() {
 
 			@Override
-			public Collection<State<?>> states() {
+			public Collection<T> states() {
 				return facts.get(RulesAggregate.RULE_OUTPUT_MAP_FACT);
 			}
 

@@ -3,7 +3,7 @@ package de.mq.iot.rule.support;
 import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.rule.RulesDefinition.Id;
 
-public interface RulesAggregate {
+public interface RulesAggregate<T> {
 	static final String RULE_INPUT_MAP_FACT = "ruleInputMap";
 	
 	static final String RULE_OUTPUT_MAP_FACT = "ruleOutputMap";
@@ -14,8 +14,8 @@ public interface RulesAggregate {
 	Id id();
 	
 	
-	RulesAggregate with(final RulesDefinition rulesDefinition);
-	RulesAggregateResult fire();
+	RulesAggregate<T> with(final RulesDefinition rulesDefinition);
+	RulesAggregateResult<T> fire();
 
 	
 }

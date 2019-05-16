@@ -3,6 +3,7 @@ package de.mq.iot.rule.support;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jeasy.rules.annotation.Action;
 import org.jeasy.rules.annotation.Condition;
@@ -11,8 +12,11 @@ import org.jeasy.rules.annotation.Rule;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.util.StringUtils;
 
+import de.mq.iot.state.StateService;
+
+
 @Rule(name = "homematicGateWayFinderRule", priority = 0)
-public class HomematicGateWayFinderRuleImpl {
+public class HomematicGatewayFinderRuleImpl {
 
 	private static final int DEFAULT_NUM_IPS = 10;
 	private static final String MAX_IP_COUNT = "maxIpCount";
@@ -20,9 +24,11 @@ public class HomematicGateWayFinderRuleImpl {
 	static final String HOST_PARAMETER_NAME = "host";
 	private final ConversionService conversionService;
 
+	private final int firstIp=100;
 	
-	HomematicGateWayFinderRuleImpl(ConversionService conversionService) {
-
+	private final StateService stateService;
+	HomematicGatewayFinderRuleImpl(final StateService stateService, final ConversionService conversionService) {
+		this.stateService=stateService;
 		this.conversionService = conversionService;
 		
 	}
@@ -38,12 +44,13 @@ public class HomematicGateWayFinderRuleImpl {
 
 		final int maxIps = maxIps(ruleInputMap.get(MAX_IP_COUNT));
 		System.out.println(maxIps);
-		System.out.println(router());
+		
 	
 		
-		
-		
-		System.out.println("!!!!!!!!!!!!!!!!");
+		final Optional<String> ip = findHomematic( router(), firstIp,  maxIps);
+		if( ip.isPresent()) {
+			System.out.println("Homematic XmpApi: " +ip.get() );
+		}
 	   
 	}
 
@@ -75,6 +82,28 @@ public class HomematicGateWayFinderRuleImpl {
 
 	}
 	
+	
+	
+private Optional<String> findHomematic(final String router, final int firstIp, final int maxIps) {
+		
+		//final ResourceIdentifier result = new ResourceIdentifierImpl(resourceIdentifier.id(), resourceIdentifier.uri());
+		//result.assign(resourceIdentifier.parameters());
+		
+	
+	
+	for(int i=firstIp;i <maxIps+firstIp; i++) {
+			final String ip = router + "." + i;
+			if( stateService.pingAndUpdateIp(ip) ) {
+				return Optional.of(ip);
+			}
+			
+			
+		
+			
+		}
+		return Optional.empty();
+				
+	}
 
 
 }

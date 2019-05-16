@@ -35,7 +35,7 @@ class SimpleRulesAggregateTest {
 	private final Rule notUsedOptionalRule = Mockito.mock(Rule.class);
 	
 	private final Rules rules = new Rules(mandatoryRule);
-	private final RulesAggregate rulesAggregate = new SimpleRulesAggregateImpl(RulesDefinition.Id.DefaultDailyIotBatch, new RuleConfiguration().factsConsumer(),  rules, usedOptionalRule, notUsedOptionalRule);
+	private final RulesAggregate<State<?>> rulesAggregate = new SimpleRulesAggregateImpl<>(RulesDefinition.Id.DefaultDailyIotBatch, new RuleConfiguration().factsConsumer(),  rules, usedOptionalRule, notUsedOptionalRule);
 
     
 	private final RulesDefinition rulesDefinition = Mockito.mock(RulesDefinition.class);
@@ -91,7 +91,7 @@ class SimpleRulesAggregateTest {
 	@Test
 	void fire() throws Exception {
 		rulesAggregate.with(rulesDefinition);
-		final RulesAggregateResult result = rulesAggregate.fire();
+		final RulesAggregateResult<?> result = rulesAggregate.fire();
 		
 		assertFalse(result.hasErrors());
 		assertEquals(1, result.states().size());
@@ -124,7 +124,7 @@ class SimpleRulesAggregateTest {
 		final IllegalStateException exception = new IllegalStateException();
 		Mockito.doThrow(exception).when(mandatoryRule).execute(Mockito.any());
 		
-		final RulesAggregateResult result = rulesAggregate.fire();
+		final RulesAggregateResult<State<?>> result = rulesAggregate.fire();
 		
 		assertTrue(result.hasErrors());
 		assertEquals(0, result.states().size());
@@ -146,7 +146,7 @@ class SimpleRulesAggregateTest {
 		final IllegalStateException exception = new IllegalStateException();
 		Mockito.doThrow(exception).when(usedOptionalRule).execute(Mockito.any());
 		
-		final RulesAggregateResult result = rulesAggregate.fire();
+		final RulesAggregateResult<State<?>> result = rulesAggregate.fire();
 		
 		assertFalse(result.hasErrors());
 		assertEquals(1, result.states().size());
