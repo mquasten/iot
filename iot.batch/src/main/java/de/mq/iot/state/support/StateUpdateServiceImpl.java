@@ -74,13 +74,13 @@ public class StateUpdateServiceImpl implements StateUpdateService {
 	public void processRules(final String name, final boolean update, final boolean test) {
 		final Id id = Id.valueOf(name);
 		
-		final RulesAggregate rulesAggregate = rulesService.rulesAggregate(id, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, String.valueOf(update)), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, String.valueOf(test))));
+		final RulesAggregate<?> rulesAggregate = rulesService.rulesAggregate(id, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, String.valueOf(update)), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, String.valueOf(test))));
 	
 		System.out.println("Name: " +id.name());
 		
 		System.out.println("UpdateMode: "  + update);
 		System.out.println("TestMode: "  + test);
-		RulesAggregateResult result = rulesAggregate.fire();
+		RulesAggregateResult<?> result = rulesAggregate.fire();
 		
 		
 		System.out.println("Errors: " +result.hasErrors());
@@ -93,7 +93,8 @@ public class StateUpdateServiceImpl implements StateUpdateService {
 		exception.getValue().printStackTrace();
 		});
 		
-		result.states().forEach(state -> System.out.println(state.name() +": " + state.value()));
+		System.out.println("Ergebnisse:");
+		result.states().forEach(state -> System.out.println(state));
 		
 	}
 

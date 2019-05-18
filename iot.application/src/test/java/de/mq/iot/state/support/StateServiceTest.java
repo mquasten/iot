@@ -285,7 +285,7 @@ class StateServiceTest {
 		
 		final Mono<ResourceIdentifier> mono = prepareFindVersion( "192.168.2.101", VERSION);
 
-		assertTrue(stateService.pingAndUpdateIp(IP));
+		assertTrue(stateService.pingAndUpdateIp(IP,false));
 
 		Mockito.verify(mono).block(Duration.ofMillis(TIMEOUT));
 
@@ -299,12 +299,32 @@ class StateServiceTest {
 		Mockito.verify(resourceIdentifierRepository,Mockito.times(1)).save(Mockito.any(ResourceIdentifier.class));
 	}
 	
+	
+	@Test
+	void pingAndUpdateIpTestOnly() {
+		
+		final Mono<ResourceIdentifier> mono = prepareFindVersion( "192.168.2.101", VERSION);
+
+		assertTrue(stateService.pingAndUpdateIp(IP,true));
+
+		Mockito.verify(mono,Mockito.never()).block(Duration.ofMillis(TIMEOUT));
+
+		
+		@SuppressWarnings("unchecked")
+		final ArgumentCaptor<Map<String, String>> parameterCaptor = ArgumentCaptor.forClass(Map.class);
+
+		Mockito.verify(resourceIdentifier).assign(parameterCaptor.capture());
+		assertEquals(IP, parameterCaptor.getValue().get(StateServiceImpl.HOST_PARAMETER_NAME));
+		
+		Mockito.verify(resourceIdentifierRepository,Mockito.never()).save(Mockito.any(ResourceIdentifier.class));
+	}
+	
 	@Test
 	void pingAndUpdateIpWrongVersion() {
 		
 		final Mono<ResourceIdentifier> mono = prepareFindVersion( "192.168.2.101", 0.5);
 
-		assertFalse(stateService.pingAndUpdateIp(IP));
+		assertFalse(stateService.pingAndUpdateIp(IP,false));
 
 		Mockito.verify(mono,Mockito.never()).block(Duration.ofMillis(TIMEOUT));
 
@@ -337,7 +357,7 @@ class StateServiceTest {
 		
 		final Mono<ResourceIdentifier> mono = prepareFindVersion( IP, VERSION);
 
-		assertTrue(stateService.pingAndUpdateIp(IP));
+		assertTrue(stateService.pingAndUpdateIp(IP,false));
 
 		Mockito.verify(mono, Mockito.never()).block(Duration.ofMillis(TIMEOUT));
 
@@ -360,7 +380,7 @@ class StateServiceTest {
 	void pingAndUpdateIpSameResourceNotFound() {
 		Mockito.doThrow(new IllegalStateException()).when(stateRepository).findVersion(Mockito.any(ResourceIdentifier.class));
 		
-		assertFalse(stateService.pingAndUpdateIp(IP));
+		assertFalse(stateService.pingAndUpdateIp(IP,false));
 		
 		Mockito.verify(resourceIdentifier).assign(Mockito.any());
 		

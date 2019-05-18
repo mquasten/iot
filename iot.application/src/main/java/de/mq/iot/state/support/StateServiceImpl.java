@@ -147,7 +147,7 @@ class StateServiceImpl implements StateService {
 	 * @see de.mq.iot.state.StateService#pingAndUpdateIp(java.lang.String)
 	 */
 	@Override
-	public boolean pingAndUpdateIp(final String ip) {
+	public boolean pingAndUpdateIp(final String ip, final boolean testOnly  ) {
 		Assert.hasText(ip, "Ip is required.");
 		final ResourceIdentifier resourceIdentifier = resourceIdentifier();
 
@@ -159,6 +159,10 @@ class StateServiceImpl implements StateService {
 			return false;
 		}
 
+		if( testOnly ) {
+			return true;
+		}
+		
 		if (existingIp.trim().equals(ip.trim())) {
 			return true;
 		}

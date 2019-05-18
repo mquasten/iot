@@ -39,7 +39,7 @@ public class InputDataMappingRuleImpl {
 	 @Condition
 	 public boolean evaluate(@Fact(RulesAggregate.RULE_INPUT_MAP_FACT) final Map<String,String> ruleInputMap) {
 		 final Map<?,?> map = new HashMap<>();
-		 final Errors errors = new MapBindingResult(map, "ruleInputData");
+		 final Errors errors = new MapBindingResult(map, RulesDefinition.UPDATE_MODE_KEY);
 		 
 		 final Validator timeValidator = new TimeValidatorImpl(conversionService, true);
 		 

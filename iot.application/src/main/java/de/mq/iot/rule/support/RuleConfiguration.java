@@ -25,6 +25,7 @@ import de.mq.iot.support.SunDownCalculationService;
 @Configuration
 class RuleConfiguration {
 	
+	private final static String DNS = "8.8.8.8";
 	
 	@Bean
 	ConversionService conversionService() {
@@ -55,7 +56,7 @@ class RuleConfiguration {
 	}
 	
 	RulesAggregate<?> rulesAggregateEndOfDay(final StateService stateService, final ConversionService conversionService) {
-		return new SimpleRulesAggregateImpl<>(RulesDefinition.Id.EndOfDayBatch, factsConsumerEndOfDay(),  new Rules( new HomematicGatewayFinderRuleImpl(stateService, conversionService)));
+		return new SimpleRulesAggregateImpl<>(RulesDefinition.Id.EndOfDayBatch, factsConsumerEndOfDay(),  new Rules( new HomematicGatewayFinderRuleImpl(stateService, conversionService,DNS)));
 	}
 	
 	

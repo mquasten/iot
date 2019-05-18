@@ -7,6 +7,10 @@ rem sleep 5
 
 rem java -jar iotBatch.jar updateIP   >>  iot.log 2>>&1
 
+
+java -jar iotBatch.jar processRules  -nEndOfDayBatch %* >> iot.log 2>>&1
+
+
 java -jar iotBatch.jar processRules  -nDefaultDailyIotBatch %* >> iot.log 2>>&1
 
 rem java -jar iotBatch.jar updateAll  >>  iot.log 2>>&1

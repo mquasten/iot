@@ -21,43 +21,53 @@ import de.mq.iot.support.ApplicationConfiguration;
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
 @Disabled
 class SystemVariablesRuleIntegrationTest {
-	
+
 	@Autowired
-	private  RulesService ruleService;
-	
+	private RulesService ruleService;
+
 	@Test
 	@Disabled
 	final void createRulesEngine() {
-		
+
 		@SuppressWarnings("unchecked")
-		final RulesAggregate<State<?>> rulesAggregate = (RulesAggregate<State<?>>) ruleService.rulesAggregate(Id.DefaultDailyIotBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY,"false"),new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY,"false")));
-		
+		final RulesAggregate<State<?>> rulesAggregate = (RulesAggregate<State<?>>) ruleService.rulesAggregate(Id.DefaultDailyIotBatch,
+				Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, "false"), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, "false")));
+
 		assertNotNull(rulesAggregate);
-		
+
 		RulesAggregateResult<State<?>> result = rulesAggregate.fire();
-		
-		
-		System.out.println("Errors: " +result.hasErrors());
-		
+
+		System.out.println("Errors: " + result.hasErrors());
+
 		System.out.println("Verarbeitete Regeln: " + result.processedRules());
-		
-		
-		result.exceptions().forEach(exception ->  {
-		System.out.println(exception.getKey() +":");
-		exception.getValue().printStackTrace();
+
+		result.exceptions().forEach(exception -> {
+			System.out.println(exception.getKey() + ":");
+			exception.getValue().printStackTrace();
 		});
-		
-		result.states().forEach(state -> System.out.println(state.name()+":" +state.value()));
-		
+
+		result.states().forEach(state -> System.out.println(state.name() + ":" + state.value()));
+
 	}
-	
+
 	@Test
 	@Disabled
 	final void endOfDay() {
 		final RulesAggregate<?> rulesAggregate = ruleService.rulesAggregate(Id.EndOfDayBatch, Arrays.asList());
-	
-	    System.out.println(rulesAggregate);
-	    rulesAggregate.fire();
+
+		@SuppressWarnings("unchecked")
+		final RulesAggregateResult<String> result = (RulesAggregateResult<String>) rulesAggregate.fire();
+
+		System.out.println("Errors: " + result.hasErrors());
+
+		System.out.println("Verarbeitete Regeln: " + result.processedRules());
+
+		result.exceptions().forEach(exception -> {
+			System.out.println(exception.getKey() + ":");
+			exception.getValue().printStackTrace();
+		});
+
+		result.states().forEach(message -> System.out.println(message));
 	}
 
 }

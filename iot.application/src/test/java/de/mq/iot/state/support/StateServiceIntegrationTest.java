@@ -42,7 +42,7 @@ class StateServiceIntegrationTest {
 	@Test
 	@Disabled
 	void ping() {
-		assertTrue(stateService.pingAndUpdateIp("192.168.2.104"));
+		assertTrue(stateService.pingAndUpdateIp("192.168.2.104",false));
 	}
 	
 

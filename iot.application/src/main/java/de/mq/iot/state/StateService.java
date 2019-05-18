@@ -60,10 +60,13 @@ public interface StateService {
 	Collection<DeviceType> deviceTypes();
 
 	/**
-	 * Chech if XmpApi is running under the given ip an update it, if the ping is successful
+	 * Check if XmpApi is running under the given ip an update it, if the ping is successful
 	 * @param ip the ip of the XmlApi
+	 * @param testOnly only test, if the ip is found, without updating it in database
 	 * @return true if ping is successful otherwise false
 	 */
-	boolean pingAndUpdateIp(String ip);
+	boolean pingAndUpdateIp(final String ip, final boolean testOnly);
+
+	
 
 }
