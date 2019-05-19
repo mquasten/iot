@@ -73,6 +73,12 @@ class BooleanStateTest {
 		assertTrue(state.hasValue(true));
 	}
 	
+	@Test
+	final void string() {
+		assertEquals(String.format(AbstractState.TO_STRING_FORMAT, NAME, false),state.toString());
+		state.assign(Boolean.TRUE);
+		assertEquals(String.format(AbstractState.TO_STRING_FORMAT, NAME, true),state.toString());
+	}
 	
 	
 }

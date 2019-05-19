@@ -14,6 +14,7 @@ import de.mq.iot.state.State;
 
 abstract   class AbstractState<T> implements State<T> {
 
+	static final String TO_STRING_FORMAT = "%s=%s";
 	private final long id; 
 	private final String name;
 	private final LocalDateTime lastupdate;
@@ -109,4 +110,29 @@ abstract   class AbstractState<T> implements State<T> {
 		}
 		return this.value().equals(value);
 	}
+
+
+	@Override
+	public T value() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void assign(T value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public String toString() {
+		
+		return String.format(TO_STRING_FORMAT, name, value());
+
+
+	}
+	
+	
 }

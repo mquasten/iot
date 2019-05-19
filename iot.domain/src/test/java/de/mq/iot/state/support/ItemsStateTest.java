@@ -129,5 +129,14 @@ class ItemsStateTest {
 	
 		
 	}
+	
+	@Test
+	final void string() {
+		setPermittedValues();
+		System.out.println(state.toString());
+		assertEquals(String.format(AbstractState.TO_STRING_FORMAT, NAME, 0),state.toString());
+		state.assign(VALUE);
+		assertEquals(String.format(AbstractState.TO_STRING_FORMAT, NAME, VALUE),state.toString());
+	}
 
 }

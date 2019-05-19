@@ -74,4 +74,11 @@ class StringStateTest {
 		assertTrue(state.hasValue(VALUE));
 	}
 
+	
+	@Test
+	final void string() {
+		assertEquals(String.format(AbstractState.TO_STRING_FORMAT, NAME,""),state.toString());
+		state.assign(VALUE);
+		assertEquals(String.format(AbstractState.TO_STRING_FORMAT, NAME, VALUE),state.toString());
+	}
 }

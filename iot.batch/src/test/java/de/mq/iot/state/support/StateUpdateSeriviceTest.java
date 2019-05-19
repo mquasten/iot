@@ -432,28 +432,30 @@ public class StateUpdateSeriviceTest {
 	}
 	
 	
-	@Test
+
+	
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	final void processRules() {
 		
-		@SuppressWarnings("unchecked")
 		final State<String> state = Mockito.mock(State.class);
 		Mockito.when(state.name()).thenReturn(StateUpdateServiceImpl.LAST_BATCHRUN_STATE_NAME);
 		Mockito.when(state.value()).thenReturn("22:30");
-		final RulesAggregate rulesAggregate = Mockito.mock(RulesAggregate.class);
-		final RulesAggregateResult rulesAggregateResult = Mockito.mock(RulesAggregateResult.class);
+	
+		final RulesAggregate<State<?>> rulesAggregate = Mockito.mock(RulesAggregate.class);
+		
+		final RulesAggregateResult<State<?>> rulesAggregateResult = Mockito.mock(RulesAggregateResult.class);
 		Mockito.when(rulesAggregateResult.exceptions()).thenReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(TemperatureRuleImpl.class.getAnnotation(Rule.class).name(), Mockito.mock(Exception.class))));
 		Mockito.when(rulesAggregateResult.states()).thenReturn(Arrays.asList(state));
 		ArgumentCaptor<RulesDefinition.Id> idCapture = ArgumentCaptor.forClass(RulesDefinition.Id.class);
 		Mockito.when(rulesAggregate.fire()).thenReturn(rulesAggregateResult);
-		@SuppressWarnings("unchecked")
+		
 		ArgumentCaptor<Collection<Entry<String,String>>> parametersCapture = ArgumentCaptor.forClass(Collection.class);
-		Mockito.when(rulesService.rulesAggregate(idCapture.capture(), parametersCapture.capture())).thenReturn(rulesAggregate);
+		Mockito.when(rulesService.rulesAggregate(idCapture.capture(), parametersCapture.capture())).thenReturn( ((RulesAggregate) rulesAggregate));
 		
 		stateUpdateService.processRules(RulesDefinition.Id.DefaultDailyIotBatch.name(), true, true);
 		
-		
 		Mockito.verify(rulesAggregate).fire();
-		
 		
 		assertEquals(RulesDefinition.Id.DefaultDailyIotBatch, idCapture.getValue());
 		

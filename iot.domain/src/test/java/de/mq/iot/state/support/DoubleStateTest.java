@@ -103,5 +103,12 @@ class DoubleStateTest {
 		
 	}
 	
+	@Test
+	final void string() {
+		assertEquals(String.format(AbstractState.TO_STRING_FORMAT, NAME, 0d),doubleState.toString());
+		doubleState.assign(VALUE);
+		assertEquals(String.format(AbstractState.TO_STRING_FORMAT, NAME, VALUE),doubleState.toString());
+	}
+	
 	
 }
