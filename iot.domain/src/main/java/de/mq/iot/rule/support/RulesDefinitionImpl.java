@@ -22,7 +22,6 @@ public class RulesDefinitionImpl implements RulesDefinition {
 
 	@SuppressWarnings("unused")
 	private RulesDefinitionImpl() {
-		
 		this.id =null;
 	}
 
