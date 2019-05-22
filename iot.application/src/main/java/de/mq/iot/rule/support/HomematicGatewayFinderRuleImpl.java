@@ -13,6 +13,7 @@ import org.jeasy.rules.annotation.Rule;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.util.StringUtils;
 
+import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.state.StateService;
 
 
@@ -24,7 +25,7 @@ public class HomematicGatewayFinderRuleImpl {
 	static final String SUCCESS_MESSAGE = "Homematic XmpApi found ip: %s";
 	private  String dns = "8.8.8.8";
 	private static final int DEFAULT_NUM_IPS = 10;
-	static final String MAX_IP_COUNT_KEY = "maxIpCount";
+	
 	
 	static final String HOST_PARAMETER_NAME = "host";
 	private final ConversionService conversionService;
@@ -49,7 +50,7 @@ public class HomematicGatewayFinderRuleImpl {
 		
 		final String router = router();
 		
-		results.add(result(router, findHomematic( router, firstIp,  maxIps(ruleInputMap.get(MAX_IP_COUNT_KEY)))));
+		results.add(result(router, findHomematic( router, firstIp,  maxIps(ruleInputMap.get(RulesDefinition.MAX_IP_COUNT_KEY)))));
 	   
 	}
 

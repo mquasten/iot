@@ -19,9 +19,14 @@ public interface RulesDefinition
 	
 	static final String MIN_SUN_DOWN_TIME_KEY=  "minSunDownTime";
 	
+	
+	static final String MAX_IP_COUNT_KEY = "maxIpCount";
+	
+	static final String DAYS_BACK = "daysBack";
+	
 	enum Id {
 		DefaultDailyIotBatch(Arrays.asList(WORKINGDAY_ALARM_TIME_KEY, HOLIDAY_ALARM_TIME_KEY,MIN_SUN_DOWN_TIME_KEY), Arrays.asList(UPDATE_MODE_KEY, TEST_MODE_KEY)),
-		EndOfDayBatch(Arrays.asList(WORKINGDAY_ALARM_TIME_KEY, HOLIDAY_ALARM_TIME_KEY), Arrays.asList(UPDATE_MODE_KEY, TEST_MODE_KEY));
+		EndOfDayBatch(Arrays.asList(MAX_IP_COUNT_KEY, DAYS_BACK), Arrays.asList(TEST_MODE_KEY));
 		
 		
 		private final Collection<String> input;

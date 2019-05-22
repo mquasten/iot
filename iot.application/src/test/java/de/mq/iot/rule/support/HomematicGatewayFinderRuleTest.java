@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
+import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.state.StateService;
 
 class HomematicGatewayFinderRuleTest {
@@ -37,7 +38,7 @@ class HomematicGatewayFinderRuleTest {
 	
 	@BeforeEach
 	void setup() {
-		ruleInputMap.put(HomematicGatewayFinderRuleImpl.MAX_IP_COUNT_KEY, "6");
+		ruleInputMap.put(RulesDefinition.MAX_IP_COUNT_KEY, "6");
 		Mockito.when(stateService.pingAndUpdateIp(HOMEMATIC_IP,false)).thenReturn(true);
 		
 		
@@ -62,7 +63,7 @@ class HomematicGatewayFinderRuleTest {
 	
 	@Test
 	void updateNotFound() {
-		ruleInputMap.put(HomematicGatewayFinderRuleImpl.MAX_IP_COUNT_KEY, "5");
+		ruleInputMap.put(RulesDefinition.MAX_IP_COUNT_KEY, "5");
 		rule.update(ruleInputMap, results);
 		
 		IntStream.range(100, 105).forEach(i -> Mockito.verify(stateService).pingAndUpdateIp(ROUTER_PREFIX +i,false));
@@ -96,7 +97,7 @@ class HomematicGatewayFinderRuleTest {
 
 	@Test
 	void updateMaxIpsToLess() {
-		ruleInputMap.put(HomematicGatewayFinderRuleImpl.MAX_IP_COUNT_KEY, "0");
+		ruleInputMap.put(RulesDefinition.MAX_IP_COUNT_KEY, "0");
 		Mockito.when(stateService.pingAndUpdateIp(HOMEMATIC_IP,false)).thenReturn(false);
 		
 		final String ip = ROUTER_PREFIX + "109";
@@ -115,7 +116,7 @@ class HomematicGatewayFinderRuleTest {
 	
 	@Test
 	void updateMaxIpsToLarge() {
-		ruleInputMap.put(HomematicGatewayFinderRuleImpl.MAX_IP_COUNT_KEY, "155");
+		ruleInputMap.put(RulesDefinition.MAX_IP_COUNT_KEY, "155");
 		Mockito.when(stateService.pingAndUpdateIp(HOMEMATIC_IP,false)).thenReturn(false);
 		
 		final String ip = ROUTER_PREFIX + "155";
