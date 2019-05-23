@@ -34,9 +34,10 @@ class ValidationFactory {
 	ValidationFactory(final ConversionService conversionService) {
 		mandatoryValidators.put(Boolean.class, new BooleanValidatorImpl(conversionService, true));
 		mandatoryValidators.put(LocalTime.class, new TimeValidatorImpl(conversionService, true));
+		
 		optionalValidators.put(Boolean.class, new BooleanValidatorImpl(conversionService, false));
 		
-		optionalValidators.put(LocalTime.class, new TimeValidatorImpl(conversionService, true));
+		optionalValidators.put(LocalTime.class, new TimeValidatorImpl(conversionService, false));
 		
 		
 	}
@@ -63,10 +64,17 @@ class ValidationFactory {
 			Assert.isTrue(fieldTypes.containsKey(key), String.format("Field  %s not found in %s: ",  key, type));
 			final Entry<Class<?>, Boolean> entry = fieldTypes.get(key);
 			
-			
 			final Validator validator = entry.getValue() ? mandatoryValidators.get(entry.getKey()) : optionalValidators.get(entry.getKey());
+			
 			
 			validators.get(RulesDefinition.Id.DefaultDailyIotBatch).put(key, validator);
 		});
+	}
+	
+	public final Validator validator(final RulesDefinition.Id id, final String key) {
+		Assert.isTrue(validators.containsKey(id),String.format("Validaors for id %s not found. ", id));
+		Assert.isTrue(validators.get(id).containsKey(key), String.format("Validaors for field %s not found. ", key));
+		return validators.get(id).get(key);
+		
 	}
 }
