@@ -23,7 +23,9 @@ public class NaturalNumberValidatorImpl implements Validator {
 	static final String INVALID = "invalid";
 
 	static final String MANDATORY = "mandatory";
-	static final String RANGE = "range";
+	static final String MIN = "min";
+	
+	static final String MAX = "max";
 	@Override
 	public boolean supports(final Class<?> clazz) {
 		return String.class.isAssignableFrom(clazz);
@@ -31,26 +33,29 @@ public class NaturalNumberValidatorImpl implements Validator {
 
 	@Override
 	public void validate(final Object target, final Errors errors) {
+		
+		
 		final String numberString = (String) target;
-		if (mandatory && StringUtils.isEmpty(numberString)) {
+		if (mandatory && !StringUtils.hasText(numberString)) {
 			errors.rejectValue(null, MANDATORY);
 			return;
 		}
-		if( StringUtils.isEmpty(numberString)) {
+		if(! StringUtils.hasText(numberString)) {
 			return;
 		}
 		try {
 		final Integer value = conversionService.convert(numberString.trim(), Integer.class);
 		if( value < min ) {
-			errors.rejectValue(null, RANGE);
+			
+			errors.rejectValue(null,MIN, new Integer[] {min}, null);
 		}
 		
 		if( value > max) {
-			errors.rejectValue(null, RANGE);
+			errors.rejectValue(null,MAX, new Integer[] {max}, null);
 		}
 		
 		} catch(final ConversionFailedException ex) {
-			errors.rejectValue(null, INVALID);
+			errors.rejectValue(null,INVALID);
 		}
 		 
 	}

@@ -38,16 +38,62 @@ class NaturalNumberValidatorTest {
 	
 	@Test
 	void validate() {
-		//errors.setNestedPath("-");
-	
 		
 		validator.validate("42", errors);
 		
 		assertEquals(0, errors.getAllErrors().size());
 		
 		
-		
+	}
 	
-
+	@Test
+	void validateInvalid() {
+		
+		validator.validate("42x", errors);
+		
+		assertEquals(1, errors.getAllErrors().size());
+		
+		assertEquals(NaturalNumberValidatorImpl.INVALID, errors.getAllErrors().get(0).getCode());
+		
+		
+	}
+	
+	@Test
+	void validateMin() {
+		validator.validate("-1", errors);
+		
+		assertEquals(1, errors.getAllErrors().size());
+		
+		assertEquals(NaturalNumberValidatorImpl.MIN, errors.getAllErrors().get(0).getCode());
+		assertEquals(1, errors.getAllErrors().get(0).getArguments().length);
+		assertEquals(MIN, errors.getAllErrors().get(0).getArguments()[0]);
+	}
+	
+	@Test
+	void validateMax() {
+		validator.validate("1000", errors);
+		
+		assertEquals(1, errors.getAllErrors().size());
+		
+		assertEquals(NaturalNumberValidatorImpl.MAX, errors.getAllErrors().get(0).getCode());
+		assertEquals(1, errors.getAllErrors().get(0).getArguments().length);
+		assertEquals(MAX, errors.getAllErrors().get(0).getArguments()[0]);
+	}
+	
+	@Test
+	void validateMandatory() {
+		validator.validate(" ", errors);
+		
+		assertEquals(1, errors.getAllErrors().size());
+		assertEquals(NaturalNumberValidatorImpl.MANDATORY, errors.getAllErrors().get(0).getCode());
+	}
+	
+	@Test
+	void validateNotMandatory() {
+		Validator validator = new NaturalNumberValidatorImpl(conversionService, false, MIN, MAX);
+		validator.validate(" ", errors);
+		
+		assertEquals(0, errors.getAllErrors().size());
+		
 	}
 }
