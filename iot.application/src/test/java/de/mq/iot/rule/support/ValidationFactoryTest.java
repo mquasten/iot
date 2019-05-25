@@ -27,6 +27,17 @@ public class ValidationFactoryTest {
 		
 		assertMandatoryValidator(BooleanValidatorImpl.class, validationFactory.validator(RulesDefinition.Id.DefaultDailyIotBatch, RulesDefinition.UPDATE_MODE_KEY));
 		assertMandatoryValidator(BooleanValidatorImpl.class, validationFactory.validator(RulesDefinition.Id.DefaultDailyIotBatch, RulesDefinition.TEST_MODE_KEY));
+			
+		
+		
+	}
+	
+	@Test
+	void endOfDayRuleinput() {
+		validationFactory.init();
+		assertMandatoryValidator(NaturalNumberValidatorImpl.class, validationFactory.validator(RulesDefinition.Id.EndOfDayBatch, RulesDefinition.MAX_IP_COUNT_KEY));
+		assertMandatoryValidator(NaturalNumberValidatorImpl.class, validationFactory.validator(RulesDefinition.Id.EndOfDayBatch, RulesDefinition.FIRST_IP_KEY));
+		assertMandatoryValidator(NaturalNumberValidatorImpl.class, validationFactory.validator(RulesDefinition.Id.EndOfDayBatch, RulesDefinition.DAYS_BACK_KEY));
 	}
 
 	private void assertMandatoryValidator(final Class<? extends Validator> type , final Validator validator) {
