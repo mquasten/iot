@@ -1,5 +1,7 @@
 package de.mq.iot.rule.support;
 
+import java.util.stream.IntStream;
+
 class EndOfDayRuleInput implements ValidFieldValues {
 	
 	
@@ -23,15 +25,15 @@ class EndOfDayRuleInput implements ValidFieldValues {
 	
 	
 	
-	Integer firstIp() {
-		return firstIp;
+	final IntStream ipRange() {
+		
+		final int end = firstIp+maxIpCount <= 254 ?  firstIp+maxIpCount : 254;
+		
+		return IntStream.range(firstIp, end);
+		
 	}
 
-	Integer maxIpCount() {
-		return maxIpCount;
-	}
-
-	Integer daysBack() {
+	final Integer daysBack() {
 		return daysBack;
 	}
 

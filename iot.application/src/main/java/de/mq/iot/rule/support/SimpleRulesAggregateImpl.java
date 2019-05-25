@@ -61,7 +61,7 @@ class SimpleRulesAggregateImpl<T>  implements RulesAggregate<T> {
 		
 		Assert.isTrue( ! inputDataAware(), "InputData is already assigned.");
 		facts.put(RulesAggregate.RULE_INPUT_MAP_FACT, rulesDefinition.inputData());
-		
+		facts.put(RulesAggregate.RULE_ENGINE_ID, id);
 		optionalRules.stream().filter(rule -> rulesDefinition.optionalRules().contains(RuleProxy.asRule(rule).getName())).forEach(rule -> rules.register(rule));
 		
 		
@@ -97,6 +97,8 @@ class SimpleRulesAggregateImpl<T>  implements RulesAggregate<T> {
 		
 		
 		rulesEngine.fire(rules, facts);
+		
+		
 		return new RulesAggregateResult<T>() {
 
 			@Override

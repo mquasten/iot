@@ -19,7 +19,7 @@ public class ValidationFactoryTest {
 	
 	@Test
 	void defaultRuleinput() {
-		validationFactory.init();
+		
 		
 		assertMandatoryValidator(TimeValidatorImpl.class, validationFactory.validator(RulesDefinition.Id.DefaultDailyIotBatch, RulesDefinition.WORKINGDAY_ALARM_TIME_KEY));
 		assertMandatoryValidator(TimeValidatorImpl.class, validationFactory.validator(RulesDefinition.Id.DefaultDailyIotBatch, RulesDefinition.HOLIDAY_ALARM_TIME_KEY));
@@ -34,10 +34,12 @@ public class ValidationFactoryTest {
 	
 	@Test
 	void endOfDayRuleinput() {
-		validationFactory.init();
+		
 		assertMandatoryValidator(NaturalNumberValidatorImpl.class, validationFactory.validator(RulesDefinition.Id.EndOfDayBatch, RulesDefinition.MAX_IP_COUNT_KEY));
 		assertMandatoryValidator(NaturalNumberValidatorImpl.class, validationFactory.validator(RulesDefinition.Id.EndOfDayBatch, RulesDefinition.FIRST_IP_KEY));
 		assertMandatoryValidator(NaturalNumberValidatorImpl.class, validationFactory.validator(RulesDefinition.Id.EndOfDayBatch, RulesDefinition.DAYS_BACK_KEY));
+		assertMandatoryValidator(BooleanValidatorImpl.class, validationFactory.validator(RulesDefinition.Id.EndOfDayBatch, RulesDefinition.TEST_MODE_KEY));
+		
 	}
 
 	private void assertMandatoryValidator(final Class<? extends Validator> type , final Validator validator) {

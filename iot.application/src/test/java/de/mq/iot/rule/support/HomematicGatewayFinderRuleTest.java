@@ -131,6 +131,9 @@ class HomematicGatewayFinderRuleTest {
 		assertEquals(1, results.size());
 		assertEquals(String.format(HomematicGatewayFinderRuleImpl.NOT_FOUND_MESSAGE, ROUTER_PREFIX.replaceFirst("[.]$", "")),results.stream().findAny().get() );
 		
+		
+		results.forEach(r -> System.out.println(r));
+		
 	}
 	
 	@Test

@@ -2,7 +2,6 @@ package de.mq.iot.rule.support;
 
 
 import java.lang.reflect.Field;
-
 import java.time.LocalTime;
 import java.util.AbstractMap;
 import java.util.Arrays;
@@ -11,8 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.annotation.PostConstruct;
 
 import org.springframework.core.convert.ConversionService;
 import org.springframework.lang.Nullable;
@@ -43,21 +40,15 @@ class ValidationFactory {
 		
 		optionalValidators.put(Integer.class, new NaturalNumberValidatorImpl(conversionService, true, 0, Integer.MAX_VALUE));
 		
-	}
-	
-	
-	
-	@PostConstruct
-	void init() {
 		init(RulesDefinition.Id.DefaultDailyIotBatch, DefaultRuleInput.class);
 		
 		
 		init(RulesDefinition.Id.EndOfDayBatch, EndOfDayRuleInput.class);
-		//System.out.println(validators.get(RulesDefinition.Id.DefaultDailyIotBatch));
-		
-		//init(RulesDefinition.Id.EndOfDayBatch,Date.class);
 	}
-
+	
+	
+	
+	
 
 
 	private void init(final RulesDefinition.Id id, final Class<?> type) {
@@ -79,9 +70,9 @@ class ValidationFactory {
 		});
 	}
 	
-	public final Validator validator(final RulesDefinition.Id id, final String key) {
+	Validator validator(final RulesDefinition.Id id, final String key) {
 		Assert.isTrue(validators.containsKey(id),String.format("Validaors for id %s not found. ", id));
-		System.out.println(validators.get(id));
+		
 		
 		Assert.isTrue(validators.get(id).containsKey(key), String.format("Validaors for field %s not found. ", key));
 		return validators.get(id).get(key);
