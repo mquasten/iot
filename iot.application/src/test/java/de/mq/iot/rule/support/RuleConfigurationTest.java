@@ -89,11 +89,15 @@ class RuleConfigurationTest {
 		final List<org.jeasy.rules.api.Rule> rulesListEndOdDay = new ArrayList<>();
 		rulesEndOfDay.forEach(rule -> rulesListEndOdDay.add(rule));
 
-		assertEquals(1, rulesListEndOdDay.size());
+		assertEquals(2, rulesListEndOdDay.size());
 
 		final List<String> ruleNamesEndOfDay = rulesListEndOdDay.stream().map(rule -> rule.getName()).collect(Collectors.toList());
-		assertEquals(1, ruleNamesEndOfDay.size());
-		assertEquals(HomematicGatewayFinderRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNamesEndOfDay.get(0));
+		assertEquals(2, ruleNamesEndOfDay.size());
+		
+		assertEquals(InputDataMappingRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNamesEndOfDay.get(0));
+		assertEquals(HomematicGatewayFinderRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNamesEndOfDay.get(1));
+		
+		
 
 	}
 
@@ -106,7 +110,8 @@ class RuleConfigurationTest {
 	void factsConsumer() {
 		final Facts facts = new Facts();
 		ruleConfiguration.factsConsumer().accept(facts);
-
+		
+		assertEquals(3, facts.asMap().size());
 		assertTrue(facts.get(RulesAggregate.RULE_OUTPUT_MAP_FACT) instanceof Collection);
 		assertTrue(facts.get(RulesAggregate.RULE_INPUT) instanceof DefaultRuleInput);
 		assertTrue(facts.get(RulesAggregate.RULE_CALENDAR) instanceof Calendar);
@@ -121,6 +126,17 @@ class RuleConfigurationTest {
 		validator.validate("12:00", errors);
 
 		assertEquals(0, errors.getAllErrors().size());
+	}
+	
+	@Test
+	void factsConsumerEndOfDay() {
+		final Facts facts = new Facts();
+		ruleConfiguration.factsConsumerEndOfDay().accept(facts);
+		
+		assertEquals(2, facts.asMap().size());
+		assertTrue(facts.get(RulesAggregate.RULE_OUTPUT_MAP_FACT) instanceof Collection);
+		assertTrue(facts.get(RulesAggregate.RULE_INPUT) instanceof EndOfDayRuleInput);
+	
 	}
 
 }

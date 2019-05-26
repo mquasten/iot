@@ -7,17 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.state.StateService;
 
 class HomematicGatewayFinderRuleTest {
@@ -28,17 +24,18 @@ class HomematicGatewayFinderRuleTest {
 
 	private final StateService stateService = Mockito.mock(StateService.class);
 	
-	private final ConversionService conversionService = new DefaultConversionService(); 
+
 	
-	private final HomematicGatewayFinderRuleImpl rule = new HomematicGatewayFinderRuleImpl(stateService, conversionService,"8.8.8.8");
+	private final HomematicGatewayFinderRuleImpl rule = new HomematicGatewayFinderRuleImpl(stateService, "8.8.8.8");
 	
-	private final Map<String, String> ruleInputMap = new HashMap<>();
+	private final EndOfDayRuleInput ruleInput = new EndOfDayRuleInput(100,6,30,false);
 	
 	private final Collection<String> results = new ArrayList<>();
 	
 	@BeforeEach
 	void setup() {
-		ruleInputMap.put(RulesDefinition.MAX_IP_COUNT_KEY, "6");
+		
+		
 		Mockito.when(stateService.pingAndUpdateIp(HOMEMATIC_IP,false)).thenReturn(true);
 		
 		
@@ -51,7 +48,7 @@ class HomematicGatewayFinderRuleTest {
 	}
 	@Test
 	void update() {
-		rule.update(ruleInputMap, results);
+		rule.update(ruleInput, results);
 		
 		IntStream.range(100, 106).forEach(i -> Mockito.verify(stateService).pingAndUpdateIp(ROUTER_PREFIX +i,false));
 		
@@ -63,8 +60,11 @@ class HomematicGatewayFinderRuleTest {
 	
 	@Test
 	void updateNotFound() {
-		ruleInputMap.put(RulesDefinition.MAX_IP_COUNT_KEY, "5");
-		rule.update(ruleInputMap, results);
+		
+		ReflectionTestUtils.setField(ruleInput, "maxIpCount", 5);
+		
+		
+		rule.update(ruleInput, results);
 		
 		IntStream.range(100, 105).forEach(i -> Mockito.verify(stateService).pingAndUpdateIp(ROUTER_PREFIX +i,false));
 		
@@ -74,74 +74,19 @@ class HomematicGatewayFinderRuleTest {
 		
 	}
 	
-	@Test
-	void updateMaxIpsEmpty() {
-		ruleInputMap.clear();
-		Mockito.when(stateService.pingAndUpdateIp(HOMEMATIC_IP,false)).thenReturn(false);
-		
-		final String ip1 = ROUTER_PREFIX + "109";
-		Mockito.when(stateService.pingAndUpdateIp(ip1,false)).thenReturn(true);
-		final String ip = ip1;
-		
-		rule.update(ruleInputMap, results);
-		
-		IntStream.range(100, 110).forEach(i -> Mockito.verify(stateService).pingAndUpdateIp(ROUTER_PREFIX +i,false));
-		 Mockito.verify(stateService,Mockito.never()).pingAndUpdateIp(ROUTER_PREFIX +"111",false);
-	
-		assertEquals(1, results.size());
-		assertEquals(String.format(HomematicGatewayFinderRuleImpl.SUCCESS_MESSAGE, ip),results.stream().findAny().get() );
-		
-	}
+
 
 	
 
-	@Test
-	void updateMaxIpsToLess() {
-		ruleInputMap.put(RulesDefinition.MAX_IP_COUNT_KEY, "0");
-		Mockito.when(stateService.pingAndUpdateIp(HOMEMATIC_IP,false)).thenReturn(false);
-		
-		final String ip = ROUTER_PREFIX + "109";
-		Mockito.when(stateService.pingAndUpdateIp(ip,false)).thenReturn(true);
-		
-		
-		rule.update(ruleInputMap, results);
-		
-		IntStream.range(100, 110).forEach(i -> Mockito.verify(stateService).pingAndUpdateIp(ROUTER_PREFIX +i,false));
-		 Mockito.verify(stateService,Mockito.never()).pingAndUpdateIp(ROUTER_PREFIX +"111",false);
 	
-		assertEquals(1, results.size());
-		assertEquals(String.format(HomematicGatewayFinderRuleImpl.SUCCESS_MESSAGE, ip),results.stream().findAny().get() );
-		
-	}
 	
-	@Test
-	void updateMaxIpsToLarge() {
-		ruleInputMap.put(RulesDefinition.MAX_IP_COUNT_KEY, "155");
-		Mockito.when(stateService.pingAndUpdateIp(HOMEMATIC_IP,false)).thenReturn(false);
-		
-		final String ip = ROUTER_PREFIX + "155";
-		Mockito.when(stateService.pingAndUpdateIp(ip,false)).thenReturn(true);
-		
-		
-		rule.update(ruleInputMap, results);
-		
-		IntStream.range(100, 110).forEach(i -> Mockito.verify(stateService).pingAndUpdateIp(ROUTER_PREFIX +i,false));
-		 Mockito.verify(stateService,Mockito.never()).pingAndUpdateIp(ROUTER_PREFIX +"111",false);
-	
-		assertEquals(1, results.size());
-		assertEquals(String.format(HomematicGatewayFinderRuleImpl.NOT_FOUND_MESSAGE, ROUTER_PREFIX.replaceFirst("[.]$", "")),results.stream().findAny().get() );
-		
-		
-		results.forEach(r -> System.out.println(r));
-		
-	}
 	
 	@Test
 	void updateDnsInvalid() {
-		final HomematicGatewayFinderRuleImpl rule = new HomematicGatewayFinderRuleImpl(stateService, conversionService,"x.x.x.x");
+		final HomematicGatewayFinderRuleImpl rule = new HomematicGatewayFinderRuleImpl(stateService,"x.x.x.x");
 		
 		
-		assertThrows(IllegalStateException.class, () -> rule.update(ruleInputMap, results));
+		assertThrows(IllegalStateException.class, () -> rule.update(ruleInput, results));
 	}
 
 }

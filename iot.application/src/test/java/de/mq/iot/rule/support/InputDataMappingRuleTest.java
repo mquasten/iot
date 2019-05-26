@@ -1,6 +1,5 @@
 package de.mq.iot.rule.support;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -8,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
@@ -156,7 +154,9 @@ class InputDataMappingRuleTest {
 		
 		inputDataMappingRule.mapping(RulesDefinition.Id.EndOfDayBatch, ruleInputMap, ruleInput);
 		
-		assertArrayEquals(IntStream.range(FIRST_IP, FIRST_IP+ MAX_IPS).toArray(), ruleInput.ipRange().toArray());
+		assertEquals((int) FIRST_IP, ruleInput.ipRange().getMinimum());
+		assertEquals((int) FIRST_IP+ MAX_IPS, ruleInput.ipRange().getMaximum());
+	
 		assertEquals(DAYS_BACK, ruleInput.daysBack());
 		assertTrue(ruleInput.isTestMode());
 	

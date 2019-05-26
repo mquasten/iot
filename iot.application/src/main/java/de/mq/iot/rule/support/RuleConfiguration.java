@@ -43,7 +43,7 @@ class RuleConfiguration {
 	@Bean()
 	@Scope(value = "prototype")
 	Collection<RulesAggregate<?>> rulesAggregates(final ConversionService conversionService, final ValidationFactory validationFactory,final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService, final SunDownCalculationService sunDownCalculationService) {
-		return Arrays.asList(rulesAggregate(conversionService,validationFactory, specialdayService, stateService, meteorologicalDataService, sunDownCalculationService), rulesAggregateEndOfDay(stateService,conversionService));
+		return Arrays.asList(rulesAggregate(conversionService,validationFactory, specialdayService, stateService, meteorologicalDataService, sunDownCalculationService), rulesAggregateEndOfDay(stateService,conversionService,validationFactory));
 	}
 	
 	@Bean()
@@ -58,8 +58,8 @@ class RuleConfiguration {
 		return new SimpleRulesAggregateImpl<>(RulesDefinition.Id.DefaultDailyIotBatch, factsConsumer(),  new Rules(new InputDataMappingRuleImpl(conversionService, validationFactory) , new CalendarRuleImpl(specialdayService, dateSupplier() ), new TimerEventsRule(sunDownCalculationService), new SystemVariablesRuleImpl(stateService), new SystemVariablesUploadRuleImpl(stateService)), new TemperatureRuleImpl(meteorologicalDataService));
 	}
 	
-	RulesAggregate<?> rulesAggregateEndOfDay(final StateService stateService, final ConversionService conversionService) {
-		return new SimpleRulesAggregateImpl<>(RulesDefinition.Id.EndOfDayBatch, factsConsumerEndOfDay(),  new Rules( new HomematicGatewayFinderRuleImpl(stateService, conversionService,DNS)));
+	RulesAggregate<?> rulesAggregateEndOfDay(final StateService stateService, final ConversionService conversionService, ValidationFactory validationFactory) {
+		return new SimpleRulesAggregateImpl<>(RulesDefinition.Id.EndOfDayBatch, factsConsumerEndOfDay(),  new Rules(new InputDataMappingRuleImpl(conversionService, validationFactory),  new HomematicGatewayFinderRuleImpl(stateService,DNS)));
 	}
 	
 	
@@ -76,6 +76,7 @@ class RuleConfiguration {
 	final Consumer<Facts> factsConsumerEndOfDay() {
 		return facts -> {
 			facts.put(RulesAggregate.RULE_OUTPUT_MAP_FACT, new ArrayList<String>());	
+			facts.put(RulesAggregate.RULE_INPUT, new EndOfDayRuleInput());
 		};
 		
 	}

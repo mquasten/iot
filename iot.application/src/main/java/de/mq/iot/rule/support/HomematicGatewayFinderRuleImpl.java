@@ -2,40 +2,35 @@ package de.mq.iot.rule.support;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.time.temporal.ValueRange;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 
 import org.jeasy.rules.annotation.Action;
 import org.jeasy.rules.annotation.Condition;
 import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Rule;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.util.StringUtils;
 
-import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.state.StateService;
 
 
-@Rule(name = "homematicGateWayFinderRule", priority = 0)
+@Rule(name = "homematicGateWayFinderRule", priority = 1)
 public class HomematicGatewayFinderRuleImpl {
 
-	private static final int MAX_IP_COUNT = 154;
+	
 	static final String NOT_FOUND_MESSAGE = "Homematic XmpApi not found on %s";
 	static final String SUCCESS_MESSAGE = "Homematic XmpApi found ip: %s";
 	private  String dns = "8.8.8.8";
-	private static final int DEFAULT_NUM_IPS = 10;
+	
 	
 	
 	static final String HOST_PARAMETER_NAME = "host";
-	private final ConversionService conversionService;
 
-	private final int firstIp=100;
+	
 	
 	private final StateService stateService;
-	HomematicGatewayFinderRuleImpl(final StateService stateService, final ConversionService conversionService, final String dns) {
+	HomematicGatewayFinderRuleImpl(final StateService stateService, final String dns) {
 		this.stateService=stateService;
-		this.conversionService = conversionService;
 		this.dns=dns;
 	}
 
@@ -46,11 +41,11 @@ public class HomematicGatewayFinderRuleImpl {
 	}
 
 	@Action
-	public void update(@Fact(RulesAggregate.RULE_INPUT_MAP_FACT) final Map<String, String> ruleInputMap, @Fact(RulesAggregate.RULE_OUTPUT_MAP_FACT) final Collection<String> results   ) {
+	public void update(@Fact(RulesAggregate.RULE_INPUT) final EndOfDayRuleInput ruleInput , @Fact(RulesAggregate.RULE_OUTPUT_MAP_FACT) final Collection<String> results   ) {
 		
 		final String router = router();
 		
-		results.add(result(router, findHomematic( router, firstIp,  maxIps(ruleInputMap.get(RulesDefinition.MAX_IP_COUNT_KEY)))));
+		results.add(result(router, findHomematic( router, ruleInput.ipRange())));
 	   
 	}
 
@@ -63,23 +58,7 @@ public class HomematicGatewayFinderRuleImpl {
 		}
 	}
 
-	private int maxIps(final String maxIps) {
-
-		if (!StringUtils.hasText(maxIps)) {
-			return DEFAULT_NUM_IPS;
-		}
-
-		int result = conversionService.convert(maxIps, Integer.class);
-		if (result <= 0) {
-			return DEFAULT_NUM_IPS;
-		}
-
-		if (result > MAX_IP_COUNT) {
-			return DEFAULT_NUM_IPS;
-		}
-		
-		return result;
-	}
+	
 
 	final String router() {
 		try (final DatagramSocket socket = new DatagramSocket()) {
@@ -94,10 +73,10 @@ public class HomematicGatewayFinderRuleImpl {
 	
 	
 	
-private Optional<String> findHomematic(final String router, final int firstIp, final int maxIps) {
+private Optional<String> findHomematic(final String router, final ValueRange ipRange) {
 		
 	
-	for(int i=firstIp;i <maxIps+firstIp; i++) {
+	for(long i=ipRange.getMinimum();i <ipRange.getMaximum(); i++) {
 			final String ip = router + "." + i;
 			
 			if( stateService.pingAndUpdateIp(ip,false) ) {
