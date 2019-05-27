@@ -35,9 +35,9 @@ public class HomematicGatewayFinderRuleImpl {
 	}
 
 	@Condition
-	public boolean evaluate() {
+	public boolean evaluate(@Fact(RulesAggregate.RULE_INPUT) final EndOfDayRuleInput ruleInput) {
 
-		return true;
+		return ruleInput.valid();
 	}
 
 	@Action

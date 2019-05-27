@@ -2,10 +2,13 @@ package de.mq.iot.rule.support;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.IntStream;
 
@@ -44,7 +47,19 @@ class HomematicGatewayFinderRuleTest {
 	
 	@Test
 	void evaluate() {
-		assertTrue(rule.evaluate());
+		assertTrue(rule.evaluate(ruleInput));
+	}
+	
+	@Test
+	void evaluateInvalid() {
+		setInvalid();
+	
+		assertFalse(rule.evaluate(ruleInput));
+	
+	}
+
+	private void setInvalid() {
+		Arrays.asList(EndOfDayRuleInput.class.getDeclaredFields()).stream().filter(field -> ! Modifier.isStatic(field.getModifiers())).filter(field -> field.getType().equals(Integer.class)).forEach(field -> ReflectionTestUtils.setField(ruleInput, field.getName(), null));
 	}
 	@Test
 	void update() {
