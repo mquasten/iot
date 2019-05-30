@@ -19,7 +19,8 @@ public class HomematicGatewayFinderRuleImpl {
 
 	
 	static final String NOT_FOUND_MESSAGE = "Homematic XmpApi not found on %s";
-	static final String SUCCESS_MESSAGE = "Homematic XmpApi found ip: %s";
+	static final String SUCCESS_MESSAGE_TEST = "Homematic XmpApi found ip: %s";
+	static final String SUCCESS_MESSAGE = "Homematic XmpApi udated ip: %s";
 	private  String dns = "8.8.8.8";
 	
 	
@@ -45,13 +46,13 @@ public class HomematicGatewayFinderRuleImpl {
 		
 		final String router = router();
 		
-		results.add(result(router, findHomematic( router, ruleInput.ipRange())));
+		results.add(result(router, findHomematic( router, ruleInput.ipRange()), ruleInput.isTestMode()));
 	   
 	}
 
-	private String result(final String router, final Optional<String> ip) {
+	private String result(final String router, final Optional<String> ip, final boolean testmode) {
 		if( ip.isPresent()) {
-			return  String.format(SUCCESS_MESSAGE , ip.get()) ;
+			return  String.format(testmode?SUCCESS_MESSAGE_TEST:SUCCESS_MESSAGE , ip.get()) ;
 		}else {
 		     return String.format(NOT_FOUND_MESSAGE, router)
 ;

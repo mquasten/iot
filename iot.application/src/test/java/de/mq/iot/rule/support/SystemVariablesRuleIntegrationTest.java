@@ -47,16 +47,13 @@ class SystemVariablesRuleIntegrationTest {
 		});
 
 		result.states().forEach(state -> System.out.println(state.name() + ":" + state.value()));
-		
-		
-		
 
 	}
 
 	@Test
 	@Disabled
 	final void endOfDay() {
-		final RulesAggregate<?> rulesAggregate = ruleService.rulesAggregate(Id.EndOfDayBatch, Arrays.asList());
+		final RulesAggregate<?> rulesAggregate = ruleService.rulesAggregate(Id.EndOfDayBatch, Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, "false"), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, "false")));
 
 		@SuppressWarnings("unchecked")
 		final RulesAggregateResult<String> result = (RulesAggregateResult<String>) rulesAggregate.fire();

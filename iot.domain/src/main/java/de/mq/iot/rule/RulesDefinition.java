@@ -26,7 +26,7 @@ public interface RulesDefinition
 	
 	enum Id {
 		DefaultDailyIotBatch(Arrays.asList(WORKINGDAY_ALARM_TIME_KEY, HOLIDAY_ALARM_TIME_KEY,MIN_SUN_DOWN_TIME_KEY), Arrays.asList(UPDATE_MODE_KEY, TEST_MODE_KEY)),
-		EndOfDayBatch(Arrays.asList(MAX_IP_COUNT_KEY, FIRST_IP_KEY, DAYS_BACK_KEY), Arrays.asList(TEST_MODE_KEY));
+		EndOfDayBatch(Arrays.asList(MAX_IP_COUNT_KEY, FIRST_IP_KEY, DAYS_BACK_KEY), Arrays.asList(UPDATE_MODE_KEY, TEST_MODE_KEY));
 		
 		
 		private final Collection<String> input;

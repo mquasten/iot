@@ -31,7 +31,7 @@ class HomematicGatewayFinderRuleTest {
 	
 	private final HomematicGatewayFinderRuleImpl rule = new HomematicGatewayFinderRuleImpl(stateService, "8.8.8.8");
 	
-	private final EndOfDayRuleInput ruleInput = new EndOfDayRuleInput(100,6,30,false);
+	private final EndOfDayRuleInput ruleInput = new EndOfDayRuleInput(100,6,30,false,false);
 	
 	private final Collection<String> results = new ArrayList<>();
 	
@@ -70,6 +70,19 @@ class HomematicGatewayFinderRuleTest {
 		
 		assertEquals(1, results.size());
 		assertEquals(String.format(HomematicGatewayFinderRuleImpl.SUCCESS_MESSAGE, HOMEMATIC_IP),results.stream().findAny().get() );
+		
+	}
+	
+	@Test
+	void updateTestMode() {
+		EndOfDayRuleInput ruleInput = new EndOfDayRuleInput(100,6,30,false,true);
+		rule.update(ruleInput, results);
+		
+		IntStream.range(100, 106).forEach(i -> Mockito.verify(stateService).pingAndUpdateIp(ROUTER_PREFIX +i,false));
+		
+		
+		assertEquals(1, results.size());
+		assertEquals(String.format(HomematicGatewayFinderRuleImpl.SUCCESS_MESSAGE_TEST, HOMEMATIC_IP),results.stream().findAny().get() );
 		
 	}
 	

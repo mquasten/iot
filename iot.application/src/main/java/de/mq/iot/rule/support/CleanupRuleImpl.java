@@ -7,9 +7,21 @@ import org.jeasy.rules.annotation.Condition;
 import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Rule;
 
-@Rule(name = "homematicGateWayFinderRule", priority = 1)
+import de.mq.iot.calendar.Specialday;
+import de.mq.iot.calendar.SpecialdayService;
+
+@Rule(name = "cleanupRule", priority = 2)
 public class CleanupRuleImpl {
+
+	static final String SUCCESS_MESSAGE = "%s specialdays <= %s deleted.";
 	
+	static final String SUCCESS_MESSAGE_TEST = "%s specialdays <= %s selected.";
+	private final SpecialdayService specialdayService;
+
+	CleanupRuleImpl(final SpecialdayService specialdayService) {
+		this.specialdayService = specialdayService;
+	}
+
 	@Condition
 	public boolean evaluate(@Fact(RulesAggregate.RULE_INPUT) final EndOfDayRuleInput ruleInput) {
 
@@ -17,11 +29,14 @@ public class CleanupRuleImpl {
 	}
 
 	@Action
-	public void cleanup(@Fact(RulesAggregate.RULE_INPUT) final EndOfDayRuleInput ruleInput , @Fact(RulesAggregate.RULE_OUTPUT_MAP_FACT) final Collection<String> results   ) {
-		
-		
-		
-	   
+	public void cleanup(@Fact(RulesAggregate.RULE_INPUT) final EndOfDayRuleInput ruleInput, @Fact(RulesAggregate.RULE_OUTPUT_MAP_FACT) final Collection<String> results) {
+		final Collection<Specialday> toBeDeleted = specialdayService.vacationsBeforeEquals(ruleInput.minDeletiondate());
+		if(ruleInput.isTestMode() ) {
+			results.add(String.format(SUCCESS_MESSAGE_TEST, toBeDeleted.size(), ruleInput.minDeletiondate()));
+			return;
+		}
+		toBeDeleted.stream().forEach(specialDay -> specialdayService.delete(specialDay));
+		results.add(String.format(SUCCESS_MESSAGE, toBeDeleted.size(), ruleInput.minDeletiondate()));
 	}
 
 }

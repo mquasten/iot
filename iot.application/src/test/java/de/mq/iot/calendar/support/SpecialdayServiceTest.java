@@ -1,6 +1,7 @@
 package de.mq.iot.calendar.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -183,4 +184,22 @@ class SpecialdayServiceTest {
 		Mockito.verify(mono).block(Duration.ofMillis(TIMEOUT));
 	}
 
+	@Test
+	void vacationsBeforeEquals() {
+		final LocalDate minDate = LocalDate.now().minusDays(30);
+		final Specialday first = new SpecialdayImpl(LocalDate.now());
+		final Specialday second =new SpecialdayImpl(minDate);
+		
+		final Specialday third =new SpecialdayImpl(LocalDate.now().minusDays(400));
+		final Flux<Specialday> flux = Flux.fromStream(Arrays.asList(first,second,third).stream());
+		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Vacation))).thenReturn(flux);
+		
+		final Collection<Specialday> results = specialdayService.vacationsBeforeEquals(minDate);
+		assertEquals(2, results.size());
+		
+		assertTrue(results.contains(second));
+		assertTrue(results.contains(third));
+		
+		assertFalse(results.contains(first));
+	}
 }

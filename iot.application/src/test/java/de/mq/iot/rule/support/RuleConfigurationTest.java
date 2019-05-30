@@ -89,16 +89,19 @@ class RuleConfigurationTest {
 		final List<org.jeasy.rules.api.Rule> rulesListEndOdDay = new ArrayList<>();
 		rulesEndOfDay.forEach(rule -> rulesListEndOdDay.add(rule));
 
-		assertEquals(2, rulesListEndOdDay.size());
+		assertEquals(3, rulesListEndOdDay.size());
 
 		final List<String> ruleNamesEndOfDay = rulesListEndOdDay.stream().map(rule -> rule.getName()).collect(Collectors.toList());
-		assertEquals(2, ruleNamesEndOfDay.size());
+		assertEquals(3, ruleNamesEndOfDay.size());
 		
 		assertEquals(InputDataMappingRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNamesEndOfDay.get(0));
 		assertEquals(HomematicGatewayFinderRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNamesEndOfDay.get(1));
-		
+		assertEquals(CleanupRuleImpl.class.getAnnotation(org.jeasy.rules.annotation.Rule.class).name(), ruleNamesEndOfDay.get(2));
 		
 
+		final Collection<?> optionalRulesEndOfDay = (Collection<?>) ReflectionTestUtils.getField(endOfDay, "optionalRules");
+		assertEquals(0, optionalRulesEndOfDay.size());
+		
 	}
 
 	@Test

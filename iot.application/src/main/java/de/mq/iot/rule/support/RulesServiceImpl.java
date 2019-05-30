@@ -36,7 +36,7 @@ abstract class RulesServiceImpl implements RulesService {
 		final RulesDefinition rulesDefinition = rulesDefinitionRepository.findById(id).block(timeout);
 		Assert.notNull(rulesDefinition, String.format("Ruledefinition not found in Database %s", id));
 		parameters.forEach(parameter -> {
-			Assert.isTrue(id.parameter().contains(parameter.getKey()), String.format("Invalid Parameter %s for %s", parameter.getKey().length(),id));
+			Assert.isTrue(id.parameter().contains(parameter.getKey()), String.format("Invalid Parameter %s for %s", parameter.getKey(),id));
 			rulesDefinition.assign(parameter.getKey(), parameter.getValue());
 			
 		});

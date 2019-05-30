@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -141,7 +142,7 @@ class InputDataMappingRuleTest {
 		ruleInputMap.put(RulesDefinition.FIRST_IP_KEY, FIRST_IP.toString());
 		ruleInputMap.put(RulesDefinition.MAX_IP_COUNT_KEY, MAX_IPS.toString());
 		ruleInputMap.put(RulesDefinition.DAYS_BACK_KEY, DAYS_BACK.toString());
-		
+		ruleInputMap.put(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString());
 		ruleInputMap.put(RulesDefinition.TEST_MODE_KEY, Boolean.TRUE.toString());
 		
 		return ruleInputMap;
@@ -157,7 +158,9 @@ class InputDataMappingRuleTest {
 		assertEquals((int) FIRST_IP, ruleInput.ipRange().getMinimum());
 		assertEquals((int) FIRST_IP+ MAX_IPS, ruleInput.ipRange().getMaximum());
 	
-		assertEquals(DAYS_BACK, ruleInput.daysBack());
+		assertEquals(LocalDate.now().minusDays(DAYS_BACK+1), ruleInput.minDeletiondate());
+		
+		//assertEquals(DAYS_BACK, ruleInput.daysBack());
 		assertTrue(ruleInput.isTestMode());
 	
 		
