@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationContext;
 import de.mq.iot.state.Main;
 import de.mq.iot.state.MainParameter;
 import de.mq.iot.state.Mains;
+import de.mq.iot.state.TestServiceImpl;
 
 public class ServiceCommandlineRunnerTest {
 
@@ -99,11 +100,11 @@ public class ServiceCommandlineRunnerTest {
 	@Test
 	final void execute() {
 
-		final Method updateStateMethod = updateMethod(StateUpdateServiceImpl.class);
+		final Method updateStateMethod = updateMethod(TestServiceImpl.class);
 		final Map<String, Object> environment = new HashMap<>();
 		environment.put(DAYS_ARG_NAME, OFFSET_ARG_VALUE);
 
-		final StateUpdateServiceImpl stateUpdateService = Mockito.mock(StateUpdateServiceImpl.class);
+		final TestServiceImpl stateUpdateService = Mockito.mock(TestServiceImpl.class);
 
 		serviceCommandlineRunner.execute(new AbstractMap.SimpleImmutableEntry<>(updateStateMethod, Arrays.asList(DAYS_ARG_NAME)), environment, stateUpdateService);
 
@@ -113,7 +114,7 @@ public class ServiceCommandlineRunnerTest {
 
 	@Test
 	final void executeWronfNumberOfArguments() {
-		final Method updateStateMethod = updateMethod(StateUpdateServiceImpl.class);
+		final Method updateStateMethod = updateMethod(TestServiceImpl.class);
 		final Map<String, Object> environment = new HashMap<>();
 		environment.put(DAYS_ARG_NAME, OFFSET_ARG_VALUE);
 		final StateUpdateServiceImpl stateUpdateService = Mockito.mock(StateUpdateServiceImpl.class);
@@ -126,12 +127,12 @@ public class ServiceCommandlineRunnerTest {
 
 	@Test
 	final void executeList() {
-		final StateUpdateServiceImpl service = Mockito.mock(StateUpdateServiceImpl.class);
+		final TestServiceImpl service = Mockito.mock(TestServiceImpl.class);
 
 		final ApplicationContext applicationContext = Mockito.mock(ApplicationContext.class);
-		Mockito.doReturn(service).when(applicationContext).getBean(StateUpdateServiceImpl.class);
+		Mockito.doReturn(service).when(applicationContext).getBean(TestServiceImpl.class);
 
-		final Method workingdayUpdateMethod = updateMethod(StateUpdateServiceImpl.class);
+		final Method workingdayUpdateMethod = updateMethod(TestServiceImpl.class);
 
 		final Map<String, Object> environment = new HashMap<>();
 		environment.put(DAYS_ARG_NAME, "" + OFFSET_ARG_VALUE);

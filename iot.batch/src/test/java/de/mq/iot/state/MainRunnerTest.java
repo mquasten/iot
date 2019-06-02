@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.state.support.SimpleServiceCommandlineRunnerImpl;
-import de.mq.iot.state.support.StateUpdateServiceImpl;
 
 
 
@@ -40,7 +39,7 @@ class MainRunnerTest {
 	private static final Optional<Integer> OK_STATE = Optional.of(0);
 	
 	private static final int DAYS_OFFSET = 10;
-	final static StateUpdateServiceImpl stateUpdateService=Mockito.mock(StateUpdateServiceImpl.class);
+	final static TestServiceImpl stateUpdateService=Mockito.mock(TestServiceImpl.class);
 	
 	final static boolean called[] = { false};
 	
@@ -155,7 +154,7 @@ class MainRunnerTest {
 class MockServiceConfiguration {
 	
 	@Bean
-	StateUpdateService stateUpdateService() {
+	TestServiceImpl stateUpdateService() {
 		return MainRunnerTest.stateUpdateService;
 		
 	}
