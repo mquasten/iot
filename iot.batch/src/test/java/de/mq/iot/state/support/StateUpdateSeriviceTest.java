@@ -433,8 +433,7 @@ public class StateUpdateSeriviceTest {
 	
 	
 
-	
-	
+	@Test
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	final void processRules() {
 		
