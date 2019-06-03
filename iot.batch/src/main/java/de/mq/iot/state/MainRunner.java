@@ -27,7 +27,7 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @Mains({ @Main(name = "updateWorkingday", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date", defaultValue = "0") }),
 	
-	@Main(name = "processRules", parameters = {  @MainParameter(name = "n", desc = "Name of the ruleengine") , @MainParameter(name = "u", hasArg=false, desc = "UpdateMode (use current day)") ,  @MainParameter(name = "t", hasArg=false, desc = "TestMode (without states update)")}) ,
+	@Main(name = "processRules", parameters = {  @MainParameter(name = "n", desc = "Name of the ruleengine") , @MainParameter(name = "u", hasArg=false, desc = "UpdateMode (use current day)") ,  @MainParameter(name = "t", hasArg=false, desc = "TestMode (without states update)"),   @MainParameter(name = "e", hasArg=true, defaultValue=" ", desc = "Minimum EventTime") }) ,
 	@Main(name = "updateCalendar", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date", defaultValue = "0") }) ,
 @Main(name = "updateTemperature", parameters = { @MainParameter(name = "d", desc = "Offset in days from current date", defaultValue = "0") }) ,
 @Main(name = "updateAll", parameters = { }), 

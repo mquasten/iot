@@ -27,6 +27,8 @@ public class StateUpdateSeriviceTest {
 
 
 
+	private static final String MIN_EVENT_TIME = "11:11";
+
 	private final  RulesService rulesService = Mockito.mock(RulesService.class);
 	
 	private final StateUpdateServiceImpl stateUpdateService = new StateUpdateServiceImpl(rulesService);
@@ -62,16 +64,18 @@ public class StateUpdateSeriviceTest {
 		ArgumentCaptor<Collection<Entry<String,String>>> parametersCapture = ArgumentCaptor.forClass(Collection.class);
 		Mockito.when(rulesService.rulesAggregate(idCapture.capture(), parametersCapture.capture())).thenReturn( ((RulesAggregate) rulesAggregate));
 		
-		stateUpdateService.processRules(RulesDefinition.Id.DefaultDailyIotBatch.name(), true, true);
+		stateUpdateService.processRules(RulesDefinition.Id.DefaultDailyIotBatch.name(), true, true, MIN_EVENT_TIME);
 		
 		Mockito.verify(rulesAggregate).fire();
 		
 		assertEquals(RulesDefinition.Id.DefaultDailyIotBatch, idCapture.getValue());
 		
-		assertEquals(2, parametersCapture.getValue().size());
+		assertEquals(3, parametersCapture.getValue().size());
 		
-		assertTrue(parametersCapture.getValue().stream().map(Entry::getKey).collect(Collectors.toList()).containsAll(Arrays.asList(RulesDefinition.TEST_MODE_KEY, RulesDefinition.UPDATE_MODE_KEY )));
-		parametersCapture.getValue().stream().map(Entry::getValue).forEach(value -> assertTrue(Boolean.valueOf(value)));
+		assertTrue(parametersCapture.getValue().stream().map(Entry::getKey).collect(Collectors.toList()).containsAll(Arrays.asList(RulesDefinition.TEST_MODE_KEY, RulesDefinition.UPDATE_MODE_KEY, RulesDefinition.MIN_EVENT_TIME_KEY )));
+		parametersCapture.getValue().stream().filter(entry  -> ! entry.getKey().equals(RulesDefinition.MIN_EVENT_TIME_KEY) ).map(Entry::getValue).forEach(value -> assertTrue(Boolean.valueOf(value)));
+		
+		parametersCapture.getValue().stream().filter(entry  -> entry.getKey().equals(RulesDefinition.MIN_EVENT_TIME_KEY) ).map(Entry::getValue).forEach(value -> assertEquals(MIN_EVENT_TIME, value));
 	}
 	
 }
