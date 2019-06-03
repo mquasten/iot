@@ -33,7 +33,7 @@ public class TimerEventsBuilder{
 private Map<Key,LocalTime> events = new HashMap<>();
 	
 private boolean updateMode=false;
-
+private LocalTime minEventTime=LocalTime.now();
    
 	TimerEventsBuilder with(final Key key, LocalTime localTime){
 		Assert.notNull(key, "Key is required.");
@@ -49,6 +49,14 @@ private boolean updateMode=false;
 	TimerEventsBuilder with(final boolean updateMode){
 		this.updateMode=updateMode;
 		return this;
+	}
+	
+	TimerEventsBuilder withMinEventTime(LocalTime minEventTime) {
+		
+		Assert.notNull(minEventTime, "Time is required.");
+		this.minEventTime=minEventTime;
+		return this;
+		
 	}
 	
 	
@@ -94,8 +102,8 @@ private boolean updateMode=false;
 		
 		
 	}
-	private void updateMode(final StringBuilder builder, Key key) {
-		if( (events.get(key).compareTo(LocalTime.now())>0)) {
+	private void updateMode(final StringBuilder builder, final Key key) {
+		if( (events.get(key).compareTo(minEventTime)>0)) {
 			builder.append(String.format("%s:%s", key,  events.get(key).getHour() + 0.01 * (events.get(key).getMinute()  )));
 		}
 	}

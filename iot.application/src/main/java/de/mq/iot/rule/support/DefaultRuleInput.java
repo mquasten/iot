@@ -15,6 +15,13 @@ class DefaultRuleInput implements ValidFieldValues {
 	private Boolean testMode=false;
 	
 	@Nullable
+	private LocalTime minEventTime=LocalTime.now();
+	
+	final  LocalTime minEventTime() {
+		return minEventTime;
+	}
+
+	@Nullable
 	private LocalTime minSunDownTime=LocalTime.MIDNIGHT;
 
 	DefaultRuleInput() {

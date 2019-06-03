@@ -31,7 +31,7 @@ class SystemVariablesRuleIntegrationTest {
 
 		@SuppressWarnings("unchecked")
 		final RulesAggregate<State<?>> rulesAggregate = (RulesAggregate<State<?>>) ruleService.rulesAggregate(Id.DefaultDailyIotBatch,
-				Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, "false"), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, "true")));
+				Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, "true"), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, "true"), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.MIN_EVENT_TIME_KEY, "3:00")));
 
 		assertNotNull(rulesAggregate);
 
