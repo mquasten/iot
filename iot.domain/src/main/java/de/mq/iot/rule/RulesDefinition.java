@@ -15,6 +15,7 @@ public interface RulesDefinition
 	static final String WORKINGDAY_ALARM_TIME_KEY =  "workingdayAlarmTime";
 	static final String HOLIDAY_ALARM_TIME_KEY =  "holidayAlarmTime";
 	static final String UPDATE_MODE_KEY = "updateMode";
+	
 	static final String TEST_MODE_KEY = "testMode";
 
 	static final String MIN_EVENT_TIME_KEY="minEventTime";
