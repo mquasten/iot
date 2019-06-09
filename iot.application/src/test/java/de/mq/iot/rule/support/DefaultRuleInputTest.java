@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -74,5 +75,22 @@ class DefaultRuleInputTest {
 	    ReflectionTestUtils.setField(ruleInput, fields.get(1), LocalTime.now());
 	    assertTrue(ruleInput.valid());
 	    
+	}
+
+
+	@Test
+	void minEventTime() throws InterruptedException {
+		
+		assertTrue(100 > toMillis(LocalTime.now()) - toMillis(ruleInput.minEventTime()));
+		
+		final LocalTime time = LocalTime.of(11, 11);
+		ReflectionTestUtils.setField(ruleInput, "minEventTime", time);
+		assertEquals(time, ruleInput.minEventTime());
+	}
+	private long toMillis(LocalTime localTime) {
+	 return localTime.atDate(LocalDate.now())
+             .atZone(java.time.ZoneId.systemDefault())
+             .toInstant()
+             .toEpochMilli();
 	}
 }

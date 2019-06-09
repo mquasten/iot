@@ -17,9 +17,6 @@ class DefaultRuleInput implements ValidFieldValues {
 	@Nullable
 	private LocalTime minEventTime=LocalTime.now();
 	
-	final  LocalTime minEventTime() {
-		return minEventTime;
-	}
 
 	@Nullable
 	private LocalTime minSunDownTime=LocalTime.MIDNIGHT;
@@ -61,5 +58,9 @@ class DefaultRuleInput implements ValidFieldValues {
 	
 	final LocalTime minSunDownTime() {
 		return minSunDownTime;
+	}
+	
+	final  LocalTime minEventTime() {
+		return minEventTime;
 	}
 }

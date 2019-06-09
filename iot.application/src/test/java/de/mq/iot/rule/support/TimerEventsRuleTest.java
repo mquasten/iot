@@ -33,7 +33,7 @@ class TimerEventsRuleTest {
 	private final TimerEventsRule timerEventsRule = new TimerEventsRule(sunDownCalculationService);
 	
 	
-	private  DefaultRuleInput ruleInput = new DefaultRuleInput(LocalTime.of(5, 15), LocalTime.of(7, 15), LocalTime.of(17, 15));
+	private  DefaultRuleInput ruleInput = new DefaultRuleInput(LocalTime.of(5, 15) , LocalTime.of(7, 15), LocalTime.of(17, 15));
 	
 	private final Calendar calendar = new Calendar();
 
@@ -77,11 +77,13 @@ class TimerEventsRuleTest {
 	@Test
 	void calculateEvents2() {
 	
+	
 		vaidCalendar(calendar);
 		Mockito.when(sunDownCalculationService.sunUpTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_UPTIME);
 		Mockito.when(sunDownCalculationService.sunDownTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_DOWNTIME);
 		ruleInput.useUpdateMode();
-	
+		
+		
 		timerEventsRule.calculateEvents(calendar, ruleInput);
 		
 		
@@ -93,5 +95,19 @@ class TimerEventsRuleTest {
 	
 	
 
+	@Test
+	void calculateEventsHoliday() {
+		vaidCalendar(calendar);
+		Mockito.when(sunDownCalculationService.sunUpTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_UPTIME);
+		Mockito.when(sunDownCalculationService.sunDownTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_DOWNTIME);
+		
+		calendar.assignWorkingDay(false);
+		
+		timerEventsRule.calculateEvents(calendar, ruleInput);
+		
+		assertTrue(calendar.events().isPresent());
+		assertEquals(SystemVariablesRuleImpl.DAILY_EVENTS, calendar.events().get().getKey());
+		assertEquals("T0:7.15;T1:7.15;T6:23.59", calendar.events().get().getValue());
+	}
 	
 }
