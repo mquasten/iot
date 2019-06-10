@@ -2,8 +2,10 @@ package de.mq.iot.rule.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Duration;
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,10 +13,12 @@ import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.rule.RulesDefinition;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class RulesServiceTest {
 	
+	private static final String TIMEOUT_FIELD = "timeout";
 	private final RulesServiceImpl rulesService = Mockito.mock(RulesServiceImpl.class, Mockito.CALLS_REAL_METHODS); 
 	private final RulesAggregate<?> defaultDailyIotBatchRulesAggregate = Mockito.mock(RulesAggregate.class);
 	
@@ -34,6 +38,7 @@ public class RulesServiceTest {
 		
 		Arrays.asList(RulesServiceImpl.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(RulesDefinitionRepository.class)).forEach(field -> ReflectionTestUtils.setField(rulesService, field.getName(), rulesDefinitionRepository));
 		
+		ReflectionTestUtils.setField(rulesService, TIMEOUT_FIELD, Duration.ofMillis(500));
 	}
 	
 	@Test
@@ -47,6 +52,18 @@ public class RulesServiceTest {
 		
 		Mockito.verify(rulesDefinition).assign(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString());
 		
+	}
+	
+	@Test
+	void rulesDefinitions() {
+		
+		final Flux<RulesDefinition> flux= Flux.fromStream(Arrays.asList(rulesDefinition).stream());
+		
+		Mockito.when(rulesDefinitionRepository.findAll()).thenReturn(flux);
+		final Collection<RulesDefinition> results =rulesService.rulesDefinitions();
+		assertEquals(1, results.size());
+		
+		assertEquals(rulesDefinition, results.stream().findFirst().get());
 	}
 
 }

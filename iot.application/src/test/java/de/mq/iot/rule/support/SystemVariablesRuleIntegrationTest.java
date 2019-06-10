@@ -1,9 +1,12 @@
 package de.mq.iot.rule.support;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -19,7 +22,7 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
-@Disabled
+
 class SystemVariablesRuleIntegrationTest {
 
 	@Autowired
@@ -68,6 +71,18 @@ class SystemVariablesRuleIntegrationTest {
 		});
 
 		result.states().forEach(message -> System.out.println(message));
+	}
+	
+	@Test
+	@Disabled
+	final void ruleDefinitions() {
+		final Collection<RulesDefinition> results = ruleService.rulesDefinitions();
+		
+		Collection<RulesDefinition.Id> ids = Arrays.asList(RulesDefinition.Id.values());
+		assertEquals(ids.size(), results.size());
+		
+		results.forEach(result -> assertTrue( ids.contains(result.id())) );
+		
 	}
 
 }
