@@ -17,6 +17,10 @@ public class ButtonBox extends HorizontalLayout {
 	private final Button closeButton = new Button();
 	
 	private final Button specialdaysButton = new Button();
+	
+	
+
+	private final Button rulesButton = new Button();
 	public ButtonBox () {
 	
 		
@@ -44,7 +48,10 @@ public class ButtonBox extends HorizontalLayout {
 		
 		add(deviceButton);
 		
+		rulesButton.setIcon(VaadinIcons.BUILDING.create());
+		rulesButton.addClickListener( event ->  ((Component) event.getSource()).getUI().ifPresent(ui -> ui.navigate("rules")) ); 
 		
+		add(rulesButton);
 		
 		closeButton.setIcon(VaadinIcons.CLOSE.create());
 		add(closeButton);
