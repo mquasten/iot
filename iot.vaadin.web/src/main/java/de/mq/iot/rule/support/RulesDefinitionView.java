@@ -1,6 +1,10 @@
 package de.mq.iot.rule.support;
 
 
+import java.util.Arrays;
+
+import org.springframework.context.MessageSource;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -19,12 +23,12 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import de.mq.iot.model.I18NKey;
 import de.mq.iot.model.LocalizeView;
-import de.mq.iot.state.State;
+import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.support.ButtonBox;
 
 @Route("rules")
 @Theme(Lumo.class)
-@I18NKey("rulesdefinition_")
+@I18NKey("rules_")
 class  RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	
 	
@@ -55,16 +59,21 @@ class  RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	@I18NKey("value")
 	private final Label listValueLabel = new Label();
 	
-	@I18NKey("name_column")
-	private final Label nameColumnLabel = new Label();
+	@I18NKey("id_column")
+	private final Label ruleDefinitionColumnLabel = new Label();
+	
+	@I18NKey("optional_rules_column")
+	private final Label optionalRuleColumnLabel = new Label();
 	
 	
 	@I18NKey("value_column")
 	private final Label valueColumnLabel = new Label();
 	private FormItem textFieldFormItem ; 
 	private FormItem comboBoxFormItem ; 
-	private final Grid<State<?>> grid = new Grid<>();
+	private final Grid<RulesDefinition> grid = new Grid<>();
 	
+	
+	private final Grid<String> optionalRules = new Grid<>();
 	
 	private final FormLayout formLayout = new FormLayout();
 	
@@ -72,13 +81,25 @@ class  RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 
 	
-	RulesDefinitionView(final RulesService rulesService, final ButtonBox buttonBox ) {
+	RulesDefinitionView( final RuleDefinitionModel ruleDefinitionModel, final RulesService rulesService, final ButtonBox buttonBox, final MessageSource messageSource ) {
 	
 	
 		createUI(rulesService, buttonBox);	
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> {System.out.println("selected");});
 		
+		grid.setItems(rulesService.rulesDefinitions());
+		optionalRules.setItems(Arrays.asList("rule1" ,"rule2"));
 		
+		
+		ruleDefinitionModel.register(RuleDefinitionModel.Events.ChangeLocale, () -> {
+			
+			 localize(messageSource, ruleDefinitionModel.locale());
+		
+			
+		});
+		
+		
+		ruleDefinitionModel.notifyObservers(RuleDefinitionModel.Events.ChangeLocale);
 		
 	}
 
@@ -110,9 +131,9 @@ class  RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		valueTextField.setRequired(true);
 		
 		
-		final HorizontalLayout layout = new HorizontalLayout(grid);
+		final HorizontalLayout layout = new HorizontalLayout(grid,optionalRules);
 		grid.getElement().getStyle().set("overflow", "auto");
-		
+		optionalRules.getElement().getStyle().set("overflow", "auto");
 
 	
 		nameTextField.setSizeFull();
@@ -149,11 +170,11 @@ class  RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		
 		
 	
-		grid.addColumn((ValueProvider<State<?>, String>) state -> state.name()).setHeader(nameColumnLabel).setResizable(true);
-	//	grid.addColumn((ValueProvider<State<?>, String>) state -> stateValueConverter.convert(state)).setHeader(valueColumnLabel).setResizable(true);
+		grid.addColumn((ValueProvider<RulesDefinition, String>) rulesDefinition -> rulesDefinition.id().name()).setHeader(ruleDefinitionColumnLabel).setResizable(true);
+	   
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		
-		
+		optionalRules.addColumn((ValueProvider<String, String>) value -> value).setHeader(optionalRuleColumnLabel).setResizable(true);
 		
 		add(buttonBox, layout, stateInfoLabel, editorLayout);
 		setHorizontalComponentAlignment(Alignment.CENTER, stateInfoLabel);
@@ -167,7 +188,9 @@ class  RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	
 	   grid.setHeight("50vH");
 	 
-		
+	   optionalRules.setHeight("50vH");
+	   
+	   
 		
 	}
 

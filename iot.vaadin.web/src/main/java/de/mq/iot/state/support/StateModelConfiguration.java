@@ -24,10 +24,11 @@ class StateModelConfiguration  {
 	static final String SYSTEM_VARIABLES_VIEW = "i18n/systemVariablesView";
 	static final String LOGIN_VIEW = "i18n/loginView";
 	static final String CALENDAR_VIEW = "i18n/calendarView";
+	static final String RULES_VIEW = "i18n/rulesDefinitionView";
 	static final String MESSAGE_SOURCE_ENCODING = "UTF-8";
 	
 	static final String DEVICE_VIEW = "i18n/deviceView";
-	static final String[] MESSAGE_SOURCE_BASENAME = { SYSTEM_VARIABLES_VIEW , LOGIN_VIEW, CALENDAR_VIEW, DEVICE_VIEW };
+	static final String[] MESSAGE_SOURCE_BASENAME = { SYSTEM_VARIABLES_VIEW , LOGIN_VIEW, CALENDAR_VIEW, DEVICE_VIEW, RULES_VIEW };
 	
 	
 	private final Class<? extends Dialog> dialogClass = Dialog.class; 

@@ -28,7 +28,7 @@ import de.mq.iot.state.State;
 import de.mq.iot.state.support.DeviceModel.Events;
 
 
-public class StateModelConfigurationTest {
+class StateModelConfigurationTest {
 	
 	
 	private final StateModelConfiguration stateModelConfiguration = new StateModelConfiguration();
@@ -80,11 +80,12 @@ public class StateModelConfigurationTest {
 		assertTrue(messageSource instanceof ResourceBundleMessageSource);
 		
 		final List<String> basenames = new ArrayList<>( ((ResourceBundleMessageSource)messageSource).getBasenameSet());
-		assertEquals(4, basenames.size());
+		assertEquals(5, basenames.size());
 		assertEquals(StateModelConfiguration.SYSTEM_VARIABLES_VIEW ,basenames.get(0));
 		assertEquals(StateModelConfiguration.LOGIN_VIEW ,basenames.get(1));
 		assertEquals(StateModelConfiguration.CALENDAR_VIEW ,basenames.get(2));
 		assertEquals(StateModelConfiguration.DEVICE_VIEW ,basenames.get(3));
+		assertEquals(StateModelConfiguration.RULES_VIEW ,basenames.get(4));
 		assertEquals(StateModelConfiguration.MESSAGE_SOURCE_ENCODING, ReflectionTestUtils.invokeMethod(messageSource, "getDefaultEncoding"));
 	}
 	
