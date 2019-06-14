@@ -1,14 +1,18 @@
 package de.mq.iot.rule.support;
 
 import java.util.Locale;
+import java.util.Optional;
+
 
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
+import de.mq.iot.rule.RulesDefinition;
 
 class RuleDefinitionModelImpl implements RuleDefinitionModel {
 
 	private final Subject<RuleDefinitionModel.Events, RuleDefinitionModel> subject;
 
+	private Optional<RulesDefinition> rulesDefinition =  Optional.empty();
 	
 	RuleDefinitionModelImpl(final Subject<Events, RuleDefinitionModel> subject) {
 		this.subject = subject;
@@ -27,9 +31,17 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	}
 
 	
-	
-
-	
+	@Override
+	public void assignSelected(final RulesDefinition rulesDefinition) {
+		
+		this.rulesDefinition=Optional.ofNullable(rulesDefinition);
+		notifyObservers(Events.AssignRuleDefinition);
+	}
+	@Override
+	public
+	Optional<RulesDefinition>  selectedRuleDefinition() {
+		return this.rulesDefinition;
+	}
 
 	@Override
 	public Locale locale() {

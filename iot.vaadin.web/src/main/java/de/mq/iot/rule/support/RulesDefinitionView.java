@@ -24,6 +24,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import de.mq.iot.model.I18NKey;
 import de.mq.iot.model.LocalizeView;
 import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.rule.support.RuleDefinitionModel.Events;
 import de.mq.iot.support.ButtonBox;
 
 @Route("rules")
@@ -78,17 +79,25 @@ class  RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	private final FormLayout formLayout = new FormLayout();
 	
 	
-
+//https://vaadin.com/components/vaadin-grid/java-examples/grid-editor
 
 	
 	RulesDefinitionView( final RuleDefinitionModel ruleDefinitionModel, final RulesService rulesService, final ButtonBox buttonBox, final MessageSource messageSource ) {
 	
 	
 		createUI(rulesService, buttonBox);	
-		grid.asSingleSelect().addValueChangeListener(selectionEvent -> {System.out.println("selected");});
+		grid.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelected(selectionEvent.getValue()));
+		
+		ruleDefinitionModel.register(Events.AssignRuleDefinition, () ->{
+			
+			System.out.println("selectionChanged:"  + ruleDefinitionModel.selectedRuleDefinition());
+			
+			ruleDefinitionModel.selectedRuleDefinition().ifPresent(rd -> optionalRules.setItems(rd.optionalRules()));
+			
+		});
 		
 		grid.setItems(rulesService.rulesDefinitions());
-		optionalRules.setItems(Arrays.asList("rule1" ,"rule2"));
+		
 		
 		
 		ruleDefinitionModel.register(RuleDefinitionModel.Events.ChangeLocale, () -> {
@@ -99,7 +108,10 @@ class  RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		});
 		
 		
+		
+		
 		ruleDefinitionModel.notifyObservers(RuleDefinitionModel.Events.ChangeLocale);
+		
 		
 	}
 
