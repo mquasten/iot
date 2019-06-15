@@ -58,6 +58,8 @@ class  RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	
 	private final Grid<Entry<String,String>> arguments = new Grid<>();
 	
+	private final TextField inputTextField = new TextField();
+	
 //https://vaadin.com/components/vaadin-grid/java-examples/grid-editor
 
 	
@@ -67,17 +69,25 @@ class  RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		createUI(rulesService, buttonBox);	
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelected(selectionEvent.getValue()));
 		
+		inputParameter.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelectedInput(selectionEvent.getValue()));
+		
 		ruleDefinitionModel.register(Events.AssignRuleDefinition, () ->{
 			
-			System.out.println("selectionChanged:"  + ruleDefinitionModel.selectedRuleDefinition());
-			
-			ruleDefinitionModel.selectedRuleDefinition().ifPresent(rd -> {
-			optionalRules.setItems(rd.optionalRules());
-			inputParameter.setItems(rd.inputData().entrySet());
-			arguments.setItems(rd.inputData().entrySet());
-			});
 			
 			
+			
+				
+			optionalRules.setItems(ruleDefinitionModel.optionalRules());
+			inputParameter.setItems(ruleDefinitionModel.input());
+			arguments.setItems(ruleDefinitionModel.parameter());
+		
+			
+			
+		});
+		
+		
+		ruleDefinitionModel.register(Events.AssignInput, () ->{
+			inputTextField.setValue(ruleDefinitionModel.selectedInputValue());
 		});
 		
 		grid.setItems(rulesService.rulesDefinitions());
@@ -147,9 +157,10 @@ class  RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		
 		
 		inputParameter.addColumn((ValueProvider<Entry<String,String>, String>) entry -> entry.getKey()).setHeader("Parameter").setFooter(new Button("ändern")).setResizable(true);
-		inputParameter.addColumn((ValueProvider<Entry<String,String>, String>) entry -> entry.getValue()).setHeader("Wert").setFooter(new TextField()).setResizable(true);
 		
+		inputParameter.addColumn((ValueProvider<Entry<String,String>, String>) entry -> entry.getValue()).setHeader("Wert").setFooter(inputTextField).setResizable(true);
 		
+		grid.setSelectionMode(SelectionMode.SINGLE);
 		
 	
 		
