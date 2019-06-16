@@ -12,8 +12,8 @@ class RulesDefinitionConfiguration {
 	@Bean
 	//@UIScope
 	@Scope("prototype")
-	RuleDefinitionModel ruleDefinitionModel(final Subject<RuleDefinitionModel.Events, RuleDefinitionModel> subject) {
-		return new RuleDefinitionModelImpl(subject);
+	RuleDefinitionModel ruleDefinitionModel(final Subject<RuleDefinitionModel.Events, RuleDefinitionModel> subject, final ValidationFactory validationFactory) {
+		return new RuleDefinitionModelImpl(subject,validationFactory);
 
 	}
 

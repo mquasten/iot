@@ -33,7 +33,7 @@ class TimeValidatorImpl implements Validator {
 	public void validate(final Object target, final Errors errors) {
 
 		final String timeString = (String) target;
-		if (mandatory && timeString == null) {
+		if (mandatory && !StringUtils.hasText(timeString)) {
 			errors.rejectValue(null, MANDATORY);
 			return;
 		}

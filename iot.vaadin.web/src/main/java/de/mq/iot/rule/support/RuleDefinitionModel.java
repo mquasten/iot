@@ -2,6 +2,8 @@ package de.mq.iot.rule.support;
 
 import java.util.Collection;
 import java.util.Map.Entry;
+import java.util.Optional;
+
 import de.mq.iot.model.LocaleAware;
 import de.mq.iot.model.Subject;
 import de.mq.iot.rule.RulesDefinition;
@@ -37,6 +39,22 @@ public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events,
 
 
 		String selectedInputValue();
+
+
+
+		Optional<String> selectedInputKey();
+
+
+
+		void assignInput(final String value);
+
+
+
+		boolean isInputSelected();
+
+
+
+		Optional<String> validateInput(String value);
 
 	
 		

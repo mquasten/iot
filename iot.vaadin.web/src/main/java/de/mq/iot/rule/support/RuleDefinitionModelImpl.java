@@ -1,5 +1,6 @@
 package de.mq.iot.rule.support;
 
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +10,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.util.Assert;
+import org.springframework.validation.Errors;
+import org.springframework.validation.MapBindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.Validator;
 
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
@@ -22,9 +29,10 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	
 	private Optional<Entry<String,String>> selectedInput = Optional.empty();
 
-	RuleDefinitionModelImpl(final Subject<Events, RuleDefinitionModel> subject) {
+	private final ValidationFactory validationFactory;
+	RuleDefinitionModelImpl(final Subject<Events, RuleDefinitionModel> subject, ValidationFactory validationFactory) {
 		this.subject = subject;
-
+		this.validationFactory=validationFactory;
 	}
 
 	@Override
@@ -109,7 +117,35 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 		
 		return selectedInput.get().getValue();
 	}
+	@Override
+	public boolean isInputSelected() {
+		return selectedInput.isPresent();
+	}
 	
+	@Override
+	public Optional<String> selectedInputKey() {
+		
+		
+		return Optional.ofNullable(selectedInput.get().getKey());
+	}
 	
+	@Override
+	public void assignInput(final String value) {
+		selectedInput.ifPresent(entry -> rulesDefinition.get().assign(entry.getKey(), value));
+	}
+	@Override
+	public Optional<String> validateInput(final String value) {
+		Assert.isTrue(rulesDefinition.isPresent(), "RuleDefinition not selected.");
+		Assert.isTrue(selectedInput.isPresent(), "InputParameter not selected.");
+		final Validator validator = validationFactory.validator(rulesDefinition.get().id(), selectedInputKey().get());
+		 final Errors errors = new MapBindingResult(new HashMap<>(), RulesAggregate.RULE_INPUT_MAP_FACT);
+		 validator.validate(value, errors);
+		 final Collection<ObjectError> allErrors =  errors.getAllErrors();
+		 if( allErrors.stream().findFirst().isPresent()) {
+			 return Optional.of(allErrors.stream().findFirst().get().getCode());
+			
+		 }
+		 return Optional.empty();
+	}
 
 }
