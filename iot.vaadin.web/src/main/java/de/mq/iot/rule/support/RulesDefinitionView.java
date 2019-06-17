@@ -8,7 +8,6 @@ import org.springframework.context.MessageSource;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
-
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -30,6 +29,8 @@ import de.mq.iot.support.ButtonBox;
 @I18NKey("rules_")
 class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
+	static final String I18N_VALIDATION_PREFIX = "rules_validation_";
+
 	/**
 	 * 
 	 */
@@ -37,6 +38,19 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 	@I18NKey("id_column")
 	private final Label ruleDefinitionColumnLabel = new Label();
+	
+	@I18NKey("input_parameter_column")
+	private final Label inputParameterColumnLabel = new Label();
+	
+	@I18NKey("input_value_column")
+	private final Label inputValueColumnLabel = new Label();
+	
+	@I18NKey("argument_parameter_column")
+	private final Label argumentParameterColumnLabel = new Label();
+	
+	@I18NKey("argument_value_column")
+	private final Label argumentValueColumnLabel = new Label();
+	
 
 	@I18NKey("optional_rules_column")
 	private final Label optionalRuleColumnLabel = new Label();
@@ -59,6 +73,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	private final HorizontalLayout editorLayout = new HorizontalLayout();
 	private final HorizontalLayout layout = new HorizontalLayout(grid);
 
+
 	// https://vaadin.com/components/vaadin-grid/java-examples/grid-editor
 
 	RulesDefinitionView(final RuleDefinitionModel ruleDefinitionModel, final RulesService rulesService, final ButtonBox buttonBox, final MessageSource messageSource) {
@@ -68,7 +83,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		inputParameter.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelectedInput(selectionEvent.getValue()));
 
-		changeInputButton.addClickListener(event -> updateInput(ruleDefinitionModel));
+		changeInputButton.addClickListener(event -> updateInput(ruleDefinitionModel, messageSource));
 
 		grid.setItems(rulesService.rulesDefinitions());
 		inputParameter.setItems(new ArrayList<>());
@@ -76,7 +91,6 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		ruleDefinitionModel.register(RuleDefinitionModel.Events.ChangeLocale, () -> {
 
 			localize(messageSource, ruleDefinitionModel.locale());
-
 		});
 
 		ruleDefinitionModel.register(Events.AssignInput, () -> {
@@ -105,14 +119,27 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 	}
 
-	private void updateInput(final RuleDefinitionModel ruleDefinitionModel) {
+	private void updateInput(final RuleDefinitionModel ruleDefinitionModel, MessageSource messageSource) {
 
 		final String inputValue = inputTextField.getValue();
 
 		final Optional<String> error = ruleDefinitionModel.validateInput(inputValue);
 
+		
+		
+		
+		
+		inputTextField.setErrorMessage("");
+		inputTextField.setInvalid(false);
+		
 		if (error.isPresent()) {
-			System.err.println(error.get());
+			inputTextField.setInvalid(true);
+			final String message =  messageSource.getMessage(I18N_VALIDATION_PREFIX + error.get().toLowerCase() , null, "???", ruleDefinitionModel.locale());
+			inputTextField.setErrorMessage(message);
+			
+			
+			
+			
 		} else {
 
 			ruleDefinitionModel.assignInput(inputValue);
@@ -134,12 +161,12 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		grid.addColumn((ValueProvider<RulesDefinition, String>) rulesDefinition -> rulesDefinition.id().name()).setHeader(ruleDefinitionColumnLabel).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 
-		arguments.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getKey()).setHeader("Parameter").setResizable(true);
-		arguments.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getValue()).setHeader("Wert").setResizable(true);
+		arguments.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getKey()).setHeader(argumentParameterColumnLabel).setResizable(true);
+		arguments.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getValue()).setHeader(argumentValueColumnLabel).setResizable(true);
 
-		inputParameter.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getKey()).setHeader("Parameter").setFooter(changeInputButton).setResizable(true);
+		inputParameter.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getKey()).setHeader(inputParameterColumnLabel).setFooter(changeInputButton).setResizable(true);
 
-		inputParameter.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getValue()).setHeader("Wert").setFooter(inputTextField).setResizable(true);
+		inputParameter.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getValue()).setHeader(inputValueColumnLabel).setFooter(inputTextField).setResizable(true);
 
 		grid.setSelectionMode(SelectionMode.SINGLE);
 
