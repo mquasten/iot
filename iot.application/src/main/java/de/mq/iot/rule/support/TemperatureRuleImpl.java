@@ -7,8 +7,9 @@ import org.jeasy.rules.annotation.Rule;
 
 import de.mq.iot.openweather.MeteorologicalData;
 import de.mq.iot.openweather.MeteorologicalDataService;
+import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.rule.support.Calendar.Time;
-@Rule(name = "temperatureRule", priority=2)
+@Rule(name = RulesDefinition.TEMPERATURE_RULE_NAME, priority=2)
 public class TemperatureRuleImpl {
 	
 	private final MeteorologicalDataService meteorologicalDataService;

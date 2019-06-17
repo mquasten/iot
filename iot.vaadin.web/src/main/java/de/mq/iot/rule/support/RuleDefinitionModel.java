@@ -14,6 +14,7 @@ public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events,
 		enum Events {
 			AssignRuleDefinition,
 			AssignInput,
+			AssignOptionalRule,
 			ChangeLocale;
 		}
 
@@ -55,6 +56,18 @@ public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events,
 
 
 		Optional<String> validateInput(String value);
+
+
+
+		Collection<String> definedOptionalRules();
+
+
+
+		void assignOptionalRule(final String value);
+
+
+
+		boolean isOptionalRuleSelected();
 
 	
 		

@@ -28,6 +28,8 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	private Optional<RulesDefinition> rulesDefinition = Optional.empty();
 	
 	private Optional<Entry<String,String>> selectedInput = Optional.empty();
+	
+	private Optional<String> selectedOptionalRule = Optional.empty();
 
 	private final ValidationFactory validationFactory;
 	RuleDefinitionModelImpl(final Subject<Events, RuleDefinitionModel> subject, ValidationFactory validationFactory) {
@@ -75,6 +77,14 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 		}
 
 		return inputData(rulesDefinition.get().id().parameter(), rulesDefinition.get().inputData().entrySet());
+	}
+	
+	@Override
+	public Collection<String> definedOptionalRules() {
+		if (!rulesDefinition.isPresent()) {
+			return Arrays.asList();
+		}
+		return rulesDefinition.get().id().optionalRules();
 	}
 
 	private Collection<Entry<String, String>> inputData(final Collection<String> keys, final Collection<Entry<String, String>> entries) {
@@ -146,6 +156,18 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 			
 		 }
 		 return Optional.empty();
+	}
+
+	@Override
+	public void assignOptionalRule(final String value) {
+		selectedOptionalRule=Optional.ofNullable(value);
+		notifyObservers(Events.AssignOptionalRule);
+		
+	}
+	
+	@Override
+	public boolean isOptionalRuleSelected() {
+		return selectedOptionalRule.isPresent();
 	}
 
 }

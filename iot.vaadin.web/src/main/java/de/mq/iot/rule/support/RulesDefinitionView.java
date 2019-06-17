@@ -7,9 +7,11 @@ import java.util.Optional;
 import org.springframework.context.MessageSource;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcons;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -69,6 +71,12 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	private final TextField inputTextField = new TextField();
 	@I18NKey("input_change")
 	private final Button changeInputButton = new Button();
+	
+	private final Button addOptionalRulesButton = new Button();
+	
+	private final Button deleteOptionalRulesButton = new Button();
+	
+	private final ComboBox<String> optionalRulesComboBox = new ComboBox<>();
 
 	private final HorizontalLayout editorLayout = new HorizontalLayout();
 	private final HorizontalLayout layout = new HorizontalLayout(grid);
@@ -82,7 +90,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelected(selectionEvent.getValue()));
 
 		inputParameter.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelectedInput(selectionEvent.getValue()));
-
+		optionalRules.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignOptionalRule(selectionEvent.getValue()));
 		changeInputButton.addClickListener(event -> updateInput(ruleDefinitionModel, messageSource));
 
 		grid.setItems(rulesService.rulesDefinitions());
@@ -97,17 +105,34 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 			inputTextField.setEnabled(ruleDefinitionModel.isInputSelected());
 			changeInputButton.setEnabled(ruleDefinitionModel.isInputSelected());
 			inputTextField.setValue(ruleDefinitionModel.selectedInputValue());
-
+			
 		});
+		
+		
+		ruleDefinitionModel.register(Events.AssignOptionalRule, () -> {
+			
+			deleteOptionalRulesButton.setEnabled(ruleDefinitionModel.isOptionalRuleSelected());
+			
+			
+		});
+		
 
 		ruleDefinitionModel.register(Events.AssignRuleDefinition, () -> {
 
 			optionalRules.setItems(ruleDefinitionModel.optionalRules());
 			inputParameter.setItems(ruleDefinitionModel.input());
 			arguments.setItems(ruleDefinitionModel.parameter());
+			optionalRulesComboBox.setItems(ruleDefinitionModel.definedOptionalRules());
+			optionalRulesComboBox.setItemLabelGenerator( value  ->  value);
+			optionalRulesComboBox.setValue(null);
+			
+		
+			deleteOptionalRulesButton.setEnabled(false);
+			
 			arguments.getParent().ifPresent(parent -> layout.remove(arguments));
 			inputParameter.getParent().ifPresent(parent -> editorLayout.remove(inputParameter));
 			optionalRules.getParent().ifPresent(parent -> editorLayout.remove(optionalRules));
+			
 			if (ruleDefinitionModel.isSelected()) {
 				editorLayout.add(inputParameter, optionalRules);
 				layout.add(arguments);
@@ -152,6 +177,11 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		inputTextField.setEnabled(false);
 		changeInputButton.setEnabled(false);
 
+	
+		addOptionalRulesButton.setEnabled(false);
+		deleteOptionalRulesButton.setEnabled(false);
+		
+		
 		grid.getElement().getStyle().set("overflow", "auto");
 		optionalRules.getElement().getStyle().set("overflow", "auto");
 		inputParameter.getElement().getStyle().set("overflow", "auto");
@@ -181,8 +211,17 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		// inputParameter);
 
 		editorLayout.setSizeFull();
-
-		optionalRules.addColumn((ValueProvider<String, String>) value -> value).setHeader(optionalRuleColumnLabel).setResizable(true);
+		final HorizontalLayout optionalRulesHeader = new HorizontalLayout();
+		
+		optionalRulesHeader.add(optionalRulesComboBox);
+		
+		addOptionalRulesButton.setIcon(VaadinIcons.FILE_ADD.create());
+		optionalRulesHeader.add(addOptionalRulesButton);
+		
+		deleteOptionalRulesButton.setIcon(VaadinIcons.FILE_REMOVE.create());
+		optionalRulesHeader.add(deleteOptionalRulesButton);
+	
+		optionalRules.addColumn((ValueProvider<String, String>) value -> value).setHeader(optionalRuleColumnLabel).setFooter(optionalRulesHeader).setResizable(true);
 
 		add(buttonBox, layout, editorLayout);
 		setHorizontalComponentAlignment(Alignment.CENTER);

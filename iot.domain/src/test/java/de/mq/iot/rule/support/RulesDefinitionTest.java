@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
@@ -161,6 +162,17 @@ class RulesDefinitionTest {
 		assertNull(rulesDefinition.id());
 		assertEquals(0, rulesDefinition.inputData().size());
 		assertEquals(0, rulesDefinition.optionalRules().size());
+	}
+	@Test
+	void optionalRulesDefaultDailyIotBatch() {
+		assertEquals(1, RulesDefinition.Id.DefaultDailyIotBatch.optionalRules().size());
+		assertEquals(Optional.of(RulesDefinition.TEMPERATURE_RULE_NAME), RulesDefinition.Id.DefaultDailyIotBatch.optionalRules().stream().findFirst());
+	}
+	
+	@Test
+	void optionalRulesEndOfDayBatch() {
+		assertEquals(1, RulesDefinition.Id.EndOfDayBatch.optionalRules().size());
+		assertEquals(Optional.of(RulesDefinition.CLEANUP_RULE_NAME), RulesDefinition.Id.EndOfDayBatch.optionalRules().stream().findFirst());
 	}
 
 }

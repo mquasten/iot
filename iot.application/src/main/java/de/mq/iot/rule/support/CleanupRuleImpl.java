@@ -9,8 +9,9 @@ import org.jeasy.rules.annotation.Rule;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.rule.RulesDefinition;
 
-@Rule(name = "cleanupRule", priority = 2)
+@Rule(name = RulesDefinition.CLEANUP_RULE_NAME, priority = 2)
 public class CleanupRuleImpl {
 
 	static final String SUCCESS_MESSAGE = "%s specialdays <= %s deleted.";
