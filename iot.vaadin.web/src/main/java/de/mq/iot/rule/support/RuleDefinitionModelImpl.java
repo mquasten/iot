@@ -159,10 +159,16 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	}
 
 	@Override
-	public void assignOptionalRule(final String value) {
+	public void assignSelectedOptionalRule(final String value) {
 		selectedOptionalRule=Optional.ofNullable(value);
 		notifyObservers(Events.AssignOptionalRule);
 		
+	}
+	
+	@Override
+	public void removeOptionalRule() {
+		rulesDefinition.ifPresent(rd -> selectedOptionalRule.ifPresent(rule -> rd.removeOptionalRule(rule)));
+		notifyObservers(Events.ChangeOptionalRules);
 	}
 	
 	@Override

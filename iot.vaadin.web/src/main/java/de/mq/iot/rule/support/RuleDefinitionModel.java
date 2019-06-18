@@ -15,6 +15,7 @@ public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events,
 			AssignRuleDefinition,
 			AssignInput,
 			AssignOptionalRule,
+			ChangeOptionalRules,
 			ChangeLocale;
 		}
 
@@ -63,11 +64,15 @@ public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events,
 
 
 
-		void assignOptionalRule(final String value);
+		void assignSelectedOptionalRule(final String value);
 
 
 
 		boolean isOptionalRuleSelected();
+
+
+
+		void removeOptionalRule();
 
 	
 		

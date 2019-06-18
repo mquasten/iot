@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.springframework.context.MessageSource;
+import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -90,7 +91,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelected(selectionEvent.getValue()));
 
 		inputParameter.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelectedInput(selectionEvent.getValue()));
-		optionalRules.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignOptionalRule(selectionEvent.getValue()));
+		optionalRules.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelectedOptionalRule(selectionEvent.getValue()));
 		changeInputButton.addClickListener(event -> updateInput(ruleDefinitionModel, messageSource));
 
 		grid.setItems(rulesService.rulesDefinitions());
@@ -116,29 +117,45 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 			
 		});
 		
+		
+		ruleDefinitionModel.register(Events.ChangeOptionalRules, () -> {
+			
+			optionalRules.setItems(ruleDefinitionModel.optionalRules());
+			
+			
+		});
+		
 
 		ruleDefinitionModel.register(Events.AssignRuleDefinition, () -> {
 
-			optionalRules.setItems(ruleDefinitionModel.optionalRules());
-			inputParameter.setItems(ruleDefinitionModel.input());
-			arguments.setItems(ruleDefinitionModel.parameter());
 			optionalRulesComboBox.setItems(ruleDefinitionModel.definedOptionalRules());
 			optionalRulesComboBox.setItemLabelGenerator( value  ->  value);
 			optionalRulesComboBox.setValue(null);
 			
 		
 			deleteOptionalRulesButton.setEnabled(false);
-			
+			optionalRulesComboBox.setEnabled(false);
 			arguments.getParent().ifPresent(parent -> layout.remove(arguments));
 			inputParameter.getParent().ifPresent(parent -> editorLayout.remove(inputParameter));
 			optionalRules.getParent().ifPresent(parent -> editorLayout.remove(optionalRules));
 			
+			
 			if (ruleDefinitionModel.isSelected()) {
 				editorLayout.add(inputParameter, optionalRules);
+				
+				optionalRulesComboBox.setEnabled(true);
+				
 				layout.add(arguments);
+				
+				
+				optionalRules.setItems(ruleDefinitionModel.optionalRules());
+				inputParameter.setItems(ruleDefinitionModel.input());
+				arguments.setItems(ruleDefinitionModel.parameter());
 			}
 
 		});
+		
+		deleteOptionalRulesButton.addClickListener(event -> ruleDefinitionModel.removeOptionalRule());
 
 		ruleDefinitionModel.notifyObservers(Events.ChangeLocale);
 
@@ -176,8 +193,13 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		inputTextField.setEnabled(false);
 		changeInputButton.setEnabled(false);
-
+		optionalRulesComboBox.setEnabled(false);
 	
+		
+		optionalRulesComboBox.addValueChangeListener(event -> {
+			addOptionalRulesButton.setEnabled(StringUtils.hasText(event.getValue()));
+			
+		});
 		addOptionalRulesButton.setEnabled(false);
 		deleteOptionalRulesButton.setEnabled(false);
 		
