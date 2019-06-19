@@ -74,6 +74,10 @@ public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events,
 
 		void removeOptionalRule();
 
+
+
+		void addOptionalRule(final Optional<String> optionalRule);
+
 	
 		
 		

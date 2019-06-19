@@ -81,6 +81,9 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 	private final HorizontalLayout editorLayout = new HorizontalLayout();
 	private final HorizontalLayout layout = new HorizontalLayout(grid);
+	
+	@I18NKey("validation_rule_exists")
+	private final Label optionalRuleExistsMessage = new Label();
 
 
 	// https://vaadin.com/components/vaadin-grid/java-examples/grid-editor
@@ -155,7 +158,22 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		});
 		
-		deleteOptionalRulesButton.addClickListener(event -> ruleDefinitionModel.removeOptionalRule());
+		deleteOptionalRulesButton.addClickListener(event -> {
+			optionalRulesComboBox.setInvalid(false);
+			optionalRulesComboBox.setErrorMessage("");
+			ruleDefinitionModel.removeOptionalRule();
+		});
+		
+		addOptionalRulesButton.addClickListener(event -> {
+			
+			if( ruleDefinitionModel.optionalRules().contains(optionalRulesComboBox.getValue())) {
+				optionalRulesComboBox.setInvalid(true);
+				optionalRulesComboBox.setErrorMessage(optionalRuleExistsMessage.getText());
+			}
+			
+			ruleDefinitionModel.addOptionalRule(Optional.ofNullable(optionalRulesComboBox.getValue()));
+			
+		});
 
 		ruleDefinitionModel.notifyObservers(Events.ChangeLocale);
 
@@ -197,6 +215,8 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	
 		
 		optionalRulesComboBox.addValueChangeListener(event -> {
+			optionalRulesComboBox.setInvalid(false);
+			optionalRulesComboBox.setErrorMessage("");
 			addOptionalRulesButton.setEnabled(StringUtils.hasText(event.getValue()));
 			
 		});
