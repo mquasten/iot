@@ -1,6 +1,7 @@
 package de.mq.iot.rule.support;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Optional;
 
@@ -82,6 +83,9 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	private final HorizontalLayout editorLayout = new HorizontalLayout();
 	private final HorizontalLayout layout = new HorizontalLayout(grid);
 	
+	@I18NKey("save_ruledefinition")
+	private final Button saveButton = new Button();
+	
 	@I18NKey("validation_rule_exists")
 	private final Label optionalRuleExistsMessage = new Label();
 
@@ -134,7 +138,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 			optionalRulesComboBox.setItems(ruleDefinitionModel.definedOptionalRules());
 			optionalRulesComboBox.setItemLabelGenerator( value  ->  value);
 			optionalRulesComboBox.setValue(null);
-			
+			saveButton.setEnabled(false);
 		
 			deleteOptionalRulesButton.setEnabled(false);
 			optionalRulesComboBox.setEnabled(false);
@@ -147,7 +151,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 				editorLayout.add(inputParameter, optionalRules);
 				
 				optionalRulesComboBox.setEnabled(true);
-				
+				saveButton.setEnabled(true);
 				layout.add(arguments);
 				
 				
@@ -174,9 +178,50 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 			ruleDefinitionModel.addOptionalRule(Optional.ofNullable(optionalRulesComboBox.getValue()));
 			
 		});
+		
+		saveButton.addClickListener(event -> {
+			
+			ruleDefinitionModel.selected().ifPresent(rd -> save(rd, ruleDefinitionModel, messageSource));
+			
+		});
 
 		ruleDefinitionModel.notifyObservers(Events.ChangeLocale);
 
+	}
+
+	private void save(final RulesDefinition rd, final RuleDefinitionModel ruleDefinitionModel, final MessageSource messageSource) {
+		
+			final Collection<Entry<String,String>> errors = ruleDefinitionModel.validateInput();
+			inputTextField.setInvalid(false);
+			inputTextField.setErrorMessage("");
+			if( errors.size() == 0 ) {
+				
+			} else {
+				inputTextField.setInvalid(true);
+				
+				inputTextField.setErrorMessage(message(errors, ruleDefinitionModel,messageSource));
+				
+			}
+			
+			
+		
+		
+	}
+
+	private String message(final Collection<Entry<String, String>> errors, final RuleDefinitionModel ruleDefinitionModel, final MessageSource messageSource) {
+		final StringBuilder builder = new StringBuilder();
+		for(final Entry<String, String> entry : errors) {
+			message(ruleDefinitionModel, messageSource, builder, entry);
+		}
+		return builder.toString();
+	}
+
+	private void message(final RuleDefinitionModel ruleDefinitionModel, final MessageSource messageSource, final StringBuilder builder, final Entry<String, String> entry) {
+		if( builder.length() > 0 ) {
+			builder.append(", ");
+		}else {
+			builder.append(entry.getKey() + ": " +  messageSource.getMessage(I18N_VALIDATION_PREFIX + entry.getValue().toLowerCase() , null, "???", ruleDefinitionModel.locale()));
+		}
 	}
 
 	private void updateInput(final RuleDefinitionModel ruleDefinitionModel, MessageSource messageSource) {
@@ -212,7 +257,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		inputTextField.setEnabled(false);
 		changeInputButton.setEnabled(false);
 		optionalRulesComboBox.setEnabled(false);
-	
+		saveButton.setEnabled(false);
 		
 		optionalRulesComboBox.addValueChangeListener(event -> {
 			optionalRulesComboBox.setInvalid(false);
@@ -230,7 +275,9 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		arguments.getElement().getStyle().set("overflow", "auto");
 
-		grid.addColumn((ValueProvider<RulesDefinition, String>) rulesDefinition -> rulesDefinition.id().name()).setHeader(ruleDefinitionColumnLabel).setResizable(true);
+		final HorizontalLayout footerLayout = new HorizontalLayout();
+		footerLayout.add(saveButton);
+		grid.addColumn((ValueProvider<RulesDefinition, String>) rulesDefinition -> rulesDefinition.id().name()).setHeader(ruleDefinitionColumnLabel).setFooter(footerLayout).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 
 		arguments.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getKey()).setHeader(argumentParameterColumnLabel).setResizable(true);

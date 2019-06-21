@@ -78,6 +78,14 @@ public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events,
 
 		void addOptionalRule(final Optional<String> optionalRule);
 
+
+
+		Optional<RulesDefinition> selected();
+
+
+
+		Collection<Entry<String, String>> validateInput();
+
 	
 		
 		

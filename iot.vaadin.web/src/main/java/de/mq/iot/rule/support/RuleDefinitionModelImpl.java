@@ -32,7 +32,7 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	private Optional<String> selectedOptionalRule = Optional.empty();
 
 	private final ValidationFactory validationFactory;
-	RuleDefinitionModelImpl(final Subject<Events, RuleDefinitionModel> subject, ValidationFactory validationFactory) {
+	RuleDefinitionModelImpl(final Subject<Events, RuleDefinitionModel> subject, final ValidationFactory validationFactory) {
 		this.subject = subject;
 		this.validationFactory=validationFactory;
 	}
@@ -59,6 +59,10 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	public boolean isSelected() {
 		return rulesDefinition.isPresent();
 		
+	}
+	@Override
+	public Optional<RulesDefinition> selected() {
+		return rulesDefinition;
 	}
 
 	@Override
@@ -183,6 +187,26 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	@Override
 	public boolean isOptionalRuleSelected() {
 		return selectedOptionalRule.isPresent();
+	}
+	@Override
+	public  Collection<Entry<String,String>> validateInput() {
+		final Map<String,String> results = new HashMap<>();
+		rulesDefinition.ifPresent(rd -> validate(rd, results));
+		
+		return Collections.unmodifiableCollection(results.entrySet());
+	}
+
+	private void validate(final RulesDefinition rd, final Map<String,String> messages) {
+		final Map<String,String> values = rd.inputData();
+	
+		rd.id().input().forEach(field -> {
+			final Errors errors = new MapBindingResult(new HashMap<>(), RulesAggregate.RULE_INPUT_MAP_FACT);
+			final Validator validator = validationFactory.validator(rd.id(), field);
+			validator.validate(values.get(field), errors);
+			errors.getAllErrors().stream().findFirst().ifPresent(error -> messages.put(field, error.getCode()));
+			
+			});
+		
 	}
 
 }
