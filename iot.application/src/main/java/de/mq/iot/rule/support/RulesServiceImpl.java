@@ -54,6 +54,15 @@ abstract class RulesServiceImpl implements RulesService {
 	public final Collection<RulesDefinition> rulesDefinitions(){
 		return rulesDefinitionRepository.findAll().collectList().block(timeout);
 	}
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.rule.support.RulesService#save(de.mq.iot.rule.RulesDefinition)
+	 */
+	@Override
+	public void save(RulesDefinition rulesDefinition) {
+		rulesDefinitionRepository.save(rulesDefinition).block(timeout);
+	}
+	
 	
 	
 	@Lookup("rulesAggregates")

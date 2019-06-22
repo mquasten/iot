@@ -12,4 +12,6 @@ public interface RulesService {
 
 	Collection<RulesDefinition> rulesDefinitions();
 
+	void save(RulesDefinition rulesDefinition);
+
 }

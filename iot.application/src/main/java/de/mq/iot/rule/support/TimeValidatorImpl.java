@@ -38,7 +38,7 @@ class TimeValidatorImpl implements Validator {
 			return;
 		}
 
-		if (timeString == null) {
+		if (! StringUtils.hasText(timeString)) {
 			return;
 		}
 

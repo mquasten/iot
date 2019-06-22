@@ -88,22 +88,61 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	
 	@I18NKey("validation_rule_exists")
 	private final Label optionalRuleExistsMessage = new Label();
+	
+	private final MessageSource messageSource;
 
+	private final RuleDefinitionModel ruleDefinitionModel;
+	
+	private final ButtonBox buttonBox;
+	
+	private final  RulesService rulesService;
 
 	// https://vaadin.com/components/vaadin-grid/java-examples/grid-editor
 
 	RulesDefinitionView(final RuleDefinitionModel ruleDefinitionModel, final RulesService rulesService, final ButtonBox buttonBox, final MessageSource messageSource) {
+		this.messageSource=messageSource;
+		this.ruleDefinitionModel=ruleDefinitionModel;
+		this.buttonBox=buttonBox;
+		this.rulesService=rulesService;
+		createUI();
+		addListeneners(ruleDefinitionModel);
+		registerObservers();
+		ruleDefinitionModel.notifyObservers(Events.ChangeLocale);
 
-		createUI(rulesService, buttonBox);
+	}
+
+	private void addListeneners(final RuleDefinitionModel ruleDefinitionModel) {
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelected(selectionEvent.getValue()));
 
 		inputParameter.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelectedInput(selectionEvent.getValue()));
 		optionalRules.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelectedOptionalRule(selectionEvent.getValue()));
-		changeInputButton.addClickListener(event -> updateInput(ruleDefinitionModel, messageSource));
+		changeInputButton.addClickListener(event -> updateInput());
+		
+		deleteOptionalRulesButton.addClickListener(event -> {
+			optionalRulesComboBox.setInvalid(false);
+			optionalRulesComboBox.setErrorMessage("");
+			ruleDefinitionModel.removeOptionalRule();
+		});
+		
+		addOptionalRulesButton.addClickListener(event -> {
+			
+			if( ruleDefinitionModel.optionalRules().contains(optionalRulesComboBox.getValue())) {
+				optionalRulesComboBox.setInvalid(true);
+				optionalRulesComboBox.setErrorMessage(optionalRuleExistsMessage.getText());
+			}
+			
+			ruleDefinitionModel.addOptionalRule(Optional.ofNullable(optionalRulesComboBox.getValue()));
+			
+		});
+		
+		saveButton.addClickListener(event -> {
+			
+			ruleDefinitionModel.selected().ifPresent(rd -> save(rd));
+			
+		});
+	}
 
-		grid.setItems(rulesService.rulesDefinitions());
-		inputParameter.setItems(new ArrayList<>());
-
+	private void registerObservers() {
 		ruleDefinitionModel.register(RuleDefinitionModel.Events.ChangeLocale, () -> {
 
 			localize(messageSource, ruleDefinitionModel.locale());
@@ -161,45 +200,20 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 			}
 
 		});
-		
-		deleteOptionalRulesButton.addClickListener(event -> {
-			optionalRulesComboBox.setInvalid(false);
-			optionalRulesComboBox.setErrorMessage("");
-			ruleDefinitionModel.removeOptionalRule();
-		});
-		
-		addOptionalRulesButton.addClickListener(event -> {
-			
-			if( ruleDefinitionModel.optionalRules().contains(optionalRulesComboBox.getValue())) {
-				optionalRulesComboBox.setInvalid(true);
-				optionalRulesComboBox.setErrorMessage(optionalRuleExistsMessage.getText());
-			}
-			
-			ruleDefinitionModel.addOptionalRule(Optional.ofNullable(optionalRulesComboBox.getValue()));
-			
-		});
-		
-		saveButton.addClickListener(event -> {
-			
-			ruleDefinitionModel.selected().ifPresent(rd -> save(rd, ruleDefinitionModel, messageSource));
-			
-		});
-
-		ruleDefinitionModel.notifyObservers(Events.ChangeLocale);
-
 	}
 
-	private void save(final RulesDefinition rd, final RuleDefinitionModel ruleDefinitionModel, final MessageSource messageSource) {
+	private void save(final RulesDefinition rulesDefinition) {
 		
 			final Collection<Entry<String,String>> errors = ruleDefinitionModel.validateInput();
 			inputTextField.setInvalid(false);
 			inputTextField.setErrorMessage("");
 			if( errors.size() == 0 ) {
-				
+				rulesService.save(rulesDefinition);
+				grid.setItems(rulesService.rulesDefinitions());
 			} else {
 				inputTextField.setInvalid(true);
 				
-				inputTextField.setErrorMessage(message(errors, ruleDefinitionModel,messageSource));
+				inputTextField.setErrorMessage(message(errors));
 				
 			}
 			
@@ -208,15 +222,15 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		
 	}
 
-	private String message(final Collection<Entry<String, String>> errors, final RuleDefinitionModel ruleDefinitionModel, final MessageSource messageSource) {
+	private String message(final Collection<Entry<String, String>> errors) {
 		final StringBuilder builder = new StringBuilder();
 		for(final Entry<String, String> entry : errors) {
-			message(ruleDefinitionModel, messageSource, builder, entry);
+			message(builder, entry);
 		}
 		return builder.toString();
 	}
 
-	private void message(final RuleDefinitionModel ruleDefinitionModel, final MessageSource messageSource, final StringBuilder builder, final Entry<String, String> entry) {
+	private void message(final StringBuilder builder, final Entry<String, String> entry) {
 		if( builder.length() > 0 ) {
 			builder.append(", ");
 		}else {
@@ -224,7 +238,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		}
 	}
 
-	private void updateInput(final RuleDefinitionModel ruleDefinitionModel, MessageSource messageSource) {
+	private void updateInput() {
 
 		final String inputValue = inputTextField.getValue();
 
@@ -252,7 +266,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		}
 	}
 
-	private void createUI(final RulesService ruleService, final ButtonBox buttonBox) {
+	private void createUI() {
 
 		inputTextField.setEnabled(false);
 		changeInputButton.setEnabled(false);
@@ -325,6 +339,12 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		inputParameter.setHeight("30vH");
 
 		arguments.setHeight("30vH");
+		
+		
+		
+
+		grid.setItems(rulesService.rulesDefinitions());
+		inputParameter.setItems(new ArrayList<>());
 
 	}
 
