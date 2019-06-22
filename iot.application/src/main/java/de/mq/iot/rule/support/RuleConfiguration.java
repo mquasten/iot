@@ -5,10 +5,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rules;
@@ -17,9 +15,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
-import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
-import org.springframework.data.mongodb.core.mapping.event.BeforeSaveEvent;
-import org.springframework.util.StringUtils;
 
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.openweather.MeteorologicalDataService;
@@ -92,21 +87,7 @@ class RuleConfiguration {
 	final Supplier<LocalDate> dateSupplier() {
 		return  () -> LocalDate.now();
 	}
-	@Bean
-	AbstractMongoEventListener<RulesDefinition> rulesDefinitionListener() {
-		return new AbstractMongoEventListener<RulesDefinition>() {
-			@Override
-			public void onBeforeSave(final BeforeSaveEvent<RulesDefinition> event) {
-				final RulesDefinition rulesDefinition = event.getSource();
-				final Collection<String> toBeRemoved = rulesDefinition.inputData().entrySet().stream().filter(entry ->  !StringUtils.hasText(entry.getValue())).map(Entry::getKey).collect(Collectors.toSet());
-				toBeRemoved.forEach(key -> rulesDefinition.remove(key));
-			}
-
-			
-			
-		};
-		
-	}
 	
-
+	
+	
 }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import de.mq.iot.rule.RulesDefinition;
 
@@ -59,7 +60,10 @@ abstract class RulesServiceImpl implements RulesService {
 	 * @see de.mq.iot.rule.support.RulesService#save(de.mq.iot.rule.RulesDefinition)
 	 */
 	@Override
-	public void save(RulesDefinition rulesDefinition) {
+	public void save(RulesDefinition rulesDefinition) {		
+		final Collection<String> toBeRemoved = rulesDefinition.inputData().entrySet().stream().filter(entry ->  !StringUtils.hasText(entry.getValue())).map(Entry::getKey).collect(Collectors.toSet());
+	    toBeRemoved.forEach(key -> rulesDefinition.remove(key));
+				
 		rulesDefinitionRepository.save(rulesDefinition).block(timeout);
 	}
 	
