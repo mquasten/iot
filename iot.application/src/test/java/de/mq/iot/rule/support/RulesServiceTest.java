@@ -1,6 +1,8 @@
 package de.mq.iot.rule.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.AbstractMap;
@@ -9,6 +11,7 @@ import java.util.Collection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -18,6 +21,7 @@ import reactor.core.publisher.Mono;
 
 public class RulesServiceTest {
 	
+	private static final Integer TIMEOUT = 500;
 	private static final String TIMEOUT_FIELD = "timeout";
 	private final RulesServiceImpl rulesService = Mockito.mock(RulesServiceImpl.class, Mockito.CALLS_REAL_METHODS); 
 	private final RulesAggregate<?> defaultDailyIotBatchRulesAggregate = Mockito.mock(RulesAggregate.class);
@@ -38,7 +42,7 @@ public class RulesServiceTest {
 		
 		Arrays.asList(RulesServiceImpl.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(RulesDefinitionRepository.class)).forEach(field -> ReflectionTestUtils.setField(rulesService, field.getName(), rulesDefinitionRepository));
 		
-		ReflectionTestUtils.setField(rulesService, TIMEOUT_FIELD, Duration.ofMillis(500));
+		ReflectionTestUtils.setField(rulesService, TIMEOUT_FIELD, Duration.ofMillis(TIMEOUT));
 	}
 	
 	@Test
@@ -64,6 +68,34 @@ public class RulesServiceTest {
 		assertEquals(1, results.size());
 		
 		assertEquals(rulesDefinition, results.stream().findFirst().get());
+	}
+	
+	@Test
+	void save() {
+		
+		final RulesDefinition rulesDefinition = new RulesDefinitionImpl(RulesDefinition.Id.DefaultDailyIotBatch);
+		rulesDefinition.assign(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, "7:15");
+		rulesDefinition.assign(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, "5:15");
+		rulesDefinition.assign(RulesDefinition.MIN_SUN_DOWN_TIME_KEY, " ");
+		@SuppressWarnings("unchecked")
+		final Mono<RulesDefinition> mono = Mockito.mock(Mono.class);
+		
+		Mockito.doReturn(mono).when(rulesDefinitionRepository).save(Mockito.any(RulesDefinition.class));
+		final ArgumentCaptor<RulesDefinition> ruleDefinitionCaptor = ArgumentCaptor.forClass(RulesDefinition.class);
+		
+		
+		rulesService.save(rulesDefinition);
+		
+		Mockito.verify(mono).block(Duration.ofMillis(TIMEOUT));
+		
+		Mockito.verify(rulesDefinitionRepository).save(ruleDefinitionCaptor.capture());
+		
+		assertEquals(rulesDefinition, ruleDefinitionCaptor.getValue());
+		
+		assertEquals(2, ruleDefinitionCaptor.getValue().inputData().size());
+		assertTrue(ruleDefinitionCaptor.getValue().inputData().containsKey(RulesDefinition.HOLIDAY_ALARM_TIME_KEY));
+		assertTrue(ruleDefinitionCaptor.getValue().inputData().containsKey(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY));
+		assertFalse(ruleDefinitionCaptor.getValue().inputData().containsKey(RulesDefinition.MIN_SUN_DOWN_TIME_KEY));
 	}
 
 }
