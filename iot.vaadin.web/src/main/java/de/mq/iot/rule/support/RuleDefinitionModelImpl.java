@@ -70,7 +70,6 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 		if (!rulesDefinition.isPresent()) {
 			return Arrays.asList();
 		}
-
 		return inputData(rulesDefinition.get().id().input(), rulesDefinition.get().inputData().entrySet());
 	}
 
@@ -80,6 +79,8 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 			return Arrays.asList();
 		}
 
+		
+		
 		return inputData(rulesDefinition.get().id().parameter(), rulesDefinition.get().inputData().entrySet());
 	}
 	
@@ -98,7 +99,7 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 		results.putAll(keys.stream().collect(Collectors.toMap(key -> key, key -> "")));
 
 		results.putAll(entries.stream().filter(entry -> keys.contains(entry.getKey())).collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue())));
-
+		
 		return Collections.unmodifiableSet(results.entrySet());
 
 	}
@@ -139,7 +140,9 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	@Override
 	public Optional<String> selectedInputKey() {
 		
-		
+		if(! selectedInput.isPresent()) {
+			return Optional.empty();
+		}
 		return Optional.ofNullable(selectedInput.get().getKey());
 	}
 	
