@@ -26,7 +26,6 @@ class RulesDefinitionConfigurationTest {
 	@Test
 	void ruleDefinitionModel() {
 		
-		
 		final RuleDefinitionModel model = rulesDefinitionConfiguration.ruleDefinitionModel(subject, validationFactory);
 		final Map<Class<?>, Object> dependencies = Arrays.asList(RuleDefinitionModelImpl.class.getDeclaredFields()).stream().filter(field -> Arrays.asList(ValidationFactory.class, Subject.class).contains(field.getType()) ).map(field -> new AbstractMap.SimpleImmutableEntry<>(field.getType(), ReflectionTestUtils.getField(model, field.getName()))).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		assertEquals(2, dependencies.size());
