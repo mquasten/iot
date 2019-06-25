@@ -175,9 +175,9 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	
 	
 	@Override
-	public void addOptionalRule(final Optional<String> optionalRule) {
+	public void addOptionalRule(final String optionalRule) {
 	
-		rulesDefinition.ifPresent(rd -> optionalRule.ifPresent( value ->rd.assignRule(value)));
+		rulesDefinition.ifPresent(rd ->rd.assignRule(optionalRule));
 		notifyObservers(Events.ChangeOptionalRules);
 	}
 	

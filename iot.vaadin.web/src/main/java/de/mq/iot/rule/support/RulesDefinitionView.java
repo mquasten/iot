@@ -131,7 +131,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 				optionalRulesComboBox.setErrorMessage(optionalRuleExistsMessage.getText());
 			}
 			
-			ruleDefinitionModel.addOptionalRule(Optional.ofNullable(optionalRulesComboBox.getValue()));
+			ruleDefinitionModel.addOptionalRule(optionalRulesComboBox.getValue());
 			
 		});
 		

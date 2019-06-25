@@ -16,13 +16,12 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.StringUtils;
 
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 import de.mq.iot.rule.RulesDefinition;
-import de.mq.iot.rule.support.RuleDefinitionModel;
-
 import de.mq.iot.rule.support.RuleDefinitionModel.Events;
 
 class RuleDefinitionModelTest {
@@ -32,7 +31,7 @@ class RuleDefinitionModelTest {
 	private static final String WORKING_DAY_VALUE = "5:15";
 	@SuppressWarnings("unchecked")
 	private final Subject<Events, RuleDefinitionModel> subject = Mockito.mock(Subject.class);
-    private ValidationFactory validationFactory = Mockito.mock(ValidationFactory.class);
+    private final ValidationFactory validationFactory = new ValidationFactory(new DefaultConversionService());
 	
 	private final RuleDefinitionModel ruleDefinitionModel = new RuleDefinitionModelImpl(subject, validationFactory);
 	
@@ -191,6 +190,93 @@ class RuleDefinitionModelTest {
 		ruleDefinitionModel.assignInput(WORKING_DAY_VALUE);
 		
 		Mockito.verify(rulesDefinition, Mockito.never()).assign(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, WORKING_DAY_VALUE);
+	}
+	
+	@Test
+	void validateInput() {
+		
+		Mockito.doReturn(RulesDefinition.Id.DefaultDailyIotBatch).when(rulesDefinition).id();
+		
+		ruleDefinitionModel.assignSelected(rulesDefinition);
+		ruleDefinitionModel.assignSelectedInput(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.HOLIDAY_ALARM_TIME_KEY,null));
+		
+		
+		assertEquals(Optional.of(TimeValidatorImpl.MANDATORY), ruleDefinitionModel.validateInput(""));
+		
+		assertEquals(Optional.of(TimeValidatorImpl.INVALID) , ruleDefinitionModel.validateInput("x:x"));
+		assertEquals(Optional.empty(), ruleDefinitionModel.validateInput(HOLIDAY_VALUE));
+	}
+	
+	
+	@Test
+	void selectedOptionalRule() {
+		
+		assertFalse(ruleDefinitionModel.isOptionalRuleSelected());
+		ruleDefinitionModel.assignSelectedOptionalRule(RulesDefinition.TEMPERATURE_RULE_NAME);
+		
+		assertTrue(ruleDefinitionModel.isOptionalRuleSelected());
+		
+		Mockito.verify(subject).notifyObservers(Events.AssignOptionalRule);
+		
+		
+	}
+	
+	@Test
+	void addOptionalRule() {
+	
+		
+		ruleDefinitionModel.assignSelected(rulesDefinition);
+		
+		ruleDefinitionModel.addOptionalRule(RulesDefinition.HOLIDAY_ALARM_TIME_KEY);
+		
+		Mockito.verify(rulesDefinition).assignRule(RulesDefinition.HOLIDAY_ALARM_TIME_KEY);
+		
+		Mockito.verify(subject).notifyObservers(Events.ChangeOptionalRules);
+		
+	}
+	
+	@Test
+	void  removeOptionalRule() {
+		ruleDefinitionModel.assignSelected(rulesDefinition);
+		ruleDefinitionModel.assignSelectedOptionalRule(RulesDefinition.HOLIDAY_ALARM_TIME_KEY);
+		
+		ruleDefinitionModel.removeOptionalRule();
+		
+		
+		Mockito.verify(rulesDefinition).removeOptionalRule(RulesDefinition.HOLIDAY_ALARM_TIME_KEY);
+		
+		Mockito.verify(subject).notifyObservers(Events.ChangeOptionalRules);
+		
+	}
+	
+	
+	@Test
+	void  validateInputAll() {
+		
+		Mockito.doReturn(RulesDefinition.Id.DefaultDailyIotBatch).when(rulesDefinition).id();
+		ruleDefinitionModel.assignSelected(rulesDefinition);
+		
+		final Map<String,String> results = ruleDefinitionModel.validateInput().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		
+		assertEquals(2, results.size());
+		
+		assertTrue(results.containsKey(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY));
+		
+		assertTrue(results.containsKey(RulesDefinition.HOLIDAY_ALARM_TIME_KEY));
+		
+		results.values().forEach(value -> assertEquals(TimeValidatorImpl.MANDATORY, value));
+		
+		
+		final Map<String,String> values = new HashMap<>();
+		
+		values.put(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, WORKING_DAY_VALUE);
+		
+		values.put(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, HOLIDAY_VALUE);
+		
+		Mockito.doReturn(values).when(rulesDefinition).inputData();
+		
+		assertEquals(0, ruleDefinitionModel.validateInput().size());
+		
 	}
 	
 }
