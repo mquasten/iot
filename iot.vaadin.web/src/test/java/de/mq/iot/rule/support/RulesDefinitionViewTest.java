@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,12 +50,21 @@ class RulesDefinitionViewTest {
 
 	@BeforeEach
 	void setup() {
+		
+		
+		Mockito.doReturn(Arrays.asList(RulesDefinition.TEMPERATURE_RULE_NAME)).when(ruleDefinitionModel).optionalRules();
+		
+		Mockito.doReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, "7:15"), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, "5:15"))).when(ruleDefinitionModel).input();
+		Mockito.doReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, null), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, null))).when(ruleDefinitionModel).parameter();
 
 		Mockito.doReturn(RulesDefinition.Id.DefaultDailyIotBatch).when(rulesDefinitionDefaultDailyIotBatch).id();
 
 		Mockito.doReturn(RulesDefinition.Id.EndOfDayBatch).when(rulesDefinitionEndOfDayBatch).id();
 
 		Mockito.doReturn(Arrays.asList(rulesDefinitionDefaultDailyIotBatch, rulesDefinitionEndOfDayBatch)).when(rulesService).rulesDefinitions();
+		
+		
+		
 
 		Mockito.doAnswer(answer -> {
 
@@ -80,7 +90,7 @@ class RulesDefinitionViewTest {
 		final Grid<RulesDefinition> grid = grid();
 		assertNotNull(grid);
 
-		Collection<RulesDefinition> rulesDefinitions = (Collection<RulesDefinition>) grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+		final Collection<RulesDefinition> rulesDefinitions = (Collection<RulesDefinition>) grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
 
 		assertEquals(2, rulesDefinitions.size());
 
@@ -159,30 +169,58 @@ class RulesDefinitionViewTest {
 	void assignRuleDefinition() {
 		Mockito.doReturn(Arrays.asList(RulesDefinition.TEMPERATURE_RULE_NAME)).when(ruleDefinitionModel).definedOptionalRules();
 		Mockito.doReturn(true).when(ruleDefinitionModel).isSelected();
-		
 		assertTrue(observers.containsKey(RuleDefinitionModel.Events.AssignRuleDefinition));
 		
 		final Button button = saveButton();
 		assertNotNull(button);
 		assertFalse(button.isEnabled());
 		
+		final Grid<String> optionalRules = optionalRules();
+		assertNotNull(optionalRules);
+		assertFalse(optionalRules.getParent().isPresent());
+		
+		final Grid<Entry<String, String>> inputParameter = inputParameter();
+		assertNotNull(inputParameter);
+		assertFalse(inputParameter.getParent().isPresent());
+		
+		final Grid<Entry<String, String>> arguments = arguments();
+		assertNotNull(arguments);
+		assertFalse(arguments.getParent().isPresent());
 		
 		@SuppressWarnings("unchecked")
 		final ComboBox<String> optionalRulesComboBox = (ComboBox<String>) fields.get("optionalRulesComboBox");
 		assertNotNull(optionalRulesComboBox);
-		
 		assertEquals(0, optionalRulesComboBox.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).size());
+		
 		observers.get(RuleDefinitionModel.Events.AssignRuleDefinition).process();
-		
-		
-		
-		
-		
 		
 		assertEquals(1, optionalRulesComboBox.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).size());
 		assertEquals(Optional.of(RulesDefinition.TEMPERATURE_RULE_NAME), optionalRulesComboBox.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).stream().findAny());
 		
 		assertTrue(button.isEnabled());
+		assertTrue(optionalRules.getParent().isPresent());
+		assertTrue(inputParameter.getParent().isPresent());
+		assertTrue(arguments.getParent().isPresent());
+
+		assertEquals(Optional.of(RulesDefinition.TEMPERATURE_RULE_NAME), optionalRules.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).stream().findAny());
+
+		final Collection<String> resultsInputParameter = inputParameter.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).stream().map(Entry::getKey).collect(Collectors.toList());
+		assertEquals(2, resultsInputParameter.size());
+		assertTrue(resultsInputParameter.contains(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY));
+		assertTrue(resultsInputParameter.contains(RulesDefinition.HOLIDAY_ALARM_TIME_KEY));
+		
+		final Collection<String> resultsArguments = arguments.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).stream().map(Entry::getKey).collect(Collectors.toList());
+		assertEquals(2, resultsArguments.size());
+		assertTrue(resultsArguments.contains(RulesDefinition.UPDATE_MODE_KEY));
+		assertTrue(resultsArguments.contains(RulesDefinition.TEST_MODE_KEY));
+		
+		Mockito.doReturn(false).when(ruleDefinitionModel).isSelected();
+		observers.get(RuleDefinitionModel.Events.AssignRuleDefinition).process();
+		
+		assertFalse(button.isEnabled());
+		assertFalse(optionalRules.getParent().isPresent());
+		assertFalse(inputParameter.getParent().isPresent());
+		assertFalse(arguments.getParent().isPresent());
 		
 	}
 
