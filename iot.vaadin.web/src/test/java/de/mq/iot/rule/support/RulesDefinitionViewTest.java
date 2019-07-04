@@ -21,10 +21,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.context.MessageSource;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
 
 import de.mq.iot.model.Observer;
@@ -32,6 +34,8 @@ import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.support.ButtonBox;
 
 class RulesDefinitionViewTest {
+
+	private static final String WORKINGDAY_EVENT_TIME_VALUE = "7:15";
 
 	private final RuleDefinitionModel ruleDefinitionModel = Mockito.mock(RuleDefinitionModel.class);
 
@@ -54,7 +58,7 @@ class RulesDefinitionViewTest {
 		
 		Mockito.doReturn(Arrays.asList(RulesDefinition.TEMPERATURE_RULE_NAME)).when(ruleDefinitionModel).optionalRules();
 		
-		Mockito.doReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, "7:15"), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, "5:15"))).when(ruleDefinitionModel).input();
+		Mockito.doReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, WORKINGDAY_EVENT_TIME_VALUE), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, "5:15"))).when(ruleDefinitionModel).input();
 		Mockito.doReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, null), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, null))).when(ruleDefinitionModel).parameter();
 
 		Mockito.doReturn(RulesDefinition.Id.DefaultDailyIotBatch).when(rulesDefinitionDefaultDailyIotBatch).id();
@@ -222,6 +226,68 @@ class RulesDefinitionViewTest {
 		assertFalse(inputParameter.getParent().isPresent());
 		assertFalse(arguments.getParent().isPresent());
 		
+	}
+	
+	@Test
+	void selectInput() {
+		
+	
+		final Grid<Entry<String,String>> input = inputParameter();
+		assertNotNull(input);
+		
+		final Entry<String, String> entry = new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, WORKINGDAY_EVENT_TIME_VALUE);
+		input.select(entry);
+		
+		
+		Mockito.verify(ruleDefinitionModel).assignSelectedInput(entry);
+	}
+	
+	
+	@Test
+	void assignInput() {
+		
+		Mockito.doReturn(Arrays.asList(RulesDefinition.TEMPERATURE_RULE_NAME)).when(ruleDefinitionModel).definedOptionalRules();
+		Mockito.doReturn(true).when(ruleDefinitionModel).isSelected();
+		Mockito.doReturn(true).when(ruleDefinitionModel).isInputSelected();
+		
+		Mockito.doReturn(WORKINGDAY_EVENT_TIME_VALUE).when(ruleDefinitionModel).selectedInputValue();
+		
+		
+		assertTrue(observers.containsKey(RuleDefinitionModel.Events.AssignRuleDefinition));
+		assertTrue(observers.containsKey(RuleDefinitionModel.Events.AssignInput));
+		
+		final Button changeInputButton = changeInputButton();
+		assertNotNull(changeInputButton);
+		
+		final TextField inputTextField = inputTextField();
+		
+		
+		observers.get(RuleDefinitionModel.Events.AssignRuleDefinition).process();
+		
+		assertFalse(changeInputButton.isEnabled());
+		assertFalse(inputTextField.isEnabled());
+		assertTrue(StringUtils.isEmpty(inputTextField.getValue()));
+		
+		observers.get(RuleDefinitionModel.Events.AssignInput).process();
+		
+		
+		final Grid<Entry<String, String>> inputParameter = inputParameter();
+		assertNotNull(inputParameter);
+		assertTrue(inputParameter.getParent().isPresent());
+		
+		assertTrue(changeInputButton.isEnabled());
+		assertTrue(inputTextField.isEnabled());
+		
+		assertEquals(WORKINGDAY_EVENT_TIME_VALUE, inputTextField.getValue());
+		
+	}
+
+	private TextField inputTextField() {
+		return (TextField) fields.get("inputTextField");
+	}
+
+	private Button changeInputButton() {
+		return  (Button) fields.get("changeInputButton");
 	}
 
 }
