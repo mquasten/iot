@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -288,6 +289,65 @@ class RulesDefinitionViewTest {
 
 	private Button changeInputButton() {
 		return  (Button) fields.get("changeInputButton");
+	}
+	
+	
+	@Test
+	void selectOptionalRules() {
+		
+	
+		final Grid<String> optionalRules = optionalRules();
+		assertNotNull(optionalRules);
+		
+		
+		optionalRules.select(RulesDefinition.TEMPERATURE_RULE_NAME);
+		
+		
+		Mockito.verify(ruleDefinitionModel).assignSelectedOptionalRule(RulesDefinition.TEMPERATURE_RULE_NAME);
+	}
+	
+	@Test
+	void assignOptionalRules() {
+
+	Mockito.doReturn(true).when(ruleDefinitionModel).isSelected();
+	Mockito.doReturn(true).when(ruleDefinitionModel).isOptionalRuleSelected();
+	
+	Mockito.doReturn(WORKINGDAY_EVENT_TIME_VALUE).when(ruleDefinitionModel).selectedInputValue();
+	
+	
+	assertTrue(observers.containsKey(RuleDefinitionModel.Events.AssignRuleDefinition));
+	assertTrue(observers.containsKey(RuleDefinitionModel.Events.AssignOptionalRule));
+	
+	final Button deleteOptionalRulesButton =  deleteOptionalRulesButton();
+	assertNotNull(deleteOptionalRulesButton);
+	
+	assertFalse(deleteOptionalRulesButton.isEnabled());
+	
+	observers.get(RuleDefinitionModel.Events.AssignOptionalRule).process();
+
+	assertTrue(deleteOptionalRulesButton.isEnabled());
+	}
+
+	private Button deleteOptionalRulesButton() {
+		return (Button) fields.get("deleteOptionalRulesButton");
+	}
+	
+	
+	@Test
+	void changeOptionalRules() {
+	
+		
+		final Grid<String> optionalRules =optionalRules();
+		optionalRules.setItems(new ArrayList<>());
+	    Mockito.doReturn(Arrays.asList(RulesDefinition.TEMPERATURE_RULE_NAME)).when(ruleDefinitionModel).optionalRules();
+	    assertTrue(observers.containsKey(RuleDefinitionModel.Events.ChangeOptionalRules));
+	   
+	    observers.get(RuleDefinitionModel.Events.ChangeOptionalRules).process();
+	
+	    
+	    final Collection<String> results =optionalRules.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).stream().collect(Collectors.toList());
+	    assertEquals(1, results.size());
+	    assertEquals(Optional.of(RulesDefinition.TEMPERATURE_RULE_NAME), results.stream().findAny());
 	}
 
 }
