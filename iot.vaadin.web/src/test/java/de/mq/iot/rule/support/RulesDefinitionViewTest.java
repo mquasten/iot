@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -364,5 +365,32 @@ class RulesDefinitionViewTest {
 		final Collection<String> inputGridItems = inputGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).stream().map(Entry::getKey).collect(Collectors.toList());
 		assertEquals(1, inputGridItems.size());
 		assertEquals(Optional.of(RulesDefinition.HOLIDAY_ALARM_TIME_KEY), inputGridItems.stream().findFirst());
+		
+		
+		
+		
+		
+	}
+	
+	@Test
+	void changeInputButtonListenerError() {
+		Mockito.doReturn(Locale.GERMAN).when(ruleDefinitionModel).locale();
+		Mockito.doAnswer(answer -> answer.getArguments()[0]).when(messageSource).getMessage(Mockito.any() , Mockito.any(), Mockito.any(), Mockito.any());
+		
+		final Button changeInputButton = changeInputButton();
+		assertNotNull(changeInputButton);
+		
+		final TextField inputField = inputTextField();
+		assertNotNull(inputField);
+		
+		inputField.setValue(WORKINGDAY_EVENT_TIME_VALUE);
+	
+		final String i18nKey = "error";
+		Mockito.doReturn(Optional.of(i18nKey)).when(ruleDefinitionModel).validateInput(WORKINGDAY_EVENT_TIME_VALUE);
+		
+		listener(changeInputButton).onComponentEvent(null);
+		
+		assertEquals(RulesDefinitionView.I18N_VALIDATION_PREFIX + i18nKey, inputField.getErrorMessage());
+		assertTrue(inputField.isInvalid());
 	}
 }

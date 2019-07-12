@@ -244,21 +244,13 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		final Optional<String> error = ruleDefinitionModel.validateInput(inputValue);
 
-		
-		
-		
-		
 		inputTextField.setErrorMessage("");
 		inputTextField.setInvalid(false);
 		
 		if (error.isPresent()) {
 			inputTextField.setInvalid(true);
-			final String message =  messageSource.getMessage(I18N_VALIDATION_PREFIX + error.get().toLowerCase() , null, "???", ruleDefinitionModel.locale());
-			inputTextField.setErrorMessage(message);
-			
-			
-			
-			
+			inputTextField.setErrorMessage(messageSource.getMessage(I18N_VALIDATION_PREFIX + error.get().toLowerCase() , null, "???", ruleDefinitionModel.locale()));
+				
 		} else {
 
 			ruleDefinitionModel.assignInput(inputValue);
