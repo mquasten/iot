@@ -31,6 +31,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
 
@@ -183,8 +184,7 @@ class RulesDefinitionViewTest {
 		assertNotNull(arguments);
 		assertFalse(arguments.getParent().isPresent());
 
-		@SuppressWarnings("unchecked")
-		final ComboBox<String> optionalRulesComboBox = (ComboBox<String>) fields.get("optionalRulesComboBox");
+		final ComboBox<String> optionalRulesComboBox = optionalRulesComboBox();
 		assertNotNull(optionalRulesComboBox);
 		assertEquals(0, optionalRulesComboBox.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).size());
 
@@ -218,6 +218,11 @@ class RulesDefinitionViewTest {
 		assertFalse(inputParameter.getParent().isPresent());
 		assertFalse(arguments.getParent().isPresent());
 
+	}
+
+	@SuppressWarnings("unchecked")
+	private ComboBox<String> optionalRulesComboBox() {
+		return (ComboBox<String>) fields.get("optionalRulesComboBox");
 	}
 
 	@Test
@@ -393,4 +398,138 @@ class RulesDefinitionViewTest {
 		assertEquals(RulesDefinitionView.I18N_VALIDATION_PREFIX + i18nKey, inputField.getErrorMessage());
 		assertTrue(inputField.isInvalid());
 	}
+	
+	@Test
+	void saveButtonListener() {
+		
+		Mockito.doReturn(Optional.of(rulesDefinitionDefaultDailyIotBatch)).when(ruleDefinitionModel).selected();
+	
+		
+		final Grid<RulesDefinition> grid = grid();
+		final TextField inputTextField = inputTextField();
+		inputTextField.setInvalid(true);
+		inputTextField.setErrorMessage("error");
+		
+		final Button saveButton = saveButton();
+		assertNotNull(saveButton);
+		
+		listener(saveButton).onComponentEvent(null);
+		
+		
+		Mockito.verify(rulesService).save(rulesDefinitionDefaultDailyIotBatch);
+		
+		final Collection<RulesDefinition> rulesDefinitions =  grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).stream().collect(Collectors.toList());
+		
+		assertEquals(2, rulesDefinitions.size());
+		assertTrue(rulesDefinitions.contains(rulesDefinitionDefaultDailyIotBatch));
+		assertTrue(rulesDefinitions.contains(rulesDefinitionEndOfDayBatch));
+		assertFalse(inputTextField.isInvalid());
+		assertFalse(StringUtils.hasText(inputTextField.getErrorMessage()));
+		
+	}
+	
+	
+	@Test
+	void saveButtonListenerError() {
+		
+		Mockito.doReturn(Optional.of(rulesDefinitionDefaultDailyIotBatch)).when(ruleDefinitionModel).selected();
+		
+		Mockito.doReturn(Locale.GERMAN).when(ruleDefinitionModel).locale();
+		Mockito.doAnswer(answer -> answer.getArguments()[0]).when(messageSource).getMessage(Mockito.any() , Mockito.any(), Mockito.any(), Mockito.any());
+	
+
+		
+		final String i18nKey = "invalid";
+		Mockito.doReturn(Arrays.asList(new AbstractMap.SimpleEntry<>( RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, i18nKey), new AbstractMap.SimpleEntry<>( RulesDefinition.HOLIDAY_ALARM_TIME_KEY, i18nKey))).when(ruleDefinitionModel).validateInput();
+		
+		
+		final TextField inputTextField = inputTextField();
+		assertNotNull(inputTextField);
+		final Button saveButton = saveButton();
+		assertNotNull(saveButton);
+		
+		listener(saveButton).onComponentEvent(null);
+		
+		assertTrue(inputTextField.isInvalid());
+		assertEquals(String.format("%s: %s%s, %s: %s%s", RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, RulesDefinitionView.I18N_VALIDATION_PREFIX, i18nKey,  RulesDefinition.HOLIDAY_ALARM_TIME_KEY, RulesDefinitionView.I18N_VALIDATION_PREFIX, i18nKey), inputTextField.getErrorMessage());
+		
+	}
+	
+	@Test
+	void addOptionalRulesListener() {
+		Mockito.doReturn(Arrays.asList()).when(ruleDefinitionModel).optionalRules();
+		
+		
+		
+		final ComboBox<String> optionalRulesComboBox = optionalRulesComboBox();
+		optionalRulesComboBox.setItems(RulesDefinition.TEMPERATURE_RULE_NAME);
+		assertNotNull(optionalRulesComboBox);
+		
+		optionalRulesComboBox.setValue(RulesDefinition.TEMPERATURE_RULE_NAME);
+		
+		final Button addOptionalRulesButton = addOptionalRulesButton();
+		assertNotNull(addOptionalRulesButton);
+		
+		listener(addOptionalRulesButton).onComponentEvent(null);
+		
+		
+		Mockito.verify(ruleDefinitionModel).addOptionalRule(RulesDefinition.TEMPERATURE_RULE_NAME);
+		
+	}
+	
+	
+	
+	@Test
+	void addOptionalRulesListenerError() {
+		
+		final Label message = optionalRuleExistsMessage();
+		assertNotNull(message);
+		String i18nExists = "exists";
+		message.setText(i18nExists);
+		
+		final ComboBox<String> optionalRulesComboBox = optionalRulesComboBox();
+		optionalRulesComboBox.setItems(RulesDefinition.TEMPERATURE_RULE_NAME);
+		assertNotNull(optionalRulesComboBox);
+		
+		optionalRulesComboBox.setValue(RulesDefinition.TEMPERATURE_RULE_NAME);
+		
+		final Button addOptionalRulesButton = addOptionalRulesButton();
+		assertNotNull(addOptionalRulesButton);
+		
+		listener(addOptionalRulesButton).onComponentEvent(null);
+		
+		
+		assertTrue(optionalRulesComboBox.isInvalid());
+		assertEquals(i18nExists, optionalRulesComboBox.getErrorMessage());
+		
+	}
+
+	private Label optionalRuleExistsMessage() {
+		return (Label) fields.get("optionalRuleExistsMessage");
+	}
+
+	private Button addOptionalRulesButton() {
+		return (Button) fields.get("addOptionalRulesButton");
+	}
+	
+	@Test
+	void deleteOptionalRulesListener() {
+		final ComboBox<String> optionalRulesComboBox = optionalRulesComboBox();
+		assertNotNull(optionalRulesComboBox);
+		
+		optionalRulesComboBox.setInvalid(true);
+		optionalRulesComboBox.setErrorMessage("error");
+		
+		final Button deleteOptionalRulesButton = (Button) fields.get("deleteOptionalRulesButton");
+		assertNotNull(deleteOptionalRulesButton);
+		
+		
+		listener(deleteOptionalRulesButton).onComponentEvent(null);
+		
+		assertFalse(optionalRulesComboBox.isInvalid());
+		assertFalse(StringUtils.hasText(optionalRulesComboBox.getErrorMessage()));
+		
+		Mockito.verify(ruleDefinitionModel).removeOptionalRule();
+	}
+	
 }
