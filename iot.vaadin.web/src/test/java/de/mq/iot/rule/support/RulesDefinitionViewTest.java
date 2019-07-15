@@ -41,6 +41,10 @@ import de.mq.iot.support.ButtonBox;
 
 class RulesDefinitionViewTest {
 
+	private static final String I18N_ID_COLUMN = "rules_id_column";
+
+	private static final String I18N_INPUT_CHANGE = "rules_input_change";
+
 	private static final String WORKINGDAY_EVENT_TIME_VALUE = "7:15";
 
 	private final RuleDefinitionModel ruleDefinitionModel = Mockito.mock(RuleDefinitionModel.class);
@@ -84,6 +88,8 @@ class RulesDefinitionViewTest {
 		rulesDefinitionView = new RulesDefinitionView(ruleDefinitionModel, rulesService, new ButtonBox(), messageSource);
 
 		fields.putAll(Arrays.asList(rulesDefinitionView.getClass().getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).collect(Collectors.toMap(Field::getName, field -> ReflectionTestUtils.getField(rulesDefinitionView, field.getName()))));
+	
+		
 	}
 
 	@Test
@@ -530,6 +536,33 @@ class RulesDefinitionViewTest {
 		assertFalse(StringUtils.hasText(optionalRulesComboBox.getErrorMessage()));
 		
 		Mockito.verify(ruleDefinitionModel).removeOptionalRule();
+	}
+	
+	@Test
+	final void i18n() {
+		final Observer observer = observers.get(RuleDefinitionModel.Events.ChangeLocale);
+		Arrays.asList(I18N_INPUT_CHANGE, I18N_ID_COLUMN).forEach(key -> {
+			Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN);
+		});
+		
+		
+		assertNotNull(observer);
+
+		Mockito.doReturn(Locale.GERMAN).when(ruleDefinitionModel).locale();
+
+		observer.process();
+		
+		final Label ruleDefinitionColumnLabel = ruleDefinitionColumnLabel();
+		assertNotNull(ruleDefinitionColumnLabel);
+		assertEquals(I18N_ID_COLUMN , ruleDefinitionColumnLabel.getText());
+		
+		final Button changeInputButton =changeInputButton();
+		assertNotNull(changeInputButton);
+		assertEquals(I18N_INPUT_CHANGE, changeInputButton.getText());
+	}
+
+	private Label ruleDefinitionColumnLabel() {
+		return (Label) fields.get("ruleDefinitionColumnLabel");
 	}
 	
 }
