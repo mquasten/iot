@@ -41,6 +41,22 @@ import de.mq.iot.support.ButtonBox;
 
 class RulesDefinitionViewTest {
 
+	private static final String I18N_VALIDATION_RULE_EXISTS = "rules_validation_rule_exists";
+
+	private static final String I18N_SAVE_RULEDEFINITION = "rules_save_ruledefinition";
+
+	private static final String I18N_VALUE_COLUMN = "rules_value_column";
+
+	private static final String I18N_OPTIONAL_RULES_COLUMN = "rules_optional_rules_column";
+
+	private static final String I18N_ARGUMENT_VALUE_COLUMN = "rules_argument_value_column";
+
+	private static final String I18N_ARGUMENT_PARAMETER_COLUMN = "rules_argument_parameter_column";
+
+	private static final String I18N_INPUT_VALUE_COLUMN = "rules_input_value_column";
+
+	private static final String I18N_INPUT_PARAMETER_COLUMN = "rules_input_parameter_column";
+
 	private static final String I18N_ID_COLUMN = "rules_id_column";
 
 	private static final String I18N_INPUT_CHANGE = "rules_input_change";
@@ -541,7 +557,7 @@ class RulesDefinitionViewTest {
 	@Test
 	final void i18n() {
 		final Observer observer = observers.get(RuleDefinitionModel.Events.ChangeLocale);
-		Arrays.asList(I18N_INPUT_CHANGE, I18N_ID_COLUMN).forEach(key -> {
+		Arrays.asList(I18N_INPUT_CHANGE, I18N_ID_COLUMN, I18N_INPUT_PARAMETER_COLUMN, I18N_INPUT_VALUE_COLUMN, I18N_ARGUMENT_PARAMETER_COLUMN, I18N_ARGUMENT_VALUE_COLUMN,I18N_OPTIONAL_RULES_COLUMN, I18N_VALUE_COLUMN, I18N_SAVE_RULEDEFINITION, I18N_VALIDATION_RULE_EXISTS).forEach(key -> {
 			Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN);
 		});
 		
@@ -556,9 +572,69 @@ class RulesDefinitionViewTest {
 		assertNotNull(ruleDefinitionColumnLabel);
 		assertEquals(I18N_ID_COLUMN , ruleDefinitionColumnLabel.getText());
 		
+
+		final Label inputParameterColumnLabel = inputParameterColumnLabel();
+		assertNotNull(inputParameterColumnLabel);
+		assertEquals(I18N_INPUT_PARAMETER_COLUMN, inputParameterColumnLabel.getText());
+		
+		
+		final Label inputValueColumnLabel = inputValueColumnLabel();
+		assertNotNull(inputValueColumnLabel);
+		assertEquals(I18N_INPUT_VALUE_COLUMN, inputValueColumnLabel.getText());
+		
+		final Label  argumentParameterColumnLabel = argumentParameterColumnLabel();
+		assertNotNull(argumentParameterColumnLabel);
+		assertEquals(I18N_ARGUMENT_PARAMETER_COLUMN, argumentParameterColumnLabel.getText());
+		
+		final Label  argumentValueColumnLabel = argumentValueColumnLabel();
+		assertNotNull(argumentValueColumnLabel);
+		assertEquals(I18N_ARGUMENT_VALUE_COLUMN, argumentValueColumnLabel.getText());
+		
+		final Label  optionalRuleColumnLabel = optionalRuleColumnLabel();
+		assertNotNull(optionalRuleColumnLabel);
+		assertEquals(I18N_OPTIONAL_RULES_COLUMN, optionalRuleColumnLabel.getText());
+		
+		final Label valueColumnLabel = valueColumnLabel();
+		assertNotNull(valueColumnLabel);
+		assertEquals(I18N_VALUE_COLUMN, valueColumnLabel.getText());
+		
 		final Button changeInputButton =changeInputButton();
 		assertNotNull(changeInputButton);
 		assertEquals(I18N_INPUT_CHANGE, changeInputButton.getText());
+		
+		final Button saveButton=saveButton();
+		assertNotNull(saveButton);
+		assertEquals(I18N_SAVE_RULEDEFINITION, saveButton.getText());
+		
+		final Label optionalRuleExistsMessage = optionalRuleExistsMessage();
+		assertNotNull(optionalRuleExistsMessage);
+		assertEquals(I18N_VALIDATION_RULE_EXISTS, optionalRuleExistsMessage.getText());
+	}
+
+	
+
+	private Label valueColumnLabel() {
+		return (Label) fields.get("valueColumnLabel");
+	}
+
+	private Label optionalRuleColumnLabel() {
+		return (Label) fields.get("optionalRuleColumnLabel");
+	}
+
+	private Label argumentValueColumnLabel() {
+		return (Label) fields.get("argumentValueColumnLabel");
+	}
+
+	private Label argumentParameterColumnLabel() {
+		return (Label) fields.get("argumentParameterColumnLabel");
+	}
+
+	private Label inputValueColumnLabel() {
+		return (Label) fields.get("inputValueColumnLabel");
+	}
+
+	private Label inputParameterColumnLabel() {
+		return (Label) fields.get("inputParameterColumnLabel");
 	}
 
 	private Label ruleDefinitionColumnLabel() {
