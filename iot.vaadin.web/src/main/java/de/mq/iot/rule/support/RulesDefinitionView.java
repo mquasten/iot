@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.context.MessageSource;
 import org.springframework.util.StringUtils;
 
+import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -168,7 +169,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		ruleDefinitionModel.register(Events.AssignRuleDefinition, () -> {
 
 			optionalRulesComboBox.setItems(ruleDefinitionModel.definedOptionalRules());
-			optionalRulesComboBox.setItemLabelGenerator(value -> value);
+			optionalRulesComboBox.setItemLabelGenerator(valueLabelGenerator());
 			optionalRulesComboBox.setValue(null);
 			saveButton.setEnabled(false);
 
@@ -192,6 +193,8 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		});
 	}
+
+	
 
 	private void save(final RulesDefinition rulesDefinition) {
 		final Collection<Entry<String, String>> errors = ruleDefinitionModel.validateInput();
@@ -271,15 +274,15 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		final HorizontalLayout footerLayout = new HorizontalLayout();
 		footerLayout.add(saveButton);
-		grid.addColumn((ValueProvider<RulesDefinition, String>) rulesDefinition -> rulesDefinition.id().name()).setHeader(ruleDefinitionColumnLabel).setFooter(footerLayout).setResizable(true);
+		grid.addColumn((ValueProvider<RulesDefinition, String>) idNameValueProvider()).setHeader(ruleDefinitionColumnLabel).setFooter(footerLayout).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 
-		arguments.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getKey()).setHeader(argumentParameterColumnLabel).setResizable(true);
-		arguments.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getValue()).setHeader(argumentValueColumnLabel).setResizable(true);
+		arguments.addColumn((ValueProvider<Entry<String, String>, String>) Entry::getKey).setHeader(argumentParameterColumnLabel).setResizable(true);
+		arguments.addColumn((ValueProvider<Entry<String, String>, String>) Entry::getValue).setHeader(argumentValueColumnLabel).setResizable(true);
 
-		inputParameter.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getKey()).setHeader(inputParameterColumnLabel).setFooter(changeInputButton).setResizable(true);
+		inputParameter.addColumn((ValueProvider<Entry<String, String>, String>) Entry::getKey).setHeader(inputParameterColumnLabel).setFooter(changeInputButton).setResizable(true);
 
-		inputParameter.addColumn((ValueProvider<Entry<String, String>, String>) entry -> entry.getValue()).setHeader(inputValueColumnLabel).setFooter(inputTextField).setResizable(true);
+		inputParameter.addColumn((ValueProvider<Entry<String, String>, String>) Entry::getValue).setHeader(inputValueColumnLabel).setFooter(inputTextField).setResizable(true);
 
 		grid.setSelectionMode(SelectionMode.SINGLE);
 
@@ -304,7 +307,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		deleteOptionalRulesButton.setIcon(VaadinIcons.FILE_REMOVE.create());
 		optionalRulesHeader.add(deleteOptionalRulesButton);
 
-		optionalRules.addColumn((ValueProvider<String, String>) value -> value).setHeader(optionalRuleColumnLabel).setFooter(optionalRulesHeader).setResizable(true);
+		optionalRules.addColumn((ValueProvider<String, String>) valueProvider()).setHeader(optionalRuleColumnLabel).setFooter(optionalRulesHeader).setResizable(true);
 
 		add(buttonBox, layout, editorLayout);
 		setHorizontalComponentAlignment(Alignment.CENTER);
@@ -323,6 +326,17 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		grid.setItems(rulesService.rulesDefinitions());
 		inputParameter.setItems(new ArrayList<>());
 
+	}
+
+	ValueProvider<RulesDefinition,String> idNameValueProvider() {
+		return  rulesDefinition -> rulesDefinition.id().name();
+	}
+
+	ValueProvider<String, String> valueProvider() {
+		return value -> value;
+	}
+	ItemLabelGenerator<String> valueLabelGenerator() {
+		return value -> value;
 	}
 
 }

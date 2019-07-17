@@ -641,4 +641,22 @@ class RulesDefinitionViewTest {
 		return (Label) fields.get("ruleDefinitionColumnLabel");
 	}
 	
+	@Test
+	void valueProvider() {
+		final String value = "value";
+		assertEquals(value, rulesDefinitionView.valueProvider().apply(value));
+	}
+	@Test
+	void idNameValueProvider() {
+		final RulesDefinition rulesDefinition = Mockito.mock(RulesDefinition.class);
+		Mockito.when(rulesDefinition.id()).thenReturn(RulesDefinition.Id.DefaultDailyIotBatch);
+		assertEquals(RulesDefinition.Id.DefaultDailyIotBatch.name(), rulesDefinitionView.idNameValueProvider().apply(rulesDefinition));
+	}
+
+	@Test
+	void valueLabelGenerator() {
+		final String value = "value";
+		assertEquals(value, rulesDefinitionView.valueLabelGenerator().apply(value));
+	}
+	
 }
