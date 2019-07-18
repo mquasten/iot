@@ -29,6 +29,9 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	
 	private Optional<Entry<String,String>> selectedInput = Optional.empty();
 	
+	
+	private Optional<Entry<String,String>> selectedArgument = Optional.empty();
+	
 	private Optional<String> selectedOptionalRule = Optional.empty();
 
 	private final ValidationFactory validationFactory;
@@ -72,6 +75,8 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 		}
 		return inputData(rulesDefinition.get().id().input(), rulesDefinition.get().inputData().entrySet());
 	}
+	
+	
 
 	@Override
 	public Collection<Entry<String, String>> parameter() {
@@ -124,6 +129,14 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 		
 	}
 	
+	
+	@Override
+	public void assignSelectedArgument(Entry<String, String> input) {
+		this.selectedArgument = Optional.ofNullable(input);
+		notifyObservers(Events.AssignArgument);
+		
+	}
+	
 	@Override
 	public String selectedInputValue() {
 		if( !selectedInput.isPresent()) {
@@ -132,9 +145,25 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 		
 		return selectedInput.get().getValue();
 	}
+	
+	
+	@Override
+	public String selectedArgumentValue() {
+		if( !selectedArgument.isPresent()) {
+			return "";
+		}
+		
+		return selectedArgument.get().getValue();
+	}
+	
 	@Override
 	public boolean isInputSelected() {
 		return selectedInput.isPresent();
+	}
+	
+	@Override
+	public boolean isArgumentSelected() {
+		return selectedArgument.isPresent();
 	}
 	
 	@Override
@@ -150,6 +179,12 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	public void assignInput(final String value) {
 		selectedInput.ifPresent(entry -> rulesDefinition.get().assign(entry.getKey(), value));
 	}
+	
+	@Override
+	public void assignArgument(final String value) {
+		selectedArgument.ifPresent(entry -> rulesDefinition.get().assign(entry.getKey(), value));
+	}
+	
 	@Override
 	public Optional<String> validateInput(final String value) {
 		Assert.isTrue(rulesDefinition.isPresent(), "RuleDefinition not selected.");

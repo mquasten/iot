@@ -16,7 +16,7 @@ public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events,
 			AssignInput,
 			AssignOptionalRule,
 			ChangeOptionalRules,
-			ChangeLocale;
+			ChangeLocale, AssignArgument;
 		}
 
 		void assignSelected(final RulesDefinition rulesDefinition);
@@ -54,7 +54,7 @@ public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events,
 
 		boolean isInputSelected();
 
-
+		boolean isArgumentSelected();
 
 		Optional<String> validateInput(String value);
 
@@ -85,6 +85,18 @@ public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events,
 
 
 		Collection<Entry<String, String>> validateInput();
+
+
+
+		void assignSelectedArgument(Entry<String, String> input);
+
+
+
+		String selectedArgumentValue();
+
+
+
+		void assignArgument(String argumentValue);
 
 
 

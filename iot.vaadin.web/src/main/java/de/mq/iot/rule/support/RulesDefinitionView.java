@@ -85,9 +85,13 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 	@I18NKey("save_ruledefinition")
 	private final Button saveButton = new Button();
+	@I18NKey("arguments_change")
+	private final Button changeArgumentsButton = new Button();
 
 	@I18NKey("validation_rule_exists")
 	private final Label optionalRuleExistsMessage = new Label();
+	
+	private final TextField argumentsInputField = new TextField();
 
 	private final MessageSource messageSource;
 
@@ -116,7 +120,11 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		inputParameter.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelectedInput(selectionEvent.getValue()));
 		optionalRules.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelectedOptionalRule(selectionEvent.getValue()));
+		
+		arguments.asSingleSelect().addValueChangeListener(selectionEvent -> ruleDefinitionModel.assignSelectedArgument(selectionEvent.getValue()));
 		changeInputButton.addClickListener(event -> updateInput());
+		
+		changeArgumentsButton.addClickListener(event -> updateArgument());
 
 		deleteOptionalRulesButton.addClickListener(event -> {
 			optionalRulesComboBox.setInvalid(false);
@@ -153,6 +161,16 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 			inputTextField.setValue(ruleDefinitionModel.selectedInputValue());
 
 		});
+		
+
+		ruleDefinitionModel.register(Events.AssignArgument, () -> {
+			argumentsInputField.setEnabled(ruleDefinitionModel.isArgumentSelected());
+			changeArgumentsButton.setEnabled(ruleDefinitionModel.isArgumentSelected());
+			argumentsInputField.setValue(ruleDefinitionModel.selectedArgumentValue());
+			
+		});
+
+		
 
 		ruleDefinitionModel.register(Events.AssignOptionalRule, () -> {
 
@@ -249,6 +267,28 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 			inputParameter.setItems(ruleDefinitionModel.input());
 		}
 	}
+	
+	
+	private void updateArgument() {
+
+		final String argumentValue = argumentsInputField.getValue();
+
+		final Optional<String> error = Optional.empty(); //ruleDefinitionModel.validateInput(argumentValue);
+
+		argumentsInputField.setErrorMessage("");
+		argumentsInputField.setInvalid(false);
+
+		if (error.isPresent()) {
+			argumentsInputField.setInvalid(true);
+			argumentsInputField.setErrorMessage(messageSource.getMessage(I18N_VALIDATION_PREFIX + error.get().toLowerCase(), null, "???", ruleDefinitionModel.locale()));
+
+		} else {
+
+			ruleDefinitionModel.assignArgument(argumentValue);
+			arguments.setItems(ruleDefinitionModel.parameter());
+		}
+	}
+
 
 	private void createUI() {
 
@@ -256,6 +296,8 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		changeInputButton.setEnabled(false);
 		optionalRulesComboBox.setEnabled(false);
 		saveButton.setEnabled(false);
+		argumentsInputField.setEnabled(false);
+		changeArgumentsButton.setEnabled(false);
 
 		optionalRulesComboBox.addValueChangeListener(event -> {
 			optionalRulesComboBox.setInvalid(false);
@@ -277,8 +319,8 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		grid.addColumn((ValueProvider<RulesDefinition, String>) idNameValueProvider()).setHeader(ruleDefinitionColumnLabel).setFooter(footerLayout).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 
-		arguments.addColumn((ValueProvider<Entry<String, String>, String>) Entry::getKey).setHeader(argumentParameterColumnLabel).setResizable(true);
-		arguments.addColumn((ValueProvider<Entry<String, String>, String>) Entry::getValue).setHeader(argumentValueColumnLabel).setResizable(true);
+		arguments.addColumn((ValueProvider<Entry<String, String>, String>) Entry::getKey).setHeader(argumentParameterColumnLabel).setResizable(true).setFooter(changeArgumentsButton);
+		arguments.addColumn((ValueProvider<Entry<String, String>, String>) Entry::getValue).setHeader(argumentValueColumnLabel).setResizable(true).setFooter(argumentsInputField);
 
 		inputParameter.addColumn((ValueProvider<Entry<String, String>, String>) Entry::getKey).setHeader(inputParameterColumnLabel).setFooter(changeInputButton).setResizable(true);
 
