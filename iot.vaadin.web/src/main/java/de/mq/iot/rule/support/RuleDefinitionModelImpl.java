@@ -189,7 +189,18 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	public Optional<String> validateInput(final String value) {
 		Assert.isTrue(rulesDefinition.isPresent(), "RuleDefinition not selected.");
 		Assert.isTrue(selectedInput.isPresent(), "InputParameter not selected.");
-		final Validator validator = validationFactory.validator(rulesDefinition.get().id(), selectedInputKey().get());
+		return validateInput(value, selectedInputKey().get());
+	}
+	
+	@Override
+	public Optional<String> validateArgument(final String value) {
+		Assert.isTrue(rulesDefinition.isPresent(), "RuleDefinition not selected.");
+		Assert.isTrue(selectedArgument.isPresent(), "InputParameter not selected.");
+		return  validateInput(value, selectedArgument.get().getKey());
+	}
+
+	private Optional<String> validateInput(final String value, final String key) {
+		final Validator validator = validationFactory.validator(rulesDefinition.get().id(), key);
 		 final Errors errors = new MapBindingResult(new HashMap<>(), RulesAggregate.RULE_INPUT_MAP_FACT);
 		 validator.validate(value, errors);
 		 final Collection<ObjectError> allErrors =  errors.getAllErrors();

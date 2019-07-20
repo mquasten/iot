@@ -100,6 +100,10 @@ public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events,
 
 
 
+		Optional<String> validateArgument(String value);
+
+
+
 		
 
 	

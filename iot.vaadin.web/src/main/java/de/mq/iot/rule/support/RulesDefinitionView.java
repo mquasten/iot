@@ -273,7 +273,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		final String argumentValue = argumentsInputField.getValue();
 
-		final Optional<String> error = Optional.empty(); //ruleDefinitionModel.validateInput(argumentValue);
+		final Optional<String> error = ruleDefinitionModel.validateArgument(argumentValue);
 
 		argumentsInputField.setErrorMessage("");
 		argumentsInputField.setInvalid(false);
