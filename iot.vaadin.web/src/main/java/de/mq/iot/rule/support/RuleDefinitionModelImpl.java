@@ -182,7 +182,11 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	
 	@Override
 	public void assignArgument(final String value) {
+		
+	
 		selectedArgument.ifPresent(entry -> rulesDefinition.get().assign(entry.getKey(), value));
+		
+		System.out.println(rulesDefinition.get());
 	}
 	
 	@Override
@@ -257,5 +261,7 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 			});
 		
 	}
+	
+	
 
 }

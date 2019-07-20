@@ -279,4 +279,52 @@ class RuleDefinitionModelTest {
 		
 	}
 	
+	
+	@Test
+	void selectedArgumentValue() {
+		assertFalse(StringUtils.hasText(ruleDefinitionModel.selectedArgumentValue()));
+		
+		ruleDefinitionModel.assignSelectedArgument(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString()));
+		
+		assertEquals(Boolean.TRUE.toString(), ruleDefinitionModel.selectedArgumentValue());
+		
+	}
+	
+	@Test
+	void  isArgumentSelected() {
+		assertFalse(ruleDefinitionModel.isArgumentSelected());
+		
+		ruleDefinitionModel.assignSelectedArgument(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString()));
+		
+		assertTrue(ruleDefinitionModel.isArgumentSelected());
+	}
+	
+	@Test
+	void validateArgument() {
+		Mockito.doReturn(RulesDefinition.Id.DefaultDailyIotBatch).when(rulesDefinition).id();
+		ruleDefinitionModel.assignSelected(rulesDefinition);
+
+		
+		
+		ruleDefinitionModel.assignSelectedArgument(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString()));
+		
+		assertEquals(Optional.of(TimeValidatorImpl.INVALID), ruleDefinitionModel.validateArgument("xxx"));
+		
+		
+		assertEquals(Optional.empty(), ruleDefinitionModel.validateArgument(Boolean.FALSE.toString()));
+	}
+	
+	@Test
+	void assignArgument() {
+		ruleDefinitionModel.assignSelected(rulesDefinition);
+		ruleDefinitionModel.assignSelectedArgument(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, ""));
+		
+		
+		ruleDefinitionModel.assignArgument(Boolean.TRUE.toString());
+		
+		
+		Mockito.verify(rulesDefinition).assign(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString());
+	
+	}
+	
 }
