@@ -37,6 +37,7 @@ import com.vaadin.flow.data.provider.Query;
 
 import de.mq.iot.model.Observer;
 import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.rule.support.RuleDefinitionModel.Events;
 import de.mq.iot.support.ButtonBox;
 
 class RulesDefinitionViewTest {
@@ -658,5 +659,61 @@ class RulesDefinitionViewTest {
 		final String value = "value";
 		assertEquals(value, rulesDefinitionView.valueLabelGenerator().apply(value));
 	}
+	
+	@Test
+	void assignArgumentListener() {
+		
+		
+		
+		Mockito.doReturn(true).when(ruleDefinitionModel).isArgumentSelected();
+		
+		Mockito.doReturn(Boolean.TRUE.toString()).when(ruleDefinitionModel).selectedArgumentValue();
+		
+		assertNotNull(observers.get(Events.AssignArgument));
+		final Button changeArgumentsButton = changeArgumentsButton();
+	
+		
+		assertNotNull(changeArgumentsButton);
+	
+		
+		final TextField argumentsInputField = argumentsInputField();
+		assertNotNull(argumentsInputField);
+		assertFalse(argumentsInputField.isEnabled());
+		assertTrue(StringUtils.isEmpty(argumentsInputField.getValue()));
+		assertFalse(changeArgumentsButton.isEnabled());
+		
+		observers.get(Events.AssignArgument).process();
+		
+		
+		
+		assertTrue(changeArgumentsButton.isEnabled());
+		assertTrue(argumentsInputField.isEnabled());
+		assertEquals(Boolean.TRUE.toString(), argumentsInputField.getValue());
+	}
+
+	private Button changeArgumentsButton() {
+		final Button  changeArgumentsButton = (Button) fields.get("changeArgumentsButton");
+		return changeArgumentsButton;
+	}
+
+	private TextField argumentsInputField() {
+		final TextField argumentsInputField = (TextField) fields.get("argumentsInputField");
+		return argumentsInputField;
+	}
+	
+	
+	@Test
+	void selectArgument() {
+
+		final Grid<Entry<String, String>> arguments = arguments();
+		assertNotNull(arguments);
+
+		final Entry<String, String> entry = new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, WORKINGDAY_EVENT_TIME_VALUE);
+		arguments.select(entry);
+
+		Mockito.verify(ruleDefinitionModel).assignSelectedArgument(entry);
+	}
+	
+	
 	
 }

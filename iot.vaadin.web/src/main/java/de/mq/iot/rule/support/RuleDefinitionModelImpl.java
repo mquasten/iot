@@ -186,7 +186,6 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	
 		selectedArgument.ifPresent(entry -> rulesDefinition.get().assign(entry.getKey(), value));
 		
-		System.out.println(rulesDefinition.get());
 	}
 	
 	@Override

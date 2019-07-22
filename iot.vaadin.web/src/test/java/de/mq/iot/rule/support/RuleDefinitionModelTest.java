@@ -288,6 +288,8 @@ class RuleDefinitionModelTest {
 		
 		assertEquals(Boolean.TRUE.toString(), ruleDefinitionModel.selectedArgumentValue());
 		
+		Mockito.verify(subject).notifyObservers(Events.AssignArgument);
+		
 	}
 	
 	@Test
