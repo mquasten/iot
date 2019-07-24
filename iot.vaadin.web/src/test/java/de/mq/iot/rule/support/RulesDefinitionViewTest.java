@@ -714,6 +714,38 @@ class RulesDefinitionViewTest {
 		Mockito.verify(ruleDefinitionModel).assignSelectedArgument(entry);
 	}
 	
-	
+	@Test
+	void changeArgumentsButtonListener() {
+		
+		
+		final Collection<Entry<String,String>> parameters = Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString()), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEST_MODE_KEY, Boolean.FALSE.toString()));
+		
+		Mockito.doReturn(parameters).when(ruleDefinitionModel).parameter();
+		
+		Mockito.doReturn(Optional.empty()).when(ruleDefinitionModel).validateArgument(Boolean.TRUE.toString());
+		
+		final Button changeArgumentsButton = changeArgumentsButton();
+		assertNotNull(changeArgumentsButton);
+		
+		final TextField argumentsInputField = argumentsInputField();
+		assertNotNull(argumentsInputField);
+		argumentsInputField.setErrorMessage("error");
+		argumentsInputField.setInvalid(true);
+		argumentsInputField.setValue(Boolean.TRUE.toString());
+		
+		
+		listener(changeArgumentsButton).onComponentEvent(null);
+		
+		Mockito.verify(ruleDefinitionModel).assignArgument(Boolean.TRUE.toString());
+		
+		
+		 final Grid<Entry<String, String>> arguments = arguments();
+		 final Collection<Entry<String,String>> items = arguments.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+		 assertEquals(2, items.size());
+		 assertEquals(parameters, items);
+
+		assertFalse(argumentsInputField.isInvalid());
+		assertTrue(StringUtils.isEmpty(argumentsInputField.getErrorMessage()));
+	}
 	
 }
