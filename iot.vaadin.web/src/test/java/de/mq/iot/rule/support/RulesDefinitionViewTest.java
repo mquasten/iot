@@ -45,6 +45,8 @@ class RulesDefinitionViewTest {
 	private static final String I18N_VALIDATION_RULE_EXISTS = "rules_validation_rule_exists";
 
 	private static final String I18N_SAVE_RULEDEFINITION = "rules_save_ruledefinition";
+	
+	private static final String I18N_RUN_RULEDEFINITION = "rules_run_ruledefinition";
 
 	private static final String I18N_VALUE_COLUMN = "rules_value_column";
 
@@ -127,6 +129,13 @@ class RulesDefinitionViewTest {
 		assertNotNull(button);
 
 		assertFalse(button.isEnabled());
+		
+		final Button runButton = runButton();
+
+		assertNotNull(runButton);
+
+		assertFalse(runButton.isEnabled());
+		
 
 		final Grid<String> optionalRules = optionalRules();
 		assertNotNull(optionalRules);
@@ -174,6 +183,12 @@ class RulesDefinitionViewTest {
 		final Button button = (Button) fields.get("saveButton");
 		return button;
 	}
+	
+	private Button runButton() {
+		final Button button = (Button) fields.get("runButton");
+		return button;
+	}
+
 
 	@Test
 	void selectRulesDefinition() {
@@ -191,9 +206,13 @@ class RulesDefinitionViewTest {
 		Mockito.doReturn(true).when(ruleDefinitionModel).isSelected();
 		assertTrue(observers.containsKey(RuleDefinitionModel.Events.AssignRuleDefinition));
 
-		final Button button = saveButton();
-		assertNotNull(button);
-		assertFalse(button.isEnabled());
+		final Button saveButton = saveButton();
+		assertNotNull(saveButton);
+		assertFalse(saveButton.isEnabled());
+		
+		final Button runButton = runButton();
+		assertNotNull(runButton);
+		assertFalse(runButton.isEnabled());
 
 		final Grid<String> optionalRules = optionalRules();
 		assertNotNull(optionalRules);
@@ -216,7 +235,8 @@ class RulesDefinitionViewTest {
 		assertEquals(1, optionalRulesComboBox.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).size());
 		assertEquals(Optional.of(RulesDefinition.TEMPERATURE_RULE_NAME), optionalRulesComboBox.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).stream().findAny());
 
-		assertTrue(button.isEnabled());
+		assertTrue(saveButton.isEnabled());
+		assertTrue(runButton.isEnabled());
 		assertTrue(optionalRules.getParent().isPresent());
 		assertTrue(inputParameter.getParent().isPresent());
 		assertTrue(arguments.getParent().isPresent());
@@ -236,7 +256,8 @@ class RulesDefinitionViewTest {
 		Mockito.doReturn(false).when(ruleDefinitionModel).isSelected();
 		observers.get(RuleDefinitionModel.Events.AssignRuleDefinition).process();
 
-		assertFalse(button.isEnabled());
+		assertFalse(saveButton.isEnabled());
+		assertFalse(runButton.isEnabled());
 		assertFalse(optionalRules.getParent().isPresent());
 		assertFalse(inputParameter.getParent().isPresent());
 		assertFalse(arguments.getParent().isPresent());
@@ -558,7 +579,7 @@ class RulesDefinitionViewTest {
 	@Test
 	final void i18n() {
 		final Observer observer = observers.get(RuleDefinitionModel.Events.ChangeLocale);
-		Arrays.asList(I18N_INPUT_CHANGE, I18N_ID_COLUMN, I18N_INPUT_PARAMETER_COLUMN, I18N_INPUT_VALUE_COLUMN, I18N_ARGUMENT_PARAMETER_COLUMN, I18N_ARGUMENT_VALUE_COLUMN,I18N_OPTIONAL_RULES_COLUMN, I18N_VALUE_COLUMN, I18N_SAVE_RULEDEFINITION, I18N_VALIDATION_RULE_EXISTS).forEach(key -> {
+		Arrays.asList(I18N_INPUT_CHANGE, I18N_ID_COLUMN, I18N_INPUT_PARAMETER_COLUMN, I18N_INPUT_VALUE_COLUMN, I18N_ARGUMENT_PARAMETER_COLUMN, I18N_ARGUMENT_VALUE_COLUMN,I18N_OPTIONAL_RULES_COLUMN, I18N_VALUE_COLUMN, I18N_SAVE_RULEDEFINITION, I18N_VALIDATION_RULE_EXISTS, I18N_RUN_RULEDEFINITION).forEach(key -> {
 			Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN);
 		});
 		
@@ -606,6 +627,11 @@ class RulesDefinitionViewTest {
 		final Button saveButton=saveButton();
 		assertNotNull(saveButton);
 		assertEquals(I18N_SAVE_RULEDEFINITION, saveButton.getText());
+		
+		
+		final Button runButton=runButton();
+		assertNotNull(runButton);
+		assertEquals(I18N_RUN_RULEDEFINITION, runButton.getText());
 		
 		final Label optionalRuleExistsMessage = optionalRuleExistsMessage();
 		assertNotNull(optionalRuleExistsMessage);
@@ -746,6 +772,34 @@ class RulesDefinitionViewTest {
 
 		assertFalse(argumentsInputField.isInvalid());
 		assertTrue(StringUtils.isEmpty(argumentsInputField.getErrorMessage()));
+	}
+	
+	
+	@Test
+	void changeArgumentsButtonListenerInvalid() {
+		final String errorKey = "error";
+		Mockito.doReturn(Optional.of(errorKey)).when(ruleDefinitionModel).validateArgument(Boolean.TRUE.toString());
+	    Mockito.doReturn(Locale.GERMAN).when(ruleDefinitionModel).locale();
+		
+		System.out.println(ruleDefinitionModel.locale());
+		
+		Mockito.doAnswer(answer -> answer.getArguments()[0]).when(messageSource).getMessage(Mockito.any() , Mockito.any(), Mockito.any(), Mockito.any());
+		
+		final Button changeArgumentsButton = changeArgumentsButton();
+		assertNotNull(changeArgumentsButton);
+		
+		final TextField argumentsInputField = argumentsInputField();
+		assertNotNull(argumentsInputField);
+		
+		argumentsInputField.setValue(Boolean.TRUE.toString());
+		
+		
+		listener(changeArgumentsButton).onComponentEvent(null);
+		
+		
+		assertTrue(argumentsInputField.isInvalid());
+		assertEquals(RulesDefinitionView.I18N_VALIDATION_PREFIX+ errorKey, argumentsInputField.getErrorMessage());
+		
 	}
 	
 }

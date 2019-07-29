@@ -85,6 +85,11 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 	@I18NKey("save_ruledefinition")
 	private final Button saveButton = new Button();
+	
+	
+	@I18NKey("run_ruledefinition")
+	private final Button runButton = new Button();
+	
 	@I18NKey("arguments_change")
 	private final Button changeArgumentsButton = new Button();
 
@@ -190,7 +195,8 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 			optionalRulesComboBox.setItemLabelGenerator(valueLabelGenerator());
 			optionalRulesComboBox.setValue(null);
 			saveButton.setEnabled(false);
-
+			runButton.setEnabled(false);
+			
 			deleteOptionalRulesButton.setEnabled(false);
 			optionalRulesComboBox.setEnabled(false);
 			arguments.getParent().ifPresent(parent -> layout.remove(arguments));
@@ -202,6 +208,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 				optionalRulesComboBox.setEnabled(true);
 				saveButton.setEnabled(true);
+				runButton.setEnabled(true);
 				layout.add(arguments);
 
 				optionalRules.setItems(ruleDefinitionModel.optionalRules());
@@ -275,9 +282,11 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		final Optional<String> error = ruleDefinitionModel.validateArgument(argumentValue);
 
+		
 		argumentsInputField.setErrorMessage("");
 		argumentsInputField.setInvalid(false);
 
+		
 		if (error.isPresent()) {
 			argumentsInputField.setInvalid(true);
 			argumentsInputField.setErrorMessage(messageSource.getMessage(I18N_VALIDATION_PREFIX + error.get().toLowerCase(), null, "???", ruleDefinitionModel.locale()));
@@ -296,6 +305,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		changeInputButton.setEnabled(false);
 		optionalRulesComboBox.setEnabled(false);
 		saveButton.setEnabled(false);
+		runButton.setEnabled(false);
 		argumentsInputField.setEnabled(false);
 		changeArgumentsButton.setEnabled(false);
 
@@ -316,6 +326,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		final HorizontalLayout footerLayout = new HorizontalLayout();
 		footerLayout.add(saveButton);
+		footerLayout.add(runButton);
 		grid.addColumn((ValueProvider<RulesDefinition, String>) idNameValueProvider()).setHeader(ruleDefinitionColumnLabel).setFooter(footerLayout).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 
