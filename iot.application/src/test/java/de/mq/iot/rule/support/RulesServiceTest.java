@@ -19,7 +19,7 @@ import de.mq.iot.rule.RulesDefinition;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class RulesServiceTest {
+class RulesServiceTest {
 	
 	private static final Integer TIMEOUT = 500;
 	private static final String TIMEOUT_FIELD = "timeout";
@@ -55,6 +55,15 @@ public class RulesServiceTest {
 		Mockito.verify(defaultDailyIotBatchRulesAggregate).with(rulesDefinition);
 		
 		Mockito.verify(rulesDefinition).assign(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString());
+		
+	}
+	
+	@Test
+	void rulesAggregateObject() {
+		final RulesAggregate<?> result 	= rulesService.rulesAggregate(rulesDefinition);
+		
+		Mockito.verify(defaultDailyIotBatchRulesAggregate).with(rulesDefinition);
+		assertEquals(defaultDailyIotBatchRulesAggregate, result);
 		
 	}
 	

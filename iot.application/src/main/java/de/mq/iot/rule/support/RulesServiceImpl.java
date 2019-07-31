@@ -41,6 +41,17 @@ abstract class RulesServiceImpl implements RulesService {
 			rulesDefinition.assign(parameter.getKey(), parameter.getValue());
 			
 		});
+		return rulesAggregate(rulesDefinition);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.rule.support.RulesService#rulesAggregate(de.mq.iot.rule.RulesDefinition)
+	 */
+	@Override
+	public RulesAggregate<?> rulesAggregate(final RulesDefinition rulesDefinition) {
+		Assert.notNull(rulesDefinition, "RulesDefinition is mandatory.");
+		Assert.notNull(rulesDefinition.id(), "Id is mandatory");
 		final RulesAggregate<?> result = DataAccessUtils.requiredSingleResult(rulesAggregates().stream().filter(rd -> rd.id() == rulesDefinition.id()).collect(Collectors.toList()));
 		result.with(rulesDefinition);
 		
