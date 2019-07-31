@@ -152,7 +152,13 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 			ruleDefinitionModel.selected().ifPresent(rd -> save(rd));
 
 		});
+		
+		runButton.addClickListener(event -> {
+			ruleDefinitionModel.selected().ifPresent(rd -> run(rd));
+		});
 	}
+
+	
 
 	private void registerObservers() {
 		ruleDefinitionModel.register(RuleDefinitionModel.Events.ChangeLocale, () -> {
@@ -238,6 +244,33 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 			inputTextField.setErrorMessage(message(errors));
 		}
 
+	}
+	
+	private void run(RulesDefinition rulesDefinition) {
+		final Collection<Entry<String, String>> errors = ruleDefinitionModel.validateInput();
+
+		inputTextField.setInvalid(false);
+		inputTextField.setErrorMessage("");
+
+		
+		
+		
+		if (errors.size() == 0) {
+			final RulesAggregate<?> rulesAggregate =rulesService.rulesAggregate(rulesDefinition);
+			
+			System.out.println("************************");
+			System.out.println(rulesAggregate);
+			final RulesAggregateResult<?> rulesAggregateResult =rulesAggregate.fire();
+			System.out.println(rulesAggregateResult.exceptions().size());
+			System.out.println(rulesAggregateResult.processedRules());
+			
+			rulesAggregateResult.states().forEach(x -> System.out.println(x));
+			
+			
+		} else {
+			inputTextField.setInvalid(true);
+			inputTextField.setErrorMessage(message(errors));
+		}
 	}
 
 	private String message(final Collection<Entry<String, String>> errors) {
