@@ -105,6 +105,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	private final ButtonBox buttonBox;
 
 	private final RulesService rulesService;
+	
 
 	// https://vaadin.com/components/vaadin-grid/java-examples/grid-editor
 
@@ -266,6 +267,8 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 			
 			rulesAggregateResult.states().forEach(x -> System.out.println(x));
 			
+			final SimpleAggrgationResultsDialog resultsDialog = new SimpleAggrgationResultsDialog(rulesAggregateResult);
+			resultsDialog.show();
 			
 		} else {
 			inputTextField.setInvalid(true);
