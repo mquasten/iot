@@ -253,10 +253,11 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		inputTextField.setInvalid(false);
 		inputTextField.setErrorMessage("");
 
-		
+	
 		
 		
 		if (errors.size() == 0) {
+			
 			final RulesAggregate<?> rulesAggregate =rulesService.rulesAggregate(rulesDefinition);
 			
 			System.out.println("************************");
@@ -267,13 +268,14 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 			
 			rulesAggregateResult.states().forEach(x -> System.out.println(x));
 			
-			final SimpleAggrgationResultsDialog resultsDialog = new SimpleAggrgationResultsDialog(rulesAggregateResult);
-			resultsDialog.show();
+			final SimpleAggrgationResultsDialog resultsDialog = new SimpleAggrgationResultsDialog();
+			resultsDialog.show(rulesAggregateResult);
 			
 		} else {
 			inputTextField.setInvalid(true);
 			inputTextField.setErrorMessage(message(errors));
 		}
+	
 	}
 
 	private String message(final Collection<Entry<String, String>> errors) {
