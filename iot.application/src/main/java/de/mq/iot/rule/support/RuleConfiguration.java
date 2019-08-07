@@ -43,7 +43,7 @@ class RuleConfiguration {
 	@Bean()
 	@Scope(value = "prototype")
 	Collection<RulesAggregate<?>> rulesAggregates(final ConversionService conversionService, final ValidationFactory validationFactory,final SpecialdayService specialdayService, final StateService stateService, final MeteorologicalDataService meteorologicalDataService, final SunDownCalculationService sunDownCalculationService) {
-		return Arrays.asList(rulesAggregate(conversionService,validationFactory, specialdayService, stateService, meteorologicalDataService, sunDownCalculationService), rulesAggregateEndOfDay(stateService,specialdayService, conversionService,validationFactory));
+		return Arrays.asList(rulesAggregate(conversionService,validationFactory, specialdayService, stateService, meteorologicalDataService, sunDownCalculationService) , rulesAggregateEndOfDay(stateService,specialdayService, conversionService,validationFactory));
 	}
 	
 	@Bean()

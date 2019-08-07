@@ -30,13 +30,13 @@ public class SimpleAggrgationResultsDialog {
 	private final Grid<Object> resultGrid = new Grid<Object>();
 	
 	private final TextArea exceptions = new TextArea();
-	  private final HorizontalLayout root = new HorizontalLayout(rulesGrid, resultGrid);
+	  private final HorizontalLayout resultsLayout = new HorizontalLayout(rulesGrid, resultGrid);
 	  
 	  private final HorizontalLayout exceptionsLayout = new HorizontalLayout(exceptions);
 	SimpleAggrgationResultsDialog() {
 	
 
-	this.dialog.add(root);
+	this.dialog.add(resultsLayout);
 	this.dialog.add(exceptionsLayout);
 	VerticalLayout buttonLayout = new VerticalLayout(closeButton);
 	this.dialog.add(buttonLayout);
@@ -52,7 +52,7 @@ public class SimpleAggrgationResultsDialog {
 	
 	closeButton.setText("ok");
 	
-	root.setSizeFull();
+	resultsLayout.setSizeFull();
 
 	
 	dialog.setCloseOnEsc(true);
@@ -61,7 +61,7 @@ public class SimpleAggrgationResultsDialog {
 	
 	rulesGrid.getElement().getStyle().set("overflow", "auto");
 	resultGrid.getElement().getStyle().set("overflow", "auto");
-	root.setWidth("100vh");
+	resultsLayout.setWidth("100vh");
 
 	
 	//rulesGrid.setHeight("50vH");
@@ -73,7 +73,8 @@ public class SimpleAggrgationResultsDialog {
 	resultGrid.addColumn((ValueProvider<Object,String>) result -> result.toString()).setHeader("Ergebnisse");
 	
 	closeButton.addClickListener(event -> dialog.close());
-	
+	resultsLayout.setVisible(false);
+	exceptionsLayout.setVisible(false);
 	
 	}
 	
@@ -90,7 +91,7 @@ public class SimpleAggrgationResultsDialog {
 			stringWriter.append(entry.getKey() +":" + System.getProperty("line.separator"));
 			
 			
-			PrintWriter printWriter = new PrintWriter(stringWriter);
+			final PrintWriter printWriter = new PrintWriter(stringWriter);
 			entry.getValue().printStackTrace(printWriter);
 		
 			
@@ -99,12 +100,29 @@ public class SimpleAggrgationResultsDialog {
 		
 		exceptions.setValue(stringWriter.toString());
 		exceptionsLayout.setVisible(!rulesAggregate.exceptions().isEmpty());
-		
+		resultsLayout.setVisible(true);
 		exceptionsLayout.setHeight("30vH");
 		
 		rulesGrid.setItems(rulesAggregate.processedRules());
 		resultGrid.setItems((Collection<Object>)rulesAggregate.states());
 		dialog.open();
+	}
+
+
+
+
+	public void showError(Exception exception) {
+		final StringWriter stringWriter = new StringWriter();
+			
+			final PrintWriter printWriter = new PrintWriter(stringWriter);
+			exception.printStackTrace(printWriter);
+		
+			exceptions.setValue(stringWriter.toString());
+
+			exceptionsLayout.setVisible(true);
+			resultsLayout.setVisible(false);
+			exceptionsLayout.setHeight("80vH");
+			dialog.open();
 	}
 	
 

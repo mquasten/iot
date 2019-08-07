@@ -258,24 +258,26 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		
 		if (errors.size() == 0) {
 			
-			final RulesAggregate<?> rulesAggregate =rulesService.rulesAggregate(rulesDefinition);
-			
-			System.out.println("************************");
-			System.out.println(rulesAggregate);
-			final RulesAggregateResult<?> rulesAggregateResult =rulesAggregate.fire();
-			System.out.println(rulesAggregateResult.exceptions().size());
-			System.out.println(rulesAggregateResult.processedRules());
-			
-			rulesAggregateResult.states().forEach(x -> System.out.println(x));
-			
-			final SimpleAggrgationResultsDialog resultsDialog = new SimpleAggrgationResultsDialog();
-			resultsDialog.show(rulesAggregateResult);
+			showResultsDialog(rulesDefinition);
 			
 		} else {
 			inputTextField.setInvalid(true);
 			inputTextField.setErrorMessage(message(errors));
 		}
 	
+	}
+
+	private void showResultsDialog(RulesDefinition rulesDefinition) {
+		
+		final SimpleAggrgationResultsDialog resultsDialog = new SimpleAggrgationResultsDialog();
+		try {
+			resultsDialog.show(rulesService.rulesAggregate(rulesDefinition).fire());
+		
+		} catch (Exception ex ) {
+			resultsDialog.showError(ex);
+		}
+		
+		
 	}
 
 	private String message(final Collection<Entry<String, String>> errors) {
