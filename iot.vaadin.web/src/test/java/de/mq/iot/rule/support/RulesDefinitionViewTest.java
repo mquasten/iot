@@ -80,6 +80,9 @@ class RulesDefinitionViewTest {
 	private RulesDefinition rulesDefinitionEndOfDayBatch = Mockito.mock(RulesDefinition.class);
 
 	private Map<String, Object> fields = new HashMap<>();
+	
+	
+	private final SimpleAggrgationResultsDialog simpleAggrgationResultsDialog = Mockito.mock(SimpleAggrgationResultsDialog.class);
 
 	@BeforeEach
 	void setup() {
@@ -104,7 +107,7 @@ class RulesDefinitionViewTest {
 
 		}).when(ruleDefinitionModel).register(Mockito.any(), Mockito.any());
 
-		rulesDefinitionView = new RulesDefinitionView(ruleDefinitionModel, rulesService, new ButtonBox(), messageSource);
+		rulesDefinitionView = new RulesDefinitionView(ruleDefinitionModel, rulesService, new ButtonBox(), messageSource, simpleAggrgationResultsDialog);
 
 		fields.putAll(Arrays.asList(rulesDefinitionView.getClass().getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).collect(Collectors.toMap(Field::getName, field -> ReflectionTestUtils.getField(rulesDefinitionView, field.getName()))));
 	
@@ -781,8 +784,6 @@ class RulesDefinitionViewTest {
 		Mockito.doReturn(Optional.of(errorKey)).when(ruleDefinitionModel).validateArgument(Boolean.TRUE.toString());
 	    Mockito.doReturn(Locale.GERMAN).when(ruleDefinitionModel).locale();
 		
-		System.out.println(ruleDefinitionModel.locale());
-		
 		Mockito.doAnswer(answer -> answer.getArguments()[0]).when(messageSource).getMessage(Mockito.any() , Mockito.any(), Mockito.any(), Mockito.any());
 		
 		final Button changeArgumentsButton = changeArgumentsButton();
@@ -801,5 +802,7 @@ class RulesDefinitionViewTest {
 		assertEquals(RulesDefinitionView.I18N_VALIDATION_PREFIX+ errorKey, argumentsInputField.getErrorMessage());
 		
 	}
+	
+	
 	
 }

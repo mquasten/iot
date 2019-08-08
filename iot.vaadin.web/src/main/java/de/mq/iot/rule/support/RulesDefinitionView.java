@@ -106,10 +106,11 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 	private final RulesService rulesService;
 	
+	private final SimpleAggrgationResultsDialog simpleAggrgationResultsDialog;
 
 	// https://vaadin.com/components/vaadin-grid/java-examples/grid-editor
 
-	RulesDefinitionView(final RuleDefinitionModel ruleDefinitionModel, final RulesService rulesService, final ButtonBox buttonBox, final MessageSource messageSource) {
+	RulesDefinitionView(final RuleDefinitionModel ruleDefinitionModel, final RulesService rulesService, final ButtonBox buttonBox, final MessageSource messageSource, final SimpleAggrgationResultsDialog simpleAggrgationResultsDialog) {
 		this.messageSource = messageSource;
 		this.ruleDefinitionModel = ruleDefinitionModel;
 		this.buttonBox = buttonBox;
@@ -118,6 +119,7 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		addListeneners(ruleDefinitionModel);
 		registerObservers();
 		ruleDefinitionModel.notifyObservers(Events.ChangeLocale);
+		this.simpleAggrgationResultsDialog=simpleAggrgationResultsDialog;
 
 	}
 
@@ -269,12 +271,12 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 	private void showResultsDialog(RulesDefinition rulesDefinition) {
 		
-		final SimpleAggrgationResultsDialog resultsDialog = new SimpleAggrgationResultsDialog();
+		
 		try {
-			resultsDialog.show(rulesService.rulesAggregate(rulesDefinition).fire());
+			simpleAggrgationResultsDialog.show(rulesService.rulesAggregate(rulesDefinition).fire());
 		
 		} catch (Exception ex ) {
-			resultsDialog.showError(ex);
+			simpleAggrgationResultsDialog.showError(ex);
 		}
 		
 		
