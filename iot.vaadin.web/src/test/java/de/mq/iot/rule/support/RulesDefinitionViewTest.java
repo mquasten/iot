@@ -803,6 +803,61 @@ class RulesDefinitionViewTest {
 		
 	}
 	
+	@Test
+	void runButtonListener() {
+		
+		Mockito.doReturn(Optional.of(rulesDefinitionDefaultDailyIotBatch)).when(ruleDefinitionModel).selected();
+		
+		final RulesAggregate<?> rulesAggregate = Mockito.mock(RulesAggregate.class);
+		final RulesAggregateResult<?> rulesAggregateResult = Mockito.mock(RulesAggregateResult.class);
+		
+		Mockito.doReturn(rulesAggregate).when(rulesService).rulesAggregate(rulesDefinitionDefaultDailyIotBatch);
+		Mockito.doReturn(rulesAggregateResult).when(rulesAggregate).fire();
+		final Button runButton = runButton();
+		
+		final TextField inputTextField = inputTextField();
+		inputTextField.setInvalid(true);
+		inputTextField.setErrorMessage("error");
+		
+		assertNotNull(runButton);
+		
+
+		listener(runButton).onComponentEvent(null);
+		
+		Mockito.verify(simpleAggrgationResultsDialog, Mockito.times(1)).show(rulesAggregateResult);
+		
+		assertFalse(inputTextField.isInvalid());
+		assertFalse(StringUtils.hasText(inputTextField.getErrorMessage()));
+	}
+	
+	@Test
+	void runButtonListenerException() {
+		
+		Mockito.doReturn(Optional.of(rulesDefinitionDefaultDailyIotBatch)).when(ruleDefinitionModel).selected();
+		
+
+		
+		Exception exception = new RuntimeException();
+		
+		Mockito.doThrow(exception).when(rulesService).rulesAggregate(rulesDefinitionDefaultDailyIotBatch);
+		
+		final Button runButton = runButton();
+		
+		final TextField inputTextField = inputTextField();
+		inputTextField.setInvalid(true);
+		inputTextField.setErrorMessage("error");
+		
+		assertNotNull(runButton);
+		
+
+		listener(runButton).onComponentEvent(null);
+		
+		Mockito.verify(simpleAggrgationResultsDialog, Mockito.times(1)).show(exception);
+		
+		assertFalse(inputTextField.isInvalid());
+		assertFalse(StringUtils.hasText(inputTextField.getErrorMessage()));
+	}
+	
 	
 	
 }

@@ -89,7 +89,7 @@ public class SimpleAggrgationResultsDialog {
 		dialog.open();
 	}
 
-	public void showError(Exception exception) {
+	public void show(final Exception exception) {
 		final StringWriter stringWriter = new StringWriter();
 
 		final PrintWriter printWriter = new PrintWriter(stringWriter);

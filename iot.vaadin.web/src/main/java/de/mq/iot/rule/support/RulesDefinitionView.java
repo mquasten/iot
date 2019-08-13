@@ -250,6 +250,8 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	}
 	
 	private void run(RulesDefinition rulesDefinition) {
+		
+		
 		final Collection<Entry<String, String>> errors = ruleDefinitionModel.validateInput();
 
 		inputTextField.setInvalid(false);
@@ -271,12 +273,11 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 	private void showResultsDialog(RulesDefinition rulesDefinition) {
 		
-		
 		try {
 			simpleAggrgationResultsDialog.show(rulesService.rulesAggregate(rulesDefinition).fire());
 		
 		} catch (Exception ex ) {
-			simpleAggrgationResultsDialog.showError(ex);
+			simpleAggrgationResultsDialog.show(ex);
 		}
 		
 		
