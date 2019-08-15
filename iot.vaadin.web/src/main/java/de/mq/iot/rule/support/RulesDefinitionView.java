@@ -256,15 +256,13 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		inputTextField.setInvalid(false);
 		inputTextField.setErrorMessage("");
-
-	
-		
 		
 		if (errors.size() == 0) {
 			
 			showResultsDialog(rulesDefinition);
 			
 		} else {
+			
 			inputTextField.setInvalid(true);
 			inputTextField.setErrorMessage(message(errors));
 		}

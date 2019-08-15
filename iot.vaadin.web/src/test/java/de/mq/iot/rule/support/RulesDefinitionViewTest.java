@@ -859,5 +859,31 @@ class RulesDefinitionViewTest {
 	}
 	
 	
+	@Test
+	void runButtonListenerValidationError() {
+		final String i18nKey = "invalid";
+		Mockito.doReturn(Arrays.asList(new AbstractMap.SimpleEntry<>(RulesDefinitionView.I18N_VALIDATION_PREFIX+ i18nKey, i18nKey))).when(ruleDefinitionModel).validateInput();
+		Mockito.doReturn(Optional.of(rulesDefinitionDefaultDailyIotBatch)).when(ruleDefinitionModel).selected();
+		//Mockito.doReturn(null).when(ruleDefinitionModel).validateInput();
+		
+		Mockito.doReturn(Locale.GERMAN).when(ruleDefinitionModel).locale();
+		Mockito.doAnswer(answer -> answer.getArguments()[0]).when(messageSource).getMessage(Mockito.any() , Mockito.any(), Mockito.any(), Mockito.any());
+		
+		
+final Button runButton = runButton();
+		
+		final TextField inputTextField = inputTextField();
+		
+		assertNotNull(runButton);
+		
+		
+		listener(runButton).onComponentEvent(null);
+		
+		assertEquals(RulesDefinitionView.I18N_VALIDATION_PREFIX+ i18nKey + ": "+ RulesDefinitionView.I18N_VALIDATION_PREFIX+ i18nKey , inputTextField.getErrorMessage());
+		assertTrue(inputTextField.isInvalid());
+		
+	}
+	
+	
 	
 }
