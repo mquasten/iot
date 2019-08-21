@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.context.MessageSource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.vaadin.flow.component.dialog.Dialog;
@@ -26,9 +27,13 @@ class AggrgationResultsDialogTest {
 	
 	private Map<String, Object> fields = new HashMap<>();
 	
+	
+	private final MessageSource messageSource = Mockito.mock(MessageSource.class);
+	private final RuleDefinitionModel ruleDefinitionModel = Mockito.mock(RuleDefinitionModel.class);
+
 	@BeforeEach
 	void setup() {
-		aggrgationResultsDialog = new SimpleAggrgationResultsDialog(dialog);
+		aggrgationResultsDialog = new SimpleAggrgationResultsDialog(ruleDefinitionModel, messageSource,dialog);
 		
 		fields.putAll(Arrays.asList(aggrgationResultsDialog.getClass().getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).collect(Collectors.toMap(Field::getName, field -> ReflectionTestUtils.getField(aggrgationResultsDialog, field.getName()))));
 		

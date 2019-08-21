@@ -115,11 +115,12 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		this.ruleDefinitionModel = ruleDefinitionModel;
 		this.buttonBox = buttonBox;
 		this.rulesService = rulesService;
+		this.simpleAggrgationResultsDialog=simpleAggrgationResultsDialog;
 		createUI();
 		addListeneners(ruleDefinitionModel);
 		registerObservers();
 		ruleDefinitionModel.notifyObservers(Events.ChangeLocale);
-		this.simpleAggrgationResultsDialog=simpleAggrgationResultsDialog;
+		
 
 	}
 
@@ -165,7 +166,6 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 	private void registerObservers() {
 		ruleDefinitionModel.register(RuleDefinitionModel.Events.ChangeLocale, () -> {
-
 			localize(messageSource, ruleDefinitionModel.locale());
 		});
 

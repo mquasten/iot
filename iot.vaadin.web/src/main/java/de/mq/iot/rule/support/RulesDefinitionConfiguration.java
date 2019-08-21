@@ -1,5 +1,6 @@
 package de.mq.iot.rule.support;
 
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -22,8 +23,10 @@ class RulesDefinitionConfiguration {
 	
 	@Bean()
 	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, scopeName = "prototype")
-	SimpleAggrgationResultsDialog simpleAggrgationResultsDialog(final Dialog dialog) {
-		return new SimpleAggrgationResultsDialog(new Dialog());
+	SimpleAggrgationResultsDialog simpleAggrgationResultsDialog(final RuleDefinitionModel ruleDefinitionModel, MessageSource messageSource) {
+		
+		return   new SimpleAggrgationResultsDialog(ruleDefinitionModel, messageSource, new Dialog());
+	
 	}
 	
 
