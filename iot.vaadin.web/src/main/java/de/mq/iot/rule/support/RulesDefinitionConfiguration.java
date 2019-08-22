@@ -23,9 +23,9 @@ class RulesDefinitionConfiguration {
 	
 	@Bean()
 	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, scopeName = "prototype")
-	SimpleAggrgationResultsDialog simpleAggrgationResultsDialog(final RuleDefinitionModel ruleDefinitionModel, MessageSource messageSource) {
+	SimpleAggrgationResultsDialog simpleAggrgationResultsDialog(final RuleDefinitionModel ruleDefinitionModel, MessageSource messageSource, final Dialog dialog) {
 		
-		return   new SimpleAggrgationResultsDialog(ruleDefinitionModel, messageSource, new Dialog());
+		return   new SimpleAggrgationResultsDialog(ruleDefinitionModel, messageSource, dialog);
 	
 	}
 	

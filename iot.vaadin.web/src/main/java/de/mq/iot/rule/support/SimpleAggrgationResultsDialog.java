@@ -45,10 +45,16 @@ class SimpleAggrgationResultsDialog implements LocalizeView {
 	@I18NKey("exceptions")
 	private final Label errors = new Label();
 	
+	
+	private final RuleDefinitionModel ruleDefinitionModel;
+	
+	private final MessageSource messageSource;
 
 	SimpleAggrgationResultsDialog(final RuleDefinitionModel ruleDefinitionModel, final MessageSource messageSource,  final Dialog dialog) {
 	
 		this.dialog = dialog;
+		this.ruleDefinitionModel=ruleDefinitionModel;
+		this.messageSource=messageSource;
 		this.dialog.add(resultsLayout);
 		this.dialog.add(exceptionsLayout);
 		VerticalLayout buttonLayout = new VerticalLayout(closeButton);
@@ -85,13 +91,17 @@ class SimpleAggrgationResultsDialog implements LocalizeView {
 		exceptionsLayout.setVisible(false);
 		
 	
-		ruleDefinitionModel.register(RuleDefinitionModel.Events.ChangeLocale, () -> {
-			localize(messageSource, ruleDefinitionModel.locale()); 
-			exceptions.setLabel(errors.getText());
-		});
+		registerObserver();
 		
 		
 		ruleDefinitionModel.notifyObservers(RuleDefinitionModel.Events.ChangeLocale);
+	}
+
+	private void registerObserver() {
+		this.ruleDefinitionModel.register(RuleDefinitionModel.Events.ChangeLocale, () -> {
+			localize(this.messageSource, this.ruleDefinitionModel.locale()); 
+			exceptions.setLabel(errors.getText());
+		});
 	}
 
 	@SuppressWarnings("unchecked")
