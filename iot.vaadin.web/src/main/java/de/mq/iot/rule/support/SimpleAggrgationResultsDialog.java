@@ -106,7 +106,6 @@ class SimpleAggrgationResultsDialog implements LocalizeView {
 
 	@SuppressWarnings("unchecked")
 	void show(final RulesAggregateResult<?> rulesAggregate) {
-		
 
 
 		final StringWriter stringWriter = new StringWriter();
@@ -118,6 +117,8 @@ class SimpleAggrgationResultsDialog implements LocalizeView {
 
 		});
 
+		
+		
 		exceptions.setValue(stringWriter.toString());
 		exceptionsLayout.setVisible(!rulesAggregate.exceptions().isEmpty());
 		resultsLayout.setVisible(true);

@@ -3,11 +3,18 @@ package de.mq.iot.rule.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,14 +27,26 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.data.provider.Query;
 
 import de.mq.iot.model.Observer;
+import de.mq.iot.rule.RulesDefinition;
+import de.mq.iot.state.State;
 
 class AggrgationResultsDialogTest {
 	
+	
+	
+	private  final Collection<State<?>> states = Arrays.asList(Mockito.mock(State.class));
+
+	private static final RuntimeException EXCEPTION = new RuntimeException();
+
+	private static final List<String> EXPECTED_RULES = Arrays.asList("calendarRule", "systemVariablesRule");
+
 	private static final String I18N_RULES_AGGREGATION_RESULTS_EXCEPTIONS = "rules_aggregation_results_exceptions";
 
 	private static final String I18N_RULES_AGGREGATION_RESULTS_RESULTS = "rules_aggregation_results_results";
@@ -143,6 +162,74 @@ class AggrgationResultsDialogTest {
 
 	private HorizontalLayout resultsLayout() {
 		return (HorizontalLayout) fields.get("resultsLayout");
+	}
+	
+	
+	@Test
+	void  show() {
+		final RulesAggregateResult<?> rulesAggregate = ruelesAggregateMock();
+		Mockito.when(rulesAggregate.exceptions()).thenReturn(Arrays.asList(new  AbstractMap.SimpleImmutableEntry<>(RulesDefinition.TEMPERATURE_RULE_NAME ,   EXCEPTION)));
+		
+		final HorizontalLayout exceptionsLayout =exceptionsLayout();
+		assertNotNull(exceptionsLayout);
+		assertFalse(exceptionsLayout.isVisible());
+		
+		aggrgationResultsDialog.show(rulesAggregate);
+		assertTrue(exceptionsLayout.isVisible());
+		final TextArea exceptions = exceptions();
+		assertNotNull(exceptions);
+		assertEquals(expectedExceptionString() , exceptions.getValue());
+		
+		final Grid<String> rulesGrid = rulesGrid();
+		assertNotNull(rulesGrid);
+		final Collection <?> rules = rulesGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+		assertEquals(EXPECTED_RULES, rules);
+		
+		final Grid<State<?>> stateGrid = stateGrid();
+		assertNotNull(stateGrid);
+		assertEquals(states, stateGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
+		Mockito.verify(dialog).open();
+		
+	}
+	
+	@Test
+	void  showNoException() {
+		
+		aggrgationResultsDialog.show(ruelesAggregateMock());
+		
+	    final HorizontalLayout exceptionsLayout = exceptionsLayout();
+		assertNotNull(exceptionsLayout);
+		assertFalse(exceptionsLayout.isVisible());
+	}
+
+	private RulesAggregateResult<?> ruelesAggregateMock() {
+		final RulesAggregateResult<?> rulesAggregate = Mockito.mock(RulesAggregateResult.class);
+		
+	
+		
+		Mockito.when(rulesAggregate.processedRules()).thenReturn(EXPECTED_RULES);
+		
+		Mockito.doReturn(states).when(rulesAggregate).states();
+		return rulesAggregate;
+	}
+
+	private Grid<State<?>> stateGrid() {
+		@SuppressWarnings("unchecked")
+		final Grid<State<?>> stateGrid =  (Grid<State<?>>) fields.get("resultGrid");
+		return stateGrid;
+	}
+
+	private String expectedExceptionString() {
+		final StringWriter stringWriter = new StringWriter();
+		final PrintWriter printWriter = new PrintWriter(stringWriter);
+		EXCEPTION.printStackTrace(printWriter);
+		return RulesDefinition.TEMPERATURE_RULE_NAME + ":" + System.getProperty("line.separator") + stringWriter.toString();
+	}
+
+	@SuppressWarnings("unchecked")
+	private Grid<String> rulesGrid() {
+		final Grid<?> rulesGrid = (Grid<?>) fields.get("rulesGrid");
+		return (Grid<String>) rulesGrid;
 	}
 
 }
