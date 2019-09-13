@@ -870,7 +870,7 @@ class RulesDefinitionViewTest {
 		Mockito.doAnswer(answer -> answer.getArguments()[0]).when(messageSource).getMessage(Mockito.any() , Mockito.any(), Mockito.any(), Mockito.any());
 		
 		
-final Button runButton = runButton();
+		final Button runButton = runButton();
 		
 		final TextField inputTextField = inputTextField();
 		

@@ -83,8 +83,8 @@ class SimpleAggrgationResultsDialog implements LocalizeView {
 
 		exceptions.getElement().getStyle().set("overflow", "auto");
 
-		rulesGrid.addColumn((ValueProvider<String, String>) x -> x).setHeader(rulesHeader);
-		resultGrid.addColumn((ValueProvider<Object, String>) result -> result.toString()).setHeader(resultsHeader);
+		rulesGrid.addColumn( valueProvider()).setHeader(rulesHeader);
+		resultGrid.addColumn( valueProviderToString()).setHeader(resultsHeader);
 
 		closeButton.addClickListener(event -> dialog.close());
 		resultsLayout.setVisible(false);
@@ -144,6 +144,14 @@ class SimpleAggrgationResultsDialog implements LocalizeView {
 		resultsLayout.setVisible(false);
 		exceptionsLayout.setHeight("80vH");
 		dialog.open();
+	}
+	
+	ValueProvider<String, String> valueProvider() {
+		return value -> value;
+	}
+	
+	ValueProvider<Object, String> valueProviderToString() {
+		return value -> value.toString();
 	}
 
 }

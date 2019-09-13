@@ -23,8 +23,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.context.MessageSource;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.vaadin.flow.component.ComponentEventBus;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -254,6 +257,38 @@ class AggrgationResultsDialogTest {
 		final PrintWriter printWriter = new PrintWriter(stringWriter);
 		EXCEPTION.printStackTrace(printWriter);
 		return stringWriter.toString();
+	}
+	
+	@SuppressWarnings("unchecked")
+	private ComponentEventListener<?> listener(final Button saveButton) {
+		final ComponentEventBus eventBus = (ComponentEventBus) ReflectionTestUtils.getField(saveButton, "eventBus");
+		final Map<Class<?>, ?> map = (Map<Class<?>, ?>) ReflectionTestUtils.getField(eventBus, "componentEventData");
+		return DataAccessUtils.requiredSingleResult((Collection<ComponentEventListener<?>>) ReflectionTestUtils.getField(map.values().iterator().next(), "listeners"));
+	}
+	
+	@Test
+	void closeButtonListener() {
+		final Button button = closeButton();
+		assertNotNull(button);
+		
+		listener(button).onComponentEvent(null);
+		
+		Mockito.verify(dialog).close();
+		
+		
+	}
+	
+	@Test
+	void valueProvider() {
+		final String value = "value";
+		assertEquals(value, aggrgationResultsDialog.valueProvider().apply(value));
+	}
+	
+	@Test
+	void valueProviderToString() {
+		final State<?> state = Mockito.mock(State.class);
+		
+		assertEquals(state.toString(), aggrgationResultsDialog.valueProviderToString().apply(state));
 	}
 
 }
