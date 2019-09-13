@@ -1,5 +1,7 @@
 package de.mq.iot.support;
 
+
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
@@ -106,7 +108,8 @@ private final double  latitude;
 	}
 
 	private LocalTime localTime(final double result) {
-		int min = (int)  Math.round(60 * (result % 1));
+		final int min = (int)  Math.round(60 * (result % 1));
+		
 		return LocalTime.of((int) result, (min  != 60) ?  min : 59);
 	}
 

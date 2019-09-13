@@ -1,7 +1,5 @@
 package de.mq.iot.state.support;
 
-
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,30 +10,29 @@ import org.springframework.util.Assert;
 
 import de.mq.iot.state.State;
 
-abstract   class AbstractState<T> implements State<T> {
+abstract class AbstractState<T> implements State<T> {
 
 	static final String TO_STRING_FORMAT = "%s=%s";
-	private final long id; 
+	private final long id;
 	private final String name;
 	private final LocalDateTime lastupdate;
 	private String function;
-	
-	private final Collection<Predicate<T>> validators = new ArrayList<>();; 
-	
-	
-	AbstractState(final long id, final String name,   final LocalDateTime lastupdate) {
+
+	private final Collection<Predicate<T>> validators = new ArrayList<>();;
+
+	AbstractState(final long id, final String name, final LocalDateTime lastupdate) {
 		Assert.hasText(name, "Name is mandatory.");
 		Assert.notNull(lastupdate, "Name is mandatory.");
-		Assert.isTrue(id > 0, "Id should be > 0." );
+		Assert.isTrue(id > 0, "Id should be > 0.");
 		this.id = id;
 		this.name = name;
 		this.lastupdate = lastupdate;
-		
+
 	}
-	
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.domain.state.State#id()
 	 */
 	@Override
@@ -45,6 +42,7 @@ abstract   class AbstractState<T> implements State<T> {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.domain.state.State#name()
 	 */
 	@Override
@@ -52,9 +50,9 @@ abstract   class AbstractState<T> implements State<T> {
 		return name;
 	}
 
-	
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.domain.state.State#lastupdate()
 	 */
 	@Override
@@ -64,75 +62,79 @@ abstract   class AbstractState<T> implements State<T> {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.state.support.State#validate(java.lang.Object)
 	 */
 	@Override
-	public final boolean validate(T value ) {
-		 return validators.stream().map(validator -> validator.test(value)).filter(v -> !v ).findAny().orElseGet(() -> true) ;
+	public final boolean validate(T value) {
+		return validators.stream().map(validator -> validator.test(value)).filter(v -> !v).findAny().orElseGet(() -> true);
 	}
-	
+
 	/**
-	 * assign a validator 
-	 * @param validator a validator to test if the value is within the range
+	 * assign a validator
+	 * 
+	 * @param validator
+	 *            a validator to test if the value is within the range
 	 */
 	final void assign(final Predicate<T> validator) {
 		validators.add(validator);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.state.State#assignFunction(java.lang.String)
 	 */
 	@Override
 	public final void assignFunction(final String function) {
-		Assert.notNull(function , "Function is required.");
-		this.function=function;
+		Assert.notNull(function, "Function is required.");
+		this.function = function;
 	}
-
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.state.State#function()
 	 */
 	@Override
 	final public Optional<String> function() {
 		return Optional.ofNullable(function);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.state.State#hasValue(java.lang.Object)
 	 */
 	@Override
 	public boolean hasValue(final T value) {
-		if( value == null ) {
+		if (value == null) {
 			return false;
 		}
 		return this.value().equals(value);
 	}
 
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.mq.iot.state.State#value()
+	 */
 	@Override
-	public T value() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public abstract T value();
 
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.mq.iot.state.State#assign(java.lang.Object)
+	 */
 	@Override
-	public void assign(T value) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	public abstract void assign(final T value);
 
 	@Override
 	public String toString() {
-		
+
 		return String.format(TO_STRING_FORMAT, name, value());
 
-
 	}
-	
-	
+
 }
