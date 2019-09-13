@@ -178,7 +178,7 @@ class AggrgationResultsDialogTest {
 		assertTrue(exceptionsLayout.isVisible());
 		final TextArea exceptions = exceptions();
 		assertNotNull(exceptions);
-		assertEquals(expectedExceptionString() , exceptions.getValue());
+		assertEquals(expectedExceptionStringWithRule() , exceptions.getValue());
 		
 		final Grid<String> rulesGrid = rulesGrid();
 		assertNotNull(rulesGrid);
@@ -219,7 +219,7 @@ class AggrgationResultsDialogTest {
 		return stateGrid;
 	}
 
-	private String expectedExceptionString() {
+	private String expectedExceptionStringWithRule() {
 		final StringWriter stringWriter = new StringWriter();
 		final PrintWriter printWriter = new PrintWriter(stringWriter);
 		EXCEPTION.printStackTrace(printWriter);
@@ -230,6 +230,33 @@ class AggrgationResultsDialogTest {
 	private Grid<String> rulesGrid() {
 		final Grid<?> rulesGrid = (Grid<?>) fields.get("rulesGrid");
 		return (Grid<String>) rulesGrid;
+	}
+	
+	@Test
+	void showExceptions() {
+		final HorizontalLayout exceptionsLayout = (HorizontalLayout) fields.get("exceptionsLayout");
+		assertNotNull(exceptionsLayout);
+		assertFalse(exceptionsLayout.isVisible());
+		
+		final TextArea exceptions = exceptions();
+		assertNotNull(exceptions);
+		
+		
+		
+		aggrgationResultsDialog.show(EXCEPTION);
+		
+		
+		assertEquals(expectedExceptionString() , exceptions.getValue());
+		assertTrue(exceptionsLayout.isVisible());
+		Mockito.verify(dialog).open();
+		
+	}
+	
+	private String expectedExceptionString() {
+		final StringWriter stringWriter = new StringWriter();
+		final PrintWriter printWriter = new PrintWriter(stringWriter);
+		EXCEPTION.printStackTrace(printWriter);
+		return stringWriter.toString();
 	}
 
 }
