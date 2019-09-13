@@ -241,10 +241,7 @@ class AggrgationResultsDialogTest {
 		final TextArea exceptions = exceptions();
 		assertNotNull(exceptions);
 		
-		
-		
 		aggrgationResultsDialog.show(EXCEPTION);
-		
 		
 		assertEquals(expectedExceptionString() , exceptions.getValue());
 		assertTrue(exceptionsLayout.isVisible());
