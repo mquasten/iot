@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -43,6 +42,8 @@ import de.mq.iot.support.ButtonBox;
 
 class SystemVariablesViewTest {
 
+	private static final String STATE_VALUE = new Double(0).toString();
+	private static final String STATE_NAME = "name";
 	private static final String I18N_INFO_LABEL_VALUE_BOOLEAN = "Boolean-Variable id=4711 ändern";
 	private static final String I18N_INFO_LABEL_VALUE_ITEM = "List-Variable id=4711 ändern";
 	private static final String I18N_INFO_LABEL_VALUE_DOUBLE = "Double-Variable id=4711 ändern";
@@ -55,7 +56,9 @@ class SystemVariablesViewTest {
 	private static final String I18N_SAVE_BUTTON = "systemvariables_save";
 	private final StateService stateService = Mockito.mock(StateService.class);
 	private final StateModel stateModel = Mockito.mock(StateModel.class);
-	private final Converter<State<?>, String> converter = new StateValueConverterImpl(new DefaultConversionService());
+	@SuppressWarnings("unchecked")
+	private final Converter<State<?>, String> converter = Mockito.mock(Converter.class);
+	
 	private final ResourceBundleMessageSource messageSource = Mockito.mock(ResourceBundleMessageSource.class);
 
 	private SystemVariablesView systemVariablesView;
@@ -76,6 +79,8 @@ class SystemVariablesViewTest {
 	
 	@BeforeEach
 	void setup() {
+		
+		Mockito.when(converter.convert(Mockito.any())).thenReturn(STATE_VALUE);
 		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(workingDayState));
 		final Map<Integer, String> values = new HashMap<>();
 		values.put(Integer.valueOf(0), "Winter");
@@ -519,6 +524,21 @@ class SystemVariablesViewTest {
 		listener(resetButton).onComponentEvent(null);
 
 		Mockito.verify(stateModel).reset();
+	}
+	
+	@Test
+	void stateNameValueProvider() {
+		final State<?> state = Mockito.mock(State.class);
+		Mockito.doReturn(STATE_NAME).when(state).name();
+		
+		assertEquals(STATE_NAME, systemVariablesView.stateNameValueProvider().apply(state));
+	}
+	
+	@Test
+	void statealueProvider() {
+		final State<?> state = Mockito.mock(State.class);
+		
+		assertEquals(STATE_VALUE, systemVariablesView.stateValueProvider().apply(state));
 	}
 
 }

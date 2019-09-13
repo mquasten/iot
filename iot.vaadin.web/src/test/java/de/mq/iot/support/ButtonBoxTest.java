@@ -138,4 +138,18 @@ class ButtonBoxTest {
 		
 	}
 	
+	
+	@SuppressWarnings("unchecked")
+	@Test	
+	void rules() {
+		final Button rulesButton =  fields.get("rulesButton");
+		
+		@SuppressWarnings("rawtypes")
+		final ComponentEventListener listener = listener(rulesButton);
+		final Button.ClickEvent<?> event = clickEvent();
+		listener.onComponentEvent(event);
+		
+		Mockito.verify(event.getSource().getUI().get()).navigate("rules");
+	}
+	
 }

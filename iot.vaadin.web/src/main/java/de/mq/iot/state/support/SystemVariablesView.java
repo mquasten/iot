@@ -286,8 +286,8 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		
 		
 	//	grid.addColumn((ValueProvider<State<?>, Long>) state -> state.id()).setVisible(false);
-		grid.addColumn((ValueProvider<State<?>, String>) state -> state.name()).setHeader(nameColumnLabel).setResizable(true);
-		grid.addColumn((ValueProvider<State<?>, String>) state -> stateValueConverter.convert(state)).setHeader(valueColumnLabel).setResizable(true);
+		grid.addColumn(stateNameValueProvider()).setHeader(nameColumnLabel).setResizable(true);
+		grid.addColumn(stateValueProvider()).setHeader(valueColumnLabel).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		
 		
@@ -337,6 +337,16 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		resetButton.setEnabled(false);
 		saveButton.setEnabled(false);
 	
+	}
+	
+	ValueProvider<State<?>, String>  stateNameValueProvider() {
+		return state -> state.name();
+		
+	}
+	
+	ValueProvider<State<?>, String>  stateValueProvider() {
+		return state -> stateValueConverter.convert(state);
+		
 	}
 
 
