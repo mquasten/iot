@@ -350,6 +350,13 @@ class CalendarViewTest {
 		Mockito.verify(calendarModel, Mockito.never()).notifyObservers(CalendarModel.Events.DatesChanged);
 		
 	}
+	@Test
+	void dateValueProvider() {
+		final LocalDate  date = LocalDate.now();
+	
+		
+		assertEquals(String.format("%s.%s.%s", date.getDayOfMonth() , date.getMonthValue() , date.getYear()), calendarView.dateValueProvider().apply(date));
+	}
 	
 	
 

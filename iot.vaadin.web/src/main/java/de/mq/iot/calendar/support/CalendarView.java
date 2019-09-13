@@ -132,7 +132,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 		grid.setHeight("50vH");
 
-		final ColumnBase<Column<LocalDate>> dateColumnBase = grid.addColumn((ValueProvider<LocalDate, String>) date -> date.getDayOfMonth() + "." + date.getMonthValue() + "." + date.getYear()).setResizable(true);
+		final ColumnBase<Column<LocalDate>> dateColumnBase = grid.addColumn(dateValueProvider()).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		
 	
@@ -236,6 +236,10 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	private List<LocalDate> readDates(final SpecialdayService specialdayService) {
 	
 		return specialdayService.specialdays(Year.now()).stream().filter(calendarModel.filter()).map(day -> day.date(Year.now().getValue())).sorted().collect(Collectors.toList());
+	}
+	
+	ValueProvider<LocalDate, String> dateValueProvider() {
+		return date -> date.getDayOfMonth() + "." + date.getMonthValue() + "." + date.getYear();
 	}
 
 	
