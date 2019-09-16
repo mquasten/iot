@@ -11,4 +11,6 @@ public interface AuthentificationService {
 	
 	Collection<Authentication> authentifications();
 
+	void changePassword(String username, String newPassword);
+
 }

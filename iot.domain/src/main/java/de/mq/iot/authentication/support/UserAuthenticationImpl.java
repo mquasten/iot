@@ -17,7 +17,7 @@ class UserAuthenticationImpl  implements Authentication {
 
 	@Id
 	private final String username;
-	private final String  credentials;
+	private  String  credentials;
 	private final Collection<Authority> authorities = new ArrayList<>();
 	
 	@SuppressWarnings("unused")
@@ -55,7 +55,7 @@ class UserAuthenticationImpl  implements Authentication {
 		
 		return this.credentials.equalsIgnoreCase(DigestUtils.md5DigestAsHex(credentials.getBytes()));
 	}
-
+	
 	@Override
 	public int hashCode() {
 		return username.hashCode();
