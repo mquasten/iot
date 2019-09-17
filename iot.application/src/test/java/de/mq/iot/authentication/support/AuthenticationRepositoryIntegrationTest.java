@@ -17,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
 import de.mq.iot.support.ApplicationConfiguration;
+import reactor.core.publisher.Mono;
 
 
 @ExtendWith(SpringExtension.class)
@@ -33,7 +34,9 @@ class AuthenticationRepositoryIntegrationTest {
 	final void save() {
 		assertNotNull(authenticationRepository);
 		
-		final Authentication authentication = new UserAuthenticationImpl("mquasten", "manfred01", Arrays.asList(Authority.values()));
+		final Authentication authentication = new UserAuthenticationImpl("mquasten", "manfred01", Arrays.asList(Authority.ModifyUsers));
+		
+		
 		
 		authenticationRepository.save(authentication).block(duration);
 		
@@ -42,6 +45,13 @@ class AuthenticationRepositoryIntegrationTest {
 		assertTrue(result.isPresent());
 		assertTrue(result.get().authenticate("manfred01"));
 		
+	}
+	
+	@Test
+	final void find() {
+		final Mono<Authentication>  results = authenticationRepository.findFirstByUsernameNotAndAuthority("xxx" , Authority.ModifyUsers);
+	
+	    System.out.println(results.blockOptional(Duration.ofMillis(500)));
 	}
 	
 
