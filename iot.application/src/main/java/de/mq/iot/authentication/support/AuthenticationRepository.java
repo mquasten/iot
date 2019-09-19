@@ -14,9 +14,11 @@ public interface AuthenticationRepository {
 		
 		Flux<Authentication> findAll();
 		
-		Mono<Authentication> save(final Authentication resourceIdentifier); 
-		@Query("{ authorities: { $in: [?1] } }")
-		Mono<Authentication>  findFirstByUsernameNotAndAuthority(final String username, final Authority authority);
+		Mono<Authentication> save(final Authentication resourceIdentifier);
+		
+		
+		@Query("{ $and: [ { username: { $ne: ?0 } },{ authorities: { $in: [?1] } }  ] }")
+		Flux<Authentication>  findByUsernameNotAndAuthority(final String username, final Authority authority);
 		
 
 
