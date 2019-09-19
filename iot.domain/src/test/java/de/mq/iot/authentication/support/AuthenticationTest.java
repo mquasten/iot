@@ -24,6 +24,10 @@ class AuthenticationTest {
 		assertEquals(1, authentication.authorities().size());
 		assertEquals(Optional.of(Authority.ModifySystemvariables), authentication.authorities().stream().findAny());
 	}
+	@Test
+	void authoritiesNull() {
+		assertEquals(0, new UserAuthenticationImpl(USERNAME, PASSWORD, null).authorities().size());
+	}
 	
 	@Test
 	void defaultConstructor() {

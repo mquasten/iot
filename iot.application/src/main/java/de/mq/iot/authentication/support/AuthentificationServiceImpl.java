@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
 
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.AuthentificationService;
+import de.mq.iot.authentication.Authority;
 @Service
 class AuthentificationServiceImpl implements AuthentificationService {
 	
@@ -50,6 +51,12 @@ class AuthentificationServiceImpl implements AuthentificationService {
 		final Authentication authentication = this.authentification(username).orElseThrow(() -> new IllegalArgumentException(String.format("User %s not found in database." ,  username)));
 		
 		authenticationRepository.save(new UserAuthenticationImpl(authentication.username(), newPassword, authentication.authorities())).block(timeout);
+	}
+	
+	
+	public boolean changeAuthorities(final String username,  final Collection<Authority>authorities) {
+		return false;
+		
 	}
 
 }

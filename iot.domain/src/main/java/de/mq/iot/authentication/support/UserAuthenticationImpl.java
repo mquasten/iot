@@ -6,6 +6,7 @@ import java.util.Collections;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
@@ -29,14 +30,20 @@ class UserAuthenticationImpl implements Authentication {
 	UserAuthenticationImpl(final String username, final String credentials, final Collection<Authority> authorities) {
 		Assert.hasText(credentials, "Credentials is mandatory");
 		Assert.notNull(username, "Username is mandatory");
-		this.username = username;
-		this.authorities.addAll(authorities);
+
+		this.username = StringUtils.trimWhitespace(username).toLowerCase();
+		if (!CollectionUtils.isEmpty(authorities)) {
+			authorities.forEach(authority -> Assert.notNull(authority, "Authority is required."));
+			this.authorities.addAll(authorities);
+		}
+
 		this.credentials = DigestUtils.md5DigestAsHex(credentials.getBytes());
 
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.authentication.Authentication#authorities()
 	 */
 	@Override
@@ -46,6 +53,7 @@ class UserAuthenticationImpl implements Authentication {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.authentication.Authentication#username()
 	 */
 	@Override
@@ -55,7 +63,9 @@ class UserAuthenticationImpl implements Authentication {
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.mq.iot.authentication.Authentication#authenticate(java.lang.String)
+	 * 
+	 * @see
+	 * de.mq.iot.authentication.Authentication#authenticate(java.lang.String)
 	 */
 	@Override
 	public boolean authenticate(final String credentials) {
@@ -69,6 +79,7 @@ class UserAuthenticationImpl implements Authentication {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -78,6 +89,7 @@ class UserAuthenticationImpl implements Authentication {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
