@@ -64,5 +64,12 @@ class AuthenticationTest {
 	void  string() {
 		assertEquals(USERNAME, authentication.toString());
 	}
+	
+	@Test
+	void hasRole() {
+		assertTrue(authentication.hasRole(Authority.ModifySystemvariables));
+		
+		assertFalse(authentication.hasRole(Authority.ModifyUsers));
+	}
 
 }

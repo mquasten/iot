@@ -11,6 +11,7 @@ public interface Authentication{
 	
 
 	boolean authenticate(final String credentials);
+	boolean hasRole(Authority authority);
 	
 
 }
