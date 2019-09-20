@@ -73,7 +73,7 @@ class UserAuthenticationImpl implements Authentication {
 		if (!StringUtils.hasText(this.credentials)) {
 			return false;
 		}
-
+		
 		return this.credentials.equalsIgnoreCase(DigestUtils.md5DigestAsHex(credentials.getBytes()));
 	}
 

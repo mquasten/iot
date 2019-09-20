@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -13,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.Authority;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -81,5 +83,40 @@ public class AuthentificationServiceTest {
 		assertThrows(IllegalArgumentException.class, () -> authentificationService.changePassword(USER, NEW_PASSWORD));
 	}
 	
+	@Test
+	void changeAuthorities() {
+		
+		Authentication user = new UserAuthenticationImpl(USER, NEW_PASSWORD, Arrays.asList(Authority.ModifyUsers));
+		
+		@SuppressWarnings("unchecked")
+		final  Mono<Authentication> saveMono = Mockito.mock(Mono.class);
+		
+		Mockito.doReturn(mono).when(authenticationRepository).findByUsername(USER);
+		
+		
+		//Mockito.doReturn(Boolean.TRUE).when(user).hasRole(Authority.ModifyUsers);
+		Mockito.doReturn(user).when(mono).block(Duration.ofMillis(TIMEOUT));
+		
+		Mockito.doReturn(saveMono).when(authenticationRepository).save(Mockito.any(Authentication.class));
+		
+		
+		final Flux<Authentication> flux = Flux.just(Mockito.mock(Authentication.class));
+		Mockito.doReturn(flux).when(authenticationRepository).findByUsernameNotAndAuthority(USER, Authority.ModifyUsers);
+		
+		
+		assertTrue(authentificationService.changeAuthorities(USER, Arrays.asList(Authority.ModifySystemvariables)));
+		
+		ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
+		
+		Mockito.verify(authenticationRepository).save(authenticationCaptor.capture());
+		
+		
+		assertEquals(USER, authenticationCaptor.getValue().username());
+		assertTrue(authenticationCaptor.getValue().authenticate("fever"));
+		assertEquals(1, authenticationCaptor.getValue().authorities().size());
+		assertEquals(Authority.ModifySystemvariables, authenticationCaptor.getValue().authorities().stream().findAny().get());
+		
+		
+	}
 
 }

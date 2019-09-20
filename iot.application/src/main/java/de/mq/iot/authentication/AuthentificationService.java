@@ -13,4 +13,6 @@ public interface AuthentificationService {
 
 	void changePassword(String username, String newPassword);
 
+	boolean changeAuthorities(String username, Collection<Authority> authorities);
+
 }
