@@ -21,6 +21,9 @@ public class ButtonBox extends HorizontalLayout {
 	
 
 	private final Button rulesButton = new Button();
+	
+	private final Button usersButton = new Button();
+	
 	public ButtonBox () {
 	
 		
@@ -52,6 +55,13 @@ public class ButtonBox extends HorizontalLayout {
 		rulesButton.addClickListener( event ->  ((Component) event.getSource()).getUI().ifPresent(ui -> ui.navigate("rules")) ); 
 		
 		add(rulesButton);
+		
+		
+		
+		usersButton.setIcon(VaadinIcons.USER.create());
+		usersButton.addClickListener( event ->  ((Component) event.getSource()).getUI().ifPresent(ui -> ui.navigate("users")) ); 
+		
+		add(usersButton);
 		
 		closeButton.setIcon(VaadinIcons.CLOSE.create());
 		add(closeButton);
