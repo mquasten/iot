@@ -1,4 +1,4 @@
-package de.mq.iot.authentification.support;
+package de.mq.iot.authentication.support;
 
 
 import org.springframework.context.MessageSource;
@@ -14,13 +14,16 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.AuthentificationService;
+import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.I18NKey;
 import de.mq.iot.model.LocalizeView;
-import de.mq.iot.state.State;
 import de.mq.iot.support.ButtonBox;
 
 @Route("users")
@@ -61,19 +64,21 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	private final Label valueColumnLabel = new Label();
 
 	private FormItem comboBoxFormItem ; 
-	private final Grid<State<?>> grid = new Grid<>();
+	private final Grid<Authentication> userGrid = new Grid<>();
+	
+	private final Grid<Authority> authorityGrid = new Grid<>();
 	
 	
 	private final FormLayout formLayout = new FormLayout();
 	
 	
-	
+
 
 	
 	
 	private final MessageSource messageSource;
 
-	UsersView(final MessageSource messageSource,final ButtonBox buttonBox ) {
+	UsersView(final AuthentificationService authentificationService, final UserModel userModel, final MessageSource messageSource,final ButtonBox buttonBox ) {
 	
 		
 		
@@ -83,11 +88,19 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 		
 	
 		
+		userModel.register(UserModel.Events.SeclectionChanged, () -> {
+			
+			authorityGrid.setItems(userModel.authorities());
+			
+		});
 		
 		
+		userGrid.setItems(authentificationService.authentifications());
 		
 		
-		
+		userGrid.asSingleSelect().addValueChangeListener(selectionEvent -> {
+			userModel.assign(selectionEvent.getValue());
+		});
 	}
 
 
@@ -105,10 +118,10 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 		valueTextField.setRequired(true);
 		
 		
-		final HorizontalLayout layout = new HorizontalLayout(grid);
-		grid.getElement().getStyle().set("overflow", "auto");
+		final HorizontalLayout layout = new HorizontalLayout(userGrid,authorityGrid);
+		userGrid.getElement().getStyle().set("overflow", "auto");
 		
-
+		authorityGrid.getElement().getStyle().set("overflow", "auto");
 	
 		nameTextField.setSizeFull();
 		nameTextField.setReadOnly(true);
@@ -144,7 +157,7 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 		
 		
 	
-		grid.setSelectionMode(SelectionMode.SINGLE);
+		userGrid.setSelectionMode(SelectionMode.SINGLE);
 		
 		
 		
@@ -158,9 +171,19 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	
 		
 	
-	   grid.setHeight("50vH");
-	 
+	   userGrid.setHeight("50vH");
+	   authorityGrid.setHeight("50vH");
+	   userGrid.setSelectionMode(SelectionMode.SINGLE);
+	   
+	   userGrid.addColumn((ValueProvider<Authentication,String>) authentication -> {
+		   return authentication.username();
+	   }).setHeader("Benutzer");
 		
+	   
+	   authorityGrid.addColumn((ValueProvider<Authority,String>) authority -> {
+		   
+		   return authority.name();
+	   }).setHeader("Rollen");
 		
 	}
 

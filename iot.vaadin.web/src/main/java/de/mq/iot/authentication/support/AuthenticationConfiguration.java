@@ -62,5 +62,11 @@ class AuthenticationConfiguration {
 
 		};
 	}
+	
+	@Bean
+	@UIScope
+	UserModel userModel(final Subject<UserModel.Events, UserModel> subject) {
+		return new UserModelIml(subject);
+	}
 
 }
