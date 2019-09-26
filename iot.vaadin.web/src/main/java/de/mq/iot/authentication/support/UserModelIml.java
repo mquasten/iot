@@ -1,12 +1,9 @@
 package de.mq.iot.authentication.support;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 
 import de.mq.iot.authentication.Authentication;
-import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
@@ -65,15 +62,13 @@ public class UserModelIml implements UserModel {
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.mq.iot.authentication.support.UserModel#authority()
+	 * @see de.mq.iot.authentication.support.UserModel#authentication()
 	 */
 	@Override
-	public Collection<Authority> authorities() {
+	public Optional<Authentication> authentication() {
 
-		if (authentication.isPresent()) {
-			return Collections.unmodifiableCollection(authentication.get().authorities());
-		}
-		return Collections.emptyList();
+		 return authentication;
 	}
+	
 
 }

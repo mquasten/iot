@@ -1,12 +1,12 @@
 package de.mq.iot.authentication.support;
 
 
+import java.util.Collections;
+
 import org.springframework.context.MessageSource;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
@@ -38,32 +38,24 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	@I18NKey("name")
 	private final Label nameLabel = new Label(); 
 	private final TextField nameTextField = new TextField();
-	@I18NKey("date")
-	private final Label dateLabel = new Label(); 
-	private final TextField lastUpdateTextField = new TextField();
-	private final TextField valueTextField = new TextField();
-	private final ComboBox<Object> valueComboBox = new ComboBox<>();
-	@I18NKey("reset")
-	private  final Button resetButton = new Button();
+	
+	private final TextField passwordTextField = new TextField();
+
+	
 	@I18NKey("save")
 	private  final Button saveButton = new Button();
 	
-	private  final Label stateInfoLabel = new Label();
+	private  final Label passworfInfoLabel = new Label("Passwort ändern");
 	
-	@I18NKey("value")
-	private final Label textValueLabel = new Label();
 	
-	@I18NKey("value")
-	private final Label listValueLabel = new Label();
 	
-	@I18NKey("name_column")
-	private final Label nameColumnLabel = new Label();
+	
 	
 	
 	@I18NKey("value_column")
-	private final Label valueColumnLabel = new Label();
+	private final Label passwordLabel = new Label();
 
-	private FormItem comboBoxFormItem ; 
+	
 	private final Grid<Authentication> userGrid = new Grid<>();
 	
 	private final Grid<Authority> authorityGrid = new Grid<>();
@@ -73,26 +65,24 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	
 	
 
+	final VerticalLayout buttonLayout = new VerticalLayout(saveButton);
 
 	
 	
-	private final MessageSource messageSource;
+	final HorizontalLayout editorLayout = new HorizontalLayout(formLayout, buttonLayout);
+	
+	
+	
 
 	UsersView(final AuthentificationService authentificationService, final UserModel userModel, final MessageSource messageSource,final ButtonBox buttonBox ) {
 	
 		
 		
-		this.messageSource=messageSource;
-		
 		createUI( buttonBox);	
 		
 	
 		
-		userModel.register(UserModel.Events.SeclectionChanged, () -> {
-			
-			authorityGrid.setItems(userModel.authorities());
-			
-		});
+		userModel.register(UserModel.Events.SeclectionChanged, () -> selectionChangedObserver(userModel));
 		
 		
 		userGrid.setItems(authentificationService.authentifications());
@@ -104,18 +94,36 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	}
 
 
+
+
+
+
+	private void selectionChangedObserver(final UserModel userModel) {
+		authorityGrid.setItems(Collections.emptyList());
+		
+		passworfInfoLabel.setVisible(false);
+		editorLayout.getParent().ifPresent(parent -> remove(editorLayout));
+		userModel.authentication().ifPresent(authentication -> {
+			authorityGrid.setItems(authentication.authorities());
+			nameTextField.setValue(authentication.username());
+			passworfInfoLabel.setVisible(true);
+			add(editorLayout);
+		});
+	}
+
+
 	
 
 	
 	
 	private void createUI(final ButtonBox buttonBox) {
 				
-	
-		saveButton.setEnabled(false);
-		resetButton.setEnabled(false);
 		
-		valueComboBox.setRequired(true);
-		valueTextField.setRequired(true);
+		saveButton.setText("ändern");
+		
+		passworfInfoLabel.setVisible(false);
+		
+		passwordTextField.setRequired(true);
 		
 		
 		final HorizontalLayout layout = new HorizontalLayout(userGrid,authorityGrid);
@@ -126,17 +134,17 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 		nameTextField.setSizeFull();
 		nameTextField.setReadOnly(true);
 	
-		lastUpdateTextField.setSizeFull();
-		lastUpdateTextField.setReadOnly(true);
+	
 		
-		valueTextField.setSizeFull();
-		valueComboBox.setSizeFull();
-		valueTextField.setReadOnly(true);
+		passwordTextField.setSizeFull();
+		
+		//passwordTextField.setReadOnly(true);
+		nameLabel.setText("Login");;
+		passwordLabel.setText("Passwort");
+		
+		
 		formLayout.addFormItem(nameTextField, nameLabel);
-		formLayout.addFormItem(lastUpdateTextField, dateLabel);
-		
-		comboBoxFormItem=formLayout.addFormItem(valueComboBox, listValueLabel);
-		comboBoxFormItem.setVisible(false);
+		formLayout.addFormItem(passwordTextField, passwordLabel);
 		
 
 		formLayout.setSizeFull();
@@ -145,11 +153,7 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 
 		
 
-		final VerticalLayout buttonLayout = new VerticalLayout(resetButton, saveButton);
-
 		
-		
-		final HorizontalLayout editorLayout = new HorizontalLayout(formLayout, buttonLayout);
 
 		editorLayout.setVerticalComponentAlignment(Alignment.CENTER, buttonLayout);
 
@@ -161,8 +165,8 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 		
 		
 		
-		add(buttonBox, layout, stateInfoLabel, editorLayout);
-		setHorizontalComponentAlignment(Alignment.CENTER, stateInfoLabel);
+		add(buttonBox, layout, passworfInfoLabel);
+		setHorizontalComponentAlignment(Alignment.CENTER, passworfInfoLabel);
 	
 		
 		layout.setSizeFull();

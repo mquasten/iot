@@ -1,9 +1,8 @@
 package de.mq.iot.authentication.support;
 
-import java.util.Collection;
+import java.util.Optional;
 
 import de.mq.iot.authentication.Authentication;
-import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.LocaleAware;
 import de.mq.iot.model.Subject;
 
@@ -18,8 +17,7 @@ interface UserModel extends Subject<UserModel.Events, LoginModel>, LocaleAware{
 	void assign(final Authentication authentication);
 
 
-	Collection<Authority> authorities();
-	
+	Optional<Authentication> authentication();
 	
 
 }
