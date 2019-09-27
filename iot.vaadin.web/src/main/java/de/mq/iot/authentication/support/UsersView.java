@@ -11,6 +11,7 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcons;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -22,6 +23,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.AuthentificationService;
 import de.mq.iot.authentication.Authority;
+import de.mq.iot.authentication.support.UserModel.Events;
 import de.mq.iot.model.I18NKey;
 import de.mq.iot.model.LocalizeView;
 import de.mq.iot.support.ButtonBox;
@@ -42,17 +44,29 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	private final TextField passwordTextField = new TextField();
 
 	
+	private final Button addUserButton = new Button();
+	
+	private final Button deleteUserButton = new Button();
+	
 	@I18NKey("save")
 	private  final Button saveButton = new Button();
 	
-	private  final Label passworfInfoLabel = new Label("Passwort ändern");
+	
+	@I18NKey("info_change")
+	private final Label changePasswordInfoLabel = new Label();
 	
 	
+	private  final Label infoLabel = new Label();
+	
+	@I18NKey("roles_column")
+	private final Label rolesColumnLabel = new Label();
 	
 	
+	@I18NKey("user_column")
+	private final Label userColumnLabel = new Label();
 	
 	
-	@I18NKey("value_column")
+	@I18NKey("password")
 	private final Label passwordLabel = new Label();
 
 	
@@ -77,12 +91,12 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	UsersView(final AuthentificationService authentificationService, final UserModel userModel, final MessageSource messageSource,final ButtonBox buttonBox ) {
 	
 		
-		
+
 		createUI( buttonBox);	
 		
 	
 		
-		userModel.register(UserModel.Events.SeclectionChanged, () -> selectionChangedObserver(userModel));
+		
 		
 		
 		userGrid.setItems(authentificationService.authentifications());
@@ -91,6 +105,20 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 		userGrid.asSingleSelect().addValueChangeListener(selectionEvent -> {
 			userModel.assign(selectionEvent.getValue());
 		});
+		
+		
+		userModel.register(UserModel.Events.ChangeLocale, () -> {
+			
+			 localize(messageSource, userModel.locale());
+			
+		});
+		
+		userModel.register(UserModel.Events.SeclectionChanged, () -> selectionChangedObserver(userModel));
+		
+		
+		userModel.notifyObservers(Events.ChangeLocale);
+		
+		
 	}
 
 
@@ -101,12 +129,13 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	private void selectionChangedObserver(final UserModel userModel) {
 		authorityGrid.setItems(Collections.emptyList());
 		
-		passworfInfoLabel.setVisible(false);
+		infoLabel.setVisible(false);
 		editorLayout.getParent().ifPresent(parent -> remove(editorLayout));
 		userModel.authentication().ifPresent(authentication -> {
+			infoLabel.setText(changePasswordInfoLabel.getText());
 			authorityGrid.setItems(authentication.authorities());
 			nameTextField.setValue(authentication.username());
-			passworfInfoLabel.setVisible(true);
+			infoLabel.setVisible(true);
 			add(editorLayout);
 		});
 	}
@@ -119,9 +148,9 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	private void createUI(final ButtonBox buttonBox) {
 				
 		
-		saveButton.setText("ändern");
 		
-		passworfInfoLabel.setVisible(false);
+		
+		infoLabel.setVisible(false);
 		
 		passwordTextField.setRequired(true);
 		
@@ -165,8 +194,8 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 		
 		
 		
-		add(buttonBox, layout, passworfInfoLabel);
-		setHorizontalComponentAlignment(Alignment.CENTER, passworfInfoLabel);
+		add(buttonBox, layout, infoLabel);
+		setHorizontalComponentAlignment(Alignment.CENTER, infoLabel);
 	
 		
 		layout.setSizeFull();
@@ -179,15 +208,27 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	   authorityGrid.setHeight("50vH");
 	   userGrid.setSelectionMode(SelectionMode.SINGLE);
 	   
+	   
+	  
+		
+		final HorizontalLayout userGridFooter = new HorizontalLayout(addUserButton, deleteUserButton);
+	
+		
+		addUserButton.setIcon(VaadinIcons.FILE_ADD.create());
+		deleteUserButton.setIcon(VaadinIcons.FILE_REMOVE.create());
+	   
 	   userGrid.addColumn((ValueProvider<Authentication,String>) authentication -> {
 		   return authentication.username();
-	   }).setHeader("Benutzer");
+		   
+		   
+		   
+	   }).setHeader(userColumnLabel).setFooter(userGridFooter);
 		
-	   
+	
 	   authorityGrid.addColumn((ValueProvider<Authority,String>) authority -> {
 		   
 		   return authority.name();
-	   }).setHeader("Rollen");
+	   }).setHeader(rolesColumnLabel);
 		
 	}
 

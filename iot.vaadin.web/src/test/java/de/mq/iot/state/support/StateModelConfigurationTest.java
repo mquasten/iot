@@ -80,12 +80,13 @@ class StateModelConfigurationTest {
 		assertTrue(messageSource instanceof ResourceBundleMessageSource);
 		
 		final List<String> basenames = new ArrayList<>( ((ResourceBundleMessageSource)messageSource).getBasenameSet());
-		assertEquals(5, basenames.size());
+		assertEquals(6, basenames.size());
 		assertEquals(StateModelConfiguration.SYSTEM_VARIABLES_VIEW ,basenames.get(0));
 		assertEquals(StateModelConfiguration.LOGIN_VIEW ,basenames.get(1));
 		assertEquals(StateModelConfiguration.CALENDAR_VIEW ,basenames.get(2));
 		assertEquals(StateModelConfiguration.DEVICE_VIEW ,basenames.get(3));
 		assertEquals(StateModelConfiguration.RULES_VIEW ,basenames.get(4));
+		assertEquals(StateModelConfiguration.USER_VIEW ,basenames.get(5));
 		assertEquals(StateModelConfiguration.MESSAGE_SOURCE_ENCODING, ReflectionTestUtils.invokeMethod(messageSource, "getDefaultEncoding"));
 	}
 	
