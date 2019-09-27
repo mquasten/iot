@@ -136,6 +136,7 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 			authorityGrid.setItems(authentication.authorities());
 			nameTextField.setValue(authentication.username());
 			infoLabel.setVisible(true);
+			
 			add(editorLayout);
 		});
 	}
