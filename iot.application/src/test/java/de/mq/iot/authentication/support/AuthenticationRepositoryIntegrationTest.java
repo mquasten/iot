@@ -30,6 +30,9 @@ class AuthenticationRepositoryIntegrationTest {
 	
 	private final Duration duration = Duration.ofMillis(500);
 	
+	
+	
+	
 	@Test
 	final void save() {
 		assertNotNull(authenticationRepository);

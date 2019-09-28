@@ -15,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.AuthentificationService;
 import de.mq.iot.authentication.Authority;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,12 +30,13 @@ public class AuthentificationServiceTest {
 
 	private AuthenticationRepository authenticationRepository = Mockito.mock(AuthenticationRepository.class);
 
-	private AuthentificationServiceImpl authentificationService = new AuthentificationServiceImpl(authenticationRepository, TIMEOUT);
+	private AuthentificationService authentificationService = new AuthentificationServiceImpl(authenticationRepository, TIMEOUT);
 
 	private Authentication authentication = Mockito.mock(Authentication.class);
 
 	@SuppressWarnings("unchecked")
 	private Mono<Authentication> mono = Mockito.mock(Mono.class);
+	
 
 	@Test
 	void authentification() {
@@ -209,6 +211,34 @@ public class AuthentificationServiceTest {
 	    assertFalse(authentificationService.create(USER,NEW_PASSWORD));
 	   
 	    Mockito.verify(authenticationRepository, Mockito.never()).save(Mockito.any());
+	}
+	@Test
+	void delete() {
+	
+		final Mono<Authentication> deleteMono = prepareDelete((Mono.just(authentication)));
+		
+		authentificationService.delete(USER);
+		
+		Mockito.verify(authenticationRepository).delete(authentication);
+		Mockito.verify(deleteMono).block(Mockito.any());
+	}
+
+	private Mono<Authentication> prepareDelete(final Mono<Authentication> mono) {
+		@SuppressWarnings("unchecked")
+		final Mono<Authentication> deleteMono = Mockito.mock(Mono.class);
+		Mockito.doReturn(mono).when(authenticationRepository).findByUsername(USER);
+		Mockito.doReturn(deleteMono).when(authenticationRepository).delete(Mockito.any(Authentication.class));
+		return deleteMono;
+	}
+	
+	@Test
+	void deleteNotExists() {
+	
+		prepareDelete((Mono.empty()));
+		
+		authentificationService.delete(USER);
+		
+		Mockito.verify(authenticationRepository, Mockito.never()).delete(authentication);
 	}
 
 }

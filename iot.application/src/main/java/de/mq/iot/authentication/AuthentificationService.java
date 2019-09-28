@@ -17,4 +17,6 @@ public interface AuthentificationService {
 
 	boolean create(String username, String password);
 
+	void delete(String username);
+
 }

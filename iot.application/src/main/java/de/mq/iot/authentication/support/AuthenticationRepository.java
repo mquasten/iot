@@ -20,6 +20,8 @@ public interface AuthenticationRepository {
 		@Query("{ $and: [ { username: { $ne: ?0 } },{ authorities: { $in: [?1] } }  ] }")
 		Flux<Authentication>  findByUsernameNotAndAuthority(final String username, final Authority authority);
 		
+		
+		Mono<Authentication> delete(final Authentication location);
 
 
 }

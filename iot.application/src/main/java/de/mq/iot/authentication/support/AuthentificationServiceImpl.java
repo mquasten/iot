@@ -120,5 +120,10 @@ class AuthentificationServiceImpl implements AuthentificationService {
 		}
 		return true;
 	}
+	
+	@Override
+	public void delete(final String username) {
+		authentification(username).ifPresent(authentification -> authenticationRepository.delete(authentification).block(timeout));
+	}
 
 }
