@@ -101,6 +101,15 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		userModel.notifyObservers(Events.ChangeLocale);
 
 		saveButton.addClickListener(event -> changeUser(authentificationService, userModel));
+
+		deleteUserButton.addClickListener(event -> deleteUser(authentificationService, userModel));
+	}
+
+	private void deleteUser(final AuthentificationService authentificationService, final UserModel userModel) {
+		userModel.authentication().ifPresent(authentication -> {
+			authentificationService.delete(authentication.username());
+			userGrid.setItems(authentificationService.authentifications());
+		});
 	}
 
 	private void changeUser(final AuthentificationService authentificationService, final UserModel userModel) {
