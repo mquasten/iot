@@ -106,13 +106,14 @@ public class AuthentificationServiceTest {
 
 		@SuppressWarnings("unchecked")
 		final Mono<Authentication> saveMono = Mockito.mock(Mono.class);
-
+		Mockito.doReturn(saveMono).when(authenticationRepository).save(Mockito.any(Authentication.class));
+		
 		Mockito.doReturn(mono).when(authenticationRepository).findByUsername(USER);
 
 		// Mockito.doReturn(Boolean.TRUE).when(user).hasRole(Authority.ModifyUsers);
 		Mockito.doReturn(user).when(mono).block(Duration.ofMillis(TIMEOUT));
 
-		Mockito.doReturn(saveMono).when(authenticationRepository).save(Mockito.any(Authentication.class));
+		
 
 		final Flux<Authentication> flux = Flux.just(Mockito.mock(Authentication.class));
 		Mockito.doReturn(flux).when(authenticationRepository).findByUsernameNotAndAuthority(USER, Authority.ModifyUsers);
@@ -176,6 +177,38 @@ public class AuthentificationServiceTest {
 		assertEquals(1, authenticationCaptor.getValue().authorities().size());
 		assertEquals(Authority.ModifyUsers, authenticationCaptor.getValue().authorities().stream().findAny().get());
 
+	}
+	
+	@Test
+	void create() {
+		
+		final Mono<Authentication> saveMono = prepareCreate(Mono.empty());
+		
+	    assertTrue(authentificationService.create(USER,NEW_PASSWORD));
+	    
+	    Mockito.verify(saveMono).block(Duration.ofMillis(TIMEOUT));
+	    final ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
+	    Mockito.verify(authenticationRepository).save(authenticationCaptor.capture());
+	    
+	    assertEquals(USER, authenticationCaptor.getValue().username());
+	    assertTrue(authenticationCaptor.getValue().authenticate(NEW_PASSWORD));
+	}
+
+	private Mono<Authentication> prepareCreate(Mono<Authentication> mono) {
+		@SuppressWarnings("unchecked")
+		final Mono<Authentication> saveMono = Mockito.mock(Mono.class);
+		Mockito.doReturn(saveMono).when(authenticationRepository).save(Mockito.any(Authentication.class));
+		Mockito.doReturn(mono).when(authenticationRepository).findByUsername(USER);
+		return saveMono;
+	}
+	
+	@Test
+	void createExists() {
+		prepareCreate(Mono.just(Mockito.mock(Authentication.class)));
+		
+	    assertFalse(authentificationService.create(USER,NEW_PASSWORD));
+	   
+	    Mockito.verify(authenticationRepository, Mockito.never()).save(Mockito.any());
 	}
 
 }

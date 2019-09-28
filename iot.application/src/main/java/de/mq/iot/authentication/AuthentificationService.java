@@ -15,4 +15,6 @@ public interface AuthentificationService {
 
 	boolean changeAuthorities(String username, Collection<Authority> authorities);
 
+	boolean create(String username, String password);
+
 }
