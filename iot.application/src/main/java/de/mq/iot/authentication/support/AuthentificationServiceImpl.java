@@ -60,7 +60,7 @@ class AuthentificationServiceImpl implements AuthentificationService {
 		Assert.hasText(username, "Username is mandatory.");
 		Assert.hasText(newPassword, "New Password is mandatory");
 		final Authentication authentication = this.authentification(username).orElseThrow(() -> new IllegalArgumentException(String.format("User %s not found in database.", username)));
-
+		
 		authenticationRepository.save(new UserAuthenticationImpl(authentication.username(), newPassword, authentication.authorities())).block(timeout);
 	}
 

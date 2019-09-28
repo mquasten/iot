@@ -19,5 +19,15 @@ interface UserModel extends Subject<UserModel.Events, LoginModel>, LocaleAware{
 
 	Optional<Authentication> authentication();
 	
+	
+	String login();
+
+	void assignLogin(final String login);
+
+	String password();
+
+	void assignPassword(final String password);
+
+	
 
 }

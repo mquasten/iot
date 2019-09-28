@@ -7,11 +7,15 @@ import de.mq.iot.authentication.Authentication;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
-public class UserModelIml implements UserModel {
+class UserModelIml implements UserModel {
 
 	private final Subject<UserModel.Events, UserModel> subject;
 
 	private Optional<Authentication> authentication = Optional.empty();
+	
+	private String login;
+	
+	private String password;
 
 	UserModelIml(final Subject<UserModel.Events, UserModel> subject) {
 		this.subject = subject;
@@ -69,6 +73,47 @@ public class UserModelIml implements UserModel {
 
 		 return authentication;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.authentication.support.UserModel#login()
+	 */
+	@Override
+	public String login() {
+		return login;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.authentication.support.UserModel#assignLogin(java.lang.String)
+	 */
+	@Override
+	public void assignLogin(final String login) {
+		this.login=login;
+		
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.authentication.support.UserModel#password()
+	 */
+	@Override
+	public String password() {
+		return password;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.authentication.support.UserModel#assignPassword(java.lang.String)
+	 */
+	@Override
+	public void assignPassword(String password) {
+		this.password=password;
+		
+	}
+	
+	
+	
 	
 
 }

@@ -4,6 +4,7 @@ package de.mq.iot.authentication.support;
 import java.util.Collections;
 
 import org.springframework.context.MessageSource;
+import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -15,6 +16,7 @@ import com.vaadin.flow.component.icon.VaadinIcons;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
@@ -32,8 +34,7 @@ import de.mq.iot.support.ButtonBox;
 @Theme(Lumo.class)
 @I18NKey("users_")
 class  UsersView extends VerticalLayout implements LocalizeView {
-	
-	
+
 
 	
 	private static final long serialVersionUID = 1L;
@@ -44,18 +45,23 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	private final TextField passwordTextField = new TextField();
 
 	
-	private final Button addUserButton = new Button();
+	
 	
 	private final Button deleteUserButton = new Button();
 	
 	@I18NKey("save")
 	private  final Button saveButton = new Button();
 	
+	@I18NKey("required")
+	private final Label mandatoryLabel = new Label();
 	
 	@I18NKey("info_change")
-	private final Label changePasswordInfoLabel = new Label();
+	private final Label changeInfoLabel = new Label();
 	
+	@I18NKey("info_new")
+	private  final Label newInfoLabel = new Label();
 	
+	@I18NKey("info_new")
 	private  final Label infoLabel = new Label();
 	
 	@I18NKey("roles_column")
@@ -79,11 +85,11 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	
 	
 
-	final VerticalLayout buttonLayout = new VerticalLayout(saveButton);
+	private final VerticalLayout buttonLayout = new VerticalLayout(saveButton);
 
 	
 	
-	final HorizontalLayout editorLayout = new HorizontalLayout(formLayout, buttonLayout);
+	private final HorizontalLayout editorLayout = new HorizontalLayout(formLayout, buttonLayout);
 	
 	
 	
@@ -92,10 +98,11 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	
 		
 
+		
+
 		createUI( buttonBox);	
 		
 	
-		
 		
 		
 		
@@ -119,6 +126,41 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 		userModel.notifyObservers(Events.ChangeLocale);
 		
 		
+		
+		
+		saveButton.addClickListener(event ->changeUser(authentificationService, userModel));
+	}
+
+
+
+
+
+
+	private void changeUser(final AuthentificationService authentificationService, final UserModel userModel) {
+		final Binder<UserModel> binder = new Binder<>();
+		 binder.forField(nameTextField).withValidator(value -> StringUtils.hasText(value),mandatoryLabel.getText()).bind(UserModel::login, UserModel::assignLogin);
+
+		 binder.forField(passwordTextField).withValidator(value -> StringUtils.hasText(value),mandatoryLabel.getText()).bind(UserModel::password, UserModel::assignPassword);
+		
+		
+		if (!binder.writeBeanIfValid(userModel)) {
+			return;
+		}
+		
+		
+		if( userModel.authentication().isPresent()) {
+			authentificationService.changePassword(userModel.login(), userModel.password());
+			
+			passwordTextField.setValue("");		
+			
+			nameTextField.setInvalid(false);
+			passwordTextField.setInvalid(false);
+			
+		} else {
+			
+			System.out.println("create user:");
+		}
+		
 	}
 
 
@@ -129,16 +171,28 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	private void selectionChangedObserver(final UserModel userModel) {
 		authorityGrid.setItems(Collections.emptyList());
 		
-		infoLabel.setVisible(false);
-		editorLayout.getParent().ifPresent(parent -> remove(editorLayout));
-		userModel.authentication().ifPresent(authentication -> {
-			infoLabel.setText(changePasswordInfoLabel.getText());
+		
+		nameTextField.setReadOnly(false);
+		nameTextField.setValue("");
+		passwordTextField.setValue("");
+		deleteUserButton.setEnabled(false);
+		infoLabel.setText(newInfoLabel.getText());
+		
+		nameTextField.setInvalid(false);
+		passwordTextField.setInvalid(false);
+		
+	userModel.authentication().ifPresent(authentication -> {
+		
+			infoLabel.setText(changeInfoLabel.getText());
 			authorityGrid.setItems(authentication.authorities());
 			nameTextField.setValue(authentication.username());
-			infoLabel.setVisible(true);
-			
-			add(editorLayout);
-		});
+			nameTextField.setReadOnly(true);
+			deleteUserButton.setEnabled(true);
+		
+		} );
+	
+	
+		
 	}
 
 
@@ -150,19 +204,13 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 				
 		
 		
-		
-		infoLabel.setVisible(false);
-		
-		passwordTextField.setRequired(true);
-		
-		
 		final HorizontalLayout layout = new HorizontalLayout(userGrid,authorityGrid);
 		userGrid.getElement().getStyle().set("overflow", "auto");
 		
 		authorityGrid.getElement().getStyle().set("overflow", "auto");
 	
 		nameTextField.setSizeFull();
-		nameTextField.setReadOnly(true);
+		
 	
 	
 		
@@ -195,7 +243,7 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 		
 		
 		
-		add(buttonBox, layout, infoLabel);
+		add(buttonBox, layout, infoLabel, editorLayout);
 		setHorizontalComponentAlignment(Alignment.CENTER, infoLabel);
 	
 		
@@ -212,10 +260,10 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 	   
 	  
 		
-		final HorizontalLayout userGridFooter = new HorizontalLayout(addUserButton, deleteUserButton);
+	
 	
 		
-		addUserButton.setIcon(VaadinIcons.FILE_ADD.create());
+		
 		deleteUserButton.setIcon(VaadinIcons.FILE_REMOVE.create());
 	   
 	   userGrid.addColumn((ValueProvider<Authentication,String>) authentication -> {
@@ -223,14 +271,17 @@ class  UsersView extends VerticalLayout implements LocalizeView {
 		   
 		   
 		   
-	   }).setHeader(userColumnLabel).setFooter(userGridFooter);
+	   }).setHeader(userColumnLabel).setFooter(deleteUserButton);
 		
 	
 	   authorityGrid.addColumn((ValueProvider<Authority,String>) authority -> {
 		   
 		   return authority.name();
 	   }).setHeader(rolesColumnLabel);
-		
+	   
+	   
+	   
+	  
 	}
 
 
