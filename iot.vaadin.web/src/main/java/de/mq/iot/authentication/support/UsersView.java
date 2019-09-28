@@ -1,6 +1,5 @@
 package de.mq.iot.authentication.support;
 
-
 import java.util.Collections;
 
 import org.springframework.context.MessageSource;
@@ -33,273 +32,190 @@ import de.mq.iot.support.ButtonBox;
 @Route("users")
 @Theme(Lumo.class)
 @I18NKey("users_")
-class  UsersView extends VerticalLayout implements LocalizeView {
+class UsersView extends VerticalLayout implements LocalizeView {
 
-
-	
 	private static final long serialVersionUID = 1L;
 	@I18NKey("name")
-	private final Label nameLabel = new Label(); 
+	private final Label nameLabel = new Label();
 	private final TextField nameTextField = new TextField();
-	
+
 	private final TextField passwordTextField = new TextField();
 
-	
-	
-	
 	private final Button deleteUserButton = new Button();
-	
+
 	@I18NKey("save")
-	private  final Button saveButton = new Button();
-	
+	private final Button saveButton = new Button();
+
 	@I18NKey("required")
 	private final Label mandatoryLabel = new Label();
-	
+
+	@I18NKey("exists")
+	private final Label userAlreadyExists = new Label();
+
 	@I18NKey("info_change")
 	private final Label changeInfoLabel = new Label();
-	
+
 	@I18NKey("info_new")
-	private  final Label newInfoLabel = new Label();
-	
+	private final Label newInfoLabel = new Label();
+
 	@I18NKey("info_new")
-	private  final Label infoLabel = new Label();
-	
+	private final Label infoLabel = new Label();
+
 	@I18NKey("roles_column")
 	private final Label rolesColumnLabel = new Label();
-	
-	
+
 	@I18NKey("user_column")
 	private final Label userColumnLabel = new Label();
-	
-	
+
 	@I18NKey("password")
 	private final Label passwordLabel = new Label();
 
-	
 	private final Grid<Authentication> userGrid = new Grid<>();
-	
+
 	private final Grid<Authority> authorityGrid = new Grid<>();
-	
-	
+
 	private final FormLayout formLayout = new FormLayout();
-	
-	
 
 	private final VerticalLayout buttonLayout = new VerticalLayout(saveButton);
 
-	
-	
 	private final HorizontalLayout editorLayout = new HorizontalLayout(formLayout, buttonLayout);
-	
-	
-	
 
-	UsersView(final AuthentificationService authentificationService, final UserModel userModel, final MessageSource messageSource,final ButtonBox buttonBox ) {
-	
-		
+	UsersView(final AuthentificationService authentificationService, final UserModel userModel, final MessageSource messageSource, final ButtonBox buttonBox) {
 
-		
+		createUI(buttonBox);
 
-		createUI( buttonBox);	
-		
-	
-		
-		
-		
 		userGrid.setItems(authentificationService.authentifications());
-		
-		
+
 		userGrid.asSingleSelect().addValueChangeListener(selectionEvent -> {
 			userModel.assign(selectionEvent.getValue());
 		});
-		
-		
+
 		userModel.register(UserModel.Events.ChangeLocale, () -> {
-			
-			 localize(messageSource, userModel.locale());
-			
+
+			localize(messageSource, userModel.locale());
+
 		});
-		
+
 		userModel.register(UserModel.Events.SeclectionChanged, () -> selectionChangedObserver(userModel));
-		
-		
+
 		userModel.notifyObservers(Events.ChangeLocale);
-		
-		
-		
-		
-		saveButton.addClickListener(event ->changeUser(authentificationService, userModel));
+
+		saveButton.addClickListener(event -> changeUser(authentificationService, userModel));
 	}
-
-
-
-
-
 
 	private void changeUser(final AuthentificationService authentificationService, final UserModel userModel) {
 		final Binder<UserModel> binder = new Binder<>();
-		 binder.forField(nameTextField).withValidator(value -> StringUtils.hasText(value),mandatoryLabel.getText()).bind(UserModel::login, UserModel::assignLogin);
+		binder.forField(nameTextField).withValidator(value -> StringUtils.hasText(value), mandatoryLabel.getText()).bind(UserModel::login, UserModel::assignLogin);
 
-		 binder.forField(passwordTextField).withValidator(value -> StringUtils.hasText(value),mandatoryLabel.getText()).bind(UserModel::password, UserModel::assignPassword);
-		
-		
+		binder.forField(passwordTextField).withValidator(value -> StringUtils.hasText(value), mandatoryLabel.getText()).bind(UserModel::password, UserModel::assignPassword);
+
 		if (!binder.writeBeanIfValid(userModel)) {
 			return;
 		}
-		
-		
-		if( userModel.authentication().isPresent()) {
+
+		if (userModel.authentication().isPresent()) {
 			authentificationService.changePassword(userModel.login(), userModel.password());
-			
-			passwordTextField.setValue("");		
-			
+			passwordTextField.setValue("");
 			nameTextField.setInvalid(false);
 			passwordTextField.setInvalid(false);
-			
 		} else {
-			
-			System.out.println("create user:");
+
+			createNew(authentificationService, userModel);
+
 		}
-		
+
 	}
 
+	private void createNew(final AuthentificationService authentificationService, final UserModel userModel) {
+		if (!authentificationService.create(userModel.login(), userModel.password())) {
+			nameTextField.setInvalid(true);
+			nameTextField.setErrorMessage(userAlreadyExists.getText());
+			return;
+		}
 
-
-
-
+		nameTextField.setValue("");
+		passwordTextField.setValue("");
+		nameTextField.setInvalid(false);
+		passwordTextField.setInvalid(false);
+		userGrid.setItems(authentificationService.authentifications());
+	}
 
 	private void selectionChangedObserver(final UserModel userModel) {
 		authorityGrid.setItems(Collections.emptyList());
-		
-		
+
 		nameTextField.setReadOnly(false);
 		nameTextField.setValue("");
 		passwordTextField.setValue("");
 		deleteUserButton.setEnabled(false);
 		infoLabel.setText(newInfoLabel.getText());
-		
+
 		nameTextField.setInvalid(false);
 		passwordTextField.setInvalid(false);
-		
-	userModel.authentication().ifPresent(authentication -> {
-		
+
+		userModel.authentication().ifPresent(authentication -> {
+
 			infoLabel.setText(changeInfoLabel.getText());
 			authorityGrid.setItems(authentication.authorities());
 			nameTextField.setValue(authentication.username());
 			nameTextField.setReadOnly(true);
 			deleteUserButton.setEnabled(true);
-		
-		} );
-	
-	
-		
+
+		});
+
 	}
 
-
-	
-
-	
-	
 	private void createUI(final ButtonBox buttonBox) {
-				
-		
-		
-		final HorizontalLayout layout = new HorizontalLayout(userGrid,authorityGrid);
+
+		final HorizontalLayout layout = new HorizontalLayout(userGrid, authorityGrid);
 		userGrid.getElement().getStyle().set("overflow", "auto");
-		
+
 		authorityGrid.getElement().getStyle().set("overflow", "auto");
-	
+
 		nameTextField.setSizeFull();
-		
-	
-	
-		
+
 		passwordTextField.setSizeFull();
-		
-		//passwordTextField.setReadOnly(true);
-		nameLabel.setText("Login");;
+
+		// passwordTextField.setReadOnly(true);
+		nameLabel.setText("Login");
+		;
 		passwordLabel.setText("Passwort");
-		
-		
+
 		formLayout.addFormItem(nameTextField, nameLabel);
 		formLayout.addFormItem(passwordTextField, passwordLabel);
-		
 
 		formLayout.setSizeFull();
 
-		formLayout.setResponsiveSteps(new ResponsiveStep("10vH",1));
-
-		
-
-		
+		formLayout.setResponsiveSteps(new ResponsiveStep("10vH", 1));
 
 		editorLayout.setVerticalComponentAlignment(Alignment.CENTER, buttonLayout);
 
 		editorLayout.setSizeFull();
-		
-		
-	
+
 		userGrid.setSelectionMode(SelectionMode.SINGLE);
-		
-		
-		
+
 		add(buttonBox, layout, infoLabel, editorLayout);
 		setHorizontalComponentAlignment(Alignment.CENTER, infoLabel);
-	
-		
+
 		layout.setSizeFull();
-	
+
 		setHorizontalComponentAlignment(Alignment.CENTER, layout);
-	
-		
-	
-	   userGrid.setHeight("50vH");
-	   authorityGrid.setHeight("50vH");
-	   userGrid.setSelectionMode(SelectionMode.SINGLE);
-	   
-	   
-	  
-		
-	
-	
-		
-		
+
+		userGrid.setHeight("50vH");
+		authorityGrid.setHeight("50vH");
+		userGrid.setSelectionMode(SelectionMode.SINGLE);
+
 		deleteUserButton.setIcon(VaadinIcons.FILE_REMOVE.create());
-	   
-	   userGrid.addColumn((ValueProvider<Authentication,String>) authentication -> {
-		   return authentication.username();
-		   
-		   
-		   
-	   }).setHeader(userColumnLabel).setFooter(deleteUserButton);
-		
-	
-	   authorityGrid.addColumn((ValueProvider<Authority,String>) authority -> {
-		   
-		   return authority.name();
-	   }).setHeader(rolesColumnLabel);
-	   
-	   
-	   
-	  
+
+		userGrid.addColumn((ValueProvider<Authentication, String>) authentication -> {
+			return authentication.username();
+
+		}).setHeader(userColumnLabel).setFooter(deleteUserButton);
+
+		authorityGrid.addColumn((ValueProvider<Authority, String>) authority -> {
+
+			return authority.name();
+		}).setHeader(rolesColumnLabel);
+
 	}
 
-
-	
-
-	
-
-
-	
-
-
-	
-
-
-	
-	
-	
-	
-
 }
-
