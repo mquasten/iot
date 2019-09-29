@@ -1,11 +1,12 @@
 package de.mq.iot.authentication.support;
 
-import java.util.Collections;
+import java.util.ArrayList;
 
 import org.springframework.context.MessageSource;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
@@ -42,6 +43,12 @@ class UsersView extends VerticalLayout implements LocalizeView {
 	private final TextField passwordTextField = new TextField();
 
 	private final Button deleteUserButton = new Button();
+	
+	private final ComboBox<Authority> roleCombobox = new ComboBox<>();
+	
+	
+	
+	private final Button addRoleButton = new Button();
 
 	@I18NKey("save")
 	private final Button saveButton = new Button();
@@ -79,13 +86,19 @@ class UsersView extends VerticalLayout implements LocalizeView {
 	private final VerticalLayout buttonLayout = new VerticalLayout(saveButton);
 
 	private final HorizontalLayout editorLayout = new HorizontalLayout(formLayout, buttonLayout);
+	
+	final HorizontalLayout layout = new HorizontalLayout(userGrid, authorityGrid);
+	
+
 
 	UsersView(final AuthentificationService authentificationService, final UserModel userModel, final MessageSource messageSource, final ButtonBox buttonBox) {
 
+		
 		createUI(buttonBox);
 
 		userGrid.setItems(authentificationService.authentifications());
-
+		
+		
 		userGrid.asSingleSelect().addValueChangeListener(selectionEvent -> {
 			userModel.assign(selectionEvent.getValue());
 		});
@@ -103,6 +116,13 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		saveButton.addClickListener(event -> changeUser(authentificationService, userModel));
 
 		deleteUserButton.addClickListener(event -> deleteUser(authentificationService, userModel));
+		
+		
+		
+	
+		//authorityGrid.setItems(new ArrayList<>());
+		
+		
 	}
 
 	private void deleteUser(final AuthentificationService authentificationService, final UserModel userModel) {
@@ -150,7 +170,7 @@ class UsersView extends VerticalLayout implements LocalizeView {
 	}
 
 	private void selectionChangedObserver(final UserModel userModel) {
-		authorityGrid.setItems(Collections.emptyList());
+		authorityGrid.setItems(new ArrayList<>());
 
 		nameTextField.setReadOnly(false);
 		nameTextField.setValue("");
@@ -160,9 +180,9 @@ class UsersView extends VerticalLayout implements LocalizeView {
 
 		nameTextField.setInvalid(false);
 		passwordTextField.setInvalid(false);
-
+		
 		userModel.authentication().ifPresent(authentication -> {
-
+			
 			infoLabel.setText(changeInfoLabel.getText());
 			authorityGrid.setItems(authentication.authorities());
 			nameTextField.setValue(authentication.username());
@@ -170,12 +190,17 @@ class UsersView extends VerticalLayout implements LocalizeView {
 			deleteUserButton.setEnabled(true);
 
 		});
+		
+		roleCombobox.setItems(Authority.values());
 
 	}
 
 	private void createUI(final ButtonBox buttonBox) {
 
-		final HorizontalLayout layout = new HorizontalLayout(userGrid, authorityGrid);
+		
+		
+		
+		
 		userGrid.getElement().getStyle().set("overflow", "auto");
 
 		authorityGrid.getElement().getStyle().set("overflow", "auto");
@@ -209,22 +234,28 @@ class UsersView extends VerticalLayout implements LocalizeView {
 
 		setHorizontalComponentAlignment(Alignment.CENTER, layout);
 
-		userGrid.setHeight("50vH");
-		authorityGrid.setHeight("50vH");
+		userGrid.setHeight("40vH");
+		authorityGrid.setHeight("40vH");
 		userGrid.setSelectionMode(SelectionMode.SINGLE);
+		authorityGrid.setSelectionMode(SelectionMode.SINGLE);
 
 		deleteUserButton.setIcon(VaadinIcons.FILE_REMOVE.create());
 
 		userGrid.addColumn((ValueProvider<Authentication, String>) authentication -> {
 			return authentication.username();
 
-		}).setHeader(userColumnLabel).setFooter(deleteUserButton);
+		}).setHeader(userColumnLabel).setFooter(new HorizontalLayout(deleteUserButton));
 
+		addRoleButton.setIcon((VaadinIcons.FILE_ADD.create()));
+		final HorizontalLayout roleFooterLayout = new HorizontalLayout(roleCombobox, addRoleButton);
+		
 		authorityGrid.addColumn((ValueProvider<Authority, String>) authority -> {
 
 			return authority.name();
-		}).setHeader(rolesColumnLabel);
+		}).setHeader(rolesColumnLabel).setFooter(roleFooterLayout).setResizable(true);
 
+		
+	
 	}
 
 }
