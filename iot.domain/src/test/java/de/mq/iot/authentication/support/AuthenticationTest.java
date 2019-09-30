@@ -17,12 +17,12 @@ class AuthenticationTest {
 	
 	private static final String PASSWORD = "fever";
 	private static final String USERNAME = "kminogue";
-	private final Authentication authentication = new UserAuthenticationImpl(USERNAME, PASSWORD, Arrays.asList(Authority.ModifySystemvariables));
+	private final Authentication authentication = new UserAuthenticationImpl(USERNAME, PASSWORD, Arrays.asList(Authority.Systemvariables));
 	
 	@Test
 	void authorities() {
 		assertEquals(1, authentication.authorities().size());
-		assertEquals(Optional.of(Authority.ModifySystemvariables), authentication.authorities().stream().findAny());
+		assertEquals(Optional.of(Authority.Systemvariables), authentication.authorities().stream().findAny());
 	}
 	@Test
 	void authoritiesNull() {
@@ -71,9 +71,9 @@ class AuthenticationTest {
 	
 	@Test
 	void hasRole() {
-		assertTrue(authentication.hasRole(Authority.ModifySystemvariables));
+		assertTrue(authentication.hasRole(Authority.Systemvariables));
 		
-		assertFalse(authentication.hasRole(Authority.ModifyUsers));
+		assertFalse(authentication.hasRole(Authority.Users));
 	}
 
 }

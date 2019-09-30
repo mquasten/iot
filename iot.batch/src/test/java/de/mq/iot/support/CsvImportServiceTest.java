@@ -157,7 +157,7 @@ public class CsvImportServiceTest {
 	@Test
 	void authentication() {
 		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("username;credentials;authorities\r\n" + 
-				String.format("%s;%s;ModifySystemvariables\r\n", user, password)));
+				String.format("%s;%s;Systemvariables\r\n", user, password)));
 		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
 		@SuppressWarnings("unchecked")
 		final Mono<Authentication> mono = Mockito.mock(Mono.class);
@@ -172,7 +172,7 @@ public class CsvImportServiceTest {
 		assertEquals(user, authenticationCaptor.getValue().username());
 		assertEquals(1, authenticationCaptor.getValue().authorities().size());
 		assertTrue(authenticationCaptor.getValue().authenticate("manfred01"));
-		assertEquals(Authority.ModifySystemvariables.name(),  authenticationCaptor.getValue().authorities().stream().findAny().get().name());
+		assertEquals(Authority.Systemvariables.name(),  authenticationCaptor.getValue().authorities().stream().findAny().get().name());
 		
 		
 	}

@@ -2,8 +2,8 @@ package de.mq.iot.authentication;
 
 public enum Authority {
 
-	ModifySystemvariables,
+	Systemvariables,
 	
-	ModifyUsers;
+	Users;
 	
 }

@@ -1,9 +1,12 @@
 package de.mq.iot.authentication.support;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
 
 import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
@@ -16,6 +19,8 @@ class UserModelIml implements UserModel {
 	private String login;
 	
 	private String password;
+	
+	private Collection<Authority> authorities = new ArrayList<>();
 
 	UserModelIml(final Subject<UserModel.Events, UserModel> subject) {
 		this.subject = subject;
@@ -61,7 +66,12 @@ class UserModelIml implements UserModel {
 	@Override
 	public void assign(final Authentication authentication) {
 		this.authentication = Optional.ofNullable(authentication);
+		authorities.clear();
+		if( authentication != null) {
+			authorities.addAll(authentication.authorities());
+		}
 		subject.notifyObservers(Events.SeclectionChanged);
+		subject.notifyObservers(Events.AuthoritiesChanged);
 	}
 
 	/*
@@ -112,7 +122,60 @@ class UserModelIml implements UserModel {
 		
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.authentication.support.UserModel#authorities()
+	 */
+	@Override
+	public Collection<Authority> authorities() {
+		return authorities;
+	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.authentication.support.UserModel#authorityCanGranted(de.mq.iot.authentication.Authority)
+	 */
+	@Override
+	public boolean  authorityCanGranted(Authority authority) {	
+		
+	if ( authority == null ) {
+		return false;
+	}
+	
+	if( authorities.contains(authority)){
+		return false;
+
+	}
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.authentication.support.UserModel#assign(de.mq.iot.authentication.Authority)
+	 */
+	@Override
+	public void assign(final Authority authority) {
+		if( authority==null) {
+			return;
+		}
+		
+		authorities.add(authority);
+		notifyObservers(Events.AuthoritiesChanged);
+		
+	}
+	/*
+	 * (non-Javadoc)
+	 * @see de.mq.iot.authentication.support.UserModel#delete(java.util.Collection)
+	 */
+	@Override
+	public void delete(Collection<Authority> authorities) {
+		if( authorities==null) {
+			return;
+		}
+		this.authorities.removeAll(authorities);
+		
+		notifyObservers(Events.AuthoritiesChanged);
+	}
 	
 	
 

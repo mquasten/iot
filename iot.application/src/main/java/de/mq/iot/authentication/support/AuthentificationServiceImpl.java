@@ -114,9 +114,9 @@ class AuthentificationServiceImpl implements AuthentificationService {
 	}
 
 	private boolean modifyUsersRoleCanBeRemoved(final Authentication authentication, final Collection<Authority> authorities) {
-		if (authentication.hasRole(Authority.ModifyUsers) && !authorities.contains(Authority.ModifyUsers)) {
+		if (authentication.hasRole(Authority.Users) && !authorities.contains(Authority.Users)) {
 
-			return Optional.ofNullable(authenticationRepository.findByUsernameNotAndAuthority(authentication.username(), Authority.ModifyUsers).blockFirst(timeout)).isPresent();
+			return Optional.ofNullable(authenticationRepository.findByUsernameNotAndAuthority(authentication.username(), Authority.Users).blockFirst(timeout)).isPresent();
 		}
 		return true;
 	}

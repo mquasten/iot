@@ -1,6 +1,7 @@
 package de.mq.iot.authentication.support;
 
-import java.util.ArrayList;
+
+import java.util.Arrays;
 
 import org.springframework.context.MessageSource;
 import org.springframework.util.StringUtils;
@@ -17,6 +18,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
@@ -28,6 +31,7 @@ import de.mq.iot.authentication.Authority;
 import de.mq.iot.authentication.support.UserModel.Events;
 import de.mq.iot.model.I18NKey;
 import de.mq.iot.model.LocalizeView;
+import de.mq.iot.state.support.SimpleNotificationDialog;
 import de.mq.iot.support.ButtonBox;
 
 @Route("users")
@@ -49,9 +53,15 @@ class UsersView extends VerticalLayout implements LocalizeView {
 	
 	
 	private final Button addRoleButton = new Button();
+	
+	private final Button deleteRoleButton = new Button();
 
-	@I18NKey("save")
+	@I18NKey("save_users")
 	private final Button saveButton = new Button();
+	
+	
+	@I18NKey("save_roles")
+	private final Button saveRolesButton = new Button();
 
 	@I18NKey("required")
 	private final Label mandatoryLabel = new Label();
@@ -70,6 +80,9 @@ class UsersView extends VerticalLayout implements LocalizeView {
 
 	@I18NKey("roles_column")
 	private final Label rolesColumnLabel = new Label();
+	
+	@I18NKey("admin_required")
+	private final Label noAdminUserLabel = new Label();
 
 	@I18NKey("user_column")
 	private final Label userColumnLabel = new Label();
@@ -87,14 +100,15 @@ class UsersView extends VerticalLayout implements LocalizeView {
 
 	private final HorizontalLayout editorLayout = new HorizontalLayout(formLayout, buttonLayout);
 	
-	final HorizontalLayout layout = new HorizontalLayout(userGrid, authorityGrid);
+	private final HorizontalLayout layout = new HorizontalLayout(userGrid);
 	
+	private final SimpleNotificationDialog notificationDialog;
 
+	UsersView(final AuthentificationService authentificationService, final UserModel userModel, final MessageSource messageSource, final ButtonBox buttonBox, final SimpleNotificationDialog notificationDialog) {
 
-	UsersView(final AuthentificationService authentificationService, final UserModel userModel, final MessageSource messageSource, final ButtonBox buttonBox) {
-
+		this.notificationDialog=notificationDialog;
 		
-		createUI(buttonBox);
+		createUI(buttonBox, userModel);
 
 		userGrid.setItems(authentificationService.authentifications());
 		
@@ -110,6 +124,8 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		});
 
 		userModel.register(UserModel.Events.SeclectionChanged, () -> selectionChangedObserver(userModel));
+		
+		userModel.register(UserModel.Events.AuthoritiesChanged, () -> authoritiesChanged(userModel));
 
 		userModel.notifyObservers(Events.ChangeLocale);
 
@@ -118,10 +134,52 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		deleteUserButton.addClickListener(event -> deleteUser(authentificationService, userModel));
 		
 		
-		
+		roleCombobox.setItems(Arrays.asList(Authority.values()));
 	
-		//authorityGrid.setItems(new ArrayList<>());
+		addRoleButton.addClickListener(event -> {
+			
+			userModel.assign(roleCombobox.getValue());
+			
+		});
 		
+		deleteRoleButton.addClickListener(event -> {
+			userModel.delete(authorityGrid.getSelectedItems());
+		});
+		
+		
+		saveRolesButton.addClickListener(event -> saveRoles(authentificationService, userModel));
+		
+		
+	}
+
+	private void saveRoles(final AuthentificationService authentificationService, final UserModel userModel) {
+		userModel.authentication().ifPresent(authentication -> {
+			final boolean saved = authentificationService.changeAuthorities(authentication.username(), userModel.authorities());
+			
+			if( saved) {
+				userModel.assign((Authentication) null); 
+			
+		
+				userGrid.setItems(authentificationService.authentifications());
+			
+			
+				refresh(userGrid.getDataProvider());
+			} else {
+				
+				notificationDialog.showError(noAdminUserLabel.getText());
+			}
+			
+			
+		});
+	}
+
+	private <T> void refresh(DataProvider<T,?> provider) {
+	 provider.fetch(new Query<>()).forEach(item -> provider.refreshItem(item));
+	}
+
+	private void authoritiesChanged(UserModel userModel) {
+		authorityGrid.setItems(userModel.authorities());
+		roleCombobox.setValue(null);
 		
 	}
 
@@ -170,36 +228,44 @@ class UsersView extends VerticalLayout implements LocalizeView {
 	}
 
 	private void selectionChangedObserver(final UserModel userModel) {
-		authorityGrid.setItems(new ArrayList<>());
+	
 
 		nameTextField.setReadOnly(false);
 		nameTextField.setValue("");
 		passwordTextField.setValue("");
 		deleteUserButton.setEnabled(false);
+		saveRolesButton.setEnabled(false);
 		infoLabel.setText(newInfoLabel.getText());
 
 		nameTextField.setInvalid(false);
 		passwordTextField.setInvalid(false);
 		
+		roleCombobox.setValue(null);
+		
+		authorityGrid.getParent().ifPresent(parent ->  layout.remove(authorityGrid));
 		userModel.authentication().ifPresent(authentication -> {
 			
+			layout.add(authorityGrid);
 			infoLabel.setText(changeInfoLabel.getText());
-			authorityGrid.setItems(authentication.authorities());
 			nameTextField.setValue(authentication.username());
 			nameTextField.setReadOnly(true);
 			deleteUserButton.setEnabled(true);
+			saveRolesButton.setEnabled(true);
 
 		});
 		
-		roleCombobox.setItems(Authority.values());
+	
 
 	}
 
-	private void createUI(final ButtonBox buttonBox) {
+	private void createUI(final ButtonBox buttonBox, final UserModel userModel) {
 
+	
+		addRoleButton.setEnabled(false);
+		deleteRoleButton.setEnabled(false);
+		saveRolesButton.setEnabled(false);
 		
-		
-		
+		//roleCombobox.setWidth("80%");
 		
 		userGrid.getElement().getStyle().set("overflow", "auto");
 
@@ -234,8 +300,8 @@ class UsersView extends VerticalLayout implements LocalizeView {
 
 		setHorizontalComponentAlignment(Alignment.CENTER, layout);
 
-		userGrid.setHeight("40vH");
-		authorityGrid.setHeight("40vH");
+		userGrid.setHeight("50vH");
+		authorityGrid.setHeight("50vH");
 		userGrid.setSelectionMode(SelectionMode.SINGLE);
 		authorityGrid.setSelectionMode(SelectionMode.SINGLE);
 
@@ -247,15 +313,24 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		}).setHeader(userColumnLabel).setFooter(new HorizontalLayout(deleteUserButton));
 
 		addRoleButton.setIcon((VaadinIcons.FILE_ADD.create()));
-		final HorizontalLayout roleFooterLayout = new HorizontalLayout(roleCombobox, addRoleButton);
+		deleteRoleButton.setIcon((VaadinIcons.FILE_REMOVE.create()));
+		final HorizontalLayout roleFooterLayout = new HorizontalLayout(roleCombobox, addRoleButton,deleteRoleButton, saveRolesButton);
 		
 		authorityGrid.addColumn((ValueProvider<Authority, String>) authority -> {
 
 			return authority.name();
 		}).setHeader(rolesColumnLabel).setFooter(roleFooterLayout).setResizable(true);
+		
+		roleCombobox.addValueChangeListener(event ->  addRoleButton.setEnabled(userModel.authorityCanGranted(event.getValue())));
 
 		
+		authorityGrid.asSingleSelect().addValueChangeListener(selectionEvent -> {
+			deleteRoleButton.setEnabled(selectionEvent.getValue() != null);
+		});
+	
 	
 	}
+
+
 
 }

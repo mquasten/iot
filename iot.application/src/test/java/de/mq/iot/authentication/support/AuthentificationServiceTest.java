@@ -88,9 +88,9 @@ public class AuthentificationServiceTest {
 	@Test
 	void changeAuthorities() {
 
-		preparechangeAuthorities(Authority.ModifyUsers);
+		preparechangeAuthorities(Authority.Users);
 
-		assertTrue(authentificationService.changeAuthorities(USER, Arrays.asList(Authority.ModifySystemvariables)));
+		assertTrue(authentificationService.changeAuthorities(USER, Arrays.asList(Authority.Systemvariables)));
 
 		ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 
@@ -99,7 +99,7 @@ public class AuthentificationServiceTest {
 		assertEquals(USER, authenticationCaptor.getValue().username());
 		assertTrue(authenticationCaptor.getValue().authenticate(NEW_PASSWORD));
 		assertEquals(1, authenticationCaptor.getValue().authorities().size());
-		assertEquals(Authority.ModifySystemvariables, authenticationCaptor.getValue().authorities().stream().findAny().get());
+		assertEquals(Authority.Systemvariables, authenticationCaptor.getValue().authorities().stream().findAny().get());
 
 	}
 
@@ -118,17 +118,17 @@ public class AuthentificationServiceTest {
 		
 
 		final Flux<Authentication> flux = Flux.just(Mockito.mock(Authentication.class));
-		Mockito.doReturn(flux).when(authenticationRepository).findByUsernameNotAndAuthority(USER, Authority.ModifyUsers);
+		Mockito.doReturn(flux).when(authenticationRepository).findByUsernameNotAndAuthority(USER, Authority.Users);
 	}
 
 	@Test
 	void changeAuthoritiesLastUserWithoutAdmin() {
-		preparechangeAuthorities(Authority.ModifyUsers);
+		preparechangeAuthorities(Authority.Users);
 
 		final Flux<Authentication> flux = Flux.just();
-		Mockito.doReturn(flux).when(authenticationRepository).findByUsernameNotAndAuthority(USER, Authority.ModifyUsers);
+		Mockito.doReturn(flux).when(authenticationRepository).findByUsernameNotAndAuthority(USER, Authority.Users);
 
-		assertFalse(authentificationService.changeAuthorities(USER, Arrays.asList(Authority.ModifySystemvariables)));
+		assertFalse(authentificationService.changeAuthorities(USER, Arrays.asList(Authority.Systemvariables)));
 
 		final ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 
@@ -139,19 +139,19 @@ public class AuthentificationServiceTest {
 	@Test
 	void changeAuthoritiesUserNotFound() {
 
-		preparechangeAuthorities(Authority.ModifyUsers);
+		preparechangeAuthorities(Authority.Users);
 
 		Mockito.doReturn(Mono.empty()).when(authenticationRepository).findByUsername(USER);
 
-		assertThrows(IllegalArgumentException.class, () -> authentificationService.changeAuthorities(USER, Arrays.asList(Authority.ModifySystemvariables)));
+		assertThrows(IllegalArgumentException.class, () -> authentificationService.changeAuthorities(USER, Arrays.asList(Authority.Systemvariables)));
 
 	}
 
 	@Test
 	void changeAuthoritiesNotAdmin() {
-		preparechangeAuthorities(Authority.ModifySystemvariables);
+		preparechangeAuthorities(Authority.Systemvariables);
 
-		assertTrue(authentificationService.changeAuthorities(USER, Arrays.asList(Authority.ModifySystemvariables)));
+		assertTrue(authentificationService.changeAuthorities(USER, Arrays.asList(Authority.Systemvariables)));
 
 		final ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 
@@ -160,15 +160,15 @@ public class AuthentificationServiceTest {
 		assertEquals(USER, authenticationCaptor.getValue().username());
 		assertTrue(authenticationCaptor.getValue().authenticate(NEW_PASSWORD));
 		assertEquals(1, authenticationCaptor.getValue().authorities().size());
-		assertEquals(Authority.ModifySystemvariables, authenticationCaptor.getValue().authorities().stream().findAny().get());
+		assertEquals(Authority.Systemvariables, authenticationCaptor.getValue().authorities().stream().findAny().get());
 
 	}
 
 	@Test
 	void changeAuthoritiesAdmin() {
-		preparechangeAuthorities(Authority.ModifyUsers);
+		preparechangeAuthorities(Authority.Users);
 
-		assertTrue(authentificationService.changeAuthorities(USER, Arrays.asList(Authority.ModifyUsers)));
+		assertTrue(authentificationService.changeAuthorities(USER, Arrays.asList(Authority.Users)));
 
 		final ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 
@@ -177,7 +177,7 @@ public class AuthentificationServiceTest {
 		assertEquals(USER, authenticationCaptor.getValue().username());
 		assertTrue(authenticationCaptor.getValue().authenticate(NEW_PASSWORD));
 		assertEquals(1, authenticationCaptor.getValue().authorities().size());
-		assertEquals(Authority.ModifyUsers, authenticationCaptor.getValue().authorities().stream().findAny().get());
+		assertEquals(Authority.Users, authenticationCaptor.getValue().authorities().stream().findAny().get());
 
 	}
 	

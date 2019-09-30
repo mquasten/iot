@@ -47,7 +47,7 @@ class AuthenticationRepositoryIntegrationTest {
 	}
 
 	private void createAuthentication() {
-		final Authentication authentication = new UserAuthenticationImpl("mquasten", "manfred01", Arrays.asList(Authority.ModifyUsers));
+		final Authentication authentication = new UserAuthenticationImpl("mquasten", "manfred01", Arrays.asList(Authority.Users));
 		
 		
 		
@@ -58,11 +58,11 @@ class AuthenticationRepositoryIntegrationTest {
 	final void findFirstByUsernameNotAndAuthority() {
 		
 		createAuthentication();
-		assertTrue(findFirstByUsernameNotAndAuthority("kminogue", Authority.ModifyUsers).isPresent());
+		assertTrue(findFirstByUsernameNotAndAuthority("kminogue", Authority.Users).isPresent());
 		
-		assertFalse(findFirstByUsernameNotAndAuthority("mquasten", Authority.ModifyUsers).isPresent());
+		assertFalse(findFirstByUsernameNotAndAuthority("mquasten", Authority.Users).isPresent());
 		
-		assertFalse(findFirstByUsernameNotAndAuthority("kminogue", Authority.ModifySystemvariables).isPresent());
+		assertFalse(findFirstByUsernameNotAndAuthority("kminogue", Authority.Systemvariables).isPresent());
 	}
 
 	private Optional<Authentication> findFirstByUsernameNotAndAuthority(final String user, final Authority adminAuthority) {
