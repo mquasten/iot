@@ -42,7 +42,7 @@ import de.mq.iot.support.ButtonBox;
 
 class SystemVariablesViewTest {
 
-	private static final String STATE_VALUE = new Double(0).toString();
+	private static final String STATE_VALUE = Double.valueOf(0).toString();
 	private static final String STATE_NAME = "name";
 	private static final String I18N_INFO_LABEL_VALUE_BOOLEAN = "Boolean-Variable id=4711 ändern";
 	private static final String I18N_INFO_LABEL_VALUE_ITEM = "List-Variable id=4711 ändern";

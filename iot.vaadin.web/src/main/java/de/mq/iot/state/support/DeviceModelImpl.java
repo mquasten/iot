@@ -184,7 +184,7 @@ private final ConversionService conversionService;
 			
 			return; 
 		}
-		this.value=new Double(result/100d);
+		this.value=Double.valueOf(result/100d);
 		
 	}
 	

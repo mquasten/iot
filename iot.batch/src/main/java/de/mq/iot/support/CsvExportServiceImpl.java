@@ -54,7 +54,7 @@ public class CsvExportServiceImpl {
 	Writer newWriter(final Path path) {
 		try {
 			return Files.newBufferedWriter(path);
-		} catch (final IOException ex) {
+		} catch (final Exception ex) {
 			throw new IllegalStateException(ex);
 		}
 	}
@@ -66,7 +66,7 @@ public class CsvExportServiceImpl {
 
 		try (final Writer writer = supplier.apply(fileName);) {
 			write(type, writer);
-		} catch (IOException ex) {
+		} catch (Exception ex) {
 			throw new IllegalStateException(ex);
 		}
 	}

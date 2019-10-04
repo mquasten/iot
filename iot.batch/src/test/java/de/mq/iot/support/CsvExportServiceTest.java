@@ -131,7 +131,7 @@ class CsvExportServiceTest {
 		final Function<?, ?> supplier = Mockito.mock(Function.class);
 		ReflectionTestUtils.setField(csvService, "supplier", supplier);
 
-		Mockito.doThrow(IOException.class).when(supplier).apply(Mockito.any());
+		Mockito.doThrow(RuntimeException.class).when(supplier).apply(Mockito.any());
 
 		assertThrows(IllegalStateException.class, () -> csvService.export("Synonym", "export.csv"));
 	}
@@ -166,7 +166,7 @@ class CsvExportServiceTest {
 	@Test
 	void writerException() throws IOException {
 		Path path = Mockito.mock(Path.class);
-		Mockito.doThrow(IOException.class).when(path).getFileSystem();
+		Mockito.doThrow(RuntimeException.class).when(path).getFileSystem();
 		assertThrows(IllegalStateException.class, () -> ((CsvExportServiceImpl) csvService).newWriter(path));
 	}
 

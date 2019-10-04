@@ -10,17 +10,17 @@
 	
 
 	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>13</maven.compiler.source>
+		<maven.compiler.target>13</maven.compiler.target>
 
-		<jacoco.version>0.8.0</jacoco.version>
+		<jacoco.version>0.8.4</jacoco.version>
 		<surefire-plugin-version>2.19.1</surefire-plugin-version>
 		<surefire-provider-version>1.0.1</surefire-provider-version>
-		<mockito-version>2.7.22</mockito-version>
+		<mockito-version>2.25.0</mockito-version>
 
 		<junit-platform-surefire-provider-version>1.0.1</junit-platform-surefire-provider-version>
-		<junit-launcher-version>1.0.1</junit-launcher-version>
-		<junit-jupiter-version>5.0.2</junit-jupiter-version>
+		
+		<junit-jupiter-version>5.5.1</junit-jupiter-version>
 		<spring.version>5.0.4.RELEASE</spring.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -31,7 +31,7 @@
 		<vaadin.version>10.0.0.beta6</vaadin.version>
 
 		<!-- Plugins -->
-		<jetty.version>9.3.7.v20160115</jetty.version>
+		<jetty.version>9.4.20.v20190813</jetty.version>
 
 		<maven.war.plugin.version>3.1.0</maven.war.plugin.version>
 	</properties>
@@ -117,12 +117,12 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
+		<!-- dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
 			<version>${junit-launcher-version}</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency-->
 
 
 		<dependency>

@@ -355,7 +355,7 @@ class StateRepositoryTest {
 		assertEquals(3, results.size());
 		
 		results.stream().map(result -> Double.valueOf(result.get(AbstractStateConverter.KEY_VALUE))).forEach(value -> assertTrue((Double)value >= 0d && (Double) value <= 1d));
-		assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().map(result -> new Long(result.get(AbstractStateConverter.KEY_ID))).collect(Collectors.toList()));
+		assertEquals(Arrays.asList(1431L, 1952L, 4669L), results.stream().map(result -> Long.valueOf(result.get(AbstractStateConverter.KEY_ID))).collect(Collectors.toList()));
 		results.stream().map(result -> result.get(AbstractStateConverter.KEY_NAME)).forEach(name -> assertTrue(name.matches(".*:3.Fenster.*"))); 
 	}
 	
