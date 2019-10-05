@@ -11,6 +11,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcons;
@@ -62,6 +63,8 @@ class UsersView extends VerticalLayout implements LocalizeView {
 	
 	@I18NKey("save_roles")
 	private final Button saveRolesButton = new Button();
+	
+	
 
 	@I18NKey("required")
 	private final Label mandatoryLabel = new Label();
@@ -140,6 +143,7 @@ class UsersView extends VerticalLayout implements LocalizeView {
 			
 			userModel.assign(roleCombobox.getValue());
 			
+			
 		});
 		
 		deleteRoleButton.addClickListener(event -> {
@@ -150,8 +154,14 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		saveRolesButton.addClickListener(event -> saveRoles(authentificationService, userModel));
 		
 		
+		
+			
+			
+			
+		
 	}
-
+	
+	
 	private void saveRoles(final AuthentificationService authentificationService, final UserModel userModel) {
 		userModel.authentication().ifPresent(authentication -> {
 			final boolean saved = authentificationService.changeAuthorities(authentication.username(), userModel.authorities());
@@ -241,10 +251,15 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		passwordTextField.setInvalid(false);
 		
 		roleCombobox.setValue(null);
+		infoLabel.setVisible(userModel.isAdmin());
+		editorLayout.setVisible(userModel.isAdmin());
 		
+	
 		authorityGrid.getParent().ifPresent(parent ->  layout.remove(authorityGrid));
+		
 		userModel.authentication().ifPresent(authentication -> {
-			
+			infoLabel.setVisible(userModel.isPasswordChangeAllowed());
+			editorLayout.setVisible(userModel.isPasswordChangeAllowed());
 			layout.add(authorityGrid);
 			infoLabel.setText(changeInfoLabel.getText());
 			nameTextField.setValue(authentication.username());
@@ -255,12 +270,16 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		});
 		
 	
+		
+	
 
 	}
 
-	private void createUI(final ButtonBox buttonBox, final UserModel userModel) {
-
-	
+	private void  createUI(final ButtonBox buttonBox, final UserModel userModel) {
+		
+		infoLabel.setVisible(userModel.isAdmin());
+		editorLayout.setVisible(userModel.isAdmin());
+		
 		addRoleButton.setEnabled(false);
 		deleteRoleButton.setEnabled(false);
 		saveRolesButton.setEnabled(false);
@@ -307,20 +326,24 @@ class UsersView extends VerticalLayout implements LocalizeView {
 
 		deleteUserButton.setIcon(VaadinIcons.FILE_REMOVE.create());
 
-		userGrid.addColumn((ValueProvider<Authentication, String>) authentication -> {
+		final Column<?> userGridColumn = userGrid.addColumn((ValueProvider<Authentication, String>) authentication -> {
 			return authentication.username();
 
-		}).setHeader(userColumnLabel).setFooter(new HorizontalLayout(deleteUserButton));
+		}).setHeader(userColumnLabel);
 
 		addRoleButton.setIcon((VaadinIcons.FILE_ADD.create()));
 		deleteRoleButton.setIcon((VaadinIcons.FILE_REMOVE.create()));
-		final HorizontalLayout roleFooterLayout = new HorizontalLayout(roleCombobox, addRoleButton,deleteRoleButton, saveRolesButton);
 		
-		authorityGrid.addColumn((ValueProvider<Authority, String>) authority -> {
+		final Column<?> authorityGridColumn = authorityGrid.addColumn((ValueProvider<Authority, String>) authority -> {
 
 			return authority.name();
-		}).setHeader(rolesColumnLabel).setFooter(roleFooterLayout).setResizable(true);
+		}).setHeader(rolesColumnLabel).setResizable(true);
 		
+		
+		if( userModel.isAdmin()) {
+			authorityGridColumn.setFooter(new HorizontalLayout(roleCombobox, addRoleButton,deleteRoleButton, saveRolesButton));
+			userGridColumn.setFooter(new HorizontalLayout(deleteUserButton));
+		}
 		roleCombobox.addValueChangeListener(event ->  addRoleButton.setEnabled(userModel.authorityCanGranted(event.getValue())));
 
 		

@@ -4,26 +4,39 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.dao.support.DataAccessUtils;
 
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.SecurityContext;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
 
 class SubjectTest {
 	
-	final Observer  observer  = Mockito.mock(Observer.class); 
+	private final Observer  observer  = Mockito.mock(Observer.class); 
 	
+	private final SecurityContext securityContext = Mockito.mock(SecurityContext.class);
 
-	 private final Subject<Event, Object> subject = new SubjectImpl<>();
+	 private final Subject<Event, Object> subject = new SubjectImpl<>(securityContext);
+	 
+	 private final Authentication currentUser =  Mockito.mock(Authentication.class);
+	 
+	 @BeforeEach
+	 void setup() {
+		 Mockito.when(securityContext.authentication()).thenReturn(Optional.of(currentUser));
+	 }
+	 
 	 
 	 @Test
 	 void register() {
@@ -64,6 +77,17 @@ class SubjectTest {
 		 Mockito.verify(observer, Mockito.never()).process();
 		 
 	 }
+	 
+	 @Test
+	 void securityContext() {
+		 assertEquals(Optional.of(currentUser), subject.currentUser());
+	 }
+	 @Test
+	 void currentUser() {
+		 assertEquals(Optional.of(currentUser), subject.currentUser());
+	 }
+	 
+	
 
 }
 

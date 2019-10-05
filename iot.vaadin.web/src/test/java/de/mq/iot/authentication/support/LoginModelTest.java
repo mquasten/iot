@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Locale;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -62,5 +63,11 @@ class LoginModelTest {
 		
 		Mockito.verify(subject).register(LoginModel.Events.ChangeLocale, observer);
 	}
+	
+	
+	 @Test
+	 void curentUserDefault() {
+		assertEquals(Optional.empty(), loginModel.currentUser());
+	 }
 
 }

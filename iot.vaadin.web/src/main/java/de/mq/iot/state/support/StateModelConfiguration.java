@@ -13,6 +13,7 @@ import org.springframework.core.convert.converter.Converter;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import de.mq.iot.authentication.SecurityContext;
 import de.mq.iot.model.Subject;
 import de.mq.iot.model.support.SubjectImpl;
 import de.mq.iot.state.State;
@@ -36,8 +37,8 @@ class StateModelConfiguration  {
 
 	@Bean
 	@UIScope
-	Subject<?, ?> subject() {
-		return new SubjectImpl<>();
+	Subject<?, ?> subject(final SecurityContext securityContext) {
+		return new SubjectImpl<>(securityContext);
 	}
 	
 	

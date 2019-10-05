@@ -4,13 +4,22 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.SecurityContext;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
 public class SubjectImpl<Key, Model> implements Subject<Key, Model> {
 
 	final Map<Key, Collection<Observer>> observers = new HashMap<>();
+	
+	private SecurityContext securityContext;
+	
+	public SubjectImpl(final SecurityContext securityContext){
+		this.securityContext=securityContext;
+	}
 
 	@Override
 	public Observer register(final Key key, final Observer observer) {
@@ -28,6 +37,11 @@ public class SubjectImpl<Key, Model> implements Subject<Key, Model> {
 		}
 		observers.get(key).forEach(observer -> observer.process());
 
+	}
+
+	@Override
+	public Optional<Authentication> currentUser() {
+		return securityContext.authentication();
 	}
 
 }

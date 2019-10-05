@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -22,8 +23,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.vaadin.flow.component.dialog.Dialog;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.SecurityContext;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
+import de.mq.iot.model.support.SubjectImpl;
 import de.mq.iot.state.State;
 import de.mq.iot.state.support.DeviceModel.Events;
 
@@ -32,14 +36,19 @@ class StateModelConfigurationTest {
 	
 	
 	private final StateModelConfiguration stateModelConfiguration = new StateModelConfiguration();
-	
+	final SecurityContext securityContext = Mockito.mock(SecurityContext.class);
 	private final ConversionService conversionService = Mockito.mock(ConversionService.class);
-	@SuppressWarnings("unchecked")
-	private final Subject<StateModel.Events, StateModel> subject = Mockito.mock(Subject.class);
+	
+	private final Subject<StateModel.Events, StateModel> subject = new SubjectImpl<>(securityContext);
 	
 	@Test
 	void subject() {
-		assertTrue(stateModelConfiguration.subject() instanceof Subject);
+		final Authentication currentUser = Mockito.mock(Authentication.class);
+		Mockito.when(subject.currentUser()).thenReturn(Optional.of(currentUser));
+		
+		
+		assertTrue(stateModelConfiguration.subject(securityContext) instanceof SubjectImpl);
+		assertEquals(Optional.of(currentUser), stateModelConfiguration.subject(securityContext).currentUser());
 	}
 	
 	

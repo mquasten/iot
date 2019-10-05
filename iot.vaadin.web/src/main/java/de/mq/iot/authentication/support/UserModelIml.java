@@ -5,21 +5,24 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.springframework.util.Assert;
+
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
+
 
 class UserModelIml implements UserModel {
 
 	private final Subject<UserModel.Events, UserModel> subject;
 
 	private Optional<Authentication> authentication = Optional.empty();
-	
+
 	private String login;
-	
+
 	private String password;
-	
+
 	private Collection<Authority> authorities = new ArrayList<>();
 
 	UserModelIml(final Subject<UserModel.Events, UserModel> subject) {
@@ -67,7 +70,7 @@ class UserModelIml implements UserModel {
 	public void assign(final Authentication authentication) {
 		this.authentication = Optional.ofNullable(authentication);
 		authorities.clear();
-		if( authentication != null) {
+		if (authentication != null) {
 			authorities.addAll(authentication.authorities());
 		}
 		subject.notifyObservers(Events.SeclectionChanged);
@@ -76,16 +79,18 @@ class UserModelIml implements UserModel {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.authentication.support.UserModel#authentication()
 	 */
 	@Override
 	public Optional<Authentication> authentication() {
 
-		 return authentication;
+		return authentication;
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.authentication.support.UserModel#login()
 	 */
 	@Override
@@ -95,16 +100,18 @@ class UserModelIml implements UserModel {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.authentication.support.UserModel#assignLogin(java.lang.String)
 	 */
 	@Override
 	public void assignLogin(final String login) {
-		this.login=login;
-		
+		this.login = login;
+
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.authentication.support.UserModel#password()
 	 */
 	@Override
@@ -114,69 +121,103 @@ class UserModelIml implements UserModel {
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.mq.iot.authentication.support.UserModel#assignPassword(java.lang.String)
+	 * 
+	 * @see
+	 * de.mq.iot.authentication.support.UserModel#assignPassword(java.lang.String)
 	 */
 	@Override
 	public void assignPassword(String password) {
-		this.password=password;
-		
+		this.password = password;
+
 	}
-	
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.authentication.support.UserModel#authorities()
 	 */
 	@Override
 	public Collection<Authority> authorities() {
 		return authorities;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * @see de.mq.iot.authentication.support.UserModel#authorityCanGranted(de.mq.iot.authentication.Authority)
+	 * 
+	 * @see
+	 * de.mq.iot.authentication.support.UserModel#authorityCanGranted(de.mq.iot.
+	 * authentication.Authority)
 	 */
 	@Override
-	public boolean  authorityCanGranted(Authority authority) {	
-		
-	if ( authority == null ) {
-		return false;
-	}
-	
-	if( authorities.contains(authority)){
-		return false;
+	public boolean authorityCanGranted(Authority authority) {
 
-	}
+		if (authority == null) {
+			return false;
+		}
+
+		if (authorities.contains(authority)) {
+			return false;
+
+		}
 		return true;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.mq.iot.authentication.support.UserModel#assign(de.mq.iot.authentication.Authority)
+	 * 
+	 * @see
+	 * de.mq.iot.authentication.support.UserModel#assign(de.mq.iot.authentication.
+	 * Authority)
 	 */
 	@Override
 	public void assign(final Authority authority) {
-		if( authority==null) {
+		if (authority == null) {
 			return;
 		}
-		
+
 		authorities.add(authority);
 		notifyObservers(Events.AuthoritiesChanged);
-		
+
 	}
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see de.mq.iot.authentication.support.UserModel#delete(java.util.Collection)
 	 */
 	@Override
 	public void delete(Collection<Authority> authorities) {
-		if( authorities==null) {
+		if (authorities == null) {
 			return;
 		}
 		this.authorities.removeAll(authorities);
-		
+
 		notifyObservers(Events.AuthoritiesChanged);
 	}
+
+	@Override
+	public boolean isAdmin() {
+		final Optional<Authentication> currentUser = subject.currentUser();
+		if (!currentUser.isPresent()) {
+			return false;
+		}
+		return currentUser.get().hasRole(Authority.Users);
+
+	}
+
 	
-	
+	@Override
+	public boolean isPasswordChangeAllowed() {
+		
+		if( isAdmin()) {
+			return true;
+		}
+		final Optional<Authentication> currentUser = subject.currentUser();
+		if (!currentUser.isPresent()) {
+			return false;
+		}
+		Assert.isTrue(authentication.isPresent(), "Authentication should be aware.");
+		return currentUser.get().equals(authentication.get());
+	}
 
 }

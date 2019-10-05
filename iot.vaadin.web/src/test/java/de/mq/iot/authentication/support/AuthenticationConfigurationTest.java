@@ -92,4 +92,18 @@ public class AuthenticationConfigurationTest {
 		
 	}	
 	
+	@Test
+	void userModel() {
+		@SuppressWarnings("unchecked")
+		final Subject<UserModel.Events, UserModel> subject = Mockito.mock(Subject.class);
+		
+		UserModel userModel =authenticationConfiguration.userModel(subject);
+		
+		assertTrue(userModel instanceof UserModelIml);
+		
+		userModel.notifyObservers(UserModel.Events.ChangeLocale);
+		
+		Mockito.verify(subject).notifyObservers(UserModel.Events.ChangeLocale);
+	}
+	
 }

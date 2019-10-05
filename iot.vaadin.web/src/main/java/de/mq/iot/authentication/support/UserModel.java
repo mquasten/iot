@@ -43,6 +43,12 @@ interface UserModel extends Subject<UserModel.Events, LoginModel>, LocaleAware{
 
 	void delete(final Collection<Authority> authorities);
 
+
+	boolean isAdmin();
+
+
+	boolean isPasswordChangeAllowed();
+
 	
 
 }
