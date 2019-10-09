@@ -171,6 +171,7 @@ class UserModelIml implements UserModel {
 	 */
 	@Override
 	public void assign(final Authority authority) {
+		
 		if (authority == null) {
 			return;
 		}
@@ -194,6 +195,8 @@ class UserModelIml implements UserModel {
 
 		notifyObservers(Events.AuthoritiesChanged);
 	}
+
+	
 
 	@Override
 	public boolean isAdmin() {

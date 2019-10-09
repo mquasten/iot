@@ -1,10 +1,14 @@
 package de.mq.iot.authentication.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -108,5 +112,58 @@ class UserModelTest {
 		userModel.assignPassword(PASSWORD);
 
 		assertEquals(PASSWORD, userModel.password());
+	}
+
+	@Test
+	void authorityCanGranted() {
+		userModel.assign(Authority.Systemvariables);
+
+		assertTrue(userModel.authorityCanGranted(Authority.Users));
+
+		assertFalse(userModel.authorityCanGranted(Authority.Systemvariables));
+
+		assertFalse(userModel.authorityCanGranted(null));
+	}
+
+	@Test
+	void assignAuthority() {
+		assertEquals(0, userModel.authorities().size());
+
+		userModel.assign(Authority.Users);
+
+		assertTrue(userModel.authorities().contains(Authority.Users));
+		Mockito.verify(subject).notifyObservers(UserModel.Events.AuthoritiesChanged);
+
+	}
+
+	@Test
+	void assignAuthorityNull() {
+		userModel.assign((Authority) null);
+
+		assertEquals(0, userModel.authorities().size());
+		Mockito.verify(subject, Mockito.never()).notifyObservers(UserModel.Events.AuthoritiesChanged);
+	}
+
+	@Test
+	void delete() {
+
+		ReflectionTestUtils.setField(userModel, "authorities",
+				new ArrayList<>(List.of(Authority.Users, Authority.Systemvariables)));
+
+		assertEquals(2, userModel.authorities().size());
+
+		userModel.delete(Arrays.asList(Authority.Users, Authority.Systemvariables));
+
+		assertEquals(0, userModel.authorities().size());
+
+		Mockito.verify(subject).notifyObservers(Events.AuthoritiesChanged);
+
+	}
+	
+	@Test
+	void deleteNull() {
+		userModel.delete(null);
+		
+		Mockito.verify(subject, Mockito.never()).notifyObservers(Events.AuthoritiesChanged);
 	}
 }
