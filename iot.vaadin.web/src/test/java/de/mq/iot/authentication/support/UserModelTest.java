@@ -159,11 +159,42 @@ class UserModelTest {
 		Mockito.verify(subject).notifyObservers(Events.AuthoritiesChanged);
 
 	}
-	
+
 	@Test
 	void deleteNull() {
 		userModel.delete(null);
-		
+
 		Mockito.verify(subject, Mockito.never()).notifyObservers(Events.AuthoritiesChanged);
+	}
+
+	@Test
+	void isAdmin() {
+
+		assertFalse(userModel.isAdmin());
+
+		Mockito.doReturn(true, false).when(authentication).hasRole(Authority.Users);
+		Mockito.doReturn(Optional.of(authentication)).when(subject).currentUser();
+
+		assertTrue(userModel.isAdmin());
+		assertFalse(userModel.isAdmin());
+	}
+
+	@Test
+	void isPasswordChangeAllowed() {
+		assertFalse(userModel.isPasswordChangeAllowed());
+
+		Mockito.doReturn(Optional.of(authentication)).when(subject).currentUser();
+		userModel.assign(authentication);
+
+		assertTrue(userModel.isPasswordChangeAllowed());
+	}
+
+	@Test
+	void isPasswordChangeAllowedAdmin() {
+		Mockito.doReturn(true, false).when(authentication).hasRole(Authority.Users);
+		Mockito.doReturn(Optional.of(authentication)).when(subject).currentUser();
+		userModel.assign(Mockito.mock(Authentication.class));
+
+		assertTrue(userModel.isPasswordChangeAllowed());
 	}
 }

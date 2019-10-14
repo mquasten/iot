@@ -12,7 +12,6 @@ import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
-
 class UserModelIml implements UserModel {
 
 	private final Subject<UserModel.Events, UserModel> subject;
@@ -171,7 +170,7 @@ class UserModelIml implements UserModel {
 	 */
 	@Override
 	public void assign(final Authority authority) {
-		
+
 		if (authority == null) {
 			return;
 		}
@@ -196,7 +195,11 @@ class UserModelIml implements UserModel {
 		notifyObservers(Events.AuthoritiesChanged);
 	}
 
-	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.mq.iot.authentication.support.UserModel#isAdmin()
+	 */
 
 	@Override
 	public boolean isAdmin() {
@@ -207,12 +210,16 @@ class UserModelIml implements UserModel {
 		return currentUser.get().hasRole(Authority.Users);
 
 	}
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.mq.iot.authentication.support.UserModel#isPasswordChangeAllowed()
+	 */
 
-	
 	@Override
 	public boolean isPasswordChangeAllowed() {
-		
-		if( isAdmin()) {
+
+		if (isAdmin()) {
 			return true;
 		}
 		final Optional<Authentication> currentUser = subject.currentUser();
