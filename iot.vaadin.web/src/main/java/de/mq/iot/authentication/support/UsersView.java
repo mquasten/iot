@@ -284,6 +284,8 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		deleteRoleButton.setEnabled(false);
 		saveRolesButton.setEnabled(false);
 		
+		deleteUserButton.setEnabled(false);
+		
 		//roleCombobox.setWidth("80%");
 		
 		userGrid.getElement().getStyle().set("overflow", "auto");
