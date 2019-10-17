@@ -254,6 +254,7 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		infoLabel.setVisible(userModel.isAdmin());
 		editorLayout.setVisible(userModel.isAdmin());
 		
+		
 	
 		authorityGrid.getParent().ifPresent(parent ->  layout.remove(authorityGrid));
 		
@@ -328,18 +329,12 @@ class UsersView extends VerticalLayout implements LocalizeView {
 
 		deleteUserButton.setIcon(VaadinIcons.FILE_REMOVE.create());
 
-		final Column<?> userGridColumn = userGrid.addColumn((ValueProvider<Authentication, String>) authentication -> {
-			return authentication.username();
-
-		}).setHeader(userColumnLabel);
+		final Column<?> userGridColumn = userGrid.addColumn(userNameValueProvider()).setHeader(userColumnLabel);
 
 		addRoleButton.setIcon((VaadinIcons.FILE_ADD.create()));
 		deleteRoleButton.setIcon((VaadinIcons.FILE_REMOVE.create()));
 		
-		final Column<?> authorityGridColumn = authorityGrid.addColumn((ValueProvider<Authority, String>) authority -> {
-
-			return authority.name();
-		}).setHeader(rolesColumnLabel).setResizable(true);
+		final Column<?> authorityGridColumn = authorityGrid.addColumn(authorityProvider()).setHeader(rolesColumnLabel).setResizable(true);
 		
 		
 		if( userModel.isAdmin()) {
@@ -355,7 +350,15 @@ class UsersView extends VerticalLayout implements LocalizeView {
 	
 	
 	}
+	
+	
+	ValueProvider<Authentication,String> userNameValueProvider() {
+		return  authentication -> authentication.username();
+	}
 
 
+	ValueProvider<Authority,String> authorityProvider() {
+		return  authority -> authority.name();
+	}
 
 }
