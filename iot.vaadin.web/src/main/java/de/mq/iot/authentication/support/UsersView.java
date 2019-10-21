@@ -259,6 +259,7 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		authorityGrid.getParent().ifPresent(parent ->  layout.remove(authorityGrid));
 		
 		userModel.authentication().ifPresent(authentication -> {
+			
 			infoLabel.setVisible(userModel.isPasswordChangeAllowed());
 			editorLayout.setVisible(userModel.isPasswordChangeAllowed());
 			layout.add(authorityGrid);

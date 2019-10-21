@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +25,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
 
 import de.mq.iot.authentication.Authentication;
@@ -37,6 +38,7 @@ import de.mq.iot.support.ButtonBox;
 
 class UsersViewTest {
 	
+	private static final String I18N_CHANGE_INFO_LABEL = "Passwort ändern";
 	private static final String USER_NAME = "kminogue";
 	private final Authentication authentication = Mockito.mock(Authentication.class);
 	private final AuthentificationService authentificationService = Mockito.mock(AuthentificationService.class);
@@ -62,6 +64,8 @@ class UsersViewTest {
 	void setup() {
 		
 		Mockito.doReturn(true).when(userModel).isAdmin();
+		Mockito.doReturn(true).when(userModel).isPasswordChangeAllowed();
+		
 		Mockito.doReturn(Arrays.asList(user,otherUser)).when(authentificationService).authentifications();
 		
 		Mockito.doAnswer(answer -> {
@@ -258,6 +262,83 @@ class UsersViewTest {
 	@Test
 	void authorityProvider() {
 		assertEquals(Authority.Systemvariables.name(), userView.authorityProvider().apply(Authority.Systemvariables));
+	}
+	
+	@Test
+	void assign() {
+		final Grid<Authentication> userGrid = userGrid();
+		assertNotNull(userGrid);
+		
+		final Collection<Authentication> users = fetchAll(userGrid);
+		
+		assertEquals(2, users.size());
+		userGrid.select(user);
+		
+		 Mockito.verify(userModel).assign(user);
+	}
+	@Test
+	void selectionChangedObserver() {
+	
+		final Label infoLabel = infoLabel();
+		assertNotNull(infoLabel);
+		infoLabel.setVisible(false);
+		
+		final Label changeInfoLabel = changeInfoLabel(); 
+		assertNotNull(changeInfoLabel);
+		changeInfoLabel.setText(I18N_CHANGE_INFO_LABEL);
+		
+		final TextField nameTextField = nameTextField();
+		assertNotNull(nameTextField);
+		assertFalse(nameTextField.isReadOnly());
+		
+		final Button deleteUserButton = deleteUserButton();
+		assertNotNull(deleteUserButton);
+		assertFalse(deleteUserButton.isEnabled());
+		
+		final Button saveRolesButton = saveRolesButton();
+		assertNotNull(saveRolesButton);
+		assertFalse(saveRolesButton.isEnabled());
+		
+		final HorizontalLayout editorLayout = editorLayout();
+		assertNotNull(editorLayout);
+		editorLayout.setVisible(false);
+		
+		final Grid<Authority> authorityGrid = authorityGrid();
+		assertNotNull(authorityGrid);
+		assertFalse(authorityGrid.getParent().isPresent());
+		
+		Mockito.doReturn(Optional.of(user)).when(userModel).authentication();
+		Mockito.doReturn(USER_NAME).when(user).username();
+		
+		observers.get(UserModel.Events.SeclectionChanged).process();
+		
+		
+		assertEquals(I18N_CHANGE_INFO_LABEL, infoLabel.getText());
+		assertTrue(infoLabel.isVisible());
+		assertTrue(editorLayout.isVisible());
+		assertTrue(authorityGrid.getParent().isPresent());
+		assertEquals(USER_NAME,nameTextField.getValue());
+		assertTrue(nameTextField.isReadOnly());
+		assertTrue(deleteUserButton.isEnabled());
+		assertTrue(saveRolesButton.isEnabled());
+	}
+
+
+	private Label changeInfoLabel() {
+		return  (Label) fields.get("changeInfoLabel");
+	}
+
+
+	@SuppressWarnings("unchecked")
+	private Grid<Authority> authorityGrid() {
+	return  (Grid<Authority>) fields.get("authorityGrid");
+		
+	}
+
+
+	private TextField nameTextField() {
+		final TextField nameTextField = (TextField) fields.get("nameTextField");
+		return nameTextField;
 	}
 
 }
