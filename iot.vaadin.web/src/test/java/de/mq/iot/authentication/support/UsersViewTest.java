@@ -3,6 +3,7 @@ package de.mq.iot.authentication.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
@@ -38,6 +39,7 @@ import de.mq.iot.support.ButtonBox;
 
 class UsersViewTest {
 	
+	private static final String I18N_NEW_INFO_LABEL = "Benutzer neu anlegen";
 	private static final String I18N_CHANGE_INFO_LABEL = "Passwort ändern";
 	private static final String USER_NAME = "kminogue";
 	private final Authentication authentication = Mockito.mock(Authentication.class);
@@ -290,6 +292,7 @@ class UsersViewTest {
 		final TextField nameTextField = nameTextField();
 		assertNotNull(nameTextField);
 		assertFalse(nameTextField.isReadOnly());
+		nameTextField.setInvalid(true);
 		
 		final Button deleteUserButton = deleteUserButton();
 		assertNotNull(deleteUserButton);
@@ -321,6 +324,7 @@ class UsersViewTest {
 		assertTrue(nameTextField.isReadOnly());
 		assertTrue(deleteUserButton.isEnabled());
 		assertTrue(saveRolesButton.isEnabled());
+		assertFalse(nameTextField.isInvalid());
 	}
 
 
@@ -340,5 +344,94 @@ class UsersViewTest {
 		final TextField nameTextField = (TextField) fields.get("nameTextField");
 		return nameTextField;
 	}
+	
+	
+	@Test
+	void selectionChangedObserverUserNotSelected() {
+	
+		final Label infoLabel = infoLabel();
+		assertNotNull(infoLabel);
+		infoLabel.setVisible(false);
+		
+		final Label newInfoLabel = newInfoLabel();
+		assertNotNull(newInfoLabel);
+		
+		newInfoLabel.setText(I18N_NEW_INFO_LABEL);
+		
+		
+		final TextField nameTextField = nameTextField();
+		assertNotNull(nameTextField);
+		nameTextField.setValue(USER_NAME);
+		nameTextField.setReadOnly(true);
+		nameTextField.setInvalid(true);
+		
+		final Button deleteUserButton = deleteUserButton();
+		assertNotNull(deleteUserButton);
+		deleteUserButton.setEnabled(true);
+		
+		final Button saveRolesButton = saveRolesButton();
+		assertNotNull(saveRolesButton);
+		saveRolesButton.setEnabled(true);
+		
+		final HorizontalLayout editorLayout = editorLayout();
+		assertNotNull(editorLayout);
+		editorLayout.setVisible(false);
+		
+		final Grid<Authority> authorityGrid = authorityGrid();
+		assertNotNull(authorityGrid);
+		
+		
+		final HorizontalLayout layout = layout();;
+		assertNotNull(authorityGrid);
+		layout.add(authorityGrid);
+		
+		Mockito.doReturn(Optional.empty()).when(userModel).authentication();
+		
+		
+		observers.get(UserModel.Events.SeclectionChanged).process();
+		
+		
+		assertEquals(I18N_NEW_INFO_LABEL, infoLabel.getText());
+		assertTrue(infoLabel.isVisible());
+		assertTrue(editorLayout.isVisible());
+		assertFalse(authorityGrid.getParent().isPresent());
+		assertTrue(nameTextField.getValue().isEmpty());
+		assertFalse(nameTextField.isReadOnly());
+		assertFalse(deleteUserButton.isEnabled());
+		assertFalse(saveRolesButton.isEnabled());
+		assertFalse(nameTextField.isInvalid());
+	}
+
+
+	private Label newInfoLabel() {
+		final Label newInfoLabel = (Label) fields.get("newInfoLabel");
+		return newInfoLabel;
+	}
+
+
+	private HorizontalLayout layout() {
+		return (HorizontalLayout) fields.get("layout");
+	}
+	
+	@Test
+	void authoritiesChanged() {
+		Mockito.doReturn(Arrays.asList(Authority.Systemvariables, Authority.Users)).when(userModel).authorities();		
+		
+		final ComboBox<Authority> roleComboBox = roleComboBox();
+		assertNotNull(roleComboBox);
+		assertEquals(Authority.values().length, roleComboBox.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).size());
+		roleComboBox.setValue(Authority.Systemvariables);
+		
+		final Grid<Authority> authorityGrid =authorityGrid();
+		assertNotNull(authorityGrid);
+		assertEquals(0, authorityGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).size());
+	
+		observers.get(UserModel.Events.AuthoritiesChanged).process();
+		
+		assertEquals(Arrays.asList(Authority.values()), authorityGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
+		assertNull(roleComboBox.getValue());
+		
+	}
+
 
 }
