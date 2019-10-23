@@ -19,8 +19,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.context.MessageSource;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.vaadin.flow.component.ComponentEventBus;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -39,6 +42,7 @@ import de.mq.iot.support.ButtonBox;
 
 class UsersViewTest {
 	
+	private static final String PASSWORD = "fever";
 	private static final String I18N_NEW_INFO_LABEL = "Benutzer neu anlegen";
 	private static final String I18N_CHANGE_INFO_LABEL = "Passwort ändern";
 	private static final String USER_NAME = "kminogue";
@@ -432,6 +436,57 @@ class UsersViewTest {
 		assertNull(roleComboBox.getValue());
 		
 	}
+	
+	
+	@Test
+	void  changeUser() {
+		final TextField nameTextField = nameTextField();
+		assertNotNull(nameTextField);
+		nameTextField.setValue(USER_NAME);
+		nameTextField.setInvalid(true);
+		
+		final TextField passwordTextField = passwordTextField();
+		assertNotNull(passwordTextField);
+		passwordTextField.setValue(PASSWORD);
+		passwordTextField.setInvalid(true);
+		
+		final Button saveButton = saveButton();
+		assertNotNull(saveButton);
+		
+		Mockito.doReturn(Optional.of(authentication)).when(userModel).authentication();
+		Mockito.doReturn(USER_NAME).when(userModel).login();
+		Mockito.doReturn(PASSWORD).when(userModel).password();
+		
+		listener(saveButton).onComponentEvent(null);
+		
+		Mockito.verify(userModel).assignLogin(USER_NAME);
+		Mockito.verify(userModel).assignPassword(PASSWORD);
+		Mockito.verify(authentificationService).changePassword(USER_NAME, PASSWORD);
+		
+		assertTrue(passwordTextField.getValue().isEmpty());
+		assertFalse(passwordTextField.isInvalid());
+		assertFalse(nameTextField.isInvalid());
+	}
 
+
+	private Button saveButton() {
+		final Button saveButton = (Button) fields.get("saveButton");
+		return saveButton;
+	}
+
+
+	private TextField passwordTextField() {
+		final TextField passwordTextField = (TextField) fields.get("passwordTextField");
+		return passwordTextField;
+	}
+
+
+	
+	@SuppressWarnings("unchecked")
+	private ComponentEventListener<?> listener(final Button saveButton) {
+		final ComponentEventBus eventBus = (ComponentEventBus) ReflectionTestUtils.getField(saveButton, "eventBus");
+		final Map<Class<?>, ?> map = (Map<Class<?>, ?>) ReflectionTestUtils.getField(eventBus, "componentEventData");
+		return DataAccessUtils.requiredSingleResult((Collection<ComponentEventListener<?>>) ReflectionTestUtils.getField(map.values().iterator().next(), "listeners"));
+	}
 
 }
