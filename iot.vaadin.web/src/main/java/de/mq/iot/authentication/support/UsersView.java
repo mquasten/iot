@@ -139,12 +139,7 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		
 		roleCombobox.setItems(Arrays.asList(Authority.values()));
 	
-		addRoleButton.addClickListener(event -> {
-			
-			userModel.assign(roleCombobox.getValue());
-			
-			
-		});
+		addRoleButton.addClickListener(event -> userModel.assign(roleCombobox.getValue()));
 		
 		deleteRoleButton.addClickListener(event -> {
 			userModel.delete(authorityGrid.getSelectedItems());
@@ -194,6 +189,8 @@ class UsersView extends VerticalLayout implements LocalizeView {
 	}
 
 	private void deleteUser(final AuthentificationService authentificationService, final UserModel userModel) {
+		
+		
 		userModel.authentication().ifPresent(authentication -> {
 			authentificationService.delete(authentication.username());
 			userGrid.setItems(authentificationService.authentifications());
@@ -224,6 +221,7 @@ class UsersView extends VerticalLayout implements LocalizeView {
 	}
 
 	private void createNew(final AuthentificationService authentificationService, final UserModel userModel) {
+		
 		if (!authentificationService.create(userModel.login(), userModel.password())) {
 			nameTextField.setInvalid(true);
 			nameTextField.setErrorMessage(userAlreadyExists.getText());
@@ -234,6 +232,7 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		passwordTextField.setValue("");
 		nameTextField.setInvalid(false);
 		passwordTextField.setInvalid(false);
+		
 		userGrid.setItems(authentificationService.authentifications());
 	}
 

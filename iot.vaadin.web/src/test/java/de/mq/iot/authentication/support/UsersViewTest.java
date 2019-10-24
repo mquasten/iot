@@ -30,6 +30,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.Query;
 
 import de.mq.iot.authentication.Authentication;
@@ -39,41 +40,40 @@ import de.mq.iot.model.Observer;
 import de.mq.iot.state.support.SimpleNotificationDialog;
 import de.mq.iot.support.ButtonBox;
 
-
 class UsersViewTest {
-	
+
+	private static final String I18N_USER_EXISTS = "Bentzer bereits vorhanden";
 	private static final String PASSWORD = "fever";
 	private static final String I18N_NEW_INFO_LABEL = "Benutzer neu anlegen";
 	private static final String I18N_CHANGE_INFO_LABEL = "Passwort ändern";
 	private static final String USER_NAME = "kminogue";
 	private final Authentication authentication = Mockito.mock(Authentication.class);
 	private final AuthentificationService authentificationService = Mockito.mock(AuthentificationService.class);
-	
-	private final UserModel userModel= Mockito.mock(UserModel.class);
-	
+
+	private final UserModel userModel = Mockito.mock(UserModel.class);
+
 	private final MessageSource messageSource = Mockito.mock(MessageSource.class);
-	
+
 	private final SimpleNotificationDialog notificationDialog = Mockito.mock(SimpleNotificationDialog.class);
-	
+
 	private UsersView userView;
-	
+
 	private final Map<UserModel.Events, Observer> observers = new HashMap<>();
-	
+
 	private final Map<String, Object> fields = new HashMap<>();
 
 	private final Authentication user = Mockito.mock(Authentication.class);
-	
+
 	private final Authentication otherUser = Mockito.mock(Authentication.class);
-	
-	
+
 	@BeforeEach
 	void setup() {
-		
+
 		Mockito.doReturn(true).when(userModel).isAdmin();
 		Mockito.doReturn(true).when(userModel).isPasswordChangeAllowed();
-		
-		Mockito.doReturn(Arrays.asList(user,otherUser)).when(authentificationService).authentifications();
-		
+
+		Mockito.doReturn(Arrays.asList(user, otherUser)).when(authentificationService).authentifications();
+
 		Mockito.doAnswer(answer -> {
 
 			final UserModel.Events event = (UserModel.Events) answer.getArguments()[0];
@@ -83,318 +83,292 @@ class UsersViewTest {
 
 		}).when(userModel).register(Mockito.any(), Mockito.any());
 
-		
-		 userView = new UsersView(authentificationService, userModel, messageSource, new ButtonBox(), notificationDialog);
-		 
+		userView = new UsersView(authentificationService, userModel, messageSource, new ButtonBox(),
+				notificationDialog);
+
 		assignFields();
 	}
 
-
 	private void assignFields() {
-		fields.clear(); 
-		fields.putAll(Arrays.asList(userView.getClass().getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).collect(Collectors.toMap(Field::getName, field -> ReflectionTestUtils.getField(userView, field.getName()))));
+		fields.clear();
+		fields.putAll(Arrays.asList(userView.getClass().getDeclaredFields()).stream()
+				.filter(field -> !Modifier.isStatic(field.getModifiers())).collect(Collectors.toMap(Field::getName,
+						field -> ReflectionTestUtils.getField(userView, field.getName()))));
 	}
-	
-	
+
 	@Test
 	public final void initAdminUser() {
-		
-		
+
 		assertEquals(25, fields.size());
 		assertEquals(3, observers.size());
-		
+
 		observers.keySet().forEach(key -> Arrays.asList(UserModel.Events.values()).contains(key));
-		
-		
+
 		final Grid<Authentication> userGrid = userGrid();
-		
+
 		assertNotNull(userGrid);
-		
-		final Collection<Authentication> users = fetchAll(userGrid);
-		
+
+		final Collection<Authentication> users = fetchAll(userGrid.getDataProvider());
+
 		assertEquals(2, users.size());
-		
-		
+
 		final Button deleteButton = deleteUserButton();
 		assertNotNull(deleteButton);
 		assertTrue(deleteButton.getParent().isPresent());
-		
+
 		assertFalse(deleteButton.isEnabled());
-		
+
 		final HorizontalLayout editorLayout = editorLayout();
 		assertNotNull(editorLayout);
-		
+
 		assertTrue(editorLayout.isVisible());
-		
-		
+
 		final Label infoLabel = infoLabel();
 		assertNotNull(infoLabel);
 		assertTrue(infoLabel.isVisible());
-		
-		
+
 		final ComboBox<?> roleCombobox = roleComboBox();
 		assertNotNull(roleCombobox);
 		assertTrue(roleCombobox.getParent().isPresent());
-		
+
 		final Button addRoleButton = addRoleButton();
 		assertNotNull(addRoleButton);
 		assertTrue(addRoleButton.getParent().isPresent());
-		
+
 		final Button deleteRoleButton = deleteRoleButton();
 		assertNotNull(deleteRoleButton);
 		assertTrue(deleteRoleButton.getParent().isPresent());
-		
+
 		final Button saveRolesButton = saveRolesButton();
 		assertNotNull(saveRolesButton);
 		assertTrue(saveRolesButton.getParent().isPresent());
-		
-	}
 
+	}
 
 	private Button saveRolesButton() {
 		final Button saveRolesButton = (Button) fields.get("saveRolesButton");
 		return saveRolesButton;
 	}
 
-
 	private Button deleteRoleButton() {
 		final Button deleteRoleButton = (Button) fields.get("deleteRoleButton");
 		return deleteRoleButton;
 	}
 
-
 	private Button addRoleButton() {
-		return  (Button) fields.get("addRoleButton");
+		return (Button) fields.get("addRoleButton");
 	}
-
 
 	@SuppressWarnings("unchecked")
-	private <T>  ComboBox<T> roleComboBox() {
+	private <T> ComboBox<T> roleComboBox() {
 		return (ComboBox<T>) fields.get("roleCombobox");
-	
+
 	}
-	
+
 	@Test
 	public final void initNotAdminUser() {
-		
+
 		Mockito.doReturn(false).when(userModel).isAdmin();
-		
-		userView = new UsersView(authentificationService, userModel, messageSource, new ButtonBox(), notificationDialog);
-		 
+
+		userView = new UsersView(authentificationService, userModel, messageSource, new ButtonBox(),
+				notificationDialog);
+
 		assignFields();
-		
+
 		final Grid<Authentication> userGrid = userGrid();
-		
+
 		assertNotNull(userGrid);
-		
-		final Collection<Authentication> users = fetchAll(userGrid);
-		
+
+		final Collection<Authentication> users = fetchAll(userGrid.getDataProvider());
+
 		assertEquals(2, users.size());
-		
-		
+
 		final Button deleteButton = deleteUserButton();
 		assertNotNull(deleteButton);
 		assertFalse(deleteButton.getParent().isPresent());
-		
+
 		assertFalse(deleteButton.isEnabled());
-		
+
 		final HorizontalLayout editorLayout = editorLayout();
 		assertNotNull(editorLayout);
-		
+
 		assertFalse(editorLayout.isVisible());
-		
-		
+
 		final Label infoLabel = infoLabel();
 		assertNotNull(infoLabel);
 		assertFalse(infoLabel.isVisible());
-		
-		
-		
-		
-		
-		
+
 		final ComboBox<?> roleCombobox = roleComboBox();
 		assertNotNull(roleCombobox);
 		assertFalse(roleCombobox.getParent().isPresent());
-		
+
 		final Button addRoleButton = addRoleButton();
 		assertNotNull(addRoleButton);
 		assertFalse(addRoleButton.getParent().isPresent());
-		
+
 		final Button deleteRoleButton = deleteRoleButton();
 		assertNotNull(deleteRoleButton);
 		assertFalse(deleteRoleButton.getParent().isPresent());
-		
+
 		final Button saveRolesButton = saveRolesButton();
 		assertNotNull(saveRolesButton);
 		assertFalse(saveRolesButton.getParent().isPresent());
 	}
-
 
 	private HorizontalLayout editorLayout() {
 		final HorizontalLayout editorLayout = (HorizontalLayout) fields.get("editorLayout");
 		return editorLayout;
 	}
 
-
 	private Label infoLabel() {
 		final Label infoLabel = (Label) fields.get("infoLabel");
 		return infoLabel;
 	}
-
 
 	private Button deleteUserButton() {
 		final Button deleteButton = (Button) fields.get("deleteUserButton");
 		return deleteButton;
 	}
 
-
-	private <T> Collection<T> fetchAll(final Grid<T> userGrid) {
-		return (Collection<T>) userGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+	private <T> Collection<T> fetchAll(final DataProvider<T, ?> dataProvider) {
+		return (Collection<T>) dataProvider.fetch(new Query<>()).collect(Collectors.toList());
 	}
-
 
 	@SuppressWarnings("unchecked")
-	private <T>  Grid<T> userGrid() {
+	private <T> Grid<T> userGrid() {
 		return (Grid<T>) fields.get("userGrid");
-		
+
 	}
-	
+
 	@Test
 	void userNameValueProvider() {
 		Mockito.doReturn(USER_NAME).when(authentication).username();
 		assertEquals(USER_NAME, userView.userNameValueProvider().apply(authentication));
 	}
+
 	@Test
 	void authorityProvider() {
 		assertEquals(Authority.Systemvariables.name(), userView.authorityProvider().apply(Authority.Systemvariables));
 	}
-	
+
 	@Test
 	void assign() {
 		final Grid<Authentication> userGrid = userGrid();
 		assertNotNull(userGrid);
-		
-		final Collection<Authentication> users = fetchAll(userGrid);
-		
+
+		final Collection<Authentication> users = fetchAll(userGrid.getDataProvider());
+
 		assertEquals(2, users.size());
 		userGrid.select(user);
-		
-		 Mockito.verify(userModel).assign(user);
+
+		Mockito.verify(userModel).assign(user);
 	}
+
 	@Test
 	void selectionChangedObserver() {
-	
+
 		final Label infoLabel = infoLabel();
 		assertNotNull(infoLabel);
 		infoLabel.setVisible(false);
-		
-		final Label changeInfoLabel = changeInfoLabel(); 
+
+		final Label changeInfoLabel = changeInfoLabel();
 		assertNotNull(changeInfoLabel);
 		changeInfoLabel.setText(I18N_CHANGE_INFO_LABEL);
-		
+
 		final TextField nameTextField = nameTextField();
 		assertNotNull(nameTextField);
 		assertFalse(nameTextField.isReadOnly());
 		nameTextField.setInvalid(true);
-		
+
 		final Button deleteUserButton = deleteUserButton();
 		assertNotNull(deleteUserButton);
 		assertFalse(deleteUserButton.isEnabled());
-		
+
 		final Button saveRolesButton = saveRolesButton();
 		assertNotNull(saveRolesButton);
 		assertFalse(saveRolesButton.isEnabled());
-		
+
 		final HorizontalLayout editorLayout = editorLayout();
 		assertNotNull(editorLayout);
 		editorLayout.setVisible(false);
-		
+
 		final Grid<Authority> authorityGrid = authorityGrid();
 		assertNotNull(authorityGrid);
 		assertFalse(authorityGrid.getParent().isPresent());
-		
+
 		Mockito.doReturn(Optional.of(user)).when(userModel).authentication();
 		Mockito.doReturn(USER_NAME).when(user).username();
-		
+
 		observers.get(UserModel.Events.SeclectionChanged).process();
-		
-		
+
 		assertEquals(I18N_CHANGE_INFO_LABEL, infoLabel.getText());
 		assertTrue(infoLabel.isVisible());
 		assertTrue(editorLayout.isVisible());
 		assertTrue(authorityGrid.getParent().isPresent());
-		assertEquals(USER_NAME,nameTextField.getValue());
+		assertEquals(USER_NAME, nameTextField.getValue());
 		assertTrue(nameTextField.isReadOnly());
 		assertTrue(deleteUserButton.isEnabled());
 		assertTrue(saveRolesButton.isEnabled());
 		assertFalse(nameTextField.isInvalid());
 	}
 
-
 	private Label changeInfoLabel() {
-		return  (Label) fields.get("changeInfoLabel");
+		return (Label) fields.get("changeInfoLabel");
 	}
-
 
 	@SuppressWarnings("unchecked")
 	private Grid<Authority> authorityGrid() {
-	return  (Grid<Authority>) fields.get("authorityGrid");
-		
-	}
+		return (Grid<Authority>) fields.get("authorityGrid");
 
+	}
 
 	private TextField nameTextField() {
 		final TextField nameTextField = (TextField) fields.get("nameTextField");
 		return nameTextField;
 	}
-	
-	
+
 	@Test
 	void selectionChangedObserverUserNotSelected() {
-	
+
 		final Label infoLabel = infoLabel();
 		assertNotNull(infoLabel);
 		infoLabel.setVisible(false);
-		
+
 		final Label newInfoLabel = newInfoLabel();
 		assertNotNull(newInfoLabel);
-		
+
 		newInfoLabel.setText(I18N_NEW_INFO_LABEL);
-		
-		
+
 		final TextField nameTextField = nameTextField();
 		assertNotNull(nameTextField);
 		nameTextField.setValue(USER_NAME);
 		nameTextField.setReadOnly(true);
 		nameTextField.setInvalid(true);
-		
+
 		final Button deleteUserButton = deleteUserButton();
 		assertNotNull(deleteUserButton);
 		deleteUserButton.setEnabled(true);
-		
+
 		final Button saveRolesButton = saveRolesButton();
 		assertNotNull(saveRolesButton);
 		saveRolesButton.setEnabled(true);
-		
+
 		final HorizontalLayout editorLayout = editorLayout();
 		assertNotNull(editorLayout);
 		editorLayout.setVisible(false);
-		
+
 		final Grid<Authority> authorityGrid = authorityGrid();
 		assertNotNull(authorityGrid);
-		
-		
-		final HorizontalLayout layout = layout();;
+
+		final HorizontalLayout layout = layout();
+		;
 		assertNotNull(authorityGrid);
 		layout.add(authorityGrid);
-		
+
 		Mockito.doReturn(Optional.empty()).when(userModel).authentication();
-		
-		
+
 		observers.get(UserModel.Events.SeclectionChanged).process();
-		
-		
+
 		assertEquals(I18N_NEW_INFO_LABEL, infoLabel.getText());
 		assertTrue(infoLabel.isVisible());
 		assertTrue(editorLayout.isVisible());
@@ -406,87 +380,215 @@ class UsersViewTest {
 		assertFalse(nameTextField.isInvalid());
 	}
 
-
 	private Label newInfoLabel() {
 		final Label newInfoLabel = (Label) fields.get("newInfoLabel");
 		return newInfoLabel;
 	}
 
-
 	private HorizontalLayout layout() {
 		return (HorizontalLayout) fields.get("layout");
 	}
-	
+
 	@Test
 	void authoritiesChanged() {
-		Mockito.doReturn(Arrays.asList(Authority.Systemvariables, Authority.Users)).when(userModel).authorities();		
-		
+		Mockito.doReturn(Arrays.asList(Authority.Systemvariables, Authority.Users)).when(userModel).authorities();
+
 		final ComboBox<Authority> roleComboBox = roleComboBox();
 		assertNotNull(roleComboBox);
-		assertEquals(Authority.values().length, roleComboBox.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).size());
+		assertEquals(Authority.values().length,
+				roleComboBox.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).size());
 		roleComboBox.setValue(Authority.Systemvariables);
-		
-		final Grid<Authority> authorityGrid =authorityGrid();
+
+		final Grid<Authority> authorityGrid = authorityGrid();
 		assertNotNull(authorityGrid);
 		assertEquals(0, authorityGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()).size());
-	
+
 		observers.get(UserModel.Events.AuthoritiesChanged).process();
-		
-		assertEquals(Arrays.asList(Authority.values()), authorityGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
+
+		assertEquals(Arrays.asList(Authority.values()),
+				authorityGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
 		assertNull(roleComboBox.getValue());
-		
+
 	}
-	
-	
+
 	@Test
-	void  changeUser() {
+	void changeUser() {
 		final TextField nameTextField = nameTextField();
 		assertNotNull(nameTextField);
 		nameTextField.setValue(USER_NAME);
 		nameTextField.setInvalid(true);
-		
+
 		final TextField passwordTextField = passwordTextField();
 		assertNotNull(passwordTextField);
 		passwordTextField.setValue(PASSWORD);
 		passwordTextField.setInvalid(true);
-		
+
 		final Button saveButton = saveButton();
 		assertNotNull(saveButton);
-		
+
 		Mockito.doReturn(Optional.of(authentication)).when(userModel).authentication();
 		Mockito.doReturn(USER_NAME).when(userModel).login();
 		Mockito.doReturn(PASSWORD).when(userModel).password();
-		
+
 		listener(saveButton).onComponentEvent(null);
-		
+
 		Mockito.verify(userModel).assignLogin(USER_NAME);
 		Mockito.verify(userModel).assignPassword(PASSWORD);
 		Mockito.verify(authentificationService).changePassword(USER_NAME, PASSWORD);
-		
+
 		assertTrue(passwordTextField.getValue().isEmpty());
 		assertFalse(passwordTextField.isInvalid());
 		assertFalse(nameTextField.isInvalid());
 	}
-
 
 	private Button saveButton() {
 		final Button saveButton = (Button) fields.get("saveButton");
 		return saveButton;
 	}
 
+	@Test
+	void changeUserNew() {
+		final Grid<Authentication> userGrid = userGrid();
+		assertNotNull(userGrid);
+		userGrid.setItems(Arrays.asList());
+
+		final TextField nameTextField = nameTextField();
+		assertNotNull(nameTextField);
+		nameTextField.setValue(USER_NAME);
+		nameTextField.setInvalid(true);
+
+		final TextField passwordTextField = passwordTextField();
+		assertNotNull(passwordTextField);
+		passwordTextField.setValue(PASSWORD);
+		passwordTextField.setInvalid(true);
+
+		final Button saveButton = saveButton();
+		assertNotNull(saveButton);
+
+		Mockito.doReturn(Optional.empty()).when(userModel).authentication();
+		Mockito.doReturn(USER_NAME).when(userModel).login();
+		Mockito.doReturn(PASSWORD).when(userModel).password();
+
+		Mockito.doReturn(true).when(authentificationService).create(USER_NAME, PASSWORD);
+		listener(saveButton).onComponentEvent(null);
+
+		Mockito.verify(userModel).assignLogin(USER_NAME);
+		Mockito.verify(userModel).assignPassword(PASSWORD);
+		Mockito.verify(authentificationService).create(USER_NAME, PASSWORD);
+
+		assertTrue(passwordTextField.getValue().isEmpty());
+		assertFalse(passwordTextField.isInvalid());
+		assertFalse(nameTextField.isInvalid());
+
+		assertEquals(Arrays.asList(user, otherUser), fetchAll(userGrid.getDataProvider()));
+	}
 
 	private TextField passwordTextField() {
 		final TextField passwordTextField = (TextField) fields.get("passwordTextField");
 		return passwordTextField;
 	}
 
-
-	
 	@SuppressWarnings("unchecked")
 	private ComponentEventListener<?> listener(final Button saveButton) {
 		final ComponentEventBus eventBus = (ComponentEventBus) ReflectionTestUtils.getField(saveButton, "eventBus");
 		final Map<Class<?>, ?> map = (Map<Class<?>, ?>) ReflectionTestUtils.getField(eventBus, "componentEventData");
-		return DataAccessUtils.requiredSingleResult((Collection<ComponentEventListener<?>>) ReflectionTestUtils.getField(map.values().iterator().next(), "listeners"));
+		return DataAccessUtils.requiredSingleResult((Collection<ComponentEventListener<?>>) ReflectionTestUtils
+				.getField(map.values().iterator().next(), "listeners"));
+	}
+
+	@Test
+	void changeUserNewAlreadyExists() {
+		final Label userAlreadyExists = userAlreadyExists();
+		assertNotNull(userAlreadyExists);
+		userAlreadyExists.setText(I18N_USER_EXISTS);
+
+		final TextField nameTextField = nameTextField();
+		assertNotNull(nameTextField);
+		nameTextField.setValue(USER_NAME);
+
+		final TextField passwordTextField = passwordTextField();
+		assertNotNull(passwordTextField);
+		passwordTextField.setValue(PASSWORD);
+
+		final Button saveButton = saveButton();
+		assertNotNull(saveButton);
+
+		Mockito.doReturn(Optional.empty()).when(userModel).authentication();
+		Mockito.doReturn(USER_NAME).when(userModel).login();
+		Mockito.doReturn(PASSWORD).when(userModel).password();
+
+		Mockito.doReturn(false).when(authentificationService).create(USER_NAME, PASSWORD);
+		listener(saveButton).onComponentEvent(null);
+
+		Mockito.verify(userModel).assignLogin(USER_NAME);
+		Mockito.verify(userModel).assignPassword(PASSWORD);
+		Mockito.verify(authentificationService).create(USER_NAME, PASSWORD);
+
+		assertEquals(I18N_USER_EXISTS, nameTextField.getErrorMessage());
+		assertTrue(nameTextField.isInvalid());
+
+	}
+
+	private Label userAlreadyExists() {
+		final Label userAlreadyExists = (Label) fields.get("userAlreadyExists");
+		return userAlreadyExists;
+	}
+
+	@Test
+	void changeUserInvalid() {
+		final TextField nameTextField = nameTextField();
+		assertNotNull(nameTextField);
+
+		final TextField passwordTextField = passwordTextField();
+		assertNotNull(passwordTextField);
+
+		final Button saveButton = saveButton();
+		assertNotNull(saveButton);
+
+		Mockito.doReturn(Optional.of(authentication)).when(userModel).authentication();
+		Mockito.doReturn(USER_NAME).when(userModel).login();
+		Mockito.doReturn(PASSWORD).when(userModel).password();
+
+		listener(saveButton).onComponentEvent(null);
+
+		Mockito.verify(userModel, Mockito.never()).assignLogin(Mockito.any());
+		Mockito.verify(userModel, Mockito.never()).assignPassword(Mockito.any());
+		Mockito.verify(authentificationService, Mockito.never()).changePassword(Mockito.any(), Mockito.any());
+
+		assertTrue(passwordTextField.isInvalid());
+		assertTrue(nameTextField.isInvalid());
+	}
+
+	@Test
+	void deleteUser() {
+		final Button deleteUserButton = deleteUserButton();
+		assertNotNull(deleteUserButton);
+
+		final Grid<Authentication> userGrid = userGrid();
+		assertNotNull(userGrid);
+		userGrid.setItems(Arrays.asList());
+		Mockito.doReturn(USER_NAME).when(authentication).username();
+		Mockito.doReturn(Optional.of(authentication)).when(userModel).authentication();
+		listener(deleteUserButton).onComponentEvent(null);
+
+		Mockito.verify(authentificationService).delete(USER_NAME);
+
+		assertEquals(Arrays.asList(user, otherUser), fetchAll(userGrid.getDataProvider()));
+	}
+
+	@Test
+	void addRole() {
+		final Button addRoleButton = addRoleButton();
+		assertNotNull(addRoleButton);
+
+		final ComboBox<Authority> roleComboBox = roleComboBox();
+		assertNotNull(roleComboBox);
+
+		roleComboBox.setValue(Authority.Systemvariables);
+
+		listener(addRoleButton).onComponentEvent(null);
+
+		Mockito.verify(userModel).assign(Authority.Systemvariables);
 	}
 
 }
