@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.support.DataAccessUtils;
@@ -590,5 +591,25 @@ class UsersViewTest {
 
 		Mockito.verify(userModel).assign(Authority.Systemvariables);
 	}
+	
+	@Test
+	void deleteRole() {
+		final Button deleteRoleButton = deleteRoleButton();
+		assertNotNull(deleteRoleButton);
+		
+		final Grid<Authority> authorityGrid = authorityGrid();
+		authorityGrid.setItems((Arrays.asList(Authority.values())));
+		
+		authorityGrid.select(Authority.Systemvariables);
 
+		listener(deleteRoleButton).onComponentEvent(null);
+		
+		@SuppressWarnings("unchecked")
+		final ArgumentCaptor<Collection<Authority>> authorityCaptor = ArgumentCaptor.forClass(Collection.class);
+		
+		Mockito.verify(userModel).delete(authorityCaptor.capture());
+		assertEquals(1, authorityCaptor.getValue().size());
+		assertEquals(Authority.Systemvariables, authorityCaptor.getValue().stream().findAny().get());
+		
+	}
 }

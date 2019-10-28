@@ -141,9 +141,7 @@ class UsersView extends VerticalLayout implements LocalizeView {
 	
 		addRoleButton.addClickListener(event -> userModel.assign(roleCombobox.getValue()));
 		
-		deleteRoleButton.addClickListener(event -> {
-			userModel.delete(authorityGrid.getSelectedItems());
-		});
+		deleteRoleButton.addClickListener(event -> userModel.delete(authorityGrid.getSelectedItems()));
 		
 		
 		saveRolesButton.addClickListener(event -> saveRoles(authentificationService, userModel));
