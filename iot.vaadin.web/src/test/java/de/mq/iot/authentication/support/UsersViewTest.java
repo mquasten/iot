@@ -43,6 +43,7 @@ import de.mq.iot.support.ButtonBox;
 
 class UsersViewTest {
 
+	private static final String I18N_USERS_ADMIN_REQUIRED = "users_admin_required";
 	private static final String I18N_USER_EXISTS = "Bentzer bereits vorhanden";
 	private static final String PASSWORD = "fever";
 	private static final String I18N_NEW_INFO_LABEL = "Benutzer neu anlegen";
@@ -591,25 +592,86 @@ class UsersViewTest {
 
 		Mockito.verify(userModel).assign(Authority.Systemvariables);
 	}
-	
+
 	@Test
 	void deleteRole() {
 		final Button deleteRoleButton = deleteRoleButton();
 		assertNotNull(deleteRoleButton);
-		
+
 		final Grid<Authority> authorityGrid = authorityGrid();
 		authorityGrid.setItems((Arrays.asList(Authority.values())));
-		
+
 		authorityGrid.select(Authority.Systemvariables);
 
 		listener(deleteRoleButton).onComponentEvent(null);
-		
+
 		@SuppressWarnings("unchecked")
 		final ArgumentCaptor<Collection<Authority>> authorityCaptor = ArgumentCaptor.forClass(Collection.class);
-		
+
 		Mockito.verify(userModel).delete(authorityCaptor.capture());
 		assertEquals(1, authorityCaptor.getValue().size());
 		assertEquals(Authority.Systemvariables, authorityCaptor.getValue().stream().findAny().get());
-		
+
 	}
+
+	@Test
+	void saveRoles() {
+
+		Mockito.doReturn(Optional.of(authentication)).when(userModel).authentication();
+		Mockito.when(authentication.username()).thenReturn(USER_NAME);
+		Mockito.when(userModel.authorities()).thenReturn(Arrays.asList(Authority.values()));
+		Mockito.doReturn(true).when(authentificationService).changeAuthorities(USER_NAME,
+				Arrays.asList(Authority.values()));
+		final Button saveRolesButton = saveRolesButton();
+		assertNotNull(saveRolesButton);
+
+		final Grid<Authentication> userGrid = userGrid();
+		assertNotNull(userGrid);
+		userGrid.setItems(Arrays.asList());
+
+		listener(saveRolesButton).onComponentEvent(null);
+
+		assertEquals(Arrays.asList(user, otherUser), fetchAll(userGrid.getDataProvider()));
+		Mockito.verify(userModel).assign((Authentication) null);
+
+	}
+
+	@Test
+	void saveRolesNoAdminUser() {
+
+		Mockito.doReturn(Optional.of(authentication)).when(userModel).authentication();
+		Mockito.when(authentication.username()).thenReturn(USER_NAME);
+		Mockito.when(userModel.authorities()).thenReturn(Arrays.asList(Authority.Systemvariables));
+
+		final Button saveRolesButton = saveRolesButton();
+		assertNotNull(saveRolesButton);
+
+		final Label noAdminUserLabel = (Label) fields.get("noAdminUserLabel");
+		assertNotNull(noAdminUserLabel);
+		noAdminUserLabel.setText(I18N_USERS_ADMIN_REQUIRED);
+
+		listener(saveRolesButton).onComponentEvent(null);
+
+		notificationDialog.showError(I18N_USERS_ADMIN_REQUIRED);
+
+	}
+
+	@Test
+	void deleteRoleButtonEnabled() {
+		final Button deleteRoleButton = deleteRoleButton();
+		assertNotNull(deleteRoleButton);
+		assertFalse(deleteRoleButton.isEnabled());
+
+		final Grid<Authority> authorityGrid = authorityGrid();
+		assertNotNull(authorityGrid);
+		authorityGrid.setItems(Arrays.asList(Authority.values()));
+		authorityGrid.select(Authority.Systemvariables);
+
+		assertTrue(deleteRoleButton.isEnabled());
+
+		authorityGrid.deselect(Authority.Systemvariables);
+
+		assertFalse(deleteRoleButton.isEnabled());
+	}
+
 }

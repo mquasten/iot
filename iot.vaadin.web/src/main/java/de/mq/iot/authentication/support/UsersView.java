@@ -157,12 +157,13 @@ class UsersView extends VerticalLayout implements LocalizeView {
 	
 	private void saveRoles(final AuthentificationService authentificationService, final UserModel userModel) {
 		userModel.authentication().ifPresent(authentication -> {
+			
+			
 			final boolean saved = authentificationService.changeAuthorities(authentication.username(), userModel.authorities());
 			
 			if( saved) {
 				userModel.assign((Authentication) null); 
 			
-		
 				userGrid.setItems(authentificationService.authentifications());
 			
 			
@@ -342,9 +343,7 @@ class UsersView extends VerticalLayout implements LocalizeView {
 		roleCombobox.addValueChangeListener(event ->  addRoleButton.setEnabled(userModel.authorityCanGranted(event.getValue())));
 
 		
-		authorityGrid.asSingleSelect().addValueChangeListener(selectionEvent -> {
-			deleteRoleButton.setEnabled(selectionEvent.getValue() != null);
-		});
+		authorityGrid.asSingleSelect().addValueChangeListener(selectionEvent -> deleteRoleButton.setEnabled(selectionEvent.getValue() != null));
 	
 	
 	}
