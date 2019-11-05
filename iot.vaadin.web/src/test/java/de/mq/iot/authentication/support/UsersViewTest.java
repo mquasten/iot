@@ -11,6 +11,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,6 +44,12 @@ import de.mq.iot.support.ButtonBox;
 
 class UsersViewTest {
 
+	private static final String I18N_INFO_CHANGE_LABEL = "info_change";
+	private static final String I18N_EXISTS_LABEL = "exists";
+	private static final String I18N_REQUIRED_LABEL = "required";
+	private static final String I18N_SAVE_ROLES = "save_roles";
+	private static final String I18N_SAVE_USERS = "save_users";
+	private static final String I18N_NAME_LABEL = "name";
 	private static final String I18N_USERS_ADMIN_REQUIRED = "users_admin_required";
 	private static final String I18N_USER_EXISTS = "Bentzer bereits vorhanden";
 	private static final String PASSWORD = "fever";
@@ -672,6 +679,51 @@ class UsersViewTest {
 		authorityGrid.deselect(Authority.Systemvariables);
 
 		assertFalse(deleteRoleButton.isEnabled());
+	}
+	@Test
+	void i18n() {
+		
+		
+		final Label nameLabel = nameLabel();
+		assertNotNull(nameLabel);
+		final Button saveUsersButton = saveButton();
+		assertNotNull(saveUsersButton);
+		final Button saveRolesButton = saveRolesButton();
+		assertNotNull(saveRolesButton);
+		final Label mandatoryLabel = mandatoryLabel();
+		assertNotNull(mandatoryLabel);
+		final Label userAlreadyExists = userAlreadyExists();
+		assertNotNull(userAlreadyExists);
+		final Label changeInfoLabel = changeInfoLabel();
+		assertNotNull(changeInfoLabel);
+	
+		final Observer observer = observers.get(UserModel.Events.ChangeLocale);
+		assertNotNull(observer);
+		Arrays.asList(I18N_NAME_LABEL, I18N_SAVE_USERS, I18N_SAVE_ROLES, I18N_REQUIRED_LABEL, I18N_EXISTS_LABEL, I18N_INFO_CHANGE_LABEL).forEach(key -> {
+			Mockito.doReturn(key).when(messageSource).getMessage("users_"+ key, null, "???", Locale.GERMAN);
+		});
+
+		Mockito.doReturn(Locale.GERMAN).when(userModel).locale();
+	
+		observer.process();
+		
+		assertEquals(I18N_NAME_LABEL, nameLabel.getText());
+		assertEquals(I18N_SAVE_USERS,saveUsersButton.getText());
+		assertEquals(I18N_SAVE_ROLES, saveRolesButton.getText());
+		assertEquals(I18N_REQUIRED_LABEL, mandatoryLabel.getText());
+		assertEquals(I18N_EXISTS_LABEL, userAlreadyExists.getText());
+		assertEquals(I18N_INFO_CHANGE_LABEL,changeInfoLabel.getText());
+		
+	}
+
+	private Label mandatoryLabel() {
+		final Label mandatoryLabel = (Label) fields.get("mandatoryLabel");
+		return mandatoryLabel;
+	}
+
+	private Label nameLabel() {
+		final Label nameLabel = (Label) fields.get("nameLabel");
+		return nameLabel;
 	}
 
 }
