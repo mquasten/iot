@@ -44,6 +44,11 @@ import de.mq.iot.support.ButtonBox;
 
 class UsersViewTest {
 
+	private static final String I18N_PASSWORD_LABEL = "password";
+	private static final String I18N_USER_COLUMN = "user_column";
+	private static final String I18N_ADMIN_REQUIRED = "admin_required";
+	private static final String I18N_ROLES_COLUMN = "roles_column";
+	private static final String I18N_INFO_NEW_LABEL = "info_new";
 	private static final String I18N_INFO_CHANGE_LABEL = "info_change";
 	private static final String I18N_EXISTS_LABEL = "exists";
 	private static final String I18N_REQUIRED_LABEL = "required";
@@ -696,10 +701,22 @@ class UsersViewTest {
 		assertNotNull(userAlreadyExists);
 		final Label changeInfoLabel = changeInfoLabel();
 		assertNotNull(changeInfoLabel);
-	
+		final Label newInfoLabel = newInfoLabel();
+		assertNotNull(newInfoLabel);
+		final Label infoLabel = infoLabel();
+		assertNotNull(infoLabel);
+		final Label rolesColumnLabel = rolesColumnLabel();
+		assertNotNull(rolesColumnLabel);
+		final Label noAdminUserLabel = noAdminUserLabel();
+		assertNotNull(noAdminUserLabel);
+		final Label userColumnLabel = userColumnLabel();
+		assertNotNull(userColumnLabel);
+		final Label passwordLabel = passwordLabel();
+		assertNotNull(passwordLabel);
+		
 		final Observer observer = observers.get(UserModel.Events.ChangeLocale);
 		assertNotNull(observer);
-		Arrays.asList(I18N_NAME_LABEL, I18N_SAVE_USERS, I18N_SAVE_ROLES, I18N_REQUIRED_LABEL, I18N_EXISTS_LABEL, I18N_INFO_CHANGE_LABEL).forEach(key -> {
+		Arrays.asList(I18N_NAME_LABEL, I18N_SAVE_USERS, I18N_SAVE_ROLES, I18N_REQUIRED_LABEL, I18N_EXISTS_LABEL, I18N_INFO_CHANGE_LABEL, I18N_INFO_NEW_LABEL, I18N_ROLES_COLUMN, I18N_ADMIN_REQUIRED, I18N_USER_COLUMN, I18N_PASSWORD_LABEL).forEach(key -> {
 			Mockito.doReturn(key).when(messageSource).getMessage("users_"+ key, null, "???", Locale.GERMAN);
 		});
 
@@ -713,7 +730,34 @@ class UsersViewTest {
 		assertEquals(I18N_REQUIRED_LABEL, mandatoryLabel.getText());
 		assertEquals(I18N_EXISTS_LABEL, userAlreadyExists.getText());
 		assertEquals(I18N_INFO_CHANGE_LABEL,changeInfoLabel.getText());
+		assertEquals(I18N_INFO_NEW_LABEL, newInfoLabel.getText());
+		assertEquals(I18N_INFO_NEW_LABEL, infoLabel.getText());
+		assertEquals(I18N_ROLES_COLUMN, rolesColumnLabel.getText());
+		assertEquals(I18N_ADMIN_REQUIRED, noAdminUserLabel.getText());
+		assertEquals(I18N_USER_COLUMN, userColumnLabel.getText());
+		assertEquals(I18N_PASSWORD_LABEL, passwordLabel.getText());
 		
+	}
+
+	private Label passwordLabel() {
+		final Label passwordLabel = (Label) fields.get("passwordLabel");
+		return passwordLabel;
+	}
+
+	private Label userColumnLabel() {
+		final Label userColumnLabel = (Label) fields.get("userColumnLabel");
+		return userColumnLabel;
+	}
+
+	private Label noAdminUserLabel() {
+		final Label noAdminUserLabel = (Label) fields.get("noAdminUserLabel");
+		return noAdminUserLabel;
+	}
+
+	private Label rolesColumnLabel() {
+		final Label rolesColumnLabel = (Label) fields.get("rolesColumnLabel");
+		assertNotNull(rolesColumnLabel);
+		return rolesColumnLabel;
 	}
 
 	private Label mandatoryLabel() {
