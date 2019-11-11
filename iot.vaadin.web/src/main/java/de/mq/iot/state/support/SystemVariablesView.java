@@ -99,7 +99,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		this.stateService=stateService;
 		this.messageSource=messageSource;
 		this.notificationDialog=notificationDialog;
-		createUI(stateService, buttonBox);	
+		createUI(stateModel, stateService, buttonBox);	
 		grid.asSingleSelect().addValueChangeListener(selectionEvent -> stateModel.assign(selectionEvent.getValue()));
 		stateModel.register(StateModel.Events.AssignState, () ->  assignState(stateModel));	
 		initStateCommands(stateModel);
@@ -228,9 +228,11 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 		
 	}
 
-	private void createUI(final StateService stateService, final ButtonBox buttonBox) {
+	private void createUI(final StateModel stateModel,final StateService stateService, final ButtonBox buttonBox) {
 				
+		
 	
+		saveButton.setVisible(stateModel.isChangeVariableAllowed());
 		saveButton.setEnabled(false);
 		resetButton.setEnabled(false);
 		
@@ -309,17 +311,13 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 	}
 
 
-	
 	private void assignState(final StateModel stateModel) {
 		if(stateModel.selectedState().isPresent()) {
 			nameTextField.setValue(stateModel.selectedState().get().name());
 			lastUpdateTextField.setValue(stateModel.selectedState().get().lastupdate().toString());
 			final Optional<Consumer<StateModel>> consumer = Optional.ofNullable(stateCommands.get(stateModel.selectedState().get().getClass()));
-			
-			
-			
 			consumer.orElse( value -> initTextValueField(stateModel)).accept(stateModel);
-			
+			saveButton.setVisible(stateModel.isChangeVariableAllowed());
 			saveButton.setEnabled(true);
 			resetButton.setEnabled(true);
 			return;

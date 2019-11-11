@@ -82,6 +82,7 @@ class SystemVariablesViewTest {
 		
 		Mockito.when(converter.convert(Mockito.any())).thenReturn(STATE_VALUE);
 		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(workingDayState));
+	
 		final Map<Integer, String> values = new HashMap<>();
 		values.put(Integer.valueOf(0), "Winter");
 		values.put(Integer.valueOf(1), "Summer");
@@ -169,7 +170,7 @@ class SystemVariablesViewTest {
 
 	@Test
 	void selectRow() {
-
+		
 		@SuppressWarnings("unchecked")
 		final Grid<State<Boolean>> grid = (Grid<State<Boolean>>) fields.get("grid");
 
@@ -274,6 +275,8 @@ class SystemVariablesViewTest {
 
 		Mockito.verify(stateModel).assign(doubleState);
 
+		
+		
 		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(doubleState));
 		final String[] parameters = new String[] { doubleState.getClass().getSimpleName(), "4711", "" };
 		Mockito.doReturn(parameters).when(stateModel).stateInfoParameters();

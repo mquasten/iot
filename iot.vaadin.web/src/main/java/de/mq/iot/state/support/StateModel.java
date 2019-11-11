@@ -30,5 +30,6 @@ interface StateModel extends Subject<StateModel.Events, StateModel> , LocaleAwar
 	
 	<T>  State<T> convert(Object value);
 	
-	String[] stateInfoParameters(); 
+	String[] stateInfoParameters();
+	boolean isChangeVariableAllowed(); 
 }

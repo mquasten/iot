@@ -13,6 +13,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.util.ReflectionUtils;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 import de.mq.iot.state.State;
@@ -149,5 +151,16 @@ class StateModelImpl implements StateModel {
 	public Locale locale() {
 		return Locale.GERMAN;
 	}
+	
+	@Override
+	public boolean isChangeVariableAllowed() {
+		final Optional<Authentication> authentication = subject.currentUser();
+		if ( ! authentication.isPresent()) {
+			return false;
+		}
+		
+		return authentication.get().hasRole(Authority.Systemvariables);
+	}
+
 
 }
