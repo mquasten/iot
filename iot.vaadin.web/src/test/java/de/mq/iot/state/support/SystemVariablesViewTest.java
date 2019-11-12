@@ -2,6 +2,7 @@ package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Modifier;
@@ -79,7 +80,7 @@ class SystemVariablesViewTest {
 	
 	@BeforeEach
 	void setup() {
-		
+	
 		Mockito.when(converter.convert(Mockito.any())).thenReturn(STATE_VALUE);
 		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(workingDayState));
 	
@@ -122,6 +123,8 @@ class SystemVariablesViewTest {
 		final Button saveButton = (Button) fields.get("saveButton");
 		assertEquals(I18N_SAVE_BUTTON, saveButton.getText());
 		assertFalse(saveButton.isEnabled());
+		
+		assertFalse(saveButton.isVisible());
 
 		final Button resetButton = (Button) fields.get("resetButton");
 		assertEquals(I18N_RESET_BUTTON, resetButton.getText());
@@ -182,6 +185,8 @@ class SystemVariablesViewTest {
 		final String[] parameters = new String[] { workingDayState.getClass().getSimpleName(), "4711", "" };
 		Mockito.doReturn(parameters).when(stateModel).stateInfoParameters();
 		Mockito.doReturn(I18N_INFO_LABEL_VALUE_BOOLEAN).when(messageSource).getMessage(SystemVariablesView.I18N_INFO_LABEL_PATTERN, parameters, "???", Locale.GERMAN);
+		Mockito.when(stateModel.isChangeVariableAllowed()).thenReturn(true);
+		
 		workingDayState.assign(true);
 		observers.get(Events.AssignState).process();
 
@@ -220,7 +225,29 @@ class SystemVariablesViewTest {
 		final Label stateInfoLabel = (Label) fields.get("stateInfoLabel");
 
 		assertEquals(I18N_INFO_LABEL_VALUE_BOOLEAN, stateInfoLabel.getText());
+		
+		
+		assertTrue(saveButton.isVisible());
 
+	}
+	
+	@Test
+	void isChangeVariableAllowed() {
+		Mockito.when(stateModel.selectedState()).thenReturn(Optional.of(workingDayState));
+		@SuppressWarnings("unchecked")
+		final Grid<State<Boolean>> grid = (Grid<State<Boolean>>) fields.get("grid");
+		assertNotNull(grid);
+		final Button saveButton = (Button) fields.get("saveButton");
+		assertNotNull(saveButton);
+		assertEquals(I18N_SAVE_BUTTON, saveButton.getText());
+		grid.select(workingDayState);
+		
+		observers.get(Events.AssignState).process();
+		assertFalse(saveButton.isVisible());
+		
+		Mockito.when(stateModel.isChangeVariableAllowed()).thenReturn(true);
+		observers.get(Events.AssignState).process();
+		assertTrue(saveButton.isVisible());
 	}
 
 	@Test

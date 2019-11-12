@@ -312,6 +312,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 
 
 	private void assignState(final StateModel stateModel) {
+		
 		if(stateModel.selectedState().isPresent()) {
 			nameTextField.setValue(stateModel.selectedState().get().name());
 			lastUpdateTextField.setValue(stateModel.selectedState().get().lastupdate().toString());
@@ -323,7 +324,6 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 			return;
 		}
 	
-		//stateInfoLabel.setText("Variable bearbeiten");
 		nameTextField.setValue("");
 		lastUpdateTextField.setValue("");
 		lastUpdateTextField.setValue("");
