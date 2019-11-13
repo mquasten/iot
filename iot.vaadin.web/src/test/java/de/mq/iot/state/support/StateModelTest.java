@@ -1,6 +1,7 @@
 package de.mq.iot.state.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,6 +18,8 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 import de.mq.iot.state.State;
@@ -245,6 +248,22 @@ class StateModelTest {
 		assertEquals(Double.class.getSimpleName(), parameters[0]);
 		assertEquals("" + ID, parameters[1]);
 		assertEquals("[-1.0,1.0]", parameters[2]);
+	}
+	@Test
+	void isChangeVariableAllowed() {
+		
+		assertFalse(stateModel.isChangeVariableAllowed());
+		
+		final Authentication authentication = Mockito.mock(Authentication.class);
+		Mockito.when(authentication.hasRole(Authority.Systemvariables)).thenReturn(true);
+		Mockito.when(subject.currentUser()).thenReturn(Optional.of(authentication));
+		
+		assertTrue(stateModel.isChangeVariableAllowed());
+		
+		Mockito.when(authentication.hasRole(Authority.Systemvariables)).thenReturn(false);
+		
+		assertFalse(stateModel.isChangeVariableAllowed());
+		
 	}
 
 }
