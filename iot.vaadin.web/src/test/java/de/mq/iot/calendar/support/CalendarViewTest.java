@@ -27,7 +27,6 @@ import org.springframework.util.StringUtils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventBus;
 import com.vaadin.flow.component.ComponentEventListener;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
@@ -76,6 +75,8 @@ class CalendarViewTest {
 	
 	@BeforeEach
 	void setup() {
+		
+		Mockito.when(calendarModel.isChangeCalendarAllowed()).thenReturn(true);
 		Mockito.when(calendarModel.locale()).thenReturn(Locale.GERMAN);
 		Arrays.asList(I18N_CALENDAR_DELETE_RANGE, I18N_CALENDAR_ADD_RANGE, I18N_CALENDAR_TABLE_HEADER, I18N_CALENDAR_INFO, I18N_CALENDAR_RANGE_FROM,I18N_CALENDAR_RANGE_TO , I18N_CALENDAR_VALIDATION + ValidationErrors.Invalid.name().toLowerCase()).forEach(key -> Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN));
 		
@@ -157,6 +158,19 @@ class CalendarViewTest {
 		assertEquals(I18N_CALENDAR_RANGE_FROM, fromLabel.getText());
 		assertEquals(I18N_CALENDAR_RANGE_TO, toLabel.getText());
 		
+		
+		
+		
+		assertTrue(getEditorLayout(saveButton).isVisible());
+		assertTrue(stateInfoLabel.isVisible());
+		
+	}
+
+
+	private Component getEditorLayout(final Button saveButton) {
+		assertTrue(saveButton.getParent().isPresent());
+		assertTrue(saveButton.getParent().get().getParent().isPresent());
+		return saveButton.getParent().get().getParent().get();
 	}
 	
 	@Test

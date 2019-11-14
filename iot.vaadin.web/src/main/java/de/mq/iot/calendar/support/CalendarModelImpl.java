@@ -10,6 +10,8 @@ import java.util.function.Predicate;
 
 import org.springframework.util.StringUtils;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.Authority;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
@@ -170,6 +172,17 @@ public class CalendarModelImpl  implements CalendarModel  {
 	public void assign(CalendarModel.Filter filter) {
 		this.filter=filter;
 		notifyObservers(Events.DatesChanged);
+	}
+
+
+	@Override
+	public boolean isChangeCalendarAllowed() {
+		Optional<Authentication> authentication = subject.currentUser();
+		if( ! authentication.isPresent() ) {
+			return false;	
+		}
+		return authentication.get().hasRole(Authority.Calendar);
+		
 	}
 	
 	

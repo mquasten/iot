@@ -120,6 +120,9 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		editorLayout.setVerticalComponentAlignment(Alignment.CENTER, buttonLayout);
 
 		editorLayout.setSizeFull();
+		
+		setVisibleIfCalendarRoleAware(editorLayout);
+		
 
 		grid.setSelectionMode(SelectionMode.SINGLE);
 
@@ -204,6 +207,11 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		saveButton.addClickListener(event -> process(specialday -> specialdayService.save(specialday), specialdayService)); 
 		calendarModel.assign(CalendarModel.Filter.All);
 			
+	}
+
+	private void setVisibleIfCalendarRoleAware(final HorizontalLayout editorLayout) {
+		editorLayout.setVisible(calendarModel.isChangeCalendarAllowed());
+		stateInfoLabel.setVisible(calendarModel.isChangeCalendarAllowed());
 	}
 
 	private void process(final Consumer<Specialday> consumer, final SpecialdayService specialdayService) {

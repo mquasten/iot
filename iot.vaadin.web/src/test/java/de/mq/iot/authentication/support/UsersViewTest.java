@@ -419,7 +419,7 @@ class UsersViewTest {
 
 		observers.get(UserModel.Events.AuthoritiesChanged).process();
 
-		assertEquals(Arrays.asList(Authority.values()),
+		assertEquals(Arrays.asList(Authority.Systemvariables, Authority.Users),
 				authorityGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
 		assertNull(roleComboBox.getValue());
 

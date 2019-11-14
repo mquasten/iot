@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.Authority;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.support.CalendarModel.Events;
 import de.mq.iot.calendar.support.CalendarModel.Filter;
@@ -237,6 +239,23 @@ class CalendarModelTest {
 		assertTrue(calendarModel.filter().test(specialday));
 		
 		Mockito.verify(subject).notifyObservers(Events.DatesChanged);
+	}
+	
+	@Test
+	void isChangeVariableAllowed() {
+		
+		assertFalse(calendarModel.isChangeCalendarAllowed());
+		
+		final Authentication authentication = Mockito.mock(Authentication.class);
+		Mockito.when(authentication.hasRole(Authority.Calendar)).thenReturn(true);
+		Mockito.when(subject.currentUser()).thenReturn(Optional.of(authentication));
+		
+		assertTrue(calendarModel.isChangeCalendarAllowed());
+		
+		Mockito.when(authentication.hasRole(Authority.Calendar)).thenReturn(false);
+		
+		assertFalse(calendarModel.isChangeCalendarAllowed());
+		
 	}
 	
 }

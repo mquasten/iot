@@ -49,4 +49,6 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 	Predicate<Specialday> filter();
 
 	void assign(Filter filter);
+
+	boolean isChangeCalendarAllowed();
 }
