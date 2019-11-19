@@ -17,6 +17,8 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 import de.mq.iot.state.Room;
@@ -269,6 +271,17 @@ private final ConversionService conversionService;
 		this.deviceSynonyms.clear();
 		this.deviceSynonyms.putAll(deviceSynonyms.stream().collect(Collectors.toMap(Synonym::key, Synonym::value)));
 		
+	}
+	
+
+	@Override
+	public boolean isChangeDeviceAllowed() {
+		final Optional<Authentication> authentication = subject.currentUser();
+		if ( ! authentication.isPresent()) {
+			return false;
+		}
+		
+		return authentication.get().hasRole(Authority.Devices);
 	}
 	
 	

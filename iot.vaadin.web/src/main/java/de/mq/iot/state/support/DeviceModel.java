@@ -115,5 +115,13 @@ public interface DeviceModel  extends Subject<DeviceModel.Events, CalendarModel>
 	
 	void assign(Collection<Synonym> synonyms);
 
+
+
+	/**
+	 * If current user can change the stae of devides. Switch lights on for example.
+	 * @return tue if the privileg is granted, else false
+	 */
+	boolean isChangeDeviceAllowed();
+
 	
 }

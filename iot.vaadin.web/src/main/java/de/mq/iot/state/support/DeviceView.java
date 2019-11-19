@@ -104,6 +104,8 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 			}
 		});
 		deviveModel.register(DeviceModel.Events.ValueChanged, () -> {
+			
+			
 			if (deviveModel.isSelected()) {
 				saveButton.setEnabled(false);
 				deviveModel.type().ifPresent(type -> stateValueField.setErrorMessage(Optional.ofNullable(errorMessages.get(type).getText())));
@@ -158,6 +160,8 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 	private void createUI(final StateService stateService, final DeviceModel deviceModel, final ButtonBox buttonBox) {
 
+	
+		
 		saveButton.setEnabled(false);
 
 		stateValueField.setEnabled(false);
@@ -188,6 +192,8 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		editorLayout.setVerticalComponentAlignment(Alignment.CENTER, stateValueField, buttonLayout);
 
 		editorLayout.setSizeFull();
+		
+		setEditorVisisble(editorLayout, deviceModel);
 
 		grid.setSelectionMode(SelectionMode.NONE);
 
@@ -208,6 +214,12 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		devicesColumn.setHeader(searchLayout);
 		grid.setHeightByRows(true);
 
+	}
+
+	private void setEditorVisisble(final HorizontalLayout editorLayout, final DeviceModel deviceModel) {
+		
+		editorLayout.setVisible(deviceModel.isChangeDeviceAllowed());
+		stateInfoLabel.setVisible(deviceModel.isChangeDeviceAllowed());
 	}
 
 }
