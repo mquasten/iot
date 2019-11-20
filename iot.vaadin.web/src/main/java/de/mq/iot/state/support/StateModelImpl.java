@@ -154,6 +154,7 @@ class StateModelImpl implements StateModel {
 	
 	@Override
 	public boolean isChangeVariableAllowed() {
+		
 		final Optional<Authentication> authentication = subject.currentUser();
 		if ( ! authentication.isPresent()) {
 			return false;

@@ -24,6 +24,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventBus;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
@@ -92,6 +93,7 @@ class DeviceViewTest {
 		doubleState02.assign(05.d);
 		booleanState.assign(true);
 
+		Mockito.doReturn(true).when(deviceModel).isChangeDeviceAllowed();
 		Mockito.doReturn(Arrays.asList(DeviceType.Level, DeviceType.State)).when(stateService).deviceTypes();
 
 		Mockito.doReturn(Arrays.asList(room)).when(stateService).deviceStates(Arrays.asList(DeviceType.Level));
@@ -127,7 +129,12 @@ class DeviceViewTest {
 		final Grid<Room> grid = grid();
 		assertEquals(1, grid.getColumns().size());
 
-	
+		final Button saveButton = saveButton();
+		assertNotNull(saveButton);
+		final Component editorLayout =getEditorLayout(saveButton);
+		assertTrue(editorLayout.isVisible());
+		
+		
 		Collection<Room> rooms =  (Collection<Room>) grid.getDataProvider().fetch( new Query<>()).collect(Collectors.toList());
 
 		assertEquals(1, rooms.size());
@@ -147,6 +154,12 @@ class DeviceViewTest {
 		
 		Mockito.verify(synonymService).deviveSynonyms();
 
+	}
+	
+	private Component getEditorLayout(final Button saveButton) {
+		assertTrue(saveButton.getParent().isPresent());
+		assertTrue(saveButton.getParent().get().getParent().isPresent());
+		return saveButton.getParent().get().getParent().get();
 	}
 
 	@SuppressWarnings("unchecked")

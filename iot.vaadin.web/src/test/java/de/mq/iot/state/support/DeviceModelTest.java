@@ -19,6 +19,8 @@ import org.mockito.Mockito;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 import de.mq.iot.state.Room;
@@ -46,12 +48,14 @@ class DeviceModelTest {
 
 	private final Observer observer = Mockito.mock(Observer.class);
 
-	final Room firstRoom = Mockito.mock(Room.class);
-	final Room secondRoom = Mockito.mock(Room.class);
+	private final Room firstRoom = Mockito.mock(Room.class);
+	private final Room secondRoom = Mockito.mock(Room.class);
 	@SuppressWarnings("unchecked")
-	final State<Object> firstState = Mockito.mock(State.class);
+	private final State<Object> firstState = Mockito.mock(State.class);
 	@SuppressWarnings("unchecked")
-	final State<Object> secondState = Mockito.mock(State.class);
+	private final State<Object> secondState = Mockito.mock(State.class);
+	
+	private final Authentication authentication = Mockito.mock(Authentication.class);
 
 	@BeforeEach
 	void setup() {
@@ -61,6 +65,8 @@ class DeviceModelTest {
 
 		Mockito.when(firstState.value()).thenReturn(STATE_VALUE);
 		Mockito.when(secondState.value()).thenReturn(STATE_VALUE);
+		
+		Mockito.when(subject.currentUser()).thenReturn(Optional.of(authentication));
 
 	}
 
@@ -330,4 +336,22 @@ class DeviceModelTest {
 	}
 
 
+	@Test
+	final void isChangeDeviceAllowed() {
+		Mockito.when(authentication.hasRole(Authority.Devices)).thenReturn(true);
+	
+		assertTrue(deviceModel.isChangeDeviceAllowed());
+		
+	}
+	@Test
+	final void isChangeDeviceAlloweRoleNotGranted() {
+		assertFalse(deviceModel.isChangeDeviceAllowed());
+	}
+	
+	@Test
+	final void isChangeDeviceUserNotAware() {
+		Mockito.when(subject.currentUser()).thenReturn(Optional.empty());
+		
+		assertFalse(deviceModel.isChangeDeviceAllowed());
+	}
 }

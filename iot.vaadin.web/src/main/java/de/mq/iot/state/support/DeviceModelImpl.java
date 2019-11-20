@@ -276,6 +276,7 @@ private final ConversionService conversionService;
 
 	@Override
 	public boolean isChangeDeviceAllowed() {
+		
 		final Optional<Authentication> authentication = subject.currentUser();
 		if ( ! authentication.isPresent()) {
 			return false;
