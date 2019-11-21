@@ -104,7 +104,7 @@ public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events,
 
 
 
-		
+		public boolean isChangeAndExecuteRules(); 
 
 	
 		

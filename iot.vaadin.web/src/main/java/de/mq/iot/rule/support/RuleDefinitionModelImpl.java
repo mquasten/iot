@@ -1,6 +1,5 @@
 package de.mq.iot.rule.support;
 
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +16,8 @@ import org.springframework.validation.MapBindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 import de.mq.iot.rule.RulesDefinition;
@@ -26,18 +27,19 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	private final Subject<RuleDefinitionModel.Events, RuleDefinitionModel> subject;
 
 	private Optional<RulesDefinition> rulesDefinition = Optional.empty();
-	
-	private Optional<Entry<String,String>> selectedInput = Optional.empty();
-	
-	
-	private Optional<Entry<String,String>> selectedArgument = Optional.empty();
-	
+
+	private Optional<Entry<String, String>> selectedInput = Optional.empty();
+
+	private Optional<Entry<String, String>> selectedArgument = Optional.empty();
+
 	private Optional<String> selectedOptionalRule = Optional.empty();
 
 	private final ValidationFactory validationFactory;
-	RuleDefinitionModelImpl(final Subject<Events, RuleDefinitionModel> subject, final ValidationFactory validationFactory) {
+
+	RuleDefinitionModelImpl(final Subject<Events, RuleDefinitionModel> subject,
+			final ValidationFactory validationFactory) {
 		this.subject = subject;
-		this.validationFactory=validationFactory;
+		this.validationFactory = validationFactory;
 	}
 
 	@Override
@@ -61,8 +63,9 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	@Override
 	public boolean isSelected() {
 		return rulesDefinition.isPresent();
-		
+
 	}
+
 	@Override
 	public Optional<RulesDefinition> selected() {
 		return rulesDefinition;
@@ -75,8 +78,6 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 		}
 		return inputData(rulesDefinition.get().id().input(), rulesDefinition.get().inputData().entrySet());
 	}
-	
-	
 
 	@Override
 	public Collection<Entry<String, String>> parameter() {
@@ -84,11 +85,9 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 			return Arrays.asList();
 		}
 
-		
-		
 		return inputData(rulesDefinition.get().id().parameter(), rulesDefinition.get().inputData().entrySet());
 	}
-	
+
 	@Override
 	public Collection<String> definedOptionalRules() {
 		if (!rulesDefinition.isPresent()) {
@@ -97,14 +96,16 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 		return rulesDefinition.get().id().optionalRules();
 	}
 
-	private Collection<Entry<String, String>> inputData(final Collection<String> keys, final Collection<Entry<String, String>> entries) {
+	private Collection<Entry<String, String>> inputData(final Collection<String> keys,
+			final Collection<Entry<String, String>> entries) {
 
 		final Map<String, String> results = new HashMap<>();
 
 		results.putAll(keys.stream().collect(Collectors.toMap(key -> key, key -> "")));
 
-		results.putAll(entries.stream().filter(entry -> keys.contains(entry.getKey())).collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue())));
-		
+		results.putAll(entries.stream().filter(entry -> keys.contains(entry.getKey()))
+				.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue())));
+
 		return Collections.unmodifiableSet(results.entrySet());
 
 	}
@@ -126,141 +127,145 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 	public void assignSelectedInput(Entry<String, String> input) {
 		this.selectedInput = Optional.ofNullable(input);
 		notifyObservers(Events.AssignInput);
-		
+
 	}
-	
-	
+
 	@Override
 	public void assignSelectedArgument(Entry<String, String> input) {
 		this.selectedArgument = Optional.ofNullable(input);
 		notifyObservers(Events.AssignArgument);
-		
+
 	}
-	
+
 	@Override
 	public String selectedInputValue() {
-		if( !selectedInput.isPresent()) {
+		if (!selectedInput.isPresent()) {
 			return "";
 		}
-		
+
 		return selectedInput.get().getValue();
 	}
-	
-	
+
 	@Override
 	public String selectedArgumentValue() {
-		if( !selectedArgument.isPresent()) {
+		if (!selectedArgument.isPresent()) {
 			return "";
 		}
-		
+
 		return selectedArgument.get().getValue();
 	}
-	
+
 	@Override
 	public boolean isInputSelected() {
 		return selectedInput.isPresent();
 	}
-	
+
 	@Override
 	public boolean isArgumentSelected() {
 		return selectedArgument.isPresent();
 	}
-	
+
 	@Override
 	public Optional<String> selectedInputKey() {
-		
-		if(! selectedInput.isPresent()) {
+
+		if (!selectedInput.isPresent()) {
 			return Optional.empty();
 		}
 		return Optional.ofNullable(selectedInput.get().getKey());
 	}
-	
+
 	@Override
 	public void assignInput(final String value) {
 		selectedInput.ifPresent(entry -> rulesDefinition.get().assign(entry.getKey(), value));
 	}
-	
+
 	@Override
 	public void assignArgument(final String value) {
-		
-	
+
 		selectedArgument.ifPresent(entry -> rulesDefinition.get().assign(entry.getKey(), value));
-		
+
 	}
-	
+
 	@Override
 	public Optional<String> validateInput(final String value) {
 		Assert.isTrue(rulesDefinition.isPresent(), "RuleDefinition not selected.");
 		Assert.isTrue(selectedInput.isPresent(), "InputParameter not selected.");
 		return validateInput(value, selectedInputKey().get());
 	}
-	
+
 	@Override
 	public Optional<String> validateArgument(final String value) {
 		Assert.isTrue(rulesDefinition.isPresent(), "RuleDefinition not selected.");
 		Assert.isTrue(selectedArgument.isPresent(), "InputParameter not selected.");
-		return  validateInput(value, selectedArgument.get().getKey());
+		return validateInput(value, selectedArgument.get().getKey());
 	}
 
 	private Optional<String> validateInput(final String value, final String key) {
 		final Validator validator = validationFactory.validator(rulesDefinition.get().id(), key);
-		 final Errors errors = new MapBindingResult(new HashMap<>(), RulesAggregate.RULE_INPUT_MAP_FACT);
-		 validator.validate(value, errors);
-		 final Collection<ObjectError> allErrors =  errors.getAllErrors();
-		 if( allErrors.stream().findFirst().isPresent()) {
-			 return Optional.of(allErrors.stream().findFirst().get().getCode());
-			
-		 }
-		 return Optional.empty();
+		final Errors errors = new MapBindingResult(new HashMap<>(), RulesAggregate.RULE_INPUT_MAP_FACT);
+		validator.validate(value, errors);
+		final Collection<ObjectError> allErrors = errors.getAllErrors();
+		if (allErrors.stream().findFirst().isPresent()) {
+			return Optional.of(allErrors.stream().findFirst().get().getCode());
+
+		}
+		return Optional.empty();
 	}
 
 	@Override
 	public void assignSelectedOptionalRule(final String value) {
-		selectedOptionalRule=Optional.ofNullable(value);
+		selectedOptionalRule = Optional.ofNullable(value);
 		notifyObservers(Events.AssignOptionalRule);
-		
+
 	}
-	
-	
-	
+
 	@Override
 	public void addOptionalRule(final String optionalRule) {
-	
-		rulesDefinition.ifPresent(rd ->rd.assignRule(optionalRule));
+
+		rulesDefinition.ifPresent(rd -> rd.assignRule(optionalRule));
 		notifyObservers(Events.ChangeOptionalRules);
 	}
-	
+
 	@Override
 	public void removeOptionalRule() {
 		rulesDefinition.ifPresent(rd -> selectedOptionalRule.ifPresent(rule -> rd.removeOptionalRule(rule)));
 		notifyObservers(Events.ChangeOptionalRules);
 	}
-	
+
 	@Override
 	public boolean isOptionalRuleSelected() {
 		return selectedOptionalRule.isPresent();
 	}
+
 	@Override
-	public  Collection<Entry<String,String>> validateInput() {
-		final Map<String,String> results = new HashMap<>();
+	public Collection<Entry<String, String>> validateInput() {
+		final Map<String, String> results = new HashMap<>();
 		rulesDefinition.ifPresent(rd -> validate(rd, results));
-		
+
 		return Collections.unmodifiableCollection(results.entrySet());
 	}
 
-	private void validate(final RulesDefinition rd, final Map<String,String> messages) {
-		final Map<String,String> values = rd.inputData();
-	
+	private void validate(final RulesDefinition rd, final Map<String, String> messages) {
+		final Map<String, String> values = rd.inputData();
+
 		rd.id().input().forEach(field -> {
 			final Errors errors = new MapBindingResult(new HashMap<>(), RulesAggregate.RULE_INPUT_MAP_FACT);
 			final Validator validator = validationFactory.validator(rd.id(), field);
 			validator.validate(values.get(field), errors);
 			errors.getAllErrors().stream().findFirst().ifPresent(error -> messages.put(field, error.getCode()));
-			
-			});
-		
+
+		});
+
 	}
-	
-	
+
+	@Override
+	public boolean isChangeAndExecuteRules() {
+		final Optional<Authentication> authentication = subject.currentUser();
+		if (!authentication.isPresent()) {
+			return false;
+		}
+
+		return authentication.get().hasRole(Authority.Rules);
+	}
 
 }

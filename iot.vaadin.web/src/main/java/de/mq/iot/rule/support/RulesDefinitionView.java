@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.grid.ColumnBase;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
@@ -116,7 +117,9 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		this.buttonBox = buttonBox;
 		this.rulesService = rulesService;
 		this.simpleAggrgationResultsDialog=simpleAggrgationResultsDialog;
+		
 		createUI();
+		
 		addListeneners(ruleDefinitionModel);
 		registerObservers();
 		ruleDefinitionModel.notifyObservers(Events.ChangeLocale);
@@ -368,7 +371,10 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 		final HorizontalLayout footerLayout = new HorizontalLayout();
 		footerLayout.add(saveButton);
 		footerLayout.add(runButton);
-		grid.addColumn((ValueProvider<RulesDefinition, String>) idNameValueProvider()).setHeader(ruleDefinitionColumnLabel).setFooter(footerLayout).setResizable(true);
+		
+		final ColumnBase<?> columnBase= grid.addColumn((ValueProvider<RulesDefinition, String>) idNameValueProvider()).setHeader(ruleDefinitionColumnLabel).setResizable(true);
+		
+		addSaveAndExecute(footerLayout, columnBase);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 
 		arguments.addColumn((ValueProvider<Entry<String, String>, String>) Entry::getKey).setHeader(argumentParameterColumnLabel).setResizable(true).setFooter(changeArgumentsButton);
@@ -419,9 +425,18 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		grid.setItems(rulesService.rulesDefinitions());
 		inputParameter.setItems(new ArrayList<>());
+		
 
 	}
 
+	private void addSaveAndExecute(final HorizontalLayout footerLayout, final ColumnBase<?> columnBase) {
+		if(!ruleDefinitionModel.isChangeAndExecuteRules()) {
+			return;
+		}
+		columnBase.setFooter(footerLayout);
+	}
+	
+	
 	ValueProvider<RulesDefinition,String> idNameValueProvider() {
 		return  rulesDefinition -> rulesDefinition.id().name();
 	}
