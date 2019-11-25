@@ -2,6 +2,7 @@ package de.mq.iot.rule.support;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 
@@ -108,6 +109,8 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 	private final RulesService rulesService;
 	
 	private final SimpleAggrgationResultsDialog simpleAggrgationResultsDialog;
+	
+	private  List<HorizontalLayout> footerLayouts=new ArrayList<>();
 
 	// https://vaadin.com/components/vaadin-grid/java-examples/grid-editor
 
@@ -368,13 +371,13 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 		arguments.getElement().getStyle().set("overflow", "auto");
 
-		final HorizontalLayout footerLayout = new HorizontalLayout();
-		footerLayout.add(saveButton);
-		footerLayout.add(runButton);
+		
 		
 		final ColumnBase<?> columnBase= grid.addColumn((ValueProvider<RulesDefinition, String>) idNameValueProvider()).setHeader(ruleDefinitionColumnLabel).setResizable(true);
+		addFooterIfRoleGranted(columnBase); 
+	
 		
-		addSaveAndExecute(footerLayout, columnBase);
+		//addSaveAndExecute(footerLayout, columnBase);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 
 		arguments.addColumn((ValueProvider<Entry<String, String>, String>) Entry::getKey).setHeader(argumentParameterColumnLabel).setResizable(true).setFooter(changeArgumentsButton);
@@ -429,12 +432,22 @@ class RulesDefinitionView extends VerticalLayout implements LocalizeView {
 
 	}
 
-	private void addSaveAndExecute(final HorizontalLayout footerLayout, final ColumnBase<?> columnBase) {
-		if(!ruleDefinitionModel.isChangeAndExecuteRules()) {
-			return;
+	private void addFooterIfRoleGranted(final ColumnBase<?> columnBase) {
+		footerLayouts.clear();
+		
+		
+		if ( ! ruleDefinitionModel.isChangeAndExecuteRules()) {
+			return ;
 		}
+		
+		final HorizontalLayout footerLayout = new HorizontalLayout();
+		footerLayout.add(saveButton);
+		footerLayout.add(runButton);
 		columnBase.setFooter(footerLayout);
+		footerLayouts.add(footerLayout);
 	}
+
+	
 	
 	
 	ValueProvider<RulesDefinition,String> idNameValueProvider() {

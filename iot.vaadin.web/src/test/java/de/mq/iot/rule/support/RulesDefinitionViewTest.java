@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -87,6 +88,13 @@ class RulesDefinitionViewTest {
 	@BeforeEach
 	void setup() {
 
+		setup(false);
+	
+		
+	}
+
+	private void setup(final boolean rulesRoleGranted) {
+		
 		Mockito.doReturn(Arrays.asList(RulesDefinition.TEMPERATURE_RULE_NAME)).when(ruleDefinitionModel).optionalRules();
 
 		Mockito.doReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, WORKINGDAY_EVENT_TIME_VALUE), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, "5:15"))).when(ruleDefinitionModel).input();
@@ -110,8 +118,6 @@ class RulesDefinitionViewTest {
 		rulesDefinitionView = new RulesDefinitionView(ruleDefinitionModel, rulesService, new ButtonBox(), messageSource, simpleAggrgationResultsDialog);
 
 		fields.putAll(Arrays.asList(rulesDefinitionView.getClass().getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).collect(Collectors.toMap(Field::getName, field -> ReflectionTestUtils.getField(rulesDefinitionView, field.getName()))));
-	
-		
 	}
 
 	@Test
@@ -156,6 +162,23 @@ class RulesDefinitionViewTest {
 		assertFalse(arguments.getParent().isPresent());
 
 		Mockito.verify(ruleDefinitionModel).notifyObservers(RuleDefinitionModel.Events.ChangeLocale);
+		
+		final List<?> footerLayouts = (List<?>) fields.get("footerLayouts");
+		assertNotNull(footerLayouts);
+		assertEquals(0, footerLayouts.size());
+	}
+	@Test
+	void editable() {
+		
+		
+		Mockito.when(ruleDefinitionModel.isChangeAndExecuteRules()).thenReturn(true);
+		rulesDefinitionView = new RulesDefinitionView(ruleDefinitionModel, rulesService, new ButtonBox(), messageSource, simpleAggrgationResultsDialog);
+		fields.clear();
+		fields.putAll(Arrays.asList(rulesDefinitionView.getClass().getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).collect(Collectors.toMap(Field::getName, field -> ReflectionTestUtils.getField(rulesDefinitionView, field.getName()))));
+		final List<?> footerLayouts = (List<?>) fields.get("footerLayouts");
+		assertNotNull(footerLayouts);
+		assertEquals(1, footerLayouts.size());
+		
 	}
 
 	private Grid<Entry<String, String>> arguments() {
