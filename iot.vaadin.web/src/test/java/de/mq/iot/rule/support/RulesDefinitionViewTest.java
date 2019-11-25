@@ -87,14 +87,7 @@ class RulesDefinitionViewTest {
 
 	@BeforeEach
 	void setup() {
-
-		setup(false);
 	
-		
-	}
-
-	private void setup(final boolean rulesRoleGranted) {
-		
 		Mockito.doReturn(Arrays.asList(RulesDefinition.TEMPERATURE_RULE_NAME)).when(ruleDefinitionModel).optionalRules();
 
 		Mockito.doReturn(Arrays.asList(new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, WORKINGDAY_EVENT_TIME_VALUE), new AbstractMap.SimpleImmutableEntry<>(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, "5:15"))).when(ruleDefinitionModel).input();
