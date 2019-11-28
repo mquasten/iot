@@ -19,6 +19,8 @@ import org.mockito.Mockito;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.StringUtils;
 
+import de.mq.iot.authentication.Authentication;
+import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 import de.mq.iot.rule.RulesDefinition;
@@ -327,6 +329,20 @@ class RuleDefinitionModelTest {
 		
 		Mockito.verify(rulesDefinition).assign(RulesDefinition.UPDATE_MODE_KEY, Boolean.TRUE.toString());
 	
+	}
+	
+	@Test
+	void isChangeAndExecuteRules() {
+		final Authentication authentication = Mockito.mock(Authentication.class);
+		Mockito.when(authentication.hasRole(Authority.Rules)).thenReturn(true);
+		Mockito.when(subject.currentUser()).thenReturn(Optional.of(authentication));
+		assertTrue(ruleDefinitionModel.isChangeAndExecuteRules());
+	}
+	
+	@Test
+	void isChangeAndExecuteRulesCurrentUserNotPresent() {
+		Mockito.when(subject.currentUser()).thenReturn(Optional.empty());
+		assertFalse(ruleDefinitionModel.isChangeAndExecuteRules());
 	}
 	
 }
