@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -193,6 +195,23 @@ public class SpecialdayTest {
 		assertTrue(specialday.isVacation());
 	}
 	
+	@Test
+	void weekend() {
+		final Specialday specialday = new SpecialdayImpl(DayOfWeek.SATURDAY, true);
+		
+		assertEquals(DayOfWeek.SATURDAY, specialday.dayOfWeek());
+	}
 	
+	@Test
+	void homeOffice() {
+		final Specialday specialday = new SpecialdayImpl(DayOfWeek.MONDAY);
+		assertEquals(DayOfWeek.MONDAY, specialday.dayOfWeek());
+	}
+	@Test
+	void dayOfWeekWrronType() {
+		final Specialday specialday = new SpecialdayImpl(1);
+		
+		assertThrows(IllegalArgumentException.class, () -> specialday.dayOfWeek());
+	}
 
 }

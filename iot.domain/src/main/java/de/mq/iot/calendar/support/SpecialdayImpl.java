@@ -1,5 +1,6 @@
 package de.mq.iot.calendar.support;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.util.UUID;
@@ -16,7 +17,9 @@ class SpecialdayImpl implements Specialday {
 	enum Type {
 		Gauss,
 		Fix,
-		Vacation
+		Vacation,
+		Weekend,
+		HomeOfficeDay;
 	}
 	
 	@Id
@@ -29,6 +32,8 @@ class SpecialdayImpl implements Specialday {
 	private final Integer dayOfMonth;
 	private final Integer month;
 	private final Integer year;
+	private final Integer dayOfWeek;
+	
 	
 	
 	SpecialdayImpl() {
@@ -46,6 +51,7 @@ class SpecialdayImpl implements Specialday {
 		dayOfMonth=null;
 		month=null;
 		year=null;
+		dayOfWeek=null;
 	}
 	
 	SpecialdayImpl(final FixedSpecialDay fixedSpecialDay) {
@@ -60,6 +66,7 @@ class SpecialdayImpl implements Specialday {
 		this.dayOfMonth=monthDay.getDayOfMonth();
 		this.offset=null;
 		this.year=null;
+		dayOfWeek=null;
 	}
 	
 	SpecialdayImpl(final LocalDate date){
@@ -68,7 +75,32 @@ class SpecialdayImpl implements Specialday {
 		this.month=date.getMonthValue();
 		this.dayOfMonth=date.getDayOfMonth();
 		this.offset=null;
+		dayOfWeek=null;
 		this.year=date.getYear();
+	}
+	
+	SpecialdayImpl(final DayOfWeek dayOfWeek, final boolean isWeekend) {
+		dayOfWeekMandatoryGuard(dayOfWeek);
+		this.type=weekEndOrHomeOffice(isWeekend);
+		id= new UUID(type.name().hashCode(), dayOfWeek.hashCode()).toString();
+	
+		this.month=null;
+		this.dayOfMonth=null;
+		this.offset=null;
+		this.year=null;
+		this.dayOfWeek=dayOfWeek.getValue();
+	}
+	
+	SpecialdayImpl(final DayOfWeek dayOfWeek) {
+		this(dayOfWeek, false);
+	}
+
+	private Type weekEndOrHomeOffice(final boolean isWeekend) {
+		if(isWeekend) {
+			return Type.Weekend;
+		} 
+	    return Type.HomeOfficeDay;
+	
 	}
 	
 	
@@ -91,6 +123,22 @@ class SpecialdayImpl implements Specialday {
 		}
 		throw new IllegalArgumentException("Invalid type: " + type);
 		
+	}
+	@Override
+	public final DayOfWeek dayOfWeek() {
+		if (type == Type.Weekend) {
+			dayOfWeekMandatoryGuard(dayOfWeek);
+			return DayOfWeek.of(dayOfWeek);
+		}
+		if(type == Type.HomeOfficeDay) {
+			dayOfWeekMandatoryGuard(dayOfWeek);
+			return DayOfWeek.of(dayOfWeek);
+		}
+		throw new IllegalArgumentException("Invalid type: " + type);
+	}
+
+	private void dayOfWeekMandatoryGuard(final Object dayOfWeek) {
+		Assert.notNull(dayOfWeek, "DayOfWeek is mandatory.");
 	}
 	
 	

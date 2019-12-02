@@ -1,5 +1,6 @@
 package de.mq.iot.calendar;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.MonthDay;
 
@@ -67,6 +68,17 @@ public interface Specialday {
 
 
 	boolean isVacation();
+
+
+
+
+
+
+
+
+
+
+	DayOfWeek dayOfWeek();
 
 
 
