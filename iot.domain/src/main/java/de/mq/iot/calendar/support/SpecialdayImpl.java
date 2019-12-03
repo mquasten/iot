@@ -19,7 +19,8 @@ class SpecialdayImpl implements Specialday {
 		Fix,
 		Vacation,
 		Weekend,
-		HomeOfficeDay;
+		SpecialWorkingDate,
+		SpecialWorkingDay;
 	}
 	
 	@Id
@@ -69,14 +70,18 @@ class SpecialdayImpl implements Specialday {
 		dayOfWeek=null;
 	}
 	
-	SpecialdayImpl(final LocalDate date){
-		id= new UUID(Type.Fix.name().hashCode(), date.hashCode()).toString();
-		type=Type.Vacation;
+	SpecialdayImpl(final LocalDate date, boolean isHomeOffice){
+		id= new UUID(Type.Vacation.name().hashCode(), date.hashCode()).toString();
+		type=vacationOrHomeOffice(isHomeOffice);
 		this.month=date.getMonthValue();
 		this.dayOfMonth=date.getDayOfMonth();
 		this.offset=null;
 		dayOfWeek=null;
 		this.year=date.getYear();
+	}
+	
+	SpecialdayImpl(final LocalDate date) {
+		this(date,false);
 	}
 	
 	SpecialdayImpl(final DayOfWeek dayOfWeek, final boolean isWeekend) {
@@ -99,7 +104,15 @@ class SpecialdayImpl implements Specialday {
 		if(isWeekend) {
 			return Type.Weekend;
 		} 
-	    return Type.HomeOfficeDay;
+	    return Type.SpecialWorkingDay;
+	
+	}
+	
+	private Type vacationOrHomeOffice(final boolean isHomeOffice) {
+		if(isHomeOffice) {
+			return Type.SpecialWorkingDate;
+		} 
+	    return Type.Vacation;
 	
 	}
 	
@@ -118,11 +131,21 @@ class SpecialdayImpl implements Specialday {
 			return easterdate(year).plusDays(offset);
 		}
 		if( type == Type.Vacation) {
-			Assert.notNull(this.year , "Year is mandatory.");
+			dateExistsGuard();
+			return  LocalDate.of(this.year, month, dayOfMonth);
+		}
+		if(type == Type.SpecialWorkingDate) {
+			dateExistsGuard();
 			return  LocalDate.of(this.year, month, dayOfMonth);
 		}
 		throw new IllegalArgumentException("Invalid type: " + type);
 		
+	}
+
+	private void dateExistsGuard() {
+		Assert.notNull(this.year , "Year is mandatory.");
+		Assert.notNull(month, "Month is mandatory");
+		Assert.notNull(dayOfMonth, "DayOfMonth is mandatory");
 	}
 	@Override
 	public final DayOfWeek dayOfWeek() {
@@ -130,7 +153,7 @@ class SpecialdayImpl implements Specialday {
 			dayOfWeekMandatoryGuard(dayOfWeek);
 			return DayOfWeek.of(dayOfWeek);
 		}
-		if(type == Type.HomeOfficeDay) {
+		if(type == Type.SpecialWorkingDay) {
 			dayOfWeekMandatoryGuard(dayOfWeek);
 			return DayOfWeek.of(dayOfWeek);
 		}
