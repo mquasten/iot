@@ -87,7 +87,9 @@ class SpecialdayImpl implements Specialday {
 	SpecialdayImpl(final DayOfWeek dayOfWeek, final boolean isWeekend) {
 		dayOfWeekMandatoryGuard(dayOfWeek);
 		this.type=weekEndOrHomeOffice(isWeekend);
-		id= new UUID(type.name().hashCode(), dayOfWeek.hashCode()).toString();
+		
+		
+		id= new UUID(type.name().hashCode(), dayOfWeek.getValue()).toString();
 	
 		this.month=null;
 		this.dayOfMonth=null;

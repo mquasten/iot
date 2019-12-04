@@ -7,6 +7,12 @@ import java.util.Collection;
 import de.mq.iot.calendar.Specialday;
 
 public interface SpecialdayService {
+	
+	public enum DayType {
+		NonWorkingDay,
+		WorkingDay,
+		SpecialWorkingDay;
+	}
 
 	void save(final Specialday specialday);
 
@@ -19,6 +25,8 @@ public interface SpecialdayService {
 	void delete(Specialday specialday);
 
 	Collection<Specialday> vacationsBeforeEquals(final LocalDate minDate);
+
+	DayType typeOfDay(LocalDate date);
 
 
 }

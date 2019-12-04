@@ -3,12 +3,14 @@ package de.mq.iot.calendar.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -24,7 +26,6 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
-@Disabled
 class SpecialdayRepositoryIntegrationTest {
 	
 	private static final int YEAR = 2018;
@@ -34,6 +35,7 @@ class SpecialdayRepositoryIntegrationTest {
 
 	
 	@Test
+	@Disabled
 	void saveFixedSpecialDay() {
 	
 		final Set<LocalDate> days = new HashSet<>();
@@ -51,6 +53,7 @@ class SpecialdayRepositoryIntegrationTest {
 	}
 	
 	@Test
+	@Disabled
 	void saveVariantSpecialDay() {
 		final Set<LocalDate> days = new HashSet<>();
 		Arrays.asList(Specialday.VariantSpecialDay.values()).forEach(value -> {
@@ -67,6 +70,7 @@ class SpecialdayRepositoryIntegrationTest {
 	}
 	
 	@Test
+	@Disabled
 	void saveVacation() {
 		final Specialday specialday = new SpecialdayImpl(DATE);
 		
@@ -77,5 +81,13 @@ class SpecialdayRepositoryIntegrationTest {
 		assertEquals(1, results.size());
 		assertEquals(DATE, results.stream().findAny().orElseThrow(() -> new IllegalStateException("Result expected.")).date(YEAR));
 	}
+	
+	@Test
+	@Disabled
+	void saveWeekend() {
+		assertEquals(DayOfWeek.SATURDAY, specialdaysRepository.save(new SpecialdayImpl(DayOfWeek.SATURDAY,true)).block().dayOfWeek());
+		assertEquals(DayOfWeek.SUNDAY, specialdaysRepository.save(new SpecialdayImpl(DayOfWeek.SUNDAY,true)).block().dayOfWeek());
+	}
+	
 	
 }

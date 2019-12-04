@@ -62,6 +62,41 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		return Collections.unmodifiableCollection(results);
 		
 	}
+	
+	@Override
+	public DayType typeOfDay(final LocalDate date) {
+		
+		final Collection<DayOfWeek> weekendDays = readDayOfWeek(Type.Weekend);
+		if (weekendDays.contains(date.getDayOfWeek())) {
+			return DayType.NonWorkingDay;
+		}
+		final Collection<LocalDate> specialdates = specialdays(Year.from(date)).stream().map(specialday -> specialday.date(date.getYear())).collect(Collectors.toSet());
+		
+		if (specialdates.contains(date)) {
+
+			return DayType.NonWorkingDay;
+		}
+		
+		final Collection<DayOfWeek> specialWorkingDays = readDayOfWeek(Type.SpecialWorkingDay);
+		if (specialWorkingDays.contains(date.getDayOfWeek())) {
+			return DayType.SpecialWorkingDay;
+		}
+		
+		final Collection<LocalDate> specialWorkingDates=specialdaysRepository.findByTypeIn(Arrays.asList(Type.SpecialWorkingDate)).collectList().block(duration).stream().map(specialday -> specialday.date(1)).collect(Collectors.toSet());
+		if (specialWorkingDates.contains(date)) {
+			return DayType.SpecialWorkingDay;
+		}
+		
+		return DayType.WorkingDay;
+	}
+
+	private Collection<DayOfWeek> readDayOfWeek(final Type type) {
+		final Collection<DayOfWeek> weekendDays = specialdaysRepository.findByTypeIn(Arrays.asList(type)).collectList().block(duration).stream().map(specialday -> specialday.dayOfWeek()).collect(Collectors.toSet());
+		return weekendDays;
+	}
+	
+	
+	
 	/*
 	 * (non-Javadoc)
 	 * @see de.mq.iot.calendar.SpecialdayService#vacation(java.time.LocalDate, java.time.LocalDate)
