@@ -7,11 +7,14 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -28,6 +31,8 @@ import de.mq.iot.calendar.support.SpecialdayImpl.Type;
 @Service
 class SpecialdayServiceImpl implements SpecialdayService {
 	
+	static final String VACATION_OR_PUBLIC_HOLIDAY_INFO = "Vacation or public holiday";
+	private static final String DAY_TYPE_INFO_FORMAT = "%s: %s";
 	private SpecialdayRepository specialdaysRepository;
 	private Duration duration;
 	
@@ -64,30 +69,35 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	}
 	
 	@Override
-	public DayType typeOfDay(final LocalDate date) {
+	public Entry<DayType,String> typeOfDay(final LocalDate date) {
 		
 		final Collection<DayOfWeek> weekendDays = readDayOfWeek(Type.Weekend);
 		if (weekendDays.contains(date.getDayOfWeek())) {
-			return DayType.NonWorkingDay;
+			
+			return typeOfDayResult(DayType.NonWorkingDay, SpecialdayImpl.Type.Weekend ,date.getDayOfWeek());
 		}
 		final Collection<LocalDate> specialdates = specialdays(Year.from(date)).stream().map(specialday -> specialday.date(date.getYear())).collect(Collectors.toSet());
 		
 		if (specialdates.contains(date)) {
-
-			return DayType.NonWorkingDay;
+			return typeOfDayResult(DayType.NonWorkingDay,  VACATION_OR_PUBLIC_HOLIDAY_INFO,   date);
+			
 		}
 		
 		final Collection<DayOfWeek> specialWorkingDays = readDayOfWeek(Type.SpecialWorkingDay);
 		if (specialWorkingDays.contains(date.getDayOfWeek())) {
-			return DayType.SpecialWorkingDay;
+			return typeOfDayResult(DayType.SpecialWorkingDay, SpecialdayImpl.Type.SpecialWorkingDay, date.getDayOfWeek());
 		}
 		
 		final Collection<LocalDate> specialWorkingDates=specialdaysRepository.findByTypeIn(Arrays.asList(Type.SpecialWorkingDate)).collectList().block(duration).stream().map(specialday -> specialday.date(1)).collect(Collectors.toSet());
 		if (specialWorkingDates.contains(date)) {
-			return DayType.SpecialWorkingDay;
+			return typeOfDayResult(DayType.SpecialWorkingDay, SpecialdayImpl.Type.SpecialWorkingDate, date);
 		}
 		
-		return DayType.WorkingDay;
+		return new AbstractMap.SimpleImmutableEntry<>(DayType.WorkingDay, DayType.WorkingDay.name());
+	}
+
+	private SimpleImmutableEntry<DayType, String> typeOfDayResult(final DayType dayType, final Object type, final Object info) {
+		return new AbstractMap.SimpleImmutableEntry<>(dayType, String.format(DAY_TYPE_INFO_FORMAT, type, info) );
 	}
 
 	private Collection<DayOfWeek> readDayOfWeek(final Type type) {

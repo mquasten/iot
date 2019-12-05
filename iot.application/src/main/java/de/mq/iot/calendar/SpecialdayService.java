@@ -3,8 +3,7 @@ package de.mq.iot.calendar;
 import java.time.LocalDate;
 import java.time.Year;
 import java.util.Collection;
-
-import de.mq.iot.calendar.Specialday;
+import java.util.Map.Entry;
 
 public interface SpecialdayService {
 	
@@ -26,7 +25,7 @@ public interface SpecialdayService {
 
 	Collection<Specialday> vacationsBeforeEquals(final LocalDate minDate);
 
-	DayType typeOfDay(LocalDate date);
+	Entry<DayType, String> typeOfDay(LocalDate date);
 
 
 }

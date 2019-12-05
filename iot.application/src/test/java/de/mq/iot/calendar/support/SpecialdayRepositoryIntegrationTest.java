@@ -3,14 +3,12 @@ package de.mq.iot.calendar.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -82,12 +80,6 @@ class SpecialdayRepositoryIntegrationTest {
 		assertEquals(DATE, results.stream().findAny().orElseThrow(() -> new IllegalStateException("Result expected.")).date(YEAR));
 	}
 	
-	@Test
-	@Disabled
-	void saveWeekend() {
-		assertEquals(DayOfWeek.SATURDAY, specialdaysRepository.save(new SpecialdayImpl(DayOfWeek.SATURDAY,true)).block().dayOfWeek());
-		assertEquals(DayOfWeek.SUNDAY, specialdaysRepository.save(new SpecialdayImpl(DayOfWeek.SUNDAY,true)).block().dayOfWeek());
-	}
 	
 	
 }
