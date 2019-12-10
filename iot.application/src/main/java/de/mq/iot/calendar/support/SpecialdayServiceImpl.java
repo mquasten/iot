@@ -32,7 +32,7 @@ import de.mq.iot.calendar.support.SpecialdayImpl.Type;
 class SpecialdayServiceImpl implements SpecialdayService {
 	
 	static final String VACATION_OR_PUBLIC_HOLIDAY_INFO = "Vacation or public holiday";
-	private static final String DAY_TYPE_INFO_FORMAT = "%s: %s";
+	static final String DAY_TYPE_INFO_FORMAT = "%s: %s";
 	private SpecialdayRepository specialdaysRepository;
 	private Duration duration;
 	
@@ -97,10 +97,14 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	}
 
 	private SimpleImmutableEntry<DayType, String> typeOfDayResult(final DayType dayType, final Object type, final Object info) {
+	
 		return new AbstractMap.SimpleImmutableEntry<>(dayType, String.format(DAY_TYPE_INFO_FORMAT, type, info) );
+		
 	}
 
 	private Collection<DayOfWeek> readDayOfWeek(final Type type) {
+		
+		
 		final Collection<DayOfWeek> weekendDays = specialdaysRepository.findByTypeIn(Arrays.asList(type)).collectList().block(duration).stream().map(specialday -> specialday.dayOfWeek()).collect(Collectors.toSet());
 		return weekendDays;
 	}

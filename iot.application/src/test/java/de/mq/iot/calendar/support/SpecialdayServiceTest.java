@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.MonthDay;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -22,6 +24,7 @@ import org.mockito.Mockito;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.calendar.SpecialdayService.DayType;
 import de.mq.iot.calendar.support.SpecialdayImpl.Type;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,11 +39,15 @@ class SpecialdayServiceTest {
 
 	private final Specialday specialday = Mockito.mock(Specialday.class);
 	private final Specialday otherSpecialday = Mockito.mock(Specialday.class);
+	
+	private final Specialday weekendSpecialday = Mockito.mock(Specialday.class);
 
 	@SuppressWarnings("unchecked")
 	private final Mono<Specialday> mono = Mockito.mock(Mono.class);
 
-	private final Flux<Specialday> fluxHoliday = Flux.fromStream(Arrays.asList(specialday).stream());
+	private final Flux<Specialday> fluxHoliday =  Flux.fromArray(new Specialday[] {specialday});
+	
+	private final Flux<Specialday> fluxWeekend = Flux.fromArray(new Specialday[] {weekendSpecialday});
 
 	@SuppressWarnings("unchecked")
 	private final Mono<List<Specialday>> collectListHoliday = Mockito.mock(Mono.class);
@@ -62,6 +69,8 @@ class SpecialdayServiceTest {
 
 		Mockito.when(specialdayRepository.findByTypeAndYear(Type.Vacation, year.getValue())).thenReturn(fluxVacation);
 		Mockito.when(collectListVacation.block(Duration.ofMillis(TIMEOUT))).thenReturn(Arrays.asList(otherSpecialday));
+		
+		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Weekend))).thenReturn(fluxWeekend);
 
 	}
 
@@ -80,6 +89,28 @@ class SpecialdayServiceTest {
 		assertEquals(specialday, results.get(0));
 		assertEquals(otherSpecialday, results.get(1));
 	}
+	
+	@Test
+	void typeOfDayWeekend() {
+		Mockito.doReturn(DayOfWeek.SATURDAY).when(weekendSpecialday).dayOfWeek();
+		final Entry<DayType, String> typeOfDay = specialdayService.typeOfDay(LocalDate.of(2019, 12, 7));
+		
+		assertEquals(DayType.NonWorkingDay,typeOfDay.getKey());
+		assertEquals(String.format(SpecialdayServiceImpl.DAY_TYPE_INFO_FORMAT, Type.Weekend, DayOfWeek.SATURDAY), typeOfDay.getValue());
+	}
+	
+	@Test
+	void typeOfDayVacation() {
+		LocalDate date = LocalDate.of(Year.now().getValue(), 12, 25);
+		Mockito.doReturn(date).when(specialday).date(Year.now().getValue());
+		final Entry<DayType, String> typeOfDay = specialdayService.typeOfDay(date);
+		
+		assertEquals(DayType.NonWorkingDay, typeOfDay.getKey());
+		assertEquals(String.format(SpecialdayServiceImpl.DAY_TYPE_INFO_FORMAT,SpecialdayServiceImpl.VACATION_OR_PUBLIC_HOLIDAY_INFO,date), typeOfDay.getValue());
+		
+		
+	}
+	
 
 	@Test
 	void specialdaysAll() {
@@ -91,6 +122,8 @@ class SpecialdayServiceTest {
 		assertTrue(specialdays.contains(specialday));
 		assertTrue(specialdays.contains(otherSpecialday));
 	}
+	
+	
 
 	@Test
 	void vacation() {
