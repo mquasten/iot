@@ -89,6 +89,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		}
 		
 		final Collection<LocalDate> specialWorkingDates=specialdaysRepository.findByTypeIn(Arrays.asList(Type.SpecialWorkingDate)).collectList().block(duration).stream().map(specialday -> specialday.date(1)).collect(Collectors.toSet());
+		
 		if (specialWorkingDates.contains(date)) {
 			return typeOfDayResult(DayType.SpecialWorkingDay, SpecialdayImpl.Type.SpecialWorkingDate, date);
 		}
@@ -105,8 +106,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	private Collection<DayOfWeek> readDayOfWeek(final Type type) {
 		
 		
-		final Collection<DayOfWeek> weekendDays = specialdaysRepository.findByTypeIn(Arrays.asList(type)).collectList().block(duration).stream().map(specialday -> specialday.dayOfWeek()).collect(Collectors.toSet());
-		return weekendDays;
+		return specialdaysRepository.findByTypeIn(Arrays.asList(type)).collectList().block(duration).stream().map(specialday -> specialday.dayOfWeek()).collect(Collectors.toSet());
 	}
 	
 	
