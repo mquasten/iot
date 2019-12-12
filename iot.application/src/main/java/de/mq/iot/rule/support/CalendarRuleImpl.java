@@ -4,16 +4,12 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.jeasy.rules.annotation.Action;
 import org.jeasy.rules.annotation.Condition;
 import org.jeasy.rules.annotation.Fact;
-
 import org.jeasy.rules.annotation.Rule;
 
 import de.mq.iot.calendar.SpecialdayService;
@@ -28,19 +24,7 @@ public class CalendarRuleImpl {
 	}
 	
 	 
-	 private boolean isWorkingsday(final LocalDate date) {
-		if (Arrays.asList(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY).contains(date.getDayOfWeek())) {
-			return false;
-		}
-		final Collection<LocalDate> specialdates = specialdayService.specialdays(Year.from(date)).stream().map(specialday -> specialday.date(date.getYear())).collect(Collectors.toSet());
-		
-		if (specialdates.contains(date)) {
-
-			return false;
-		}
-
-		return true;
-	}
+	
 	
 	 @Condition
 	 public boolean evaluate(@Fact(RulesAggregate.RULE_INPUT) final DefaultRuleInput ruleInput) {
@@ -51,8 +35,11 @@ public class CalendarRuleImpl {
 	 @Action
 	 public void calculateCalendar(@Fact(RulesAggregate.RULE_INPUT) final DefaultRuleInput ruleInput, @Fact(RulesAggregate.RULE_CALENDAR) final Calendar calendar) {
 		final int offset = ruleInput.isUpdateMode() ? 0 : 1;
+		
 		calendar.assignDate(dateSupplier.get().plusDays(offset));
-		calendar.assignWorkingDay(isWorkingsday(calendar.date()));
+		
+		calendar.assignDayType(specialdayService.typeOfDay(calendar.date()).getKey());
+		
 		calendar.assignTime(time(calendar.date()));
 	 }
 	 

@@ -16,6 +16,7 @@ public interface ValidFieldValues {
 
 	static boolean isNull(final Object object, final Field field) {
 		field.setAccessible(true);
+		
 		return ReflectionUtils.getField(field, object)==null;
 	}
 

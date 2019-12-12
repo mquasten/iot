@@ -30,7 +30,9 @@ public class TimerEventsRule {
 	@Action
 	public void calculateEvents(@Fact(RulesAggregate.RULE_CALENDAR) final Calendar calendar,   @Fact(RulesAggregate.RULE_INPUT) DefaultRuleInput ruleInput) {
 		
-		final LocalTime alarmTime = calendar.workingDay() ?  ruleInput.workingdayAlarmTime() : ruleInput.holidayAlarmTime();
+		
+		
+		final LocalTime alarmTime = ruleInput.alarmTime(calendar.dayType());
 		
 		final LocalTime uptime = sunDownCalculationService.sunUpTime(calendar.dayOfYear(), calendar.time().offset());
 		

@@ -18,11 +18,12 @@ class RuleDefinitionIdTest {
 	
 	@Test
 	void inputDefaultDailyIotBatch() {
-		assertEquals(3, RulesDefinition.Id.DefaultDailyIotBatch.input().size());
+		assertEquals(4, RulesDefinition.Id.DefaultDailyIotBatch.input().size());
 		
 		
 		assertTrue(RulesDefinition.Id.DefaultDailyIotBatch.input().contains(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY));
 		assertTrue(RulesDefinition.Id.DefaultDailyIotBatch.input().contains(RulesDefinition.HOLIDAY_ALARM_TIME_KEY));
+		assertTrue(RulesDefinition.Id.DefaultDailyIotBatch.input().contains(RulesDefinition.SPECIAL_WORKINGDAY_ALARM_TIME_KEY));
 		assertTrue(RulesDefinition.Id.DefaultDailyIotBatch.input().contains(RulesDefinition.MIN_SUN_DOWN_TIME_KEY));
 	}
 	

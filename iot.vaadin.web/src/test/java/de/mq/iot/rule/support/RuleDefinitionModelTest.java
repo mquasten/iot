@@ -31,6 +31,7 @@ class RuleDefinitionModelTest {
 	private static final String EVENT_TIME_VALUE = "11:11";
 	private static final String HOLIDAY_VALUE = "7:15";
 	private static final String WORKING_DAY_VALUE = "5:15";
+	private static final String SPECIAL_WORKING_DAY_VALUE = "6:15";
 	@SuppressWarnings("unchecked")
 	private final Subject<Events, RuleDefinitionModel> subject = Mockito.mock(Subject.class);
     private final ValidationFactory validationFactory = new ValidationFactory(new DefaultConversionService());
@@ -77,6 +78,7 @@ class RuleDefinitionModelTest {
 		final  Map<String,String> inputData= new HashMap<>();
 		inputData.put(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, WORKING_DAY_VALUE);
 		inputData.put(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, HOLIDAY_VALUE);
+		inputData.put(RulesDefinition.SPECIAL_WORKINGDAY_ALARM_TIME_KEY, SPECIAL_WORKING_DAY_VALUE);
 		Mockito.when(rulesDefinition.inputData()).thenReturn(inputData);
 		
 	
@@ -87,12 +89,14 @@ class RuleDefinitionModelTest {
 		Mockito.doReturn(RulesDefinition.Id.DefaultDailyIotBatch).when(rulesDefinition).id();
 		final Map<String,String> results = ruleDefinitionModel.input().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		
+		System.out.println(results);
 		
-		assertEquals(3,ruleDefinitionModel.input().size());
+		assertEquals(4,ruleDefinitionModel.input().size());
 		RulesDefinition.Id.DefaultDailyIotBatch.input().forEach(key -> assertTrue(results.keySet().contains(key)));
 		
 		assertEquals(WORKING_DAY_VALUE, results.get(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY));
 		assertEquals(HOLIDAY_VALUE, results.get(RulesDefinition.HOLIDAY_ALARM_TIME_KEY));
+		assertEquals(SPECIAL_WORKING_DAY_VALUE, results.get(RulesDefinition.SPECIAL_WORKINGDAY_ALARM_TIME_KEY));
 		assertFalse(StringUtils.hasText( results.get(RulesDefinition.MIN_SUN_DOWN_TIME_KEY)));
 	    
 	}
@@ -260,11 +264,14 @@ class RuleDefinitionModelTest {
 		
 		final Map<String,String> results = ruleDefinitionModel.validateInput().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 		
-		assertEquals(2, results.size());
+		System.out.println(results);
+		
+		assertEquals(3, results.size());
 		
 		assertTrue(results.containsKey(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY));
 		
 		assertTrue(results.containsKey(RulesDefinition.HOLIDAY_ALARM_TIME_KEY));
+		assertTrue(results.containsKey(RulesDefinition.SPECIAL_WORKINGDAY_ALARM_TIME_KEY));
 		
 		results.values().forEach(value -> assertEquals(TimeValidatorImpl.MANDATORY, value));
 		
@@ -274,6 +281,8 @@ class RuleDefinitionModelTest {
 		values.put(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, WORKING_DAY_VALUE);
 		
 		values.put(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, HOLIDAY_VALUE);
+		
+		values.put(RulesDefinition.SPECIAL_WORKINGDAY_ALARM_TIME_KEY, SPECIAL_WORKING_DAY_VALUE);
 		
 		Mockito.doReturn(values).when(rulesDefinition).inputData();
 		

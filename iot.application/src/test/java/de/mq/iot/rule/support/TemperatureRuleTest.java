@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import de.mq.iot.calendar.SpecialdayService.DayType;
 import de.mq.iot.openweather.MeteorologicalData;
 import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.rule.support.Calendar.Time;
@@ -42,7 +43,7 @@ class TemperatureRuleTest {
 		
 		calendar.assignDate(LocalDate.now());
 		calendar.assignTime(Time.Summer);
-		calendar.assignWorkingDay(true);
+		calendar.assignDayType(DayType.WorkingDay);
 		assertTrue(temperatureRule.evaluate(calendar));
 		
 		calendar.assignTime(Time.Winter);
@@ -56,7 +57,7 @@ class TemperatureRuleTest {
 		
 		calendar.assignDate(LocalDate.now());
 		calendar.assignTime(Time.Summer);
-		calendar.assignWorkingDay(true);
+		calendar.assignDayType(DayType.SpecialWorkingDay);
 		
 		temperatureRule.forecast(calendar);
 	

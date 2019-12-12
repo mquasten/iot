@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import de.mq.iot.calendar.SpecialdayService.DayType;
 import de.mq.iot.rule.RulesDefinition;
 
 class InputDataMappingRuleTest {
@@ -41,6 +42,10 @@ class InputDataMappingRuleTest {
 	
 	private final int holidayAlarmMin = 30;
 	
+	private final int specialWorkingdayAlarmHour = 6;
+	
+	private final int specialWorkingdayAlarmMin = 10;
+	
 	
 	private final int minSunDownHour = 17;
 	
@@ -66,8 +71,9 @@ class InputDataMappingRuleTest {
 		inputDataMappingRule.mapping(RulesDefinition.Id.DefaultDailyIotBatch, newValidMapDefaultDailyIotBatch(true), ruleInput);
 		
 		
-		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin), ruleInput.workingdayAlarmTime());
-		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.holidayAlarmTime());
+		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin), ruleInput.alarmTime(DayType.WorkingDay));
+		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.alarmTime(DayType.NonWorkingDay));
+		assertEquals(LocalTime.of(specialWorkingdayAlarmHour, specialWorkingdayAlarmMin), ruleInput.alarmTime(DayType.SpecialWorkingDay));
 		
 		assertEquals(LocalTime.of(minSunDownHour, minSunDownMin), ruleInput.minSunDownTime());
 		assertTrue(ruleInput.isTestMode());
@@ -83,8 +89,9 @@ class InputDataMappingRuleTest {
 		inputDataMappingRule.mapping(RulesDefinition.Id.DefaultDailyIotBatch, newValidMap, ruleInput);
 		
 		
-		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin), ruleInput.workingdayAlarmTime());
-		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.holidayAlarmTime());
+		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin),ruleInput.alarmTime(DayType.WorkingDay));
+		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.alarmTime(DayType.NonWorkingDay));
+		assertEquals(LocalTime.of(specialWorkingdayAlarmHour, specialWorkingdayAlarmMin), ruleInput.alarmTime(DayType.SpecialWorkingDay));
 		
 		assertEquals(LocalTime.MIDNIGHT, ruleInput.minSunDownTime());
 		
@@ -96,6 +103,8 @@ class InputDataMappingRuleTest {
 		ruleInputMap.put(RulesDefinition.WORKINGDAY_ALARM_TIME_KEY, String.format("%s:%s", workingdayAlarmHour, workingdayAlarmMin));
 		
 		ruleInputMap.put(RulesDefinition.HOLIDAY_ALARM_TIME_KEY, String.format("%s:%s", holidayAlarmHour, holidayAlarmMin));
+		
+		ruleInputMap.put(RulesDefinition.SPECIAL_WORKINGDAY_ALARM_TIME_KEY, String.format("%s:%s", specialWorkingdayAlarmHour, specialWorkingdayAlarmMin));
 		
 		
 		ruleInputMap.put(RulesDefinition.MIN_SUN_DOWN_TIME_KEY, String.format("%s:%s", minSunDownHour, minSunDownMin));
@@ -115,8 +124,10 @@ class InputDataMappingRuleTest {
 		inputDataMappingRule.mapping(RulesDefinition.Id.DefaultDailyIotBatch, newValidMapDefaultDailyIotBatch(false), ruleInput);
 		
 		
-		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin), ruleInput.workingdayAlarmTime());
-		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.holidayAlarmTime());
+		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin), ruleInput.alarmTime(DayType.WorkingDay));
+		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.alarmTime(DayType.NonWorkingDay));
+		assertEquals(LocalTime.of(specialWorkingdayAlarmHour, specialWorkingdayAlarmMin), ruleInput.alarmTime(DayType.SpecialWorkingDay));
+		
 		assertFalse(ruleInput.isTestMode());
 		assertFalse(ruleInput.isUpdateMode());
 	}

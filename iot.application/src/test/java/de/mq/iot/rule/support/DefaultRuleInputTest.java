@@ -2,7 +2,7 @@ package de.mq.iot.rule.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
@@ -14,25 +14,38 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import de.mq.iot.calendar.SpecialdayService.DayType;
+
 class DefaultRuleInputTest {
 	
 	private final LocalTime workingdayAlarmTime = LocalTime.of(5, 15);
 	
 	private final  LocalTime holidayAlarmTime = LocalTime.of(7, 15);
 	
+	private final  LocalTime specialWorkingdayTime = LocalTime.of(6, 15);
+	
 	private final  LocalTime minSunDownTime = LocalTime.of(17, 15);
 	
-	private final DefaultRuleInput ruleInput = new DefaultRuleInput(workingdayAlarmTime, holidayAlarmTime, minSunDownTime);
+	private final DefaultRuleInput ruleInput = new DefaultRuleInput(workingdayAlarmTime, holidayAlarmTime, specialWorkingdayTime, minSunDownTime);
 	
 	@Test
 	void workingdayAlarmTime() {
-		assertEquals(workingdayAlarmTime, ruleInput.workingdayAlarmTime());
+		assertEquals(workingdayAlarmTime, ruleInput.alarmTime(DayType.WorkingDay));
 	}
 	
 	
 	@Test
 	void holidayAlarmTime() {
-		assertEquals(holidayAlarmTime, ruleInput.holidayAlarmTime());
+		assertEquals(holidayAlarmTime, ruleInput.alarmTime(DayType.NonWorkingDay));
+	}
+	
+	@Test
+	void specialWorkingdayAlarmTime() {
+		assertEquals(specialWorkingdayTime, ruleInput.alarmTime(DayType.SpecialWorkingDay));
+	}
+	@Test
+	void alarmTimeDayTypeMissing() {
+		assertThrows(IllegalArgumentException.class, () -> ruleInput.alarmTime(null));
 	}
 	
 	@Test
@@ -57,8 +70,7 @@ class DefaultRuleInputTest {
 	void defaultConstructor() {
 		final DefaultRuleInput ruleInput = new DefaultRuleInput();
 		assertFalse(ruleInput.isUpdateMode());
-		assertNull(ruleInput.workingdayAlarmTime());
-		assertNull(ruleInput.holidayAlarmTime());
+		
 		
 		assertFalse(ruleInput.valid());
 	}
@@ -73,6 +85,7 @@ class DefaultRuleInputTest {
 	    ReflectionTestUtils.setField(ruleInput, fields.get(0), LocalTime.now());
 	    assertFalse(ruleInput.valid());
 	    ReflectionTestUtils.setField(ruleInput, fields.get(1), LocalTime.now());
+	    ReflectionTestUtils.setField(ruleInput, fields.get(2), LocalTime.now());
 	    assertTrue(ruleInput.valid());
 	    
 	}

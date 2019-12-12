@@ -9,6 +9,8 @@ import java.util.Optional;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
+import de.mq.iot.calendar.SpecialdayService.DayType;
+
 class Calendar implements ValidFieldValues{
 	
 	enum  Time {
@@ -31,7 +33,7 @@ class Calendar implements ValidFieldValues{
 		}
 	}
 	
-	private Boolean workingDay;
+	private DayType dayType;
 	
 	private LocalDate date;
 	
@@ -62,14 +64,18 @@ class Calendar implements ValidFieldValues{
 	}
 
 	final boolean workingDay() {
-		Assert.notNull(workingDay, "Workingday not set.");
-		return workingDay;
+		Assert.notNull(dayType, "DayType not set.");
+		return dayType!=DayType.NonWorkingDay;
+		
 	}
 
-	final void assignWorkingDay(final boolean workingDay) {
-		this.workingDay = workingDay;
+	final void assignDayType(final DayType dayType) {
+		this.dayType = dayType;
 	}
 
+	final DayType dayType() {
+		return dayType;
+	}
 	
 	final void assignTime(final Time time) {
 		this.time=time;

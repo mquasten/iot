@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
+
+import de.mq.iot.calendar.SpecialdayService.DayType;
 import de.mq.iot.rule.support.Calendar.Time;
 
 class CalendarTest {
@@ -66,9 +68,14 @@ class CalendarTest {
 	void workingDay() {
 		assertThrows(IllegalArgumentException.class, () -> calendar.workingDay());
 		
-		calendar.assignWorkingDay(true);
-		
+		calendar.assignDayType(DayType.WorkingDay);
 		assertTrue(calendar.workingDay());
+		
+		calendar.assignDayType(DayType.SpecialWorkingDay);
+		assertTrue(calendar.workingDay());
+		
+		calendar.assignDayType(DayType.NonWorkingDay);
+		assertFalse(calendar.workingDay());
 	}
 	
 	@Test
@@ -88,7 +95,7 @@ class CalendarTest {
 		
 		assertFalse(calendar.valid());
 		
-		calendar.assignWorkingDay(true);
+		calendar.assignDayType(DayType.WorkingDay);
 		
 		assertFalse(calendar.valid());
 		

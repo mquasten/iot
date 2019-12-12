@@ -12,6 +12,7 @@ import java.time.Year;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import de.mq.iot.calendar.SpecialdayService.DayType;
 import de.mq.iot.rule.support.Calendar.Time;
 import de.mq.iot.support.SunDownCalculationService;
 
@@ -33,7 +34,7 @@ class TimerEventsRuleTest {
 	private final TimerEventsRule timerEventsRule = new TimerEventsRule(sunDownCalculationService);
 	
 	
-	private  DefaultRuleInput ruleInput = new DefaultRuleInput(LocalTime.of(5, 15) , LocalTime.of(7, 15), LocalTime.of(17, 15));
+	private  DefaultRuleInput ruleInput = new DefaultRuleInput(LocalTime.of(5, 15) , LocalTime.of(7, 15), LocalTime.of(6, 15), LocalTime.of(17, 15));
 	
 	private final Calendar calendar = new Calendar();
 
@@ -48,7 +49,7 @@ class TimerEventsRuleTest {
 	private void vaidCalendar(Calendar calendar) {
 		calendar.assignDate(date);
 		calendar.assignTime(Time.Summer);
-		calendar.assignWorkingDay(true);
+		calendar.assignDayType(DayType.WorkingDay);
 	}
 	
 	@Test
@@ -101,7 +102,7 @@ class TimerEventsRuleTest {
 		Mockito.when(sunDownCalculationService.sunUpTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_UPTIME);
 		Mockito.when(sunDownCalculationService.sunDownTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_DOWNTIME);
 		
-		calendar.assignWorkingDay(false);
+		calendar.assignDayType(DayType.NonWorkingDay);
 		
 		timerEventsRule.calculateEvents(calendar, ruleInput);
 		
