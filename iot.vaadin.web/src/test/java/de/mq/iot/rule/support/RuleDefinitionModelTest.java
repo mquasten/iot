@@ -88,8 +88,7 @@ class RuleDefinitionModelTest {
 		
 		Mockito.doReturn(RulesDefinition.Id.DefaultDailyIotBatch).when(rulesDefinition).id();
 		final Map<String,String> results = ruleDefinitionModel.input().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-		
-		System.out.println(results);
+	
 		
 		assertEquals(4,ruleDefinitionModel.input().size());
 		RulesDefinition.Id.DefaultDailyIotBatch.input().forEach(key -> assertTrue(results.keySet().contains(key)));
