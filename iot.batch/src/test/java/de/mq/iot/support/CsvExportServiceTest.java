@@ -177,12 +177,12 @@ class CsvExportServiceTest {
 		csvService.export("Specialday", "export.csv");
 		final List<List<String>> results = lines();
 
-		assertEquals(6, results.get(0).size());
-		assertEquals(6, results.get(1).size());
+		assertEquals(7, results.get(0).size());
+		assertEquals(7, results.get(1).size());
 
 		final Map<String, String> map = new HashMap<>();
-		IntStream.range(0, 6).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
-
+		IntStream.range(0, 7).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
+		
 		CsvType.Specialday.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
 
 		assertEquals(ReflectionTestUtils.getField(specialday, "id"), map.get("id"));
@@ -191,6 +191,7 @@ class CsvExportServiceTest {
 		assertEquals(LocalDate.now().getDayOfMonth(), (int) Integer.valueOf(map.get("dayOfMonth")));
 		assertEquals(LocalDate.now().getMonthValue(), (int) Integer.valueOf(map.get("month")));
 		assertEquals(Year.now().getValue(), (int) Integer.valueOf(map.get("year")));
+		assertFalse(StringUtils.hasText(map.get("dayOfWeek")));
 	}
 
 	@Test

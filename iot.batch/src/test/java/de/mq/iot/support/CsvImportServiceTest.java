@@ -125,8 +125,8 @@ public class CsvImportServiceTest {
 	
 	@Test
 	final void specialDays() {
-		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("id;type;offset;dayOfMonth;month;year\r\n" + 
-				String.format("%s;Fix;0;%s;%s;\r\n%s;Gauss;%s;;;", firstId, dayOfMonth, month, secondId, offset)));
+		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("id;type;offset;dayOfMonth;month;year;dayOfWeek\r\n" + 
+				String.format("%s;Fix;0;%s;%s;;\r\n%s;Gauss;%s;;;;", firstId, dayOfMonth, month, secondId, offset)));
 		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
 		
 		csvImportService.importCsv(CsvType.Specialday.name(), "egal");
