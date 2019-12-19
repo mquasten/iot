@@ -11,8 +11,10 @@ class StateTest {
 	
 	@Test
 	void function() {
-		final State<?> state = Mockito.mock(State.class);
+		final State<?> state = Mockito.mock(State.class, Mockito.CALLS_REAL_METHODS);
 		assertEquals(Optional.empty(), state.function());
+		
+		
 	}
 	
 }
