@@ -62,7 +62,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	@Override
 	public final Collection<Specialday> specialdays(final Year year) {
 		final Collection<Specialday> results = new ArrayList<>();
-		results.addAll(specialdaysRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss)).collectList().block(duration));
+		results.addAll(specialdaysRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss)).collectList().block(duration));	
 		results.addAll(specialdaysRepository.findByTypeAndYear(Type.Vacation, year.getValue()).collectList().block(duration));
 		return Collections.unmodifiableCollection(results);
 		

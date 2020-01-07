@@ -5,7 +5,6 @@ package de.mq.iot.support;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
-import java.time.Year;
 import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 class SimpleSunDownCalculationServiceImpl implements SunDownCalculationService {
 	
+private static final int YEAR_FOR_AVARANGE_CALCULATIONS = 18;
+
 private final double  latitude;
 	
 	private final double longitude;
@@ -82,16 +83,16 @@ private final double  latitude;
 	
 	
 	private final LocalTime time(final Month month, final int timeZoneOffsetInHours, boolean isDown ) {
-		LocalDate firstDay = LocalDate.of(Year.now().getValue(), month, 01);
+		LocalDate firstDay = LocalDate.of(YEAR_FOR_AVARANGE_CALCULATIONS, month, 01);
 		
 		
 		final int daysInMonth = firstDay.lengthOfMonth();
 		
 		final double result =   IntStream.rangeClosed(1, daysInMonth).mapToDouble(i -> {
 	
-			final LocalDate localDate = LocalDate.of(18, month, i);
+			final LocalDate localDate = LocalDate.of(YEAR_FOR_AVARANGE_CALCULATIONS, month, i);
 			
-			//System.out.println( localDate + "=" + localDate.getDayOfYear());
+			
 			
 			return time(localDate.getDayOfYear(), timeZoneOffsetInHours, isDown);
 			
