@@ -27,4 +27,6 @@ public interface SpecialdayService {
 
 	Entry<DayType, String> typeOfDay(LocalDate date);
 
+	
+
 }

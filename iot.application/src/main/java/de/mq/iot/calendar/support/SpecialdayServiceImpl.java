@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
@@ -67,6 +69,31 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		return Collections.unmodifiableCollection(results);
 		
 	}
+	
+	
+	public Collection<Specialday> specialdays(final Collection<Type> types){
+		
+		Assert.notEmpty(types, "At least one type required.");
+		
+		final Collection<Specialday> results = new ArrayList<>();
+		
+		types.stream().filter(type -> type.isWithYear()).forEach(type  -> results.addAll(specialdaysRepository.findByTypeAndYear(type, Year.now().getValue()).collectList().block(duration)));
+		
+		
+		
+		final List<Type> typesWithOutYear = types.stream().filter(type -> !type.isWithYear()).collect(Collectors.toList());
+		
+		if ( CollectionUtils.isEmpty(typesWithOutYear)){
+			return Collections.unmodifiableCollection(results);
+		}
+		
+		results.addAll(specialdaysRepository.findByTypeIn(typesWithOutYear).collectList().block(duration));	
+		return Collections.unmodifiableCollection(results);
+	
+		
+	}
+	
+	
 	
 	@Override
 	public Entry<DayType,String> typeOfDay(final LocalDate date) {

@@ -15,12 +15,26 @@ import de.mq.iot.calendar.Specialday;
 class SpecialdayImpl implements Specialday {
 	
 	enum Type {
-		Gauss,
+		Gauss(),
 		Fix,
-		Vacation,
+		Vacation(true),
 		Weekend,
-		SpecialWorkingDate,
+		SpecialWorkingDate(true),
 		SpecialWorkingDay;
+		
+		
+		private boolean withYear;
+		
+		Type(){
+			withYear=false;
+		}
+		Type(final boolean withYear){
+			this.withYear=withYear;
+		}
+		final boolean isWithYear() {
+			return withYear;
+		}
+		
 	}
 	
 	@Id
