@@ -27,7 +27,7 @@ import org.springframework.util.CollectionUtils;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
-import de.mq.iot.calendar.support.SpecialdayImpl.Type;
+import de.mq.iot.calendar.Specialday.Type;
 
 
 @Service
@@ -71,6 +71,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	}
 	
 	
+	@Override
 	public Collection<Specialday> specialdays(final Collection<Type> types){
 		
 		Assert.notEmpty(types, "At least one type required.");

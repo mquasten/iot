@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.repository.RepositoryDefinition;
 
 import de.mq.iot.calendar.Specialday;
-import de.mq.iot.calendar.support.SpecialdayImpl.Type;
+import de.mq.iot.calendar.Specialday.Type;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

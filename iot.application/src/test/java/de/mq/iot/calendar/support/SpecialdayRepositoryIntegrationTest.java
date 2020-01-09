@@ -19,7 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.Specialday.FixedSpecialDay;
-import de.mq.iot.calendar.support.SpecialdayImpl.Type;
+import de.mq.iot.calendar.Specialday.Type;
 import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Year;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import de.mq.iot.calendar.Specialday;
+import de.mq.iot.calendar.Specialday.Type;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.SpecialdayService.DayType;
 import de.mq.iot.support.ApplicationConfiguration;
@@ -29,8 +31,9 @@ public class SpecialdayServiceIntegrationTest {
 	private SpecialdayService specialdayService;
 	@Autowired
 	private SpecialdayRepository specialdayRepository;
-	@Disabled
+	
 	@Test
+	@Disabled
 	void vacation() {
 		final Collection<Specialday> days = specialdayService.vacation(LocalDate.of(2018, 8, 11), LocalDate.of(2018, 8, 19));
 		
@@ -71,6 +74,12 @@ public class SpecialdayServiceIntegrationTest {
 		assertEquals(DayType.WorkingDay, specialdayService.typeOfDay(LocalDate.of(2019, 12, 10)).getKey());
 		
 		assertTrue(specialdayService.typeOfDay(LocalDate.of(2019, 12, 9)).getValue().startsWith(SpecialdayImpl.Type.SpecialWorkingDay.name()));
+	}
+	@Disabled
+	@Test
+	void specialdays() {
+		assertEquals(2, specialdayService.specialdays(Arrays.asList(Type.Weekend)).size());
+		assertEquals(12, specialdayService.specialdays(Arrays.asList(Type.Gauss, Type.Fix)).size());
 	}
 	
 }

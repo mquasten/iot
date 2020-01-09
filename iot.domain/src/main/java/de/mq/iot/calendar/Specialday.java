@@ -8,7 +8,30 @@ import java.time.MonthDay;
 
 public interface Specialday {
 
-
+	public enum Type {
+		Gauss(),
+		Fix,
+		Vacation(true),
+		Weekend,
+		SpecialWorkingDate(true),
+		SpecialWorkingDay;
+		
+		
+		private boolean withYear;
+		
+		Type(){
+			withYear=false;
+		}
+		Type(final boolean withYear){
+			this.withYear=withYear;
+		}
+		public final boolean isWithYear() {
+			return withYear;
+		}
+		
+	}
+	
+	
 	public enum VariantSpecialDay {
 		GoodFriday(-2),
 		Easter(0),

@@ -20,8 +20,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.Specialday.FixedSpecialDay;
+import de.mq.iot.calendar.Specialday.Type;
 import de.mq.iot.calendar.Specialday.VariantSpecialDay;
-import de.mq.iot.calendar.support.SpecialdayImpl.Type;
 
 public class SpecialdayTest {
 
@@ -242,5 +242,7 @@ public class SpecialdayTest {
 	private Type type(final Specialday specialday) {
 		return DataAccessUtils.requiredSingleResult(Arrays.asList(SpecialdayImpl.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(SpecialdayImpl.Type.class)).map(field -> (SpecialdayImpl.Type) ReflectionTestUtils.getField(specialday, field.getName())).collect(Collectors.toSet()));
 	}
+	
+	
 
 }

@@ -25,7 +25,7 @@ import org.mockito.Mockito;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.SpecialdayService.DayType;
-import de.mq.iot.calendar.support.SpecialdayImpl.Type;
+import de.mq.iot.calendar.Specialday.Type;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -272,5 +272,22 @@ class SpecialdayServiceTest {
 		assertTrue(results.contains(third));
 		
 		assertFalse(results.contains(first));
+	}
+	
+	@Test
+	void specialdaysWithoutYear() {
+		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Weekend))).thenReturn(fluxWeekend);
+		final Collection<Specialday> results = specialdayService.specialdays(Arrays.asList(Type.Weekend));
+		assertEquals(1, results.size());
+		assertEquals(weekendSpecialday, results.stream().findFirst().get());
+	}
+	
+	@Test
+	void specialdaysWithYear() {
+		Mockito.when(specialdayRepository.findByTypeAndYear(Type.Vacation, Year.now().getValue())).thenReturn(fluxVacation);
+		
+		final Collection<Specialday> results = specialdayService.specialdays(Arrays.asList(Type.Vacation));
+		assertEquals(1, results.size());
+		assertEquals(otherSpecialday, results.stream().findFirst().get());
 	}
 }
