@@ -76,7 +76,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		
 		Assert.notEmpty(types, "At least one type required.");
 		
-		final Collection<Specialday> results = new ArrayList<>();
+		final List<Specialday> results = new ArrayList<>();
 		
 		types.stream().filter(type -> type.isWithYear()).forEach(type  -> results.addAll(specialdaysRepository.findByTypeAndYear(type, Year.now().getValue()).collectList().block(duration)));
 		
@@ -85,10 +85,13 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		final List<Type> typesWithOutYear = types.stream().filter(type -> !type.isWithYear()).collect(Collectors.toList());
 		
 		if ( CollectionUtils.isEmpty(typesWithOutYear)){
+			
+			Collections.sort(results);
 			return Collections.unmodifiableCollection(results);
 		}
 		
 		results.addAll(specialdaysRepository.findByTypeIn(typesWithOutYear).collectList().block(duration));	
+		Collections.sort(results);
 		return Collections.unmodifiableCollection(results);
 	
 		

@@ -75,11 +75,14 @@ public class SpecialdayServiceIntegrationTest {
 		
 		assertTrue(specialdayService.typeOfDay(LocalDate.of(2019, 12, 9)).getValue().startsWith(SpecialdayImpl.Type.SpecialWorkingDay.name()));
 	}
-	@Disabled
+
 	@Test
+	@Disabled
 	void specialdays() {
 		assertEquals(2, specialdayService.specialdays(Arrays.asList(Type.Weekend)).size());
 		assertEquals(12, specialdayService.specialdays(Arrays.asList(Type.Gauss, Type.Fix)).size());
+		specialdayService.specialdays(Arrays.asList(Type.Gauss, Type.Fix)).forEach(day -> System.out.println(day.date(Year.now().getValue())));
+		
 	}
 	
 }

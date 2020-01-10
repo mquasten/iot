@@ -290,4 +290,34 @@ class SpecialdayServiceTest {
 		assertEquals(1, results.size());
 		assertEquals(otherSpecialday, results.stream().findFirst().get());
 	}
+	
+	@Test
+	void specialdaysWithoutYearSort() {
+		final Specialday sunday = new SpecialdayImpl(DayOfWeek.SUNDAY,true);
+		final Specialday saturday = new SpecialdayImpl(DayOfWeek.SATURDAY,true);
+	
+		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Weekend))).thenReturn(Flux.fromArray(new Specialday[] {sunday, saturday}));
+	
+		
+		final Collection<Specialday> results = specialdayService.specialdays(Arrays.asList(Type.Weekend));
+		assertEquals(2, results.size());
+		assertEquals(DayOfWeek.SATURDAY, results.stream().findAny().get().date(1).getDayOfWeek());
+		
+	}
+	
+	@Test
+	void specialdaysWithYearSort() {
+		
+		final Specialday christmas2 = new  SpecialdayImpl(LocalDate.of(Year.now().getValue(), 12, 26));
+		final Specialday christmas1 = new  SpecialdayImpl(LocalDate.of(Year.now().getValue(), 12, 25));
+		Mockito.when(specialdayRepository.findByTypeAndYear(Type.Vacation, Year.now().getValue())).thenReturn(Flux.fromArray(new Specialday[] {christmas2, christmas1}));
+		
+		final Collection<Specialday> results = specialdayService.specialdays(Arrays.asList(Type.Vacation));
+		
+		assertEquals(2, results.size());
+		
+		assertEquals(christmas1, results.stream().findAny().get());
+	}
+	
+	
 }
