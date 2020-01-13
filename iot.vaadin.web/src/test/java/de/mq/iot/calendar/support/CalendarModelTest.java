@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -51,17 +51,15 @@ class CalendarModelTest {
 	
 	    assertEquals(3, dependencies.size());
 	    assertEquals(subject, dependencies.get(Subject.class));
-	    assertEquals(CalendarModel.Filter.All ,  dependencies.get(CalendarModel.Filter.class));
+	    assertEquals(CalendarModel.Filter.Vacation ,  dependencies.get(CalendarModel.Filter.class));
 	    
 	    @SuppressWarnings("unchecked")
-		final Map<CalendarModel.Filter, Predicate<Specialday>> filters =  (Map<Filter, Predicate<Specialday>>) dependencies.get(Map.class);
-	    assertEquals(2, filters.size());
-	    
-	   assertTrue( filters.get(CalendarModel.Filter.All).test(Mockito.mock(Specialday.class)));
-	   final Specialday specialday = Mockito.mock(Specialday.class);
-	 
-	   Mockito.when(specialday.isVacation()).thenReturn(true);
-	   assertTrue( filters.get(CalendarModel.Filter.Vacation).test(specialday));
+		final Map<CalendarModel.Filter, Collection<Filter>> filters =  (Map<Filter,  Collection<Filter>>) dependencies.get(Map.class);
+	    assertEquals(3, filters.size());
+	    assertEquals(Arrays.asList(Specialday.Type.Vacation), filters.get(CalendarModel.Filter.Vacation));
+	    assertEquals(Arrays.asList(Specialday.Type.SpecialWorkingDate), filters.get(CalendarModel.Filter.WorkingDate));
+	    assertEquals(Arrays.asList(Specialday.Type.SpecialWorkingDay), filters.get(CalendarModel.Filter.WorkingDay));
+	   
 	 
 	}
 	
@@ -231,12 +229,11 @@ class CalendarModelTest {
 	
 	@Test
 	public final void filter() {
-		assertTrue(calendarModel.filter().test(null));
-		final Specialday specialday = Mockito.mock(Specialday.class);
-		calendarModel.assign(CalendarModel.Filter.Vacation);
-		assertFalse(calendarModel.filter().test(specialday));
-		Mockito.when(specialday.isVacation()).thenReturn(true);
-		assertTrue(calendarModel.filter().test(specialday));
+		assertEquals(1, calendarModel.filter().size());
+		assertEquals(Specialday.Type.Vacation, calendarModel.filter().stream().findAny().get());
+		calendarModel.assign(CalendarModel.Filter.WorkingDate);
+		assertEquals(1, calendarModel.filter().size());
+		assertEquals(Specialday.Type.SpecialWorkingDate, calendarModel.filter().stream().findAny().get());
 		
 		Mockito.verify(subject).notifyObservers(Events.DatesChanged);
 	}

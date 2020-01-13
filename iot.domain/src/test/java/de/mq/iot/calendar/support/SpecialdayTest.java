@@ -216,6 +216,9 @@ public class SpecialdayTest {
 		final Specialday specialday = new SpecialdayImpl(DayOfWeek.SATURDAY, true);
 		assertEquals(SpecialdayImpl.Type.Weekend, type(specialday));
 		assertEquals(DayOfWeek.SATURDAY, specialday.dayOfWeek());
+		
+		assertEquals(LocalDate.now().with(DayOfWeek.SATURDAY), specialday.date(Year.MAX_VALUE));;
+		
 	}
 	
 	@Test
@@ -223,6 +226,7 @@ public class SpecialdayTest {
 		final Specialday specialday = new SpecialdayImpl(DayOfWeek.MONDAY);
 		assertEquals(SpecialdayImpl.Type.SpecialWorkingDay, type(specialday));
 		assertEquals(DayOfWeek.MONDAY, specialday.dayOfWeek());
+		assertEquals(LocalDate.now().with(DayOfWeek.MONDAY), specialday.date(Year.MAX_VALUE));;
 	}
 	@Test
 	void dayOfWeekWrongType() {
@@ -241,6 +245,18 @@ public class SpecialdayTest {
 	
 	private Type type(final Specialday specialday) {
 		return DataAccessUtils.requiredSingleResult(Arrays.asList(SpecialdayImpl.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(SpecialdayImpl.Type.class)).map(field -> (SpecialdayImpl.Type) ReflectionTestUtils.getField(specialday, field.getName())).collect(Collectors.toSet()));
+	}
+	
+	@Test
+	void compare() {
+		assertEquals(-1, VariantSpecialDay.Easter.compareTo(VariantSpecialDay.EasterMonday));
+		assertEquals(0, VariantSpecialDay.Easter.compareTo(VariantSpecialDay.Easter));
+		assertEquals(1, VariantSpecialDay.Easter.compareTo(VariantSpecialDay.GoodFriday));
+		
+		assertEquals(-1,new SpecialdayImpl(DayOfWeek.MONDAY).compareTo(new SpecialdayImpl(DayOfWeek.SUNDAY)));
+		assertEquals(0,new SpecialdayImpl(DayOfWeek.MONDAY).compareTo(new SpecialdayImpl(DayOfWeek.MONDAY)));
+		assertEquals(1,new SpecialdayImpl(DayOfWeek.SUNDAY).compareTo(new SpecialdayImpl(DayOfWeek.SATURDAY)));
+		
 	}
 	
 	

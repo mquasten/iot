@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,13 +27,14 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventBus;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
 
 import de.mq.iot.calendar.Specialday;
+import de.mq.iot.calendar.Specialday.Type;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.support.CalendarModel.Events;
 import de.mq.iot.calendar.support.CalendarModel.Filter;
@@ -80,7 +80,7 @@ class CalendarViewTest {
 		Mockito.when(calendarModel.locale()).thenReturn(Locale.GERMAN);
 		Arrays.asList(I18N_CALENDAR_DELETE_RANGE, I18N_CALENDAR_ADD_RANGE, I18N_CALENDAR_TABLE_HEADER, I18N_CALENDAR_INFO, I18N_CALENDAR_RANGE_FROM,I18N_CALENDAR_RANGE_TO , I18N_CALENDAR_VALIDATION + ValidationErrors.Invalid.name().toLowerCase()).forEach(key -> Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN));
 		
-		 Mockito.doReturn((Predicate<Specialday>) day -> true).when(calendarModel).filter();
+		 Mockito.doReturn(Arrays.asList(Specialday.Type.Vacation)).when(calendarModel).filter();
 		
 		Mockito.doAnswer(answer -> {
 
@@ -95,12 +95,12 @@ class CalendarViewTest {
 		Mockito.doAnswer(answer-> { 
 			   observers.get(Events.DatesChanged).process();
 			   return null;
-		   }).when(calendarModel).assign(CalendarModel.Filter.All);
+		   }).when(calendarModel).assign(CalendarModel.Filter.Vacation);
 		   
 		
 		
 		Mockito.when(specialday.date(Year.now().getValue())).thenReturn(LocalDate.of(1968, Month.MAY, 28));
-		Mockito.when(specialdayService.specialdays(Year.now())).thenReturn(Arrays.asList(specialday));
+		Mockito.when(specialdayService.specialdays(Mockito.anyCollection())).thenReturn(Arrays.asList(specialday));
 		
 		
 		
@@ -126,7 +126,7 @@ class CalendarViewTest {
 	
 	@Test
 	void init() {
-		Mockito.verify(specialdayService).specialdays(Year.now());
+		Mockito.verify(specialdayService).specialdays(Arrays.asList(Type.Vacation));
 		
 		final Grid<?> grid = (Grid<?>) fields.get("grid");
 		final ListDataProvider<?>  dates = (ListDataProvider<?>) grid.getDataProvider();
@@ -135,8 +135,9 @@ class CalendarViewTest {
 		assertEquals(specialday.date(Year.now().getValue()), dates.getItems().stream().findFirst().get());
 		
 		
-		final Checkbox vacationOnlyCheckbox   = (Checkbox) fields.get("vacationOnlyCheckbox");
-		assertFalse(vacationOnlyCheckbox.getValue());
+		@SuppressWarnings("unchecked")
+		final ComboBox<Filter> vacationOnlyCheckbox   = (ComboBox<Filter>) fields.get("filtersComboBox");
+		assertEquals(Filter.Vacation, vacationOnlyCheckbox.getValue());
 		
 		
 		
@@ -257,18 +258,19 @@ class CalendarViewTest {
 	}
 	
 	@Test
-	void vacationOnlyCheckbox() {
+	void filtersComboBox() {
 		
-		final Checkbox deleteButton =  (Checkbox) fields.get("vacationOnlyCheckbox");
-		assertFalse(deleteButton.getValue());
+		@SuppressWarnings("unchecked")
+		final ComboBox<Filter> filtersComboBox =  (ComboBox<Filter>) fields.get("filtersComboBox");
+		assertEquals(Filter.Vacation, filtersComboBox.getValue());
 		
-		deleteButton.setValue(true);
+		filtersComboBox.setValue(Filter.WorkingDate);
 		
-		Mockito.verify(calendarModel).assign(Filter.Vacation);
+		Mockito.verify(calendarModel).assign(Filter.WorkingDate);
 		
-		deleteButton.setValue(false);
+		filtersComboBox.setValue(Filter.Vacation);
 		
-		Mockito.verify(calendarModel, Mockito.atLeast(1)).assign(Filter.All);
+		Mockito.verify(calendarModel, Mockito.atLeast(1)).assign(Filter.Vacation);
 		
 		
 	}

@@ -12,7 +12,8 @@ import java.util.stream.Collectors;
 import org.springframework.context.MessageSource;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
+
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.ColumnBase;
@@ -32,6 +33,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.support.CalendarModel.Events;
+import de.mq.iot.calendar.support.CalendarModel.Filter;
 import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
 import de.mq.iot.model.I18NKey;
 import de.mq.iot.model.LocalizeView;
@@ -64,7 +66,11 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	@I18NKey("table_header")
 	private final Label dateColumnLabel = new Label();
 
-	private Checkbox vacationOnlyCheckbox = new Checkbox();
+	//private Checkbox vacationOnlyCheckbox = new Checkbox();
+	
+	
+	
+	private ComboBox<Filter> filtersComboBox =  new ComboBox<Filter>();
 	
 	private final Grid<LocalDate> grid = new Grid<>();
 
@@ -97,6 +103,10 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 		
 	
+		filtersComboBox.setItems(Arrays.asList(Filter.values()));
+		filtersComboBox.setAllowCustomValue(false);
+	
+		filtersComboBox.setValue(Filter.Vacation);
 
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
@@ -177,10 +187,10 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 			localize(messageSource, calendarModel.locale());
 		
 			
-			dateColumnBase.setHeader(vacationOnlyCheckbox);
+			dateColumnBase.setHeader(filtersComboBox);
 			
 			Arrays.asList(ValidationErrors.values()).stream().filter(validationError -> validationError!= ValidationErrors.Ok).forEach(validationError -> validationErrors.put( validationError, messageSource.getMessage("calendar_validation_" + validationError.name().toLowerCase() , null, "???", calendarModel.locale())));
-			vacationOnlyCheckbox.setLabel(dateColumnLabel.getText());
+			filtersComboBox.setLabel(dateColumnLabel.getText());
 			
 		});
 		
@@ -192,9 +202,9 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		calendarModel.register(CalendarModel.Events.DatesChanged, () -> grid.setItems(readDates(specialdayService)));
 		
 
-		vacationOnlyCheckbox.addValueChangeListener(event -> {
+		filtersComboBox.addValueChangeListener(event -> {
 			
-			calendarModel.assign(event.getValue() ? CalendarModel.Filter.Vacation : CalendarModel.Filter.All);
+			calendarModel.assign(event.getValue());
 			
 			//grid.setItems(readDates(specialdayService));
 			
@@ -205,7 +215,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		
 		
 		saveButton.addClickListener(event -> process(specialday -> specialdayService.save(specialday), specialdayService)); 
-		calendarModel.assign(CalendarModel.Filter.All);
+		calendarModel.assign(CalendarModel.Filter.Vacation);
 			
 	}
 
@@ -243,7 +253,8 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 	private List<LocalDate> readDates(final SpecialdayService specialdayService) {
 	
-		return specialdayService.specialdays(Year.now()).stream().filter(calendarModel.filter()).map(day -> day.date(Year.now().getValue())).sorted().collect(Collectors.toList());
+		return specialdayService.specialdays(calendarModel.filter()).stream().map(day -> day.date(Year.now().getValue())).sorted().collect(Collectors.toList());
+		//return specialdayService.specialdays(Year.now()).stream().filter(calendarModel.filter()).map(day -> day.date(Year.now().getValue())).sorted().collect(Collectors.toList());
 	}
 	
 	ValueProvider<LocalDate, String> dateValueProvider() {

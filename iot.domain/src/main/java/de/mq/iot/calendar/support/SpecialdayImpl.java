@@ -3,6 +3,9 @@ package de.mq.iot.calendar.support;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.MonthDay;
+import java.time.Year;
+
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
@@ -133,8 +136,23 @@ class SpecialdayImpl implements Specialday {
 			dateExistsGuard();
 			return  LocalDate.of(this.year, month, dayOfMonth);
 		}
+		
+		if(type == Type.Weekend) {
+			dayOfWeekExistsGuard();
+			return LocalDate.now().with(DayOfWeek.of(this.dayOfWeek));
+		}
+		
+		if(type == Type.SpecialWorkingDay) {
+			dayOfWeekExistsGuard();
+			return LocalDate.now().with(DayOfWeek.of(this.dayOfWeek));
+		}
+		
 		throw new IllegalArgumentException("Invalid type: " + type);
 		
+	}
+
+	private void dayOfWeekExistsGuard() {
+		Assert.notNull(this.dayOfWeek,"DayOfWeek is mandatory.");
 	}
 
 	private void dateExistsGuard() {
@@ -184,6 +202,17 @@ class SpecialdayImpl implements Specialday {
 	public final boolean isVacation() {
 		return type == Type.Vacation;
 		
+	}
+
+	@Override
+	public int compareTo(final Specialday specialday) {
+		
+		return Long.signum(toMilliSecondsSinceUnix(this) - toMilliSecondsSinceUnix(specialday));
+		
+	}
+
+	private long toMilliSecondsSinceUnix(final Specialday specialday) {
+		return specialday.date(Year.now().getValue()).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
 	}
 
 }

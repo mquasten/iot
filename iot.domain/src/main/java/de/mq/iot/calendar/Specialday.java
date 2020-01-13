@@ -6,7 +6,7 @@ import java.time.MonthDay;
 
 
 
-public interface Specialday {
+public interface Specialday extends Comparable<Specialday> {
 
 	public enum Type {
 		Gauss(),
