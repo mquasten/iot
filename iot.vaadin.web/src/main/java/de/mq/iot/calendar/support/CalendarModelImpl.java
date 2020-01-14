@@ -173,10 +173,9 @@ public class CalendarModelImpl  implements CalendarModel  {
 	
 	@Override
 	public void assign(CalendarModel.Filter filter) {
-		if(filter != null) {
 		this.filter=filter;
 		notifyObservers(Events.DatesChanged);
-		}
+		
 	}
 
 

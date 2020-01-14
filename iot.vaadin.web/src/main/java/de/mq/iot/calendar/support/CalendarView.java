@@ -3,16 +3,14 @@ package de.mq.iot.calendar.support;
 import java.time.LocalDate;
 import java.time.Year;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.springframework.context.MessageSource;
 
 import com.vaadin.flow.component.button.Button;
-
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
@@ -24,7 +22,6 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
@@ -72,7 +69,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	
 	private ComboBox<Filter> filtersComboBox =  new ComboBox<Filter>();
 	
-	private final Grid<LocalDate> grid = new Grid<>();
+	private final Grid<Specialday> grid = new Grid<>();
 
 	private final FormLayout formLayout = new FormLayout();
 
@@ -145,7 +142,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 		grid.setHeight("50vH");
 
-		final ColumnBase<Column<LocalDate>> dateColumnBase = grid.addColumn(dateValueProvider()).setResizable(true);
+		final ColumnBase<Column<Specialday>> dateColumnBase = grid.addColumn(dateValueProvider()).setResizable(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		
 	
@@ -251,14 +248,22 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		calendarModel.notifyObservers(Events.DatesChanged);
 	}
 
-	private List<LocalDate> readDates(final SpecialdayService specialdayService) {
+	private Collection<Specialday> readDates(final SpecialdayService specialdayService) {
 	
-		return specialdayService.specialdays(calendarModel.filter()).stream().map(day -> day.date(Year.now().getValue())).sorted().collect(Collectors.toList());
-		//return specialdayService.specialdays(Year.now()).stream().filter(calendarModel.filter()).map(day -> day.date(Year.now().getValue())).sorted().collect(Collectors.toList());
+		return specialdayService.specialdays(calendarModel.filter());
+		
 	}
 	
-	ValueProvider<LocalDate, String> dateValueProvider() {
-		return date -> date.getDayOfMonth() + "." + date.getMonthValue() + "." + date.getYear();
+	ValueProvider<Specialday, String> dateValueProvider() {
+		return specialday -> { 
+			final LocalDate  date = LocalDate.now();
+			specialday.date(Year.now().getValue());
+			return date.getDayOfMonth() + "." + date.getMonthValue() + "." + date.getYear();
+	
+		
+		};
+
+	
 	}
 
 	

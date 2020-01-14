@@ -132,7 +132,7 @@ class CalendarViewTest {
 		final ListDataProvider<?>  dates = (ListDataProvider<?>) grid.getDataProvider();
 		assertEquals(1, dates.getItems().size());
 		assertNotNull(specialday.date(Year.now().getValue()));
-		assertEquals(specialday.date(Year.now().getValue()), dates.getItems().stream().findFirst().get());
+		assertEquals(specialday, dates.getItems().stream().findFirst().get());
 		
 		
 		@SuppressWarnings("unchecked")
@@ -369,9 +369,10 @@ class CalendarViewTest {
 	@Test
 	void dateValueProvider() {
 		final LocalDate  date = LocalDate.now();
-	
+		final Specialday specialday = Mockito.mock(Specialday.class);
+		Mockito.when(specialday.date(Year.now().getValue())).thenReturn(date);
 		
-		assertEquals(String.format("%s.%s.%s", date.getDayOfMonth() , date.getMonthValue() , date.getYear()), calendarView.dateValueProvider().apply(date));
+		assertEquals(String.format("%s.%s.%s", date.getDayOfMonth() , date.getMonthValue() , date.getYear()), calendarView.dateValueProvider().apply(specialday));
 	}
 	
 	

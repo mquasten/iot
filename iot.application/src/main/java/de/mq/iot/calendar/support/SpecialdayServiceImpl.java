@@ -74,7 +74,9 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	@Override
 	public Collection<Specialday> specialdays(final Collection<Type> types){
 		
-		Assert.notEmpty(types, "At least one type required.");
+		if( CollectionUtils.isEmpty(types)) {
+			return Collections.emptyList();
+		}
 		
 		final List<Specialday> results = new ArrayList<>();
 		

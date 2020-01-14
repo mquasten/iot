@@ -319,5 +319,11 @@ class SpecialdayServiceTest {
 		assertEquals(christmas1, results.stream().findAny().get());
 	}
 	
+	@Test
+	void specialdaysWithoutInput() {
+		assertEquals(0, specialdayService.specialdays(Arrays.asList()).size());
+		assertEquals(0, specialdayService.specialdays((Collection<Type>)null).size());
+	}
+	
 	
 }
