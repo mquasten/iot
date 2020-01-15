@@ -1,6 +1,9 @@
 package de.mq.iot.calendar.support;
-
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,9 +24,15 @@ import de.mq.iot.model.Subject;
 
 
 
-public class CalendarModelImpl  implements CalendarModel  {
+class CalendarModelImpl  implements CalendarModel  {
 
 	
+	static final TextStyle STYLE_DAY_OF_WEEK = TextStyle.FULL_STANDALONE;
+
+
+	static final String DATE_PATTERN = "dd.MM.uuuu";
+
+
 	private final Subject<CalendarModel.Events, CalendarModel> subject;
 
 
@@ -35,6 +44,8 @@ public class CalendarModelImpl  implements CalendarModel  {
 	
 
 	private Optional<LocalDate> to = Optional.empty();
+	
+	private Collection<Specialday.Type> typesWithDayOfWeek = Arrays.asList(Specialday.Type.SpecialWorkingDay, Specialday.Type.Weekend);
 
 
 	CalendarModelImpl(final Subject<Events, CalendarModel> subject) {
@@ -188,6 +199,20 @@ public class CalendarModelImpl  implements CalendarModel  {
 		return authentication.get().hasRole(Authority.Calendar);
 		
 	}
+	
+	@Override
+	public final String convert(final Specialday specialday, final Year year) {
+		if( typesWithDayOfWeek.contains(specialday.type())){
+			final DayOfWeek dayOfWeek = specialday.dayOfWeek();
+			return dayOfWeek.getDisplayName(STYLE_DAY_OF_WEEK, locale());
+			
+		}
+		
+		final LocalDate  date = specialday.date(year.getValue());
+		
+		return date.format(DateTimeFormatter.ofPattern( DATE_PATTERN, locale()));
+	}
+	
 	
 	
 

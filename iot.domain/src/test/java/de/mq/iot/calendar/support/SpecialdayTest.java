@@ -11,11 +11,9 @@ import java.time.Year;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.calendar.Specialday;
@@ -81,7 +79,7 @@ public class SpecialdayTest {
 	@Test
 	void easterdate() {
 		final SpecialdayImpl specialday = new SpecialdayImpl();
-		assertEquals(SpecialdayImpl.Type.Gauss, type(specialday));
+		assertEquals(Type.Gauss, specialday.type());
 		assertEquals(LocalDate.of(2018, 4, 1), specialday.easterdate(2018));
 	}
 
@@ -96,7 +94,7 @@ public class SpecialdayTest {
 	void goodFriday() {
 		final Specialday specialday = new SpecialdayImpl(VariantSpecialDay.GoodFriday);
 		assertEquals(LocalDate.of(YEAR, 3, 30), specialday.date(YEAR));
-		assertEquals(SpecialdayImpl.Type.Gauss, type(specialday));
+		assertEquals(Type.Gauss, specialday.type());
 		assertFalse(specialday.isVacation());
 	}
 
@@ -104,14 +102,14 @@ public class SpecialdayTest {
 	void easter() {
 		final Specialday specialday = new SpecialdayImpl(VariantSpecialDay.Easter);
 		assertEquals(LocalDate.of(YEAR, 4, 1), specialday.date(YEAR));
-		assertEquals(SpecialdayImpl.Type.Gauss, type(specialday));
+		assertEquals(Type.Gauss, specialday.type());
 		assertFalse(specialday.isVacation());
 	}
 
 	@Test
 	void easterMonday() {
 		final Specialday specialday = new SpecialdayImpl(VariantSpecialDay.EasterMonday);
-		assertEquals(SpecialdayImpl.Type.Gauss, type(specialday));
+		assertEquals(Type.Gauss, specialday.type());
 		assertEquals(LocalDate.of(YEAR, 4, 2), specialday.date(YEAR));
 		assertFalse(specialday.isVacation());
 	}
@@ -120,7 +118,7 @@ public class SpecialdayTest {
 	void ascension() {
 		final Specialday specialday =  new SpecialdayImpl(VariantSpecialDay.Ascension);
 		assertEquals(LocalDate.of(YEAR, 5, 10),specialday.date(YEAR));
-		assertEquals(SpecialdayImpl.Type.Gauss, type(specialday));
+		assertEquals(Type.Gauss, specialday.type());
 		assertFalse(specialday.isVacation());
 	}
 
@@ -128,64 +126,64 @@ public class SpecialdayTest {
 	void whitMonday() {
 		final Specialday specialday = new SpecialdayImpl(VariantSpecialDay.WhitMonday);
 		assertEquals(LocalDate.of(YEAR, 5, 21), specialday.date(YEAR));
-		assertEquals(SpecialdayImpl.Type.Gauss, type(specialday));
 		assertFalse(specialday.isVacation());
+		assertEquals(Type.Gauss, specialday.type());
 	}
 
 	@Test
 	void corpusChristi() {
 		final Specialday specialday = new SpecialdayImpl(VariantSpecialDay.CorpusChristi);
 		assertEquals(LocalDate.of(YEAR, 5, 31), specialday.date(YEAR));
-		assertEquals(SpecialdayImpl.Type.Gauss, type(specialday));
 		assertFalse(specialday.isVacation());
+		assertEquals(Type.Gauss, specialday.type());
 	}
 
 	@Test
 	void newYear() {
 		final Specialday specialday = new SpecialdayImpl(FixedSpecialDay.NewYear);
 		assertEquals(LocalDate.of(YEAR, 1, 1), specialday.date(YEAR));
-		assertEquals(SpecialdayImpl.Type.Fix, type(specialday));
 		assertFalse(specialday.isVacation());
+		assertEquals(Type.Fix, specialday.type());
 	}
 
 	@Test
 	void laborDay() {
 		final Specialday specialday = new SpecialdayImpl(FixedSpecialDay.LaborDay);
 		assertEquals(LocalDate.of(YEAR, 5, 1), specialday.date(YEAR));
-		assertEquals(SpecialdayImpl.Type.Fix, type(specialday));
 		assertFalse(specialday.isVacation());
+		assertEquals(Type.Fix, specialday.type());
 	}
 
 	@Test
 	void germanUnity() {
 		final Specialday specialday = new SpecialdayImpl(FixedSpecialDay.GermanUnity);
 		assertEquals(LocalDate.of(YEAR, 10, 3), specialday.date(YEAR));
-		assertEquals(SpecialdayImpl.Type.Fix, type(specialday));
 		assertFalse(specialday.isVacation());
+		assertEquals(Type.Fix, specialday.type());
 	}
 
 	@Test
 	void allHallows() {
 		final Specialday specialday =  new SpecialdayImpl(FixedSpecialDay.AllHallows);
 		assertEquals(LocalDate.of(YEAR, 11, 1),specialday.date(YEAR));
-		assertEquals(SpecialdayImpl.Type.Fix, type(specialday));
 		assertFalse(specialday.isVacation());
+		assertEquals(Type.Fix, specialday.type());
 	}
 
 	@Test
 	void christmasDay() {
 		final Specialday specialday = new SpecialdayImpl(FixedSpecialDay.ChristmasDay);
 		assertEquals(LocalDate.of(YEAR, 12, 25),specialday.date(YEAR));
-		assertEquals(SpecialdayImpl.Type.Fix, type(specialday));
 		assertFalse(specialday.isVacation());
+		assertEquals(Type.Fix, specialday.type());
 	}
 
 	@Test
 	void boxingDay() {
 		final Specialday specialday = new SpecialdayImpl(FixedSpecialDay.BoxingDay);
 		assertEquals(LocalDate.of(YEAR, 12, 26), specialday.date(YEAR));
-		assertEquals(SpecialdayImpl.Type.Fix, type(specialday));
 		assertFalse(specialday.isVacation());
+		assertEquals(Type.Fix, specialday.type());
 	}
 
 	@Test
@@ -206,27 +204,26 @@ public class SpecialdayTest {
 	void vacation() {
 		final LocalDate date = LocalDate.of(YEAR, 5, 28);
 		final Specialday specialday = new SpecialdayImpl(date);
-		assertEquals(SpecialdayImpl.Type.Vacation, type(specialday));
 		assertEquals(date, specialday.date(YEAR));
 		assertTrue(specialday.isVacation());
+		assertEquals(Type.Vacation, specialday.type());
 	}
 	
 	@Test
 	void weekend() {
 		final Specialday specialday = new SpecialdayImpl(DayOfWeek.SATURDAY, true);
-		assertEquals(SpecialdayImpl.Type.Weekend, type(specialday));
 		assertEquals(DayOfWeek.SATURDAY, specialday.dayOfWeek());
-		
-		assertEquals(LocalDate.now().with(DayOfWeek.SATURDAY), specialday.date(Year.MAX_VALUE));;
+		assertEquals(Type.Weekend, specialday.type());
+		assertEquals(LocalDate.now().with(DayOfWeek.SATURDAY), specialday.date(Year.MAX_VALUE));
 		
 	}
 	
 	@Test
 	void specialWorkingDay() {
 		final Specialday specialday = new SpecialdayImpl(DayOfWeek.MONDAY);
-		assertEquals(SpecialdayImpl.Type.SpecialWorkingDay, type(specialday));
 		assertEquals(DayOfWeek.MONDAY, specialday.dayOfWeek());
-		assertEquals(LocalDate.now().with(DayOfWeek.MONDAY), specialday.date(Year.MAX_VALUE));;
+		assertEquals(LocalDate.now().with(DayOfWeek.MONDAY), specialday.date(Year.MAX_VALUE));
+		assertEquals(Type.SpecialWorkingDay, specialday.type());
 	}
 	@Test
 	void dayOfWeekWrongType() {
@@ -240,12 +237,10 @@ public class SpecialdayTest {
 		final Specialday specialday = new SpecialdayImpl(date, true );
 		
 		assertEquals(date, specialday.date(Year.MAX_VALUE));
-		assertEquals(SpecialdayImpl.Type.SpecialWorkingDate, type(specialday));
+		assertEquals(Type.SpecialWorkingDate, specialday.type());
 	}
 	
-	private Type type(final Specialday specialday) {
-		return DataAccessUtils.requiredSingleResult(Arrays.asList(SpecialdayImpl.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(SpecialdayImpl.Type.class)).map(field -> (SpecialdayImpl.Type) ReflectionTestUtils.getField(specialday, field.getName())).collect(Collectors.toSet()));
-	}
+	
 	
 	@Test
 	void compare() {
@@ -258,6 +253,7 @@ public class SpecialdayTest {
 		assertEquals(1,new SpecialdayImpl(DayOfWeek.SUNDAY).compareTo(new SpecialdayImpl(DayOfWeek.SATURDAY)));
 		
 	}
+	
 	
 	
 

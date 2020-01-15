@@ -9,6 +9,7 @@ import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -370,9 +371,11 @@ class CalendarViewTest {
 	void dateValueProvider() {
 		final LocalDate  date = LocalDate.now();
 		final Specialday specialday = Mockito.mock(Specialday.class);
-		Mockito.when(specialday.date(Year.now().getValue())).thenReturn(date);
 		
-		assertEquals(String.format("%s.%s.%s", date.getDayOfMonth() , date.getMonthValue() , date.getYear()), calendarView.dateValueProvider().apply(specialday));
+		String expectedDateString = date.format(DateTimeFormatter.ofPattern(CalendarModelImpl.DATE_PATTERN));
+		Mockito.when(calendarModel.convert(specialday, Year.of(date.getYear()))).thenReturn(expectedDateString);
+		
+		assertEquals(expectedDateString, calendarView.dateValueProvider().apply(specialday));
 	}
 	
 	

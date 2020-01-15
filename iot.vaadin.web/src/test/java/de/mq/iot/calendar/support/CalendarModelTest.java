@@ -8,7 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Modifier;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,6 +26,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
 import de.mq.iot.calendar.Specialday;
+import de.mq.iot.calendar.Specialday.Type;
 import de.mq.iot.calendar.support.CalendarModel.Events;
 import de.mq.iot.calendar.support.CalendarModel.Filter;
 import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
@@ -49,7 +53,7 @@ class CalendarModelTest {
 		final Map<Class<?>, Object> dependencies = new HashMap<>();
 		Arrays.asList(calendarModel.getClass().getDeclaredFields()).stream().filter( field -> ! Modifier.isStatic(field.getModifiers())).filter(field -> ! field.getType().equals(Optional.class)).forEach(field -> dependencies.put(field.getType(), ReflectionTestUtils.getField(calendarModel, field.getName())));
 	
-	    assertEquals(3, dependencies.size());
+	    assertEquals(4, dependencies.size());
 	    assertEquals(subject, dependencies.get(Subject.class));
 	    assertEquals(CalendarModel.Filter.Vacation ,  dependencies.get(CalendarModel.Filter.class));
 	    
@@ -61,6 +65,11 @@ class CalendarModelTest {
 	    assertEquals(Arrays.asList(Specialday.Type.SpecialWorkingDay), filters.get(CalendarModel.Filter.WorkingDay));
 	   
 	 
+	    final Collection<?> typesForDayOfWeek = (Collection<?>) dependencies.get(Collection.class);
+	    assertEquals(2, typesForDayOfWeek.size());
+	    assertTrue(typesForDayOfWeek.contains(Type.SpecialWorkingDay));
+	    assertTrue(typesForDayOfWeek.contains(Type.Weekend));
+	    
 	}
 	
 	
@@ -253,6 +262,15 @@ class CalendarModelTest {
 		
 		assertFalse(calendarModel.isChangeCalendarAllowed());
 		
+	}
+	@Test
+    final void convertDate() {
+		final LocalDate expectedDate = LocalDate.of(1968, 5, 28);
+		assertEquals(expectedDate.format(DateTimeFormatter.ofPattern(CalendarModelImpl.DATE_PATTERN)), calendarModel.convert(new SpecialdayImpl(expectedDate), Year.of(1)));
+	}
+	@Test
+	final void convertDayOfWeek() {
+		assertEquals(DayOfWeek.FRIDAY.getDisplayName(CalendarModelImpl.STYLE_DAY_OF_WEEK, Locale.GERMAN), calendarModel.convert(new SpecialdayImpl(DayOfWeek.FRIDAY), Year.of(1)));
 	}
 	
 }

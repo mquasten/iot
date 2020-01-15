@@ -1,6 +1,5 @@
 package de.mq.iot.calendar.support;
 
-import java.time.LocalDate;
 import java.time.Year;
 import java.util.Arrays;
 import java.util.Collection;
@@ -255,15 +254,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	}
 	
 	ValueProvider<Specialday, String> dateValueProvider() {
-		return specialday -> { 
-			final LocalDate  date = LocalDate.now();
-			specialday.date(Year.now().getValue());
-			return date.getDayOfMonth() + "." + date.getMonthValue() + "." + date.getYear();
-	
-		
-		};
-
-	
+		return specialday -> calendarModel.convert(specialday, Year.now());
 	}
 
 	

@@ -215,4 +215,9 @@ class SpecialdayImpl implements Specialday {
 		return specialday.date(Year.now().getValue()).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
 	}
 
+	@Override
+	public Type type() {
+		return this.type;
+	}
+
 }

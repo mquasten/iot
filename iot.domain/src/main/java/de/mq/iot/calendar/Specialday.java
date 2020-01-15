@@ -92,7 +92,7 @@ public interface Specialday extends Comparable<Specialday> {
 
 	boolean isVacation();
 
-
+	Type type();
 
 
 
