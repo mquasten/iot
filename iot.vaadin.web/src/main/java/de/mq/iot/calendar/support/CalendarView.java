@@ -13,9 +13,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
-import com.vaadin.flow.component.grid.ColumnBase;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -59,10 +57,10 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	@I18NKey("info")
 	private final Label stateInfoLabel = new Label();
 
-	@I18NKey("table_header")
-	private final Label dateColumnLabel = new Label();
+	@I18NKey("table_type_header")
+	private final Label typeColumnLabel = new Label();
 
-	//private Checkbox vacationOnlyCheckbox = new Checkbox();
+	
 	
 	
 	
@@ -141,7 +139,10 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 		grid.setHeight("50vH");
 
-		final ColumnBase<Column<Specialday>> dateColumnBase = grid.addColumn(dateValueProvider()).setResizable(true);
+		grid.addColumn(dateValueProvider()).setResizable(true).setHeader(filtersComboBox);
+		grid.addColumn(typeValueProvider()).setHeader(typeColumnLabel).setResizable(true);
+		
+		
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		
 	
@@ -181,12 +182,8 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 		calendarModel.register(CalendarModel.Events.ChangeLocale, () -> {
 			localize(messageSource, calendarModel.locale());
-		
-			
-			dateColumnBase.setHeader(filtersComboBox);
 			
 			Arrays.asList(ValidationErrors.values()).stream().filter(validationError -> validationError!= ValidationErrors.Ok).forEach(validationError -> validationErrors.put( validationError, messageSource.getMessage("calendar_validation_" + validationError.name().toLowerCase() , null, "???", calendarModel.locale())));
-			filtersComboBox.setLabel(dateColumnLabel.getText());
 			
 		});
 		
@@ -255,6 +252,10 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	
 	ValueProvider<Specialday, String> dateValueProvider() {
 		return specialday -> calendarModel.convert(specialday, Year.now());
+	}
+	
+	ValueProvider<Specialday, String> typeValueProvider() {
+		return specialday -> specialday.type().name();
 	}
 
 	

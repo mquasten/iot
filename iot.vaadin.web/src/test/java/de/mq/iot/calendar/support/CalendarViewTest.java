@@ -53,7 +53,7 @@ class CalendarViewTest {
 	
 	private static final String I18N_CALENDAR_ADD_RANGE = "calendar_add_range";
 	
-	private static final String I18N_CALENDAR_TABLE_HEADER  = "calendar_table_header";
+	private static final String I18N_CALENDAR_TABLE_HEADER  = "calendar_table_type_header";
 	
 	private static final String I18N_CALENDAR_INFO = "calendar_info";
 	
@@ -148,14 +148,16 @@ class CalendarViewTest {
 		final Button saveButton = (Button) fields.get("saveButton");
 		assertFalse(saveButton.isEnabled());
 		final Label stateInfoLabel = (Label) fields.get("stateInfoLabel");
-		
+		final Label typeColumLabel = (Label) fields.get("typeColumnLabel");
 		
 		final Label fromLabel = (Label) fields.get("fromLabel");
 		final Label toLabel = (Label) fields.get("toLabel");
 		
 		assertEquals(I18N_CALENDAR_DELETE_RANGE, deleteButton.getText());
 		assertEquals(I18N_CALENDAR_ADD_RANGE, saveButton.getText());
-		assertEquals(I18N_CALENDAR_TABLE_HEADER, vacationOnlyCheckbox.getLabel());
+		
+		
+		assertEquals(I18N_CALENDAR_TABLE_HEADER, typeColumLabel.getText());
 		assertEquals(I18N_CALENDAR_INFO, stateInfoLabel.getText());
 		assertEquals(I18N_CALENDAR_RANGE_FROM, fromLabel.getText());
 		assertEquals(I18N_CALENDAR_RANGE_TO, toLabel.getText());
@@ -372,10 +374,19 @@ class CalendarViewTest {
 		final LocalDate  date = LocalDate.now();
 		final Specialday specialday = Mockito.mock(Specialday.class);
 		
-		String expectedDateString = date.format(DateTimeFormatter.ofPattern(CalendarModelImpl.DATE_PATTERN));
+		final String expectedDateString = date.format(DateTimeFormatter.ofPattern(CalendarModelImpl.DATE_PATTERN));
 		Mockito.when(calendarModel.convert(specialday, Year.of(date.getYear()))).thenReturn(expectedDateString);
 		
 		assertEquals(expectedDateString, calendarView.dateValueProvider().apply(specialday));
+	}
+	
+	@Test
+	void typeValueProvider() {
+		final Specialday specialday = Mockito.mock(Specialday.class);
+		Mockito.when(specialday.type()).thenReturn(Type.Vacation);
+		
+		assertEquals(Type.Vacation.name(),  calendarView.typeValueProvider().apply(specialday));
+		
 	}
 	
 	
