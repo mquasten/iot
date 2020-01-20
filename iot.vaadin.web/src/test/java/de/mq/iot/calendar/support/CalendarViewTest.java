@@ -59,6 +59,7 @@ class CalendarViewTest {
 	
 	private static final String I18N_CALENDAR_RANGE_FROM ="calendar_range_from";
 	private static final String I18N_CALENDAR_RANGE_TO ="calendar_range_to";
+	private static final String I18N_CALENDAR_DAY_OF_WEEK ="calendar_dayofweek";
 
 	private final CalendarModel calendarModel = Mockito.mock(CalendarModel.class);
 	
@@ -79,7 +80,7 @@ class CalendarViewTest {
 		
 		Mockito.when(calendarModel.isChangeCalendarAllowed()).thenReturn(true);
 		Mockito.when(calendarModel.locale()).thenReturn(Locale.GERMAN);
-		Arrays.asList(I18N_CALENDAR_DELETE_RANGE, I18N_CALENDAR_ADD_RANGE, I18N_CALENDAR_TABLE_HEADER, I18N_CALENDAR_INFO, I18N_CALENDAR_RANGE_FROM,I18N_CALENDAR_RANGE_TO , I18N_CALENDAR_VALIDATION + ValidationErrors.Invalid.name().toLowerCase()).forEach(key -> Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN));
+		Arrays.asList(I18N_CALENDAR_DELETE_RANGE, I18N_CALENDAR_ADD_RANGE, I18N_CALENDAR_TABLE_HEADER, I18N_CALENDAR_INFO, I18N_CALENDAR_RANGE_FROM,I18N_CALENDAR_RANGE_TO, I18N_CALENDAR_DAY_OF_WEEK , I18N_CALENDAR_VALIDATION + ValidationErrors.Invalid.name().toLowerCase()).forEach(key -> Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN));
 		
 		 Mockito.doReturn(Arrays.asList(Specialday.Type.Vacation)).when(calendarModel).filter();
 		
@@ -109,7 +110,7 @@ class CalendarViewTest {
 		
 		Arrays.asList(CalendarView.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> fields.put(field.getName(), ReflectionTestUtils.getField(calendarView, field.getName())));
 	
-	    assertEquals(14, fields.size() ); 
+	    assertEquals(16, fields.size() ); 
 	    
 	    
 	    
@@ -152,6 +153,7 @@ class CalendarViewTest {
 		
 		final Label fromLabel = (Label) fields.get("fromLabel");
 		final Label toLabel = (Label) fields.get("toLabel");
+		final Label dayOfWeek =  (Label) fields.get("dayOfWeekLabel");
 		
 		assertEquals(I18N_CALENDAR_DELETE_RANGE, deleteButton.getText());
 		assertEquals(I18N_CALENDAR_ADD_RANGE, saveButton.getText());
@@ -161,7 +163,10 @@ class CalendarViewTest {
 		assertEquals(I18N_CALENDAR_INFO, stateInfoLabel.getText());
 		assertEquals(I18N_CALENDAR_RANGE_FROM, fromLabel.getText());
 		assertEquals(I18N_CALENDAR_RANGE_TO, toLabel.getText());
-		
+		assertEquals(I18N_CALENDAR_DAY_OF_WEEK, dayOfWeek.getText());
+		assertTrue(fromLabel.isVisible());
+		assertTrue(toLabel.isVisible());
+		assertFalse(dayOfWeek.isVisible());
 		
 		
 		
@@ -266,6 +271,7 @@ class CalendarViewTest {
 		@SuppressWarnings("unchecked")
 		final ComboBox<Filter> filtersComboBox =  (ComboBox<Filter>) fields.get("filtersComboBox");
 		assertEquals(Filter.Vacation, filtersComboBox.getValue());
+
 		
 		filtersComboBox.setValue(Filter.WorkingDate);
 		

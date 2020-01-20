@@ -1,5 +1,6 @@
 package de.mq.iot.calendar.support;
 
+import java.time.DayOfWeek;
 import java.time.Year;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,6 +48,11 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	@I18NKey("range_to")
 	private final Label toLabel = new Label();
 	private final TextField toTextField = new TextField();
+	
+	@I18NKey("dayofweek")
+	private final Label dayOfWeekLabel = new Label();
+	
+	private  ComboBox<DayOfWeek> dayOfWeekComboBox = new ComboBox<>();
 
 	@I18NKey("delete_range")
 	private final Button deleteButton = new Button();
@@ -91,11 +97,12 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 	private void createUI(final SpecialdayService specialdayService, final ButtonBox buttonBox) {
 
-		
+		dayOfWeekComboBox.setVisible(false);
+		dayOfWeekLabel.setVisible(false);
 		saveButton.setEnabled(false);
 		deleteButton.setEnabled(false);
 
-		
+		dayOfWeekComboBox.setItems(calendarModel.daysOfWeek());
 	
 		filtersComboBox.setItems(Arrays.asList(Filter.values()));
 		filtersComboBox.setAllowCustomValue(false);
@@ -111,6 +118,8 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 		formLayout.addFormItem(fromTextField, fromLabel);
 		formLayout.addFormItem(toTextField, toLabel);
+		formLayout.addFormItem(dayOfWeekComboBox, dayOfWeekLabel);
+		dayOfWeekComboBox.getElement().getStyle().set("width", "100%");
 
 		formLayout.setSizeFull();
 
@@ -190,9 +199,16 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		calendarModel.register(CalendarModel.Events.ValuesChanged, () -> {	
 			deleteButton.setEnabled(calendarModel.valid());
 			saveButton.setEnabled(calendarModel.valid());
+			
+			
+			
 		});
 		
-		calendarModel.register(CalendarModel.Events.DatesChanged, () -> grid.setItems(readDates(specialdayService)));
+		calendarModel.register(CalendarModel.Events.DatesChanged, () -> {
+			grid.setItems(readDates(specialdayService));
+			setEditorFieldsVisible(calendarModel.isDayOfWeek());
+			
+		});
 		
 
 		filtersComboBox.addValueChangeListener(event -> {
@@ -210,6 +226,15 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		saveButton.addClickListener(event -> process(specialday -> specialdayService.save(specialday), specialdayService)); 
 		calendarModel.assign(CalendarModel.Filter.Vacation);
 			
+	}
+
+	private void setEditorFieldsVisible(final boolean isDayOfWeek) {
+		fromTextField.setVisible(! isDayOfWeek);
+		toTextField.setVisible(! isDayOfWeek);
+		fromLabel.setVisible(! isDayOfWeek);
+		toLabel.setVisible(! isDayOfWeek);
+		dayOfWeekComboBox.setVisible(isDayOfWeek);
+		dayOfWeekLabel.setVisible(isDayOfWeek);	;
 	}
 
 	private void setVisibleIfCalendarRoleAware(final HorizontalLayout editorLayout) {

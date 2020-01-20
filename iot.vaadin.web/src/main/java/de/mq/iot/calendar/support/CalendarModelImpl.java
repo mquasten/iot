@@ -11,7 +11,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.util.StringUtils;
 
@@ -188,6 +189,11 @@ class CalendarModelImpl  implements CalendarModel  {
 		notifyObservers(Events.DatesChanged);
 		
 	}
+	
+	@Override
+	public final  boolean isDayOfWeek() {
+		return this.filter==Filter.WorkingDay;
+	}
 
 
 	@Override
@@ -213,7 +219,10 @@ class CalendarModelImpl  implements CalendarModel  {
 		return date.format(DateTimeFormatter.ofPattern( DATE_PATTERN, locale()));
 	}
 	
-	
+	@Override
+	public final Collection<DayOfWeek> daysOfWeek() {
+		return IntStream.range(1, 6).mapToObj(DayOfWeek::of).collect(Collectors.toList());	
+	}
 	
 
 }

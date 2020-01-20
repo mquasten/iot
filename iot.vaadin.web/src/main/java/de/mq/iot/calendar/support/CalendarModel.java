@@ -1,5 +1,6 @@
 package de.mq.iot.calendar.support;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Year;
 import java.util.Collection;
@@ -57,4 +58,8 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 
 
 	String convert(final Specialday specialday, final Year year);
+
+	boolean isDayOfWeek();
+
+	Collection<DayOfWeek> daysOfWeek();
 }
