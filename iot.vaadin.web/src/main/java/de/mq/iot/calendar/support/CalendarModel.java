@@ -62,4 +62,10 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 	boolean isDayOfWeek();
 
 	Collection<DayOfWeek> daysOfWeek();
+
+	ValidationErrors validateDayofWeek(final DayOfWeek dayOfWeek);
+
+	void assignDayOfWeek(final DayOfWeek dayOfWeek);
+
+
 }

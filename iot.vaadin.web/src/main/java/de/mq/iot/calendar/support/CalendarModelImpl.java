@@ -46,6 +46,8 @@ class CalendarModelImpl  implements CalendarModel  {
 
 	private Optional<LocalDate> to = Optional.empty();
 	
+	private Optional<DayOfWeek> dayOfWeek = Optional.empty();
+	
 	private Collection<Specialday.Type> typesWithDayOfWeek = Arrays.asList(Specialday.Type.SpecialWorkingDay, Specialday.Type.Weekend);
 
 
@@ -95,6 +97,15 @@ class CalendarModelImpl  implements CalendarModel  {
 		return validateDate(date);
 	}
 
+	@Override
+	public ValidationErrors validateDayofWeek(final DayOfWeek dayOfWeek) {
+		this.dayOfWeek=Optional.empty();
+		notifyObservers(Events.ValuesChanged);
+		if(dayOfWeek==null) {
+			return ValidationErrors.Mandatory;
+		}
+		return ValidationErrors.Ok;
+	}
 
 	
 	@Override
@@ -154,6 +165,19 @@ class CalendarModelImpl  implements CalendarModel  {
 		if( validateTo(to) == ValidationErrors.Ok) {
 			final String[] cols = to.trim().split("[.]");
 			this.to=Optional.of(LocalDate.of(Integer.valueOf(cols[2]), Integer.valueOf(cols[1]), Integer.valueOf(cols[0])));
+			notifyObservers(Events.ValuesChanged);
+			
+			return;
+		}
+		this.from=Optional.empty();
+		notifyObservers(Events.ValuesChanged);
+	}
+	
+	@Override
+	public void assignDayOfWeek(final DayOfWeek dayOfWeek ) {
+		if( validateDayofWeek(dayOfWeek) == ValidationErrors.Ok) {
+			
+			this.dayOfWeek=Optional.of(dayOfWeek);
 			notifyObservers(Events.ValuesChanged);
 			
 			return;

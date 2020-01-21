@@ -188,6 +188,20 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 			
 		
 		});
+		
+		
+		dayOfWeekComboBox.addValueChangeListener(event -> {
+			
+			dayOfWeekComboBox.setErrorMessage("" );
+			dayOfWeekComboBox.setInvalid(false);
+			final ValidationErrors error = calendarModel.validateDayofWeek(event.getValue());
+			if( error != ValidationErrors.Ok) {
+				dayOfWeekComboBox.setInvalid(true);
+				dayOfWeekComboBox.setErrorMessage(validationErrors.get(error));
+			}
+			calendarModel.assignDayOfWeek(event.getValue());
+			
+		});
 
 		calendarModel.register(CalendarModel.Events.ChangeLocale, () -> {
 			localize(messageSource, calendarModel.locale());

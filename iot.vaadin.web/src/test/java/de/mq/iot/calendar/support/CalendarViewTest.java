@@ -154,7 +154,9 @@ class CalendarViewTest {
 		final Label fromLabel = (Label) fields.get("fromLabel");
 		final Label toLabel = (Label) fields.get("toLabel");
 		final Label dayOfWeek =  (Label) fields.get("dayOfWeekLabel");
-		
+		final TextField from = (TextField) fields.get("fromTextField");
+		final TextField to = (TextField) fields.get("toTextField");
+		final ComboBox<?> dayOfWeekComboBox = (ComboBox<?>) fields.get("dayOfWeekComboBox");
 		assertEquals(I18N_CALENDAR_DELETE_RANGE, deleteButton.getText());
 		assertEquals(I18N_CALENDAR_ADD_RANGE, saveButton.getText());
 		
@@ -167,12 +169,41 @@ class CalendarViewTest {
 		assertTrue(fromLabel.isVisible());
 		assertTrue(toLabel.isVisible());
 		assertFalse(dayOfWeek.isVisible());
-		
+		assertTrue(from.isVisible());
+		assertTrue(to.isVisible());
+		assertFalse(dayOfWeekComboBox.isVisible());
 		
 		
 		assertTrue(getEditorLayout(saveButton).isVisible());
 		assertTrue(stateInfoLabel.isVisible());
 		
+	}
+	
+	@Test
+	void editorFields() {
+		final ComboBox<?> dayOfWeekComboBox = (ComboBox<?>) fields.get("dayOfWeekComboBox");
+		final  Label fromLabel = (Label) fields.get("fromLabel");
+		final Label toLabel = (Label) fields.get("toLabel");
+		final Label dayOfWeek =  (Label) fields.get("dayOfWeekLabel");
+		final TextField from = (TextField) fields.get("fromTextField");
+		final TextField to = (TextField) fields.get("toTextField");
+		assertTrue(fromLabel.isVisible());
+		assertTrue(toLabel.isVisible());
+		assertFalse(dayOfWeek.isVisible());
+		assertTrue(from.isVisible());
+		assertTrue(to.isVisible());
+		assertFalse(dayOfWeekComboBox.isVisible());
+		
+		Mockito.when(calendarModel.isDayOfWeek()).thenReturn(true);
+		observers.get(Events.DatesChanged).process();
+		
+		
+		assertFalse(fromLabel.isVisible());
+		assertFalse(toLabel.isVisible());
+		assertTrue(dayOfWeek.isVisible());
+		assertFalse(from.isVisible());
+		assertFalse(to.isVisible());
+		assertTrue(dayOfWeekComboBox.isVisible());
 	}
 
 
