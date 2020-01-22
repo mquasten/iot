@@ -16,6 +16,8 @@ import java.util.stream.IntStream;
 
 import org.springframework.util.StringUtils;
 
+
+
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
 import de.mq.iot.calendar.Specialday;
@@ -113,6 +115,9 @@ class CalendarModelImpl  implements CalendarModel  {
 		if( ! valid()) {
 			return ValidationErrors.Invalid;
 		}
+		if(isDayOfWeek()) {
+			return ValidationErrors.Ok;
+		}
 		if( to.get().isBefore(from.get())) {
 			return ValidationErrors.FromBeforeTo;
 		}
@@ -188,6 +193,13 @@ class CalendarModelImpl  implements CalendarModel  {
 	
 	@Override
 	public boolean valid() {
+		if (filter == null) {
+			return false;
+		}
+		if( isDayOfWeek()){
+			return dayOfWeek.isPresent();
+		}
+		
 		return this.to.isPresent() && this.from.isPresent();
 	}
 
@@ -246,6 +258,11 @@ class CalendarModelImpl  implements CalendarModel  {
 	@Override
 	public final Collection<DayOfWeek> daysOfWeek() {
 		return IntStream.range(1, 6).mapToObj(DayOfWeek::of).collect(Collectors.toList());	
+	}
+	@Override
+	public final Specialday dayOfWeek() {
+		dayOfWeek.orElseThrow(() -> new IllegalArgumentException("DayOfWeek is missing."));
+		return new SpecialdayImpl(this.dayOfWeek.get());
 	}
 	
 

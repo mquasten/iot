@@ -67,5 +67,7 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 
 	void assignDayOfWeek(final DayOfWeek dayOfWeek);
 
+	Specialday dayOfWeek();
+
 
 }

@@ -228,7 +228,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		filtersComboBox.addValueChangeListener(event -> {
 			
 			calendarModel.assign(event.getValue());
-			
+			resetModelAndEditor();
 			//grid.setItems(readDates(specialdayService));
 			
 		});
@@ -259,18 +259,35 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	private void process(final Consumer<Specialday> consumer, final SpecialdayService specialdayService) {
 		
 		final ValidationErrors error = calendarModel.vaidate(60);
+		
 		if ( error != ValidationErrors.Ok ) {
 			toTextField.setErrorMessage(validationErrors.get(error));
 			toTextField.setInvalid(true);
+			
+			dayOfWeekComboBox.setErrorMessage(validationErrors.get(error));
+			dayOfWeekComboBox.setInvalid(true);
 			return;
 		} 
-		specialdayService.vacation(calendarModel.from(),  calendarModel.to()).forEach(day -> consumer.accept(day));
+		
+		if(calendarModel.isDayOfWeek()) {
+			consumer.accept(calendarModel.dayOfWeek());
+		} else {
+			specialdayService.vacation(calendarModel.from(),  calendarModel.to()).forEach(day -> consumer.accept(day));
+		}
 		
 	
 		//grid.setItems(readDates(specialdayService));
 		
 		calendarModel.notifyObservers(CalendarModel.Events.DatesChanged);
 		
+		resetModelAndEditor();
+		calendarModel.notifyObservers(Events.DatesChanged);
+	}
+
+	private void resetModelAndEditor() {
+		dayOfWeekComboBox.setValue(null);
+		dayOfWeekComboBox.setInvalid(false);;
+		dayOfWeekComboBox.setErrorMessage("");
 		toTextField.setValue("");
 		fromTextField.setValue("");
 		fromTextField.setValue("");
@@ -280,7 +297,6 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		fromTextField.setErrorMessage("");
 		calendarModel.assignFrom(null);
 		calendarModel.assignTo(null);
-		calendarModel.notifyObservers(Events.DatesChanged);
 	}
 
 	private Collection<Specialday> readDates(final SpecialdayService specialdayService) {
