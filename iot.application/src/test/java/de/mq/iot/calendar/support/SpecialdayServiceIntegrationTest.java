@@ -35,7 +35,7 @@ public class SpecialdayServiceIntegrationTest {
 	@Test
 	@Disabled
 	void vacation() {
-		final Collection<Specialday> days = specialdayService.vacation(LocalDate.of(2018, 8, 11), LocalDate.of(2018, 8, 19));
+		final Collection<Specialday> days = specialdayService.vacationOrSpecialWorkingDates(LocalDate.of(2018, 8, 11), LocalDate.of(2018, 8, 19),false);
 		
 		assertEquals(5, days.size());
 		

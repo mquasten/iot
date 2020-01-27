@@ -149,7 +149,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	 * @see de.mq.iot.calendar.SpecialdayService#vacation(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public final Collection<Specialday>vacation(final LocalDate begin, final LocalDate end) {
+	public final Collection<Specialday>vacationOrSpecialWorkingDates(final LocalDate begin, final LocalDate end, final boolean specialWorkingDate) {
 		Assert.isTrue(!begin.isAfter(end), "Begin should be before or equals end.");
 		final Collection<LocalDate> publicHolidays = new HashSet<>();
 		final Collection<Specialday> specialdays = specialdaysRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss)).collectList().block(duration);
@@ -161,7 +161,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		
 	
 		final long daysOffset = ChronoUnit.DAYS.between(begin, end);
-		final Collection<Specialday> results = LongStream.rangeClosed(0, daysOffset).mapToObj(i -> new SpecialdayImpl(begin.plusDays(i))).filter(specialday -> filterSpecialDay(publicHolidays, specialday)).collect(Collectors.toList());
+		final Collection<Specialday> results = LongStream.rangeClosed(0, daysOffset).mapToObj(i -> new SpecialdayImpl(begin.plusDays(i), specialWorkingDate)).filter(specialday -> filterSpecialDay(publicHolidays, specialday)).collect(Collectors.toList());
 		return results;
 		
 	}

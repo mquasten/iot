@@ -19,7 +19,7 @@ public interface SpecialdayService {
 
 	Collection<Specialday> specialdays(final Year year);
 
-	Collection<Specialday> vacation(final LocalDate begin, final LocalDate end);
+	Collection<Specialday> vacationOrSpecialWorkingDates(final LocalDate begin, final LocalDate end, final boolean specialWorkingDate);
 
 	Collection<Specialday> specialdays();
 	

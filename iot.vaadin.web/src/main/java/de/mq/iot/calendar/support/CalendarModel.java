@@ -69,5 +69,7 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 
 	Specialday dayOfWeek();
 
+	boolean isSpecialWorkingDate();
+
 
 }

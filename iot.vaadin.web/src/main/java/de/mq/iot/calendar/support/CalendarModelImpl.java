@@ -230,6 +230,11 @@ class CalendarModelImpl  implements CalendarModel  {
 	public final  boolean isDayOfWeek() {
 		return this.filter==Filter.WorkingDay;
 	}
+	
+	@Override
+	public final boolean isSpecialWorkingDate() {
+	 return  Filter.WorkingDate == this.filter;
+	}
 
 
 	@Override

@@ -358,7 +358,7 @@ class CalendarViewTest {
 		Mockito.when(calendarModel.from()).thenReturn(from);
 		Mockito.when(calendarModel.to()).thenReturn(to);
 		
-		Mockito.when(specialdayService.vacation(from, to)).thenReturn(Arrays.asList(specialday));
+		Mockito.when(specialdayService.vacationOrSpecialWorkingDates(from, to, false)).thenReturn(Arrays.asList(specialday));
 		
 		
 		Mockito.when(calendarModel.vaidate(Mockito.anyInt())).thenReturn(error);

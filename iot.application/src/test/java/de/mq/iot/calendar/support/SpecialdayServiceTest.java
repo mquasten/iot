@@ -164,17 +164,37 @@ class SpecialdayServiceTest {
 	
 
 	@Test
-	void vacation() {
+	void  vacationOrSpecialWorkingDate() {
 		final Flux<Specialday> fluxHoliday = Flux.fromStream(Arrays.asList(new SpecialdayImpl(MonthDay.of(12, 25)), new SpecialdayImpl(MonthDay.of(12, 26)), new SpecialdayImpl(MonthDay.of(1, 1))).stream());
 		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss))).thenReturn(fluxHoliday);
 		final LocalDate begin = LocalDate.of(2018, 12, 17);
 		final LocalDate end = LocalDate.of(2019, 1, 6);
-		final Collection<Specialday> results = specialdayService.vacation(begin, end);
+		final Collection<Specialday> results = specialdayService.vacationOrSpecialWorkingDates(begin, end, false);
 
 		final Collection<LocalDate> expectedDates = expectedDatesVacation(begin);
 
 		assertEquals(expectedDates.size(), results.size());
 		assertEquals(expectedDates, results.stream().map(specialday -> specialday.date(2018)).collect(Collectors.toList()));
+		
+		results.stream().map( specialday -> specialday.type()).forEach(type -> assertEquals(Type.Vacation, type));
+		
+	}
+	
+	@Test
+	void vacationOrSpecialWorkingDateSpecialWorkingDate() {
+		final Flux<Specialday> fluxHoliday = Flux.fromStream(Arrays.asList(new SpecialdayImpl(MonthDay.of(12, 25)), new SpecialdayImpl(MonthDay.of(12, 26)), new SpecialdayImpl(MonthDay.of(1, 1))).stream());
+		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss))).thenReturn(fluxHoliday);
+		final LocalDate begin = LocalDate.of(2018, 12, 17);
+		final LocalDate end = LocalDate.of(2019, 1, 6);
+		final Collection<Specialday> results = specialdayService.vacationOrSpecialWorkingDates(begin, end, true);
+
+		final Collection<LocalDate> expectedDates = expectedDatesVacation(begin);
+
+		assertEquals(expectedDates.size(), results.size());
+		assertEquals(expectedDates, results.stream().map(specialday -> specialday.date(2018)).collect(Collectors.toList()));
+		
+		results.stream().map( specialday -> specialday.type()).forEach(type -> assertEquals(Type.SpecialWorkingDate,type));
+		
 	}
 
 	private Collection<LocalDate> expectedDatesVacation(final LocalDate begin) {
@@ -194,13 +214,13 @@ class SpecialdayServiceTest {
 	}
 
 	@Test
-	void vacationOnlyOneYear() {
+	void  vacationOrSpecialWorkingDateOnlyOneYear() {
 
 		final Flux<Specialday> fluxHoliday = Flux.fromStream(Arrays.asList(new SpecialdayImpl(MonthDay.of(12, 25)), new SpecialdayImpl(MonthDay.of(12, 26)), specialday).stream());
 		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss))).thenReturn(fluxHoliday);
 		final LocalDate begin = LocalDate.of(2018, 12, 17);
 		final LocalDate end = LocalDate.of(2018, 12, 31);
-		final Collection<Specialday> results = specialdayService.vacation(begin, end);
+		final Collection<Specialday> results = specialdayService.vacationOrSpecialWorkingDates(begin, end, false);
 
 		final Collection<LocalDate> expectedDates = LongStream.range(0, 15).mapToObj(i -> begin.plusDays(i)).collect(Collectors.toList());
 		expectedDates.remove(LocalDate.of(2018, 12, 25));
@@ -219,29 +239,29 @@ class SpecialdayServiceTest {
 	}
 
 	@Test
-	void vacationSingleDay() {
+	void  vacationOrSpecialWorkingDateSingleDay() {
 		final LocalDate date = LocalDate.of(2018, 12, 17);
 
-		final Collection<Specialday> results = specialdayService.vacation(date, date);
+		final Collection<Specialday> results = specialdayService.vacationOrSpecialWorkingDates(date, date, false);
 
 		assertEquals(1, results.size());
 		assertEquals(date, results.stream().findFirst().get().date(2018));
 	}
 
 	@Test
-	void vacationEmpty() {
+	void  vacationOrSpecialWorkingDateEmpty() {
 		final Flux<Specialday> fluxHoliday = Flux.fromStream(Arrays.asList(new SpecialdayImpl(MonthDay.of(12, 25)), new SpecialdayImpl(MonthDay.of(12, 26))).stream());
 		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss))).thenReturn(fluxHoliday);
 		final LocalDate begin = LocalDate.of(2018, 12, 25);
 		final LocalDate end = LocalDate.of(2018, 12, 26);
-		final Collection<Specialday> results = specialdayService.vacation(begin, end);
+		final Collection<Specialday> results = specialdayService.vacationOrSpecialWorkingDates(begin, end, false);
 
 		assertTrue(results.isEmpty());
 	}
 
 	@Test
-	void vacationEndBeforeBegin() {
-		assertThrows(IllegalArgumentException.class, () -> specialdayService.vacation(LocalDate.of(2018, 12, 31), LocalDate.of(2018, 12, 17)));
+	void  vacationOrSpecialWorkingDateEndBeforeBegin() {
+		assertThrows(IllegalArgumentException.class, () -> specialdayService.vacationOrSpecialWorkingDates(LocalDate.of(2018, 12, 31), LocalDate.of(2018, 12, 17), false));
 	}
 
 	@Test

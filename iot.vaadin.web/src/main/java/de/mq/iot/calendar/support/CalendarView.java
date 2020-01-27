@@ -272,7 +272,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		if(calendarModel.isDayOfWeek()) {
 			consumer.accept(calendarModel.dayOfWeek());
 		} else {
-			specialdayService.vacation(calendarModel.from(),  calendarModel.to()).forEach(day -> consumer.accept(day));
+			specialdayService.vacationOrSpecialWorkingDates(calendarModel.from(),  calendarModel.to(), calendarModel.isSpecialWorkingDate()).forEach(day -> consumer.accept(day));
 		}
 		
 	
