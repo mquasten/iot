@@ -211,6 +211,16 @@ class CalendarModelTest {
 		assertFalse(calendarModel.valid());
 		calendarModel.assignTo(DATE);
 		assertFalse(calendarModel.valid());
+		
+		calendarModel.assignTo(null);
+		calendarModel.assign(Filter.WorkingDay);
+		calendarModel.assignDayOfWeek(DayOfWeek.MONDAY);
+		assertTrue(calendarModel.valid());
+		
+		calendarModel.assign(null);
+		calendarModel.assignDayOfWeek(null);
+		assertFalse(calendarModel.valid());
+		
 	}
 
 	
@@ -271,6 +281,28 @@ class CalendarModelTest {
 	@Test
 	final void convertDayOfWeek() {
 		assertEquals(DayOfWeek.FRIDAY.getDisplayName(CalendarModelImpl.STYLE_DAY_OF_WEEK, Locale.GERMAN), calendarModel.convert(new SpecialdayImpl(DayOfWeek.FRIDAY), Year.of(1)));
+	}
+	@Test
+	final void validateDayOfWeek() {
+		assertEquals(CalendarModel.ValidationErrors.Ok, calendarModel.validateDayofWeek(DayOfWeek.TUESDAY));
+		Mockito.verify(subject).notifyObservers(Events.ValuesChanged);
+	}
+	
+	@Test
+	final void validateDayOfWeekMandatory() {
+		assertEquals(CalendarModel.ValidationErrors.Mandatory, calendarModel.validateDayofWeek(null));
+		Mockito.verify(subject).notifyObservers(Events.ValuesChanged);
+	}
+	@Test
+	final void isDayOfWeek() {
+		calendarModel.assign(Filter.WorkingDay);
+		assertTrue(calendarModel.isDayOfWeek());
+		
+		calendarModel.assign(null);
+		assertFalse(calendarModel.isDayOfWeek());
+		
+		calendarModel.assign(Filter.Vacation);
+		assertFalse(calendarModel.isDayOfWeek());
 	}
 	
 }
