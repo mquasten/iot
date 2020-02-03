@@ -12,6 +12,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -169,6 +170,14 @@ class CalendarModelTest {
 	}
 	
 	@Test
+	public final void vaidateFromMaxDays2() {
+		calendarModel.assignDayOfWeek(DayOfWeek.FRIDAY);
+		calendarModel.assign(Filter.WorkingDay);
+		assertEquals(ValidationErrors.Ok, calendarModel.vaidate(Integer.MAX_VALUE));
+		
+	}
+	
+	@Test
 	public final void vaidatefromOldDate() {
 		assertEquals(ValidationErrors.Invalid, calendarModel.validateFrom("01.01.1900"));
 		Mockito.verify(subject).notifyObservers(Events.ValuesChanged);
@@ -303,6 +312,39 @@ class CalendarModelTest {
 		
 		calendarModel.assign(Filter.Vacation);
 		assertFalse(calendarModel.isDayOfWeek());
+	}
+	@Test
+	final void isSpecialWorkingDate() {
+		calendarModel.assign(Filter.Vacation);
+		assertFalse(calendarModel.isSpecialWorkingDate());
+		
+		calendarModel.assign(Filter.WorkingDate);
+		assertTrue(calendarModel.isSpecialWorkingDate());
+	}
+	@Test
+	void daysOfWeek() {
+		final Collection<DayOfWeek> results = calendarModel.daysOfWeek();
+		assertEquals(5, results.size());
+		assertEquals(expectedDaysOfWeek(), results);
+	}
+
+
+	private Collection<DayOfWeek> expectedDaysOfWeek() {
+		final Collection<DayOfWeek> expected = new ArrayList<>(Arrays.asList(DayOfWeek.values()));
+		expected.remove(DayOfWeek.SATURDAY);
+		expected.remove(DayOfWeek.SUNDAY);
+		return expected;
+	}
+	@Test
+	void dayOfWeek() {
+		calendarModel.assignDayOfWeek(DayOfWeek.FRIDAY);
+		final Specialday result = calendarModel.dayOfWeek();
+		assertEquals(DayOfWeek.FRIDAY, result.dayOfWeek());
+	}
+	
+	@Test
+	void dayOfWeekMissing() {
+		assertThrows(IllegalArgumentException.class, () -> calendarModel.dayOfWeek());
 	}
 	
 }
