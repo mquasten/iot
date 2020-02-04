@@ -3,9 +3,11 @@ package de.mq.iot.calendar.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Modifier;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
@@ -80,6 +82,7 @@ class CalendarViewTest {
 		
 		Mockito.when(calendarModel.isChangeCalendarAllowed()).thenReturn(true);
 		Mockito.when(calendarModel.locale()).thenReturn(Locale.GERMAN);
+		Mockito.when(calendarModel.daysOfWeek()).thenReturn(Arrays.asList(DayOfWeek.values()));
 		Arrays.asList(I18N_CALENDAR_DELETE_RANGE, I18N_CALENDAR_ADD_RANGE, I18N_CALENDAR_TABLE_HEADER, I18N_CALENDAR_INFO, I18N_CALENDAR_RANGE_FROM,I18N_CALENDAR_RANGE_TO, I18N_CALENDAR_DAY_OF_WEEK , I18N_CALENDAR_VALIDATION + ValidationErrors.Invalid.name().toLowerCase()).forEach(key -> Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN));
 		
 		 Mockito.doReturn(Arrays.asList(Specialday.Type.Vacation)).when(calendarModel).filter();
@@ -391,6 +394,27 @@ class CalendarViewTest {
 	
 	
 	@Test
+	void saveDayOfWeek() {
+		prepareForButtons(ValidationErrors.Ok);
+		Mockito.when(calendarModel.isDayOfWeek()).thenReturn(true);
+		
+		Mockito.when(calendarModel.dayOfWeek()).thenReturn(specialday);
+		
+		final Button saveButton = (Button) fields.get("saveButton");
+		
+		final ComponentEventListener<?> listener = listener(saveButton);
+		
+		
+		listener.onComponentEvent(null);
+		
+		Mockito.verify(specialdayService).save(specialday);
+		
+		Mockito.verify(calendarModel, Mockito.times(2)).notifyObservers(CalendarModel.Events.DatesChanged);
+		
+	}
+	
+	
+	@Test
 	void saveVactionsVacations() {
 		prepareForButtons(ValidationErrors.FromBeforeTo);
 		
@@ -424,6 +448,39 @@ class CalendarViewTest {
 		
 		assertEquals(Type.Vacation.name(),  calendarView.typeValueProvider().apply(specialday));
 		
+	}
+	
+	
+	@Test
+	void dayOfWeekComboBoxListenerValidationError() {
+		Mockito.when(calendarModel.validateDayofWeek(DayOfWeek.MONDAY)).thenReturn(CalendarModel.ValidationErrors.Invalid);
+		
+		@SuppressWarnings("unchecked")
+		final ComboBox<DayOfWeek> dayOfWeekComboBox =  (ComboBox<DayOfWeek>) fields.get("dayOfWeekComboBox");
+		
+		dayOfWeekComboBox.setValue(DayOfWeek.MONDAY);
+		
+		assertEquals(I18N_CALENDAR_VALIDATION + CalendarModel.ValidationErrors.Invalid.name().toLowerCase() , dayOfWeekComboBox.getErrorMessage());
+		assertTrue(dayOfWeekComboBox.isInvalid());
+		
+		Mockito.verify(calendarModel).assignDayOfWeek(DayOfWeek.MONDAY);
+	}
+	
+	@Test
+	void dayOfWeekComboBoxListenerValidationOk() {
+		Mockito.when(calendarModel.validateDayofWeek(DayOfWeek.MONDAY)).thenReturn(CalendarModel.ValidationErrors.Ok);
+		
+		@SuppressWarnings("unchecked")
+		final ComboBox<DayOfWeek> dayOfWeekComboBox =  (ComboBox<DayOfWeek>) fields.get("dayOfWeekComboBox");
+		dayOfWeekComboBox.setInvalid(true);
+		dayOfWeekComboBox.setErrorMessage(I18N_CALENDAR_VALIDATION);
+		
+		dayOfWeekComboBox.setValue(DayOfWeek.MONDAY);
+		
+		assertTrue( dayOfWeekComboBox.getErrorMessage().isEmpty());
+		assertFalse(dayOfWeekComboBox.isInvalid());
+		
+		Mockito.verify(calendarModel).assignDayOfWeek(DayOfWeek.MONDAY);
 	}
 	
 	

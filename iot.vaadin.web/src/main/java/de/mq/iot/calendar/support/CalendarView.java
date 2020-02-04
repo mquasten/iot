@@ -191,7 +191,6 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		
 		
 		dayOfWeekComboBox.addValueChangeListener(event -> {
-			
 			dayOfWeekComboBox.setErrorMessage("" );
 			dayOfWeekComboBox.setInvalid(false);
 			final ValidationErrors error = calendarModel.validateDayofWeek(event.getValue());
