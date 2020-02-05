@@ -283,9 +283,9 @@ class SpecialdayServiceTest {
 		
 		final Specialday third =new SpecialdayImpl(LocalDate.now().minusDays(400));
 		final Flux<Specialday> flux = Flux.fromStream(Arrays.asList(first,second,third).stream());
-		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Vacation))).thenReturn(flux);
+		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Vacation, Type.SpecialWorkingDate))).thenReturn(flux);
 		
-		final Collection<Specialday> results = specialdayService.vacationsBeforeEquals(minDate);
+		final Collection<Specialday> results = specialdayService.vacationsOrSpecialWorkingDatesBeforeEquals(minDate);
 		assertEquals(2, results.size());
 		
 		assertTrue(results.contains(second));

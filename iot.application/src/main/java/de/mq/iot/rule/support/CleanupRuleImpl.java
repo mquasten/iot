@@ -31,7 +31,7 @@ public class CleanupRuleImpl {
 
 	@Action
 	public void cleanup(@Fact(RulesAggregate.RULE_INPUT) final EndOfDayRuleInput ruleInput, @Fact(RulesAggregate.RULE_OUTPUT_MAP_FACT) final Collection<String> results) {
-		final Collection<Specialday> toBeDeleted = specialdayService.vacationsBeforeEquals(ruleInput.minDeletiondate());
+		final Collection<Specialday> toBeDeleted = specialdayService.vacationsOrSpecialWorkingDatesBeforeEquals(ruleInput.minDeletiondate());
 		if(ruleInput.isTestMode() ) {
 			results.add(String.format(SUCCESS_MESSAGE_TEST, toBeDeleted.size(), ruleInput.minDeletiondate()));
 			return;

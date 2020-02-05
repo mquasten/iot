@@ -25,7 +25,7 @@ public interface SpecialdayService {
 	
 	void delete(Specialday specialday);
 
-	Collection<Specialday> vacationsBeforeEquals(final LocalDate minDate);
+	Collection<Specialday> vacationsOrSpecialWorkingDatesBeforeEquals(final LocalDate minDate);
 
 	Entry<DayType, String> typeOfDay(LocalDate date);
 

@@ -36,7 +36,7 @@ class CleanupRuleTest {
 	
 	@BeforeEach
 	void setup() {
-		Mockito.doReturn(specialdays).when(specialdayService).vacationsBeforeEquals(LocalDate.now().minusDays(DAYS_BACK));
+		Mockito.doReturn(specialdays).when(specialdayService).vacationsOrSpecialWorkingDatesBeforeEquals(LocalDate.now().minusDays(DAYS_BACK));
 	}
 	
 	@Test

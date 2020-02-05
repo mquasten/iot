@@ -188,8 +188,8 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	}
 	
 	@Override
-	public Collection<Specialday> vacationsBeforeEquals(final LocalDate date) {
-	 return specialdaysRepository.findByTypeIn(Arrays.asList(Type.Vacation)).collectList().block(duration).stream().filter(sd -> ! sd.date(1).isAfter(date)).collect(Collectors.toList());
+	public Collection<Specialday> vacationsOrSpecialWorkingDatesBeforeEquals(final LocalDate date) {
+	 return specialdaysRepository.findByTypeIn(Arrays.asList(Type.Vacation, Type.SpecialWorkingDate)).collectList().block(duration).stream().filter(sd -> ! sd.date(1).isAfter(date)).collect(Collectors.toList());
 		
 	}
 

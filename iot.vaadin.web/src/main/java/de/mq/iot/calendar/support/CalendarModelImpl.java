@@ -114,10 +114,10 @@ class CalendarModelImpl  implements CalendarModel  {
 	public ValidationErrors vaidate(final int maxDays) {
 		if( ! valid()) {
 			return ValidationErrors.Invalid;
-		}
+		}	
 		if(isDayOfWeek()) {
 			return ValidationErrors.Ok;
-		}
+		}	
 		if( to.get().isBefore(from.get())) {
 			return ValidationErrors.FromBeforeTo;
 		}
