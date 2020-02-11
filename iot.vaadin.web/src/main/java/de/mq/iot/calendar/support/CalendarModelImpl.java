@@ -117,7 +117,7 @@ class CalendarModelImpl  implements CalendarModel  {
 		}	
 		if(isDayOfWeek()) {
 			return ValidationErrors.Ok;
-		}	
+		}
 		if( to.get().isBefore(from.get())) {
 			return ValidationErrors.FromBeforeTo;
 		}
@@ -140,11 +140,12 @@ class CalendarModelImpl  implements CalendarModel  {
 			return  ValidationErrors.Invalid;
 		}
 		try {
-			LocalDate.of(Integer.valueOf(cols[2]), Integer.valueOf(cols[1]), Integer.valueOf(cols[0]));
+			final LocalDate localDate = LocalDate.of(Integer.valueOf(cols[2]), Integer.valueOf(cols[1]), Integer.valueOf(cols[0]));
 			
-			if(Integer.valueOf(cols[2]) < 2000 ) {
-				return ValidationErrors.Invalid;
+			if( localDate.isBefore(LocalDate.now()) ) {
+				return ValidationErrors.InPast;
 			}
+
 		} catch ( final Exception ex) {
 			return  ValidationErrors.Invalid;
 		

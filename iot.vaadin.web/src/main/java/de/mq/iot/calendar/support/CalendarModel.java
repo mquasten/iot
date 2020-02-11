@@ -24,6 +24,7 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 		Ok,
 		Mandatory,
 		Invalid,
+		InPast,
 		FromBeforeTo, 
 		RangeSize;
 	}

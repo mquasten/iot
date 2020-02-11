@@ -34,13 +34,13 @@ import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
+
 class CalendarModelTest {
 
 	private static final String TO_METHOD = "to";
 
 	private static final String FROM_METHOD = "from";
 
-	private static final String DATE = "31.12.2011";
 
 	@SuppressWarnings("unchecked")
 	private final Subject<Events, CalendarModel>   subject = Mockito.mock( Subject.class);
@@ -48,6 +48,8 @@ class CalendarModelTest {
 	private final CalendarModel calendarModel = new CalendarModelImpl(subject);
 	
 	private Observer observer = Mockito.mock(Observer.class);
+	
+	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 	
 	@Test
 	public final void create() {
@@ -96,15 +98,16 @@ class CalendarModelTest {
 	
 	@Test
 	public final void validateFrom() {
-		assertEquals(ValidationErrors.Ok, calendarModel.validateFrom(DATE));
+		assertEquals(ValidationErrors.Ok, calendarModel.validateFrom(LocalDate.now().format(formatter)));
 		Mockito.verify(subject).notifyObservers(Events.ValuesChanged);
 	}
 	
 	@Test
 	public final void validateFromResetDate() {
-		calendarModel.assignFrom(DATE);
+		final String date = LocalDate.now().format(formatter);
+		calendarModel.assignFrom(date);
 		assertNotNull(calendarModel.from());
-		assertEquals(ValidationErrors.Ok, calendarModel.validateFrom(DATE));
+		assertEquals(ValidationErrors.Ok, calendarModel.validateFrom(date));
 		
 		assertThrows(IllegalArgumentException.class,() ->  calendarModel.from());
 	}
@@ -135,15 +138,15 @@ class CalendarModelTest {
 
 	@Test
 	public final void validateTo() {
-		assertEquals(ValidationErrors.Ok, calendarModel.validateTo(DATE));
+		assertEquals(ValidationErrors.Ok, calendarModel.validateTo(LocalDate.now().format(formatter)));
 		Mockito.verify(subject).notifyObservers(Events.ValuesChanged);
 	}
 	
 	@Test
 	public final void vaidate() {
-		
-		calendarModel.assignFrom("01.01.2018");
-		calendarModel.assignTo("10.01.2018");
+		final LocalDate date = LocalDate.now();
+		calendarModel.assignFrom(date.format(formatter));
+		calendarModel.assignTo(date.plusDays(10).format(formatter));
 		assertEquals(ValidationErrors.Ok, calendarModel.vaidate(30));
 	}
 	
@@ -156,16 +159,16 @@ class CalendarModelTest {
 	@Test
 	public final void vaidateFromBeforeTo() {
 		
-		calendarModel.assignFrom("10.01.2018");
-		calendarModel.assignTo("01.01.2018");
+		calendarModel.assignFrom(LocalDate.now().plusDays(10).format(formatter));
+		calendarModel.assignTo(LocalDate.now().format(formatter));
 		assertEquals(ValidationErrors.FromBeforeTo, calendarModel.vaidate(30));
 	}
 	
 	@Test
 	public final void vaidateFromMaxDays() {
 		
-		calendarModel.assignFrom("10.01.2018");
-		calendarModel.assignTo("31.12.2018");
+		calendarModel.assignFrom(LocalDate.now().format(formatter));
+		calendarModel.assignTo(LocalDate.now().plusDays(40).format(formatter));
 		assertEquals(ValidationErrors.RangeSize, calendarModel.vaidate(30));
 	}
 	
@@ -179,46 +182,45 @@ class CalendarModelTest {
 	
 	@Test
 	public final void vaidatefromOldDate() {
-		assertEquals(ValidationErrors.Invalid, calendarModel.validateFrom("01.01.1900"));
+		assertEquals(ValidationErrors.InPast, calendarModel.validateFrom("01.01.1900"));
 		Mockito.verify(subject).notifyObservers(Events.ValuesChanged);
 	}
 	
 	@Test
 	public final void assignFrom() {
 		assertEquals(Optional.empty(), ReflectionTestUtils.getField(calendarModel, FROM_METHOD));
-		calendarModel.assignFrom(DATE);
 		
-		assertEquals(localDate(), calendarModel.from());
+		final LocalDate date = LocalDate.now();
+		calendarModel.assignFrom(date.format(formatter));
+		
+		assertEquals(date, calendarModel.from());
 		calendarModel.assignFrom("");
 		assertEquals(Optional.empty(), ReflectionTestUtils.getField(calendarModel, FROM_METHOD));
 	}
 
-
-	private  LocalDate localDate() {
-		final String[] cols = DATE.split("[.]");
-		return LocalDate.of(Integer.valueOf(cols[2]), Integer.valueOf(cols[1]), Integer.valueOf(cols[0]));
-	}
 	
 	@Test
 	public final void assignTo() {
 		assertEquals(Optional.empty(), ReflectionTestUtils.getField(calendarModel, TO_METHOD));
-		calendarModel.assignTo(DATE);
+		final LocalDate date = LocalDate.now();
+		calendarModel.assignTo(date.format(formatter));
 		
-		assertEquals(localDate(), calendarModel.to());
+		assertEquals(date, calendarModel.to());
 		calendarModel.assignTo("");
 		assertEquals(Optional.empty(), ReflectionTestUtils.getField(calendarModel, TO_METHOD));
 	}
 	
 	@Test
 	public final void valid() {
-		calendarModel.assignTo(DATE);
-		calendarModel.assignFrom(DATE);
+		String date = LocalDate.now().format(formatter);
+		calendarModel.assignTo(date);
+		calendarModel.assignFrom(date);
 		assertTrue(calendarModel.valid());
 		calendarModel.assignFrom("");
 		assertFalse(calendarModel.valid());
 		calendarModel.assignTo("");
 		assertFalse(calendarModel.valid());
-		calendarModel.assignTo(DATE);
+		calendarModel.assignTo(date);
 		assertFalse(calendarModel.valid());
 		
 		calendarModel.assignTo(null);
@@ -235,8 +237,9 @@ class CalendarModelTest {
 	
 	@Test
 	public final void from() {
-		calendarModel.assignFrom(DATE);
-		assertEquals(localDate(), calendarModel.from());
+		final LocalDate date = LocalDate.now();
+		calendarModel.assignFrom(date.format(formatter));
+		assertEquals(date, calendarModel.from());
 	}
 	
 	@Test
@@ -246,8 +249,9 @@ class CalendarModelTest {
 	
 	@Test
 	public final void to() {
-		calendarModel.assignTo(DATE);
-		assertEquals(localDate(), calendarModel.to());
+		LocalDate date = LocalDate.now();
+		calendarModel.assignTo(date.format(formatter));
+		assertEquals(date, calendarModel.to());
 	}
 	
 	@Test
