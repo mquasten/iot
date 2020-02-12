@@ -26,8 +26,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import de.mq.iot.calendar.Specialday;
-import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.Specialday.Type;
+import de.mq.iot.calendar.SpecialdayService;
 
 
 @Service
@@ -35,13 +35,15 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	
 	static final String VACATION_OR_PUBLIC_HOLIDAY_INFO = "Vacation or public holiday";
 	static final String DAY_TYPE_INFO_FORMAT = "%s: %s";
-	private SpecialdayRepository specialdaysRepository;
-	private Duration duration;
+	private final SpecialdayRepository specialdaysRepository;
+	private final Duration duration;
+	private final SpecialDaysRulesEngineBuilder rulesEngineBuilder;
 	
 	@Autowired
-	SpecialdayServiceImpl(final SpecialdayRepository specialdaysRepository, @Value("${mongo.timeout:500}") final Integer timeout) {
+	SpecialdayServiceImpl(final SpecialdayRepository specialdaysRepository, final SpecialDaysRulesEngineBuilder rulesEngineBuilder,  @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.specialdaysRepository=specialdaysRepository;
 		this.duration=Duration.ofMillis(timeout);
+		this.rulesEngineBuilder=rulesEngineBuilder;
 	}
 	
 	/* (non-Javadoc)
@@ -103,6 +105,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	
 	@Override
 	public Entry<DayType,String> typeOfDay(final LocalDate date) {
+				
 		
 		final Collection<DayOfWeek> weekendDays = readDayOfWeek(Type.Weekend);
 		if (weekendDays.contains(date.getDayOfWeek())) {

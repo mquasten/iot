@@ -23,9 +23,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import de.mq.iot.calendar.Specialday;
+import de.mq.iot.calendar.Specialday.Type;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.SpecialdayService.DayType;
-import de.mq.iot.calendar.Specialday.Type;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -34,8 +34,9 @@ class SpecialdayServiceTest {
 	private static final int TIMEOUT = 500;
 
 	private final SpecialdayRepository specialdayRepository = Mockito.mock(SpecialdayRepository.class);
-
-	private final SpecialdayService specialdayService = new SpecialdayServiceImpl(specialdayRepository, TIMEOUT);
+	
+	private final SpecialDaysRulesEngineBuilder rulesEngineBuilder = Mockito.mock(SpecialDaysRulesEngineBuilder.class);
+	private final SpecialdayService specialdayService = new SpecialdayServiceImpl(specialdayRepository,rulesEngineBuilder, TIMEOUT);
 
 	private final Specialday specialday = Mockito.mock(Specialday.class);
 	private final Specialday otherSpecialday = Mockito.mock(Specialday.class);
