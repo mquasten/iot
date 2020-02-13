@@ -35,7 +35,7 @@ class SpecialdayServiceTest {
 
 	private final SpecialdayRepository specialdayRepository = Mockito.mock(SpecialdayRepository.class);
 	
-	private final SpecialDaysRulesEngineBuilder rulesEngineBuilder = Mockito.mock(SpecialDaysRulesEngineBuilder.class);
+	private final SpecialdaysRulesEngineBuilder rulesEngineBuilder = Mockito.mock(SpecialdaysRulesEngineBuilder.class);
 	private final SpecialdayService specialdayService = new SpecialdayServiceImpl(specialdayRepository,rulesEngineBuilder, TIMEOUT);
 
 	private final Specialday specialday = Mockito.mock(Specialday.class);

@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -37,13 +38,13 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	static final String DAY_TYPE_INFO_FORMAT = "%s: %s";
 	private final SpecialdayRepository specialdaysRepository;
 	private final Duration duration;
-	private final SpecialDaysRulesEngineBuilder rulesEngineBuilder;
+	private SpecialdaysRulesEngineBuilder rulesEngineBuilder;
 	
 	@Autowired
-	SpecialdayServiceImpl(final SpecialdayRepository specialdaysRepository, final SpecialDaysRulesEngineBuilder rulesEngineBuilder,  @Value("${mongo.timeout:500}") final Integer timeout) {
+	SpecialdayServiceImpl(final SpecialdayRepository specialdaysRepository, final SpecialdaysRulesEngineBuilder rulesEngineBuilder,  @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.specialdaysRepository=specialdaysRepository;
 		this.duration=Duration.ofMillis(timeout);
-		this.rulesEngineBuilder=rulesEngineBuilder;
+		this.rulesEngineBuilder= rulesEngineBuilder;
 	}
 	
 	/* (non-Javadoc)
@@ -72,6 +73,12 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		
 	}
 	
+	
+	public  Function<LocalDate, Entry<DayType,String>> specialdaysRulesEngine() {
+		Collection<Specialday> specialdays =specialdaysRepository.findByTypeIn(Arrays.asList(Type.values())).collectList().block(duration);
+		return  rulesEngineBuilder.withSpecialDays(specialdays);
+	
+	}
 	
 	@Override
 	public Collection<Specialday> specialdays(final Collection<Type> types){
