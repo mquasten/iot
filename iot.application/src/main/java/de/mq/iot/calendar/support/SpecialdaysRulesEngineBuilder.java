@@ -3,8 +3,6 @@ package de.mq.iot.calendar.support;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map.Entry;
 import java.util.function.Function;
 
 import org.jeasy.rules.api.Facts;
@@ -15,15 +13,13 @@ import org.jeasy.rules.api.RulesEngine;
 import org.jeasy.rules.core.DefaultRulesEngine;
 import org.jeasy.rules.core.RulesEngineParameters;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-
-
 
 import de.mq.iot.calendar.Specialday;
-import de.mq.iot.calendar.SpecialdayService.DayType;
 
-public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, Entry<DayType,String>> {
+public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, SpecialdaysRulesEngineResult> {
 	
+	private static final String RESULT = "result";
+
 	private static final String SPECIALDAYS_INPUT = "specialdays";
 
 	private static final String DATE_INPUT = "date";
@@ -46,12 +42,13 @@ public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, Entry
 	}
 	
 	@Override
-	public Entry<DayType, String> apply(final LocalDate date) {
+	public SpecialdaysRulesEngineResult apply(final LocalDate date) {
 		Assert.isTrue( !rules.isEmpty(), "At least  1 rule must be given.");
 		Assert.notEmpty(specialdays, "At least  1 specialday must given.");
 		Assert.notNull(date, "Date is mandatory");
 		final Facts facts = new Facts();
 		facts.put(SPECIALDAYS_INPUT, specialdays);
+		facts.put(RESULT, new SpecialdaysRulesEngineResult());
 		facts.put(DATE_INPUT, date);
 		final RulesEngineParameters parameters = new RulesEngineParameters().skipOnFirstAppliedRule(true).skipOnFirstFailedRule(true);
 		
@@ -60,23 +57,22 @@ public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, Entry
 		((DefaultRulesEngine)rulesEngine).registerRuleListener(ruleListener);
 		
 		rulesEngine.fire(rules, facts);
-		if(! CollectionUtils.isEmpty(ruleListener.errors)) {
-			throw ruleListener.errors.stream().findFirst().get(); 
-		}
 		
-		final Entry<DayType,String> result =  facts.get("result");
-		Assert.notNull(result, "Result is nor aware.");
-		return result;
+		
+		return facts.get(RESULT);
+		
 	}
 	
 	
 	
 	
 	class SimpleRuleListener implements RuleListener {
-		private final Collection<IllegalStateException> errors = new HashSet<>();
+	
 		@Override
 		public boolean beforeEvaluate(final Rule rule, final Facts facts) {
-			return true;
+			final SpecialdaysRulesEngineResult result = facts.get(RESULT);
+			return result.finished();
+			
 		}
 
 		@Override
@@ -93,13 +89,15 @@ public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, Entry
 
 		@Override
 		public void onSuccess(final Rule rule, final Facts facts) {
-			
+			final SpecialdaysRulesEngineResult result = facts.get(RESULT);
+			result.assignDescription(rule.getName());
 			
 		}
 
 		@Override
 		public void onFailure(final Rule rule, final Facts facts, final Exception exception) {
-			errors.add(new IllegalStateException("Error executing rule " + rule.getName(), exception));
+			final SpecialdaysRulesEngineResult result = facts.get(RESULT);
+			result.assign(exception, rule.getName());
 			
 		}
 		

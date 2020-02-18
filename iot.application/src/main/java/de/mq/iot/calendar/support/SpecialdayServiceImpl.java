@@ -74,7 +74,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	}
 	
 	
-	public  Function<LocalDate, Entry<DayType,String>> specialdaysRulesEngine() {
+	public  Function<LocalDate, SpecialdaysRulesEngineResult > specialdaysRulesEngine() {
 		Collection<Specialday> specialdays =specialdaysRepository.findByTypeIn(Arrays.asList(Type.values())).collectList().block(duration);
 		return  rulesEngineBuilder.withSpecialDays(specialdays);
 	
