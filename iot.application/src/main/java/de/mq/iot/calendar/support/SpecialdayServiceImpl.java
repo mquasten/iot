@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -73,11 +72,9 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		
 	}
 	
-	
-	public  Function<LocalDate, SpecialdaysRulesEngineResult > specialdaysRulesEngine() {
-		Collection<Specialday> specialdays =specialdaysRepository.findByTypeIn(Arrays.asList(Type.values())).collectList().block(duration);
-		return  rulesEngineBuilder.withSpecialDays(specialdays);
-	
+	public SpecialdaysRulesEngineResult specialdaysRulesEngineResult(LocalDate date) {
+		Collection<Specialday> specialdays = specialdaysRepository.findByTypeIn(Arrays.asList(Type.values())).collectList().block(duration);
+		return rulesEngineBuilder.withSpecialDays(specialdays).apply(date);
 	}
 	
 	@Override

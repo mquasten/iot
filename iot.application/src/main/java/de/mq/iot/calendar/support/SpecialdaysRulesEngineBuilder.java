@@ -13,6 +13,7 @@ import org.jeasy.rules.api.RulesEngine;
 import org.jeasy.rules.core.DefaultRulesEngine;
 import org.jeasy.rules.core.RulesEngineParameters;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import de.mq.iot.calendar.Specialday;
 
@@ -48,7 +49,7 @@ public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, Speci
 		Assert.notNull(date, "Date is mandatory");
 		final Facts facts = new Facts();
 		facts.put(SPECIALDAYS_INPUT, specialdays);
-		facts.put(RESULT, new SpecialdaysRulesEngineResult());
+		facts.put(RESULT, new SpecialdaysRulesEngineResultImpl());
 		facts.put(DATE_INPUT, date);
 		final RulesEngineParameters parameters = new RulesEngineParameters().skipOnFirstAppliedRule(true).skipOnFirstFailedRule(true);
 		
@@ -70,7 +71,7 @@ public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, Speci
 	
 		@Override
 		public boolean beforeEvaluate(final Rule rule, final Facts facts) {
-			final SpecialdaysRulesEngineResult result = facts.get(RESULT);
+			final SpecialdaysRulesEngineResultImpl result = facts.get(RESULT);
 			return result.finished();
 			
 		}
@@ -89,14 +90,17 @@ public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, Speci
 
 		@Override
 		public void onSuccess(final Rule rule, final Facts facts) {
-			final SpecialdaysRulesEngineResult result = facts.get(RESULT);
-			result.assignDescription(rule.getName());
+			final SpecialdaysRulesEngineResultImpl result = facts.get(RESULT);
+			if(StringUtils.hasText(result.description())){
+				return;
+			}
 			
+			result.assignDescription(rule.getName());
 		}
 
 		@Override
 		public void onFailure(final Rule rule, final Facts facts, final Exception exception) {
-			final SpecialdaysRulesEngineResult result = facts.get(RESULT);
+			final SpecialdaysRulesEngineResultImpl result = facts.get(RESULT);
 			result.assign(exception, rule.getName());
 			
 		}
