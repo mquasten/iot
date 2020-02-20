@@ -16,12 +16,14 @@ class SpecialdaysRulesEngineResultImpl implements SpecialdaysRulesEngineResult {
 	
 	private Optional<IllegalStateException> exception = Optional.empty();
 	
-	private String description;
+	private Optional<String> description= Optional.empty();;
+	
+	private Optional<String> successRule = Optional.empty();
 	
 	@Override
 	public DayType dayType() {
 		throwExceptionIfExists();
-		return dayType.orElseThrow(() -> new IllegalStateException());
+		return dayType.orElseThrow(() -> new IllegalStateException("Result is not aware."));
 	}
 	
 	boolean finished() {
@@ -39,19 +41,28 @@ class SpecialdaysRulesEngineResultImpl implements SpecialdaysRulesEngineResult {
 		Assert.hasText(rule, "Rule is mandatory.");
 		this.exception=Optional.of(new IllegalStateException(ERROR_MESSAGE+rule, exception));
 	}
-	void assign(final DayType dayType) {
+	void assign(final DayType dayType, final String description) {
+		Assert.notNull(dayType , "DayType is mandatory.");
+		Assert.notNull(description, "Description is mandatory.");
 		this.dayType=Optional.of(dayType);
+		this.description=Optional.of(description);
 	}
+	
 	
 	
 	@Override
 	public String description() {
-		return description;
+		throwExceptionIfExists();
+		return description.orElseThrow(() -> new IllegalStateException("Result is not aware."));
 	}
 
-	void assignDescription(String description) {
-		this.description=description;
-		
+	@Override
+	public Optional<String> successRule() {
+		return successRule;
+	}
+	void assignSuccessRule(final String successRule) {
+		Assert.hasText(successRule, "SuccessRule is mandatory.");
+		this.successRule=Optional.of(successRule);
 	}
 	
 }

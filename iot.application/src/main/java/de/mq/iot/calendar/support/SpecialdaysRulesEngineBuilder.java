@@ -13,8 +13,6 @@ import org.jeasy.rules.api.RulesEngine;
 import org.jeasy.rules.core.DefaultRulesEngine;
 import org.jeasy.rules.core.RulesEngineParameters;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
 import de.mq.iot.calendar.Specialday;
 
 public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, SpecialdaysRulesEngineResult> {
@@ -91,11 +89,8 @@ public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, Speci
 		@Override
 		public void onSuccess(final Rule rule, final Facts facts) {
 			final SpecialdaysRulesEngineResultImpl result = facts.get(RESULT);
-			if(StringUtils.hasText(result.description())){
-				return;
-			}
+			result.assignSuccessRule(rule.getName());
 			
-			result.assignDescription(rule.getName());
 		}
 
 		@Override
