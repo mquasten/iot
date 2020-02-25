@@ -6,22 +6,21 @@ import java.util.Collection;
 import java.util.function.Function;
 
 import org.jeasy.rules.api.Facts;
-import org.jeasy.rules.api.Rule;
-import org.jeasy.rules.api.RuleListener;
 import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.api.RulesEngine;
 import org.jeasy.rules.core.DefaultRulesEngine;
 import org.jeasy.rules.core.RulesEngineParameters;
 import org.springframework.util.Assert;
+
 import de.mq.iot.calendar.Specialday;
 
 public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, SpecialdaysRulesEngineResult> {
 	
-	private static final String RESULT = "result";
+	static final String RESULT = "result";
 
-	private static final String SPECIALDAYS_INPUT = "specialdays";
+	static final String SPECIALDAYS_INPUT = "specialdays";
 
-	private static final String DATE_INPUT = "date";
+	static final String DATE_INPUT = "date";
 	private Rules rules; 
 	
 	private Collection<Specialday> specialdays = new ArrayList<>();
@@ -65,45 +64,7 @@ public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, Speci
 	
 	
 	
-	class SimpleRuleListener implements RuleListener {
 	
-		@Override
-		public boolean beforeEvaluate(final Rule rule, final Facts facts) {
-			final SpecialdaysRulesEngineResultImpl result = facts.get(RESULT);
-			return result.finished();
-			
-		}
-
-		@Override
-		public void afterEvaluate(final Rule rule, Facts facts, final boolean evaluationResult) {
-			
-			
-		}
-
-		@Override
-		public void beforeExecute(final Rule rule, final Facts facts) {
-			
-			
-		}
-
-		@Override
-		public void onSuccess(final Rule rule, final Facts facts) {
-			final SpecialdaysRulesEngineResultImpl result = facts.get(RESULT);
-			result.assignSuccessRule(rule.getName());
-			
-		}
-
-		@Override
-		public void onFailure(final Rule rule, final Facts facts, final Exception exception) {
-			final SpecialdaysRulesEngineResultImpl result = facts.get(RESULT);
-			result.assign(exception, rule.getName());
-			
-		}
-		
-		
-		
-	}
-
 	
 
 
