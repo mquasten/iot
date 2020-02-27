@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.function.Function;
 
 import org.jeasy.rules.api.Facts;
+import org.jeasy.rules.api.Rule;
 import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.api.RulesEngine;
 import org.jeasy.rules.core.DefaultRulesEngine;
@@ -26,10 +27,10 @@ public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, Speci
 	private Collection<Specialday> specialdays = new ArrayList<>();
 
 	
-	SpecialdaysRulesEngineBuilder withRules(final Collection<Object> rules) {
+	SpecialdaysRulesEngineBuilder withRules(final Collection<Rule> rules) {
 		
 		Assert.isNull(this.rules, "Rules already assigned");
-		this.rules=new Rules(rules);
+		this.rules=new Rules(rules.toArray(new Rule[0]));
 		return this;
 	}
 	
