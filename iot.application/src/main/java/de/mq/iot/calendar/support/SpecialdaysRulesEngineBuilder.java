@@ -3,7 +3,6 @@ package de.mq.iot.calendar.support;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Function;
 
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rule;
@@ -12,10 +11,11 @@ import org.jeasy.rules.api.RulesEngine;
 import org.jeasy.rules.core.DefaultRulesEngine;
 import org.jeasy.rules.core.RulesEngineParameters;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import de.mq.iot.calendar.Specialday;
 
-public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, SpecialdaysRulesEngineResult> {
+public class SpecialdaysRulesEngineBuilder  {
 	
 	static final String RESULT = "result";
 
@@ -34,14 +34,14 @@ public class SpecialdaysRulesEngineBuilder implements  Function<LocalDate, Speci
 		return this;
 	}
 	
-	SpecialdaysRulesEngineBuilder withSpecialDays(final Collection<Specialday> specialdays) {
-		Assert.isNull(this.rules, "Rules already assigned");
+	SpecialdaysRulesEngineBuilder withSpecialdays(final Collection<Specialday> specialdays) {
+		Assert.isTrue(CollectionUtils.isEmpty(this.specialdays), "Specialdays already assigned");
 		this.specialdays.addAll(specialdays);
 		return this;
 	}
 	
-	@Override
-	public SpecialdaysRulesEngineResult apply(final LocalDate date) {
+	
+	public SpecialdaysRulesEngineResult execute(final LocalDate date) {
 		Assert.isTrue( !rules.isEmpty(), "At least  1 rule must be given.");
 		Assert.notEmpty(specialdays, "At least  1 specialday must given.");
 		Assert.notNull(date, "Date is mandatory");
