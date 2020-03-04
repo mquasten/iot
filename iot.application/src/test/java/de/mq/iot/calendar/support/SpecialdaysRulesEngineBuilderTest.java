@@ -1,7 +1,10 @@
 package de.mq.iot.calendar.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -43,6 +46,12 @@ class SpecialdaysRulesEngineBuilderTest {
 		assertEquals(rule, ruleSet.stream().findAny().get());
 	    
 	}
+	
+	@Test
+	void withRulesEmpty() {
+		assertThrows(IllegalArgumentException.class, () -> specialdaysRulesEngineBuilder.withRules(Arrays.asList()));
+		assertThrows(IllegalArgumentException.class, () -> specialdaysRulesEngineBuilder.withRules(null));
+	}
 	@Test
 	void withSpecialDays() {
 		specialdaysRulesEngineBuilder.withSpecialdays(Arrays.asList(specialday));
@@ -51,13 +60,19 @@ class SpecialdaysRulesEngineBuilderTest {
 		assertEquals(1, specialdays.size());
 		assertEquals(specialday, specialdays.stream().findAny().get());
 	}
+	
+	@Test
+	void withSpecialDaysEmpty() {
+		assertThrows(IllegalArgumentException.class, () -> specialdaysRulesEngineBuilder.withSpecialdays(null));
+		assertThrows(IllegalArgumentException.class, () -> specialdaysRulesEngineBuilder.withSpecialdays(Arrays.asList()));
+	}
 
 	@SuppressWarnings("unchecked")
 	private <T> T dependency(final Object target, Class<?> type) {
 		return (T) Arrays.asList(target.getClass().getDeclaredFields()).stream().filter(field -> field.getType().equals(type)).map(field ->ReflectionTestUtils.getField(target, field.getName())).findAny().orElseThrow();
 	}
 	@Test
-	void applySucces() throws Exception {
+	void executeSucces() throws Exception {
 		Mockito.when(rule.evaluate(Mockito.any())).thenReturn(true);
 		Mockito.when(rule.getName()).thenReturn(RULENAME);
 		Mockito.doAnswer(answer->{
@@ -74,5 +89,54 @@ class SpecialdaysRulesEngineBuilderTest {
 		assertEquals(DayType.WorkingDay, specialdaysRulesEngineResult.dayType());
 		assertEquals(DESCRIPTION, specialdaysRulesEngineResult.description());
 	}
+	
+	@Test
+	void executeError() throws Exception {
+		final Exception exeption = new RuntimeException();
+		Mockito.when(rule.evaluate(Mockito.any())).thenReturn(true);
+		Mockito.when(rule.getName()).thenReturn(RULENAME);
+		Mockito.doThrow(exeption).when(rule).execute(Mockito.any(Facts.class));
+		
+		SpecialdaysRulesEngineResultImpl specialdaysRulesEngineResult = (SpecialdaysRulesEngineResultImpl) specialdaysRulesEngineBuilder.withRules(Arrays.asList(rule)).withSpecialdays(Arrays.asList(specialday)).execute(LocalDate.now());
+	
+		assertTrue(specialdaysRulesEngineResult.finished());
+		
+		assertEquals(Optional.empty(), specialdaysRulesEngineResult.successRule());
+		try {
+			specialdaysRulesEngineResult.description();
+			fail(IllegalStateException.class.getSimpleName() + " should be raised");
+		} catch (Exception ex) {
+			assertEquals(exeption, ex.getCause());
+			assertEquals(SpecialdaysRulesEngineResultImpl.ERROR_MESSAGE+RULENAME, ex.getMessage());
+		}
+		
+		try {
+			specialdaysRulesEngineResult.description();
+			fail(IllegalStateException.class.getSimpleName() + " should be raised");
+		} catch (Exception ex) {
+			assertEquals(exeption, ex.getCause());
+			assertEquals(SpecialdaysRulesEngineResultImpl.ERROR_MESSAGE+RULENAME, ex.getMessage());
+		}
+		
+	}
+	
+	@Test
+	void executeNotFinished() throws Exception {
+		Mockito.when(rule.evaluate(Mockito.any())).thenReturn(true);
+		Mockito.when(rule.getName()).thenReturn(RULENAME);
+		
+		final LocalDate localDate = LocalDate.now();
+		final SpecialdaysRulesEngineResultImpl specialdaysRulesEngineResult = (SpecialdaysRulesEngineResultImpl) specialdaysRulesEngineBuilder.withRules(Arrays.asList(rule)).withSpecialdays(Arrays.asList(specialday)).execute(localDate);
 
-}
+		Mockito.verify(rule).execute(Mockito.any(Facts.class));
+		assertFalse(specialdaysRulesEngineResult.finished());
+		
+		assertThrows(IllegalStateException.class, () -> specialdaysRulesEngineResult.dayType());
+		assertThrows(IllegalStateException.class, () -> specialdaysRulesEngineResult.description());
+	}
+	@Test
+	void executeRulesMissing() {
+		assertThrows(IllegalArgumentException.class, () ->specialdaysRulesEngineBuilder.withSpecialdays(Arrays.asList(specialday)).execute(LocalDate.now()));
+	}
+	
+	}

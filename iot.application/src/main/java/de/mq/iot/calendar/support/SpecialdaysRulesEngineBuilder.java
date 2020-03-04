@@ -28,13 +28,14 @@ public class SpecialdaysRulesEngineBuilder  {
 
 	
 	SpecialdaysRulesEngineBuilder withRules(final Collection<Rule> rules) {
-		
+		Assert.isTrue(!CollectionUtils.isEmpty(rules), "At least  1 rule must be given.");
 		Assert.isNull(this.rules, "Rules already assigned");
 		this.rules=new Rules(rules.toArray(new Rule[0]));
 		return this;
 	}
 	
 	SpecialdaysRulesEngineBuilder withSpecialdays(final Collection<Specialday> specialdays) {
+		Assert.isTrue(!CollectionUtils.isEmpty(specialdays), "At least  1 specialday must be given.");
 		Assert.isTrue(CollectionUtils.isEmpty(this.specialdays), "Specialdays already assigned");
 		this.specialdays.addAll(specialdays);
 		return this;
@@ -42,7 +43,7 @@ public class SpecialdaysRulesEngineBuilder  {
 	
 	
 	public SpecialdaysRulesEngineResult execute(final LocalDate date) {
-		Assert.isTrue( !rules.isEmpty(), "At least  1 rule must be given.");
+		Assert.notNull(rules, "At least  1 rule must be given.");
 		Assert.notEmpty(specialdays, "At least  1 specialday must given.");
 		Assert.notNull(date, "Date is mandatory");
 		final Facts facts = new Facts();
