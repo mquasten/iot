@@ -25,6 +25,8 @@ class BooleanStateConverterImpl  extends AbstractStateConverter<Boolean>{
 		return BOOLEN_STATE_TYPES;
 	}
 
+
+
 	@Override
 	State<Boolean> createState(final State<Boolean> state, final Map<String,String> values) {
 	
