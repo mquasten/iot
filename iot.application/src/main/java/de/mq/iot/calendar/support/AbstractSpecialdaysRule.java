@@ -1,10 +1,19 @@
 package de.mq.iot.calendar.support;
 
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Map.Entry;
+import java.util.Optional;
+
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rule;
 import org.jeasy.rules.core.BasicRule;
-import org.springframework.util.Assert;
+
 import org.springframework.util.StringUtils;
+
+import de.mq.iot.calendar.Specialday;
+import de.mq.iot.calendar.SpecialdayService.DayType;
+
 
 abstract  class AbstractSpecialdaysRule extends BasicRule implements Rule{
 
@@ -32,13 +41,21 @@ abstract  class AbstractSpecialdaysRule extends BasicRule implements Rule{
 
 	@Override
 	public final boolean evaluate(final Facts facts) {
-		final SpecialdaysRulesEngineResultImpl result = facts.get(SpecialdaysRulesEngineBuilder.RESULT);
-		Assert.notNull(result , "Result should be aware.");
-		return ! result.finished();
+		return true;
 	}
 
 	@Override
-	public  abstract void execute(final Facts facts) throws Exception;
+	public   final void execute(final Facts facts) throws Exception {
+		final SpecialdaysRulesEngineResultImpl result = facts.get(SpecialdaysRulesEngineBuilder.RESULT);
+		final Collection<Specialday> specialday =  facts.get(SpecialdaysRulesEngineBuilder.SPECIALDAYS_INPUT);
+		final LocalDate date = facts.get(SpecialdaysRulesEngineBuilder.DATE_INPUT);
+		
+		
+		execute(specialday, date).ifPresent(entry -> result.assign(entry.getKey(), entry.getValue()));
+	}
+
+
+	abstract Optional<Entry<DayType,String>> execute(final Collection<Specialday> specialday, final LocalDate date);
 	
 
 }
