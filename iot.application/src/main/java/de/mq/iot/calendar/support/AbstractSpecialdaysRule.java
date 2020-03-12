@@ -9,14 +9,13 @@ import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rule;
 import org.jeasy.rules.core.BasicRule;
 
-import org.springframework.util.StringUtils;
-
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService.DayType;
 
 
 abstract  class AbstractSpecialdaysRule extends BasicRule implements Rule{
 
+	static final String DESCRIPTION_FORMAT = "rule=%s, priority=%s";
 	private final int priority;
 	
 	AbstractSpecialdaysRule(final int priority ) {
@@ -26,12 +25,12 @@ abstract  class AbstractSpecialdaysRule extends BasicRule implements Rule{
 
 	@Override
 	public final String getName() {
-		return StringUtils.uncapitalize(getClass().getSimpleName().replaceFirst("Impl$", ""));
+		return getClass().getSimpleName();
 	}
 
 	@Override
 	public final String getDescription() {
-		return "rule="+ getName() + ", priority=" + getPriority();
+		return String.format(DESCRIPTION_FORMAT, getName(), getPriority());
 	}
 
 	@Override

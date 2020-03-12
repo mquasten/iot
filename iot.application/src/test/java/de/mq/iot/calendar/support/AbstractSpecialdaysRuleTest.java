@@ -1,6 +1,7 @@
 package de.mq.iot.calendar.support;
 
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -60,5 +61,25 @@ class AbstractSpecialdaysRuleTest {
 		assertEquals(Arrays.asList(specialday), argumentCaptorSpecialdays.getValue());
 	}
 	
+	@Test
+	void getPriority() {
+		assertEquals(PRIORITY, abstractSpecialdaysRule.getPriority());
+	}
+	
+	@Test
+	void  evaluate() {
+		assertTrue(abstractSpecialdaysRule.evaluate(new Facts()));
+	}
+	
+	@Test
+	void getName() {
+		assertEquals(abstractSpecialdaysRule.getClass().getSimpleName(), abstractSpecialdaysRule.getName());
+	}
+	
+	
+	@Test
+	void getDescription() {
+		assertEquals(String.format(AbstractSpecialdaysRule.DESCRIPTION_FORMAT,abstractSpecialdaysRule.getClass().getSimpleName(), PRIORITY ), abstractSpecialdaysRule.getDescription());
+	}
 
 }
