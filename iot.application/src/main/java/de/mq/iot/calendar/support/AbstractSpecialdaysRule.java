@@ -14,7 +14,7 @@ import de.mq.iot.calendar.SpecialdayService.DayType;
 
 
 abstract  class AbstractSpecialdaysRule extends BasicRule implements Rule{
-
+	static final String DAY_TYPE_INFO_FORMAT = "%s: %s";
 	static final String DESCRIPTION_FORMAT = "rule=%s, priority=%s";
 	private final int priority;
 	
