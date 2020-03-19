@@ -19,7 +19,7 @@ public class SpecialWorkingDaysRuleImpl extends AbstractSpecialdaysRule {
 	}
 
 	@Override
-	Optional<Entry<DayType, String>> execute(Collection<Specialday> specialday, LocalDate date) {
+	final Optional<Entry<DayType, String>> execute(final Collection<Specialday> specialday, final LocalDate date) {
 		return   specialday.stream().filter(day -> Specialday.Type.SpecialWorkingDate == day.type()).filter(day -> day.date(date.getYear()).equals(date))
 		.map(day -> (Entry<DayType, String>) entry(date)).findAny();
 	
