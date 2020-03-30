@@ -56,5 +56,6 @@ abstract  class AbstractSpecialdaysRule extends BasicRule implements Rule{
 
 	abstract Optional<Entry<DayType,String>> execute(final Collection<Specialday> specialday, final LocalDate date);
 	
+	
 
 }
