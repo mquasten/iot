@@ -26,12 +26,12 @@ public class VacationOrHolidayRuleImpl extends AbstractSpecialdaysRule {
 	@Override
 	Optional<Entry<DayType, String>> execute(final Collection<Specialday> specialday, final LocalDate date) {
 		return   specialday.stream().filter(day -> types.contains(day.type())).filter(day -> day.date(date.getYear()).equals(date))
-				.map(day -> (Entry<DayType, String>) entry(date)).findAny();
+				.map(day -> (Entry<DayType, String>) entry(date, day)).findAny();
 			
 	}
 	
-	private SimpleImmutableEntry<DayType, String> entry(final LocalDate date) {
-		return new AbstractMap.SimpleImmutableEntry<DayType, String>(DayType.SpecialWorkingDay, String.format(DAY_TYPE_INFO_FORMAT, "Vaction or public holiday" , date));
+	private SimpleImmutableEntry<DayType, String> entry(final LocalDate date, Specialday day) {
+		return new AbstractMap.SimpleImmutableEntry<DayType, String>(DayType.NonWorkingDay, String.format(DAY_TYPE_INFO_FORMAT, day.type() , date));
 	}
 
 }
