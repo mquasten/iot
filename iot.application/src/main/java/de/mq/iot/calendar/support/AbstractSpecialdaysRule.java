@@ -22,6 +22,8 @@ abstract  class AbstractSpecialdaysRule extends BasicRule implements Rule{
 		this.priority=priority;
 	}
 	
+	
+	
 
 	@Override
 	public final String getName() {
