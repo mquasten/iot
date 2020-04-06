@@ -2,19 +2,19 @@ package de.mq.iot.calendar.support;
 
 import java.time.LocalDate;
 import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.AbstractMap.SimpleImmutableEntry;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService.DayType;
 
-public class SpecialWorkingDaysRuleImpl extends AbstractSpecialdaysRule {
+public class SpecialWorkingDateRuleImpl extends AbstractSpecialdaysRule {
 	
 	
 
-	SpecialWorkingDaysRuleImpl() {
+	SpecialWorkingDateRuleImpl() {
 		super(1);
 	}
 

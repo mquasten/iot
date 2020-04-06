@@ -17,9 +17,9 @@ import org.mockito.Mockito;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService.DayType;
 
-class SpecialWorkingDaysRuleTest {
+class SpecialWorkingDateRuleTest {
 	
-	private AbstractSpecialdaysRule rule = new SpecialWorkingDaysRuleImpl();
+	private AbstractSpecialdaysRule rule = new SpecialWorkingDateRuleImpl();
 	
 	@Test
 	void priority() {
@@ -44,7 +44,7 @@ class SpecialWorkingDaysRuleTest {
 		final Optional<Entry<DayType,String>> result = rule.execute(specialdays, date);
 		assertFalse(result.isEmpty());
 		assertEquals(DayType.SpecialWorkingDay, result.get().getKey());
-		assertEquals(String.format(SpecialWorkingDaysRuleImpl.DAY_TYPE_INFO_FORMAT,Specialday.Type.SpecialWorkingDate, date ), result.get().getValue());
+		assertEquals(String.format(SpecialWorkingDateRuleImpl.DAY_TYPE_INFO_FORMAT,Specialday.Type.SpecialWorkingDate, date ), result.get().getValue());
 	}
 	
 	@Test
