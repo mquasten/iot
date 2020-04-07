@@ -27,7 +27,7 @@ public class SpecialWorkingDayRuleImpl extends AbstractSpecialdaysRule {
 	}
 
 	private SimpleImmutableEntry<DayType, String> entry(final DayOfWeek dayOfWeek) {
-		return new AbstractMap.SimpleImmutableEntry<DayType, String>(DayType.SpecialWorkingDay, String.format(DAY_TYPE_INFO_FORMAT, SpecialdayImpl.Type.SpecialWorkingDate, dayOfWeek));
+		return new AbstractMap.SimpleImmutableEntry<DayType, String>(DayType.SpecialWorkingDay, String.format(DAY_TYPE_INFO_FORMAT, Specialday.Type.SpecialWorkingDay, dayOfWeek));
 	}
 
 }
