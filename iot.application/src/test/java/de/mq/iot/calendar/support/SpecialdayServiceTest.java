@@ -18,6 +18,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
+import org.jeasy.rules.api.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -35,8 +36,8 @@ class SpecialdayServiceTest {
 
 	private final SpecialdayRepository specialdayRepository = Mockito.mock(SpecialdayRepository.class);
 	
-	private final SpecialdaysRulesEngineBuilder rulesEngineBuilder = Mockito.mock(SpecialdaysRulesEngineBuilder.class);
-	private final SpecialdayService specialdayService = new SpecialdayServiceImpl(specialdayRepository,rulesEngineBuilder, TIMEOUT);
+	private final Collection<Rule> rules = new ArrayList<>();
+	private  SpecialdayService specialdayService;
 
 	private final Specialday specialday = Mockito.mock(Specialday.class);
 	private final Specialday otherSpecialday = Mockito.mock(Specialday.class);
@@ -64,7 +65,7 @@ class SpecialdayServiceTest {
 
 	@BeforeEach
 	void setup() {
-
+		specialdayService = new SpecialdayServiceImpl(specialdayRepository,rules, TIMEOUT);
 		Mockito.when(specialdayRepository.save(specialday)).thenReturn(mono);
 
 		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss))).thenReturn(fluxHoliday);

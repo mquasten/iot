@@ -7,10 +7,13 @@ import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService.DayType;
 
-public class SpecialWorkingDateRuleImpl extends AbstractSpecialdaysRule {
+@Component
+class SpecialWorkingDateRuleImpl extends AbstractSpecialdaysRule {
 	
 	
 

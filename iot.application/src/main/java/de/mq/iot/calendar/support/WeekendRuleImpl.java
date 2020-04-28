@@ -6,12 +6,16 @@ import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
 import java.util.AbstractMap.SimpleImmutableEntry;
 
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService.DayType;
 
-public class WeekendRuleImpl extends AbstractSpecialdaysRule {
+@Component
+class WeekendRuleImpl extends AbstractSpecialdaysRule {
 	
 	
 

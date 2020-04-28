@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
+import org.jeasy.rules.api.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -37,13 +38,15 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	static final String DAY_TYPE_INFO_FORMAT = "%s: %s";
 	private final SpecialdayRepository specialdaysRepository;
 	private final Duration duration;
-	private SpecialdaysRulesEngineBuilder rulesEngineBuilder;
+	
+	private final Collection<Rule> rules = new ArrayList<>();
+
 	
 	@Autowired
-	SpecialdayServiceImpl(final SpecialdayRepository specialdaysRepository, final SpecialdaysRulesEngineBuilder rulesEngineBuilder,  @Value("${mongo.timeout:500}") final Integer timeout) {
+	SpecialdayServiceImpl(final SpecialdayRepository specialdaysRepository, final Collection<Rule> rules,  @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.specialdaysRepository=specialdaysRepository;
 		this.duration=Duration.ofMillis(timeout);
-		this.rulesEngineBuilder= rulesEngineBuilder;
+		this.rules.addAll(rules);
 	}
 	
 	/* (non-Javadoc)
@@ -73,8 +76,10 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	}
 	
 	public SpecialdaysRulesEngineResult specialdaysRulesEngineResult(LocalDate date) {
-		Collection<Specialday> specialdays = specialdaysRepository.findByTypeIn(Arrays.asList(Type.values())).collectList().block(duration);
-		return rulesEngineBuilder.withSpecialdays(specialdays).execute(date);
+		final Collection<Specialday> specialdays = specialdaysRepository.findByTypeIn(Arrays.asList(Type.values())).collectList().block(duration);
+		
+		return new SpecialdaysRulesEngineBuilder().withRules(rules).withSpecialdays(specialdays).execute(date);
+		
 	}
 	
 	@Override
@@ -199,5 +204,6 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	 return specialdaysRepository.findByTypeIn(Arrays.asList(Type.Vacation, Type.SpecialWorkingDate)).collectList().block(duration).stream().filter(sd -> ! sd.date(1).isAfter(date)).collect(Collectors.toList());
 		
 	}
+	
 
 }

@@ -15,7 +15,7 @@ import org.springframework.util.CollectionUtils;
 
 import de.mq.iot.calendar.Specialday;
 
-public class SpecialdaysRulesEngineBuilder  {
+class SpecialdaysRulesEngineBuilder  {
 	
 	static final String RESULT = "result";
 
@@ -50,7 +50,7 @@ public class SpecialdaysRulesEngineBuilder  {
 		facts.put(SPECIALDAYS_INPUT, specialdays);
 		facts.put(RESULT, new SpecialdaysRulesEngineResultImpl());
 		facts.put(DATE_INPUT, date);
-		final RulesEngineParameters parameters = new RulesEngineParameters().skipOnFirstAppliedRule(true).skipOnFirstFailedRule(true);
+		final RulesEngineParameters parameters = new RulesEngineParameters().skipOnFirstAppliedRule(false).skipOnFirstFailedRule(true);
 		
 		final RulesEngine rulesEngine = new DefaultRulesEngine(parameters);
 		SimpleRuleListener ruleListener = new SimpleRuleListener();

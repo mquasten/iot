@@ -33,14 +33,15 @@ class SimpleRuleListener implements RuleListener {
 
 	@Override
 	public void onSuccess(final Rule rule, final Facts facts) {
+		
 		final SpecialdaysRulesEngineResultImpl result = facts.get(SpecialdaysRulesEngineBuilder.RESULT);
-		resultExistsGuard(result);
 		result.assignSuccessRule(rule.getName());
 		
 	}
 
 	@Override
 	public void onFailure(final Rule rule, final Facts facts, final Exception exception) {
+		
 		final SpecialdaysRulesEngineResultImpl result = facts.get(SpecialdaysRulesEngineBuilder.RESULT);
 		resultExistsGuard(result);
 		result.assign(exception, rule.getName());
