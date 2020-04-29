@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
