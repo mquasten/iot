@@ -75,6 +75,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		
 	}
 	
+	@Override
 	public SpecialdaysRulesEngineResult specialdaysRulesEngineResult(LocalDate date) {
 		final Collection<Specialday> specialdays = specialdaysRepository.findByTypeIn(Arrays.asList(Type.values())).collectList().block(duration);
 		
