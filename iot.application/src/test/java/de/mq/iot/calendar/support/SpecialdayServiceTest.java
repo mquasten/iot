@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.MonthDay;
 import java.time.Year;
 import java.util.ArrayList;
@@ -65,6 +66,11 @@ class SpecialdayServiceTest {
 
 	@BeforeEach
 	void setup() {
+		rules.add(new VacationOrHolidayRuleImpl());
+		rules.add(new WeekendRuleImpl());
+		rules.add(new SpecialWorkingDateRuleImpl());
+		rules.add(new SpecialWorkingDayRuleImpl());
+		rules.add(new WorkingdayRuleImpl());
 		specialdayService = new SpecialdayServiceImpl(specialdayRepository,rules, TIMEOUT);
 		Mockito.when(specialdayRepository.save(specialday)).thenReturn(mono);
 
@@ -346,6 +352,69 @@ class SpecialdayServiceTest {
 		assertEquals(0, specialdayService.specialdays(Arrays.asList()).size());
 		assertEquals(0, specialdayService.specialdays((Collection<Type>)null).size());
 	}
+	
+	@Test
+	void specialdaysRulesEngineResultGauss() {
+		prepareRulesEngine();
+		final LocalDate date = LocalDate.of(2020, 4, 12);
+		final SpecialdaysRulesEngineResult  result =specialdayService.specialdaysRulesEngineResult(date);
+		assertEquals(DayType.NonWorkingDay, result.dayType());
+		assertEquals(String.format(AbstractSpecialdaysRule.DAY_TYPE_INFO_FORMAT, Type.Gauss, date ), result.description());
+	}
+
+	private void prepareRulesEngine() {
+		final Flux<Specialday> specialdays =  Flux.fromArray(new Specialday[] {new SpecialdayImpl(0), new SpecialdayImpl(MonthDay.of(Month.MAY, 1)), new SpecialdayImpl(DayOfWeek.SATURDAY, true), new SpecialdayImpl(LocalDate.of(2020,  5, 28), true), new SpecialdayImpl(DayOfWeek.FRIDAY)});
+		Mockito.when(specialdayRepository.findByTypeIn(Arrays.asList(Type.values()))).thenReturn(specialdays);
+	}
+	@Test
+	void specialdaysRulesEngineResultFix() {
+		prepareRulesEngine();
+		final LocalDate date = LocalDate.of(2020, 5, 1);
+		final SpecialdaysRulesEngineResult  result =specialdayService.specialdaysRulesEngineResult(date);
+		assertEquals(DayType.NonWorkingDay, result.dayType());
+		assertEquals(String.format(AbstractSpecialdaysRule.DAY_TYPE_INFO_FORMAT, Type.Fix, date ), result.description());
+	}
+	@Test
+	void specialdaysRulesEngineResultWeekend() {
+		prepareRulesEngine();
+		final LocalDate date = LocalDate.of(2020, 5, 2);
+		
+		final SpecialdaysRulesEngineResult  result =specialdayService.specialdaysRulesEngineResult(date);
+		assertEquals(DayType.NonWorkingDay, result.dayType());
+		assertEquals(String.format(AbstractSpecialdaysRule.DAY_TYPE_INFO_FORMAT, Type.Weekend, date.getDayOfWeek() ), result.description());
+		
+	}	
+	
+	@Test
+	void specialdaysRulesEngineResultSpecialWorkingDate() {
+		prepareRulesEngine();
+		final LocalDate date = LocalDate.of(2020, 5, 28);
+		
+		final SpecialdaysRulesEngineResult  result =specialdayService.specialdaysRulesEngineResult(date);
+		assertEquals(DayType.SpecialWorkingDay, result.dayType());
+		assertEquals(String.format(AbstractSpecialdaysRule.DAY_TYPE_INFO_FORMAT, Type.SpecialWorkingDate, date ), result.description());
+	}
+	
+	@Test
+	void specialdaysRulesEngineResultSpecialWorkingDay() {
+		prepareRulesEngine();
+		final LocalDate date = LocalDate.of(2020, 5, 8);
+		
+		final SpecialdaysRulesEngineResult  result =specialdayService.specialdaysRulesEngineResult(date);
+		assertEquals(DayType.SpecialWorkingDay, result.dayType());
+		assertEquals(String.format(AbstractSpecialdaysRule.DAY_TYPE_INFO_FORMAT, Type.SpecialWorkingDay, date.getDayOfWeek() ), result.description());
+	}
+	
+	@Test
+	void specialdaysRulesEngineResultWorkingDay() {
+		prepareRulesEngine();
+		final LocalDate date = LocalDate.of(2020, 5, 4);
+		final SpecialdaysRulesEngineResult  result =specialdayService.specialdaysRulesEngineResult(date);
+		assertEquals(DayType.WorkingDay, result.dayType());
+		assertEquals(String.format(AbstractSpecialdaysRule.DAY_TYPE_INFO_FORMAT, DayType.WorkingDay, date ), result.description());
+		
+	}
+	
 	
 	
 }
