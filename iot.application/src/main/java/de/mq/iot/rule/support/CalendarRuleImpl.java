@@ -13,6 +13,7 @@ import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Rule;
 
 import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.calendar.support.SpecialdaysRulesEngineResult;
 
 @Rule(name="calendarRule", priority=1)
 public class CalendarRuleImpl {
@@ -37,9 +38,9 @@ public class CalendarRuleImpl {
 		final int offset = ruleInput.isUpdateMode() ? 0 : 1;
 		
 		calendar.assignDate(dateSupplier.get().plusDays(offset));
-		
-		calendar.assignDayType(specialdayService.typeOfDay(calendar.date()).getKey());
-		
+		final SpecialdaysRulesEngineResult specialdaysRulesEngineResult = specialdayService.specialdaysRulesEngineResult(calendar.date());
+		calendar.assignDayType(specialdaysRulesEngineResult.dayType());
+		System.out.println("SpecialdaysRulesEngineResult :" + specialdaysRulesEngineResult.description());
 		calendar.assignTime(time(calendar.date()));
 	 }
 	 

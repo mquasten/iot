@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -104,58 +103,8 @@ class SpecialdayServiceTest {
 		assertEquals(otherSpecialday, results.get(1));
 	}
 	
-	@Test
-	void typeOfDayWeekend() {
-		Mockito.doReturn(DayOfWeek.SATURDAY).when(weekendSpecialday).dayOfWeek();
-		final Entry<DayType, String> typeOfDay = specialdayService.typeOfDay(LocalDate.of(2019, 12, 7));
-		
-		assertEquals(DayType.NonWorkingDay,typeOfDay.getKey());
-		assertEquals(String.format(SpecialdayServiceImpl.DAY_TYPE_INFO_FORMAT, Type.Weekend, DayOfWeek.SATURDAY), typeOfDay.getValue());
-	}
-	
-	@Test
-	void typeOfDayVacation() {
-		LocalDate date = LocalDate.of(Year.now().getValue(), 12, 25);
-		Mockito.doReturn(date).when(specialday).date(Year.now().getValue());
-		final Entry<DayType, String> typeOfDay = specialdayService.typeOfDay(date);
-		
-		assertEquals(DayType.NonWorkingDay, typeOfDay.getKey());
-		assertEquals(String.format(SpecialdayServiceImpl.DAY_TYPE_INFO_FORMAT,SpecialdayServiceImpl.VACATION_OR_PUBLIC_HOLIDAY_INFO,date), typeOfDay.getValue());
-		
-		
-	}
 	
 	
-	@Test
-	void typeOfDaySpecialWorkingDay() {
-		final int year=2019; 
-		Mockito.doReturn(DayOfWeek.MONDAY).when(specialWorkingday).dayOfWeek();
-		Mockito.when(specialdayRepository.findByTypeAndYear(Type.Vacation, year)).thenReturn(fluxVacation);
-		final Entry<DayType, String> typeOfDay = specialdayService.typeOfDay(LocalDate.of(year, 12,9));
-		assertEquals(DayType.SpecialWorkingDay, typeOfDay.getKey());
-		assertEquals(String.format(SpecialdayServiceImpl.DAY_TYPE_INFO_FORMAT,DayType.SpecialWorkingDay, DayOfWeek.MONDAY), typeOfDay.getValue());
-	}
-	
-	@Test
-	void typeOfDaySpecialWorkingDate() {
-		final LocalDate date = LocalDate.of(2019, 12,9);
-		Mockito.doReturn(date).when(specialWorkingday).date(Mockito.anyInt());
-		Mockito.when(specialdayRepository.findByTypeAndYear(Type.Vacation, date.getYear())).thenReturn(fluxVacation);
-		final Entry<DayType, String> typeOfDay = specialdayService.typeOfDay(date);
-		
-		assertEquals(DayType.SpecialWorkingDay, typeOfDay.getKey());
-		assertEquals(String.format(SpecialdayServiceImpl.DAY_TYPE_INFO_FORMAT,Type.SpecialWorkingDate,date), typeOfDay.getValue());
-		
-	}
-	
-	@Test
-	void typeOfDayNormalWorkingDay() {
-		final int year = 2019;
-		Mockito.when(specialdayRepository.findByTypeAndYear(Type.Vacation, year)).thenReturn(fluxVacation);
-		final Entry<DayType, String> typeOfDay = specialdayService.typeOfDay( LocalDate.of(year, 12,11));
-		assertEquals(DayType.WorkingDay, typeOfDay.getKey());
-		assertEquals(DayType.WorkingDay.name(), typeOfDay.getValue());
-	}
 	
 
 	@Test

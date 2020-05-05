@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
-import java.util.AbstractMap.SimpleImmutableEntry;
+
 import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,11 +18,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.SpecialdayService.DayType;
+import de.mq.iot.calendar.support.SpecialdaysRulesEngineResult;
 import de.mq.iot.rule.support.Calendar.Time;
 
 public class CalendarRuleTest {
 	
 	
+	private static final String DESCRIPTION = "description";
+
 	private static final LocalDate DATE = LocalDate.of(2019, 3, 29);
 
 	private final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
@@ -32,16 +35,20 @@ public class CalendarRuleTest {
 	
 	private final Specialday specialday = Mockito.mock(Specialday.class);
 	
+	private SpecialdaysRulesEngineResult specialdaysRulesEngineResult = Mockito.mock(SpecialdaysRulesEngineResult.class);
+	
 	private final Calendar calendar = new Calendar();
 	
 	@BeforeEach
 	void setup() {
+		Mockito.doReturn(DESCRIPTION).when(specialdaysRulesEngineResult).description();
 		Mockito.when(specialday.date(DATE.getYear())).thenReturn(DATE);
 	}
 	
 	@Test
 	void calculateCalendarWorkingDay() {
-		Mockito.when(specialdayService.typeOfDay(DATE)).thenReturn(new SimpleImmutableEntry<>(DayType.WorkingDay, null));
+		Mockito.doReturn(DayType.WorkingDay).when(specialdaysRulesEngineResult).dayType();
+		Mockito.when(specialdayService.specialdaysRulesEngineResult(DATE)).thenReturn(specialdaysRulesEngineResult);
 		final  CalendarRuleImpl calendarRule = new CalendarRuleImpl(specialdayService, () -> DATE);
 		ruleInput.useUpdateMode();
 		calendarRule.calculateCalendar(ruleInput, calendar);
@@ -54,7 +61,8 @@ public class CalendarRuleTest {
 	
 	@Test
 	void calculateCalendarWeekend() {
-		Mockito.when(specialdayService.typeOfDay(DATE.plusDays(1))).thenReturn(new SimpleImmutableEntry<>(DayType.NonWorkingDay, null));
+		Mockito.doReturn(DayType.NonWorkingDay).when(specialdaysRulesEngineResult).dayType();
+		Mockito.when(specialdayService.specialdaysRulesEngineResult(DATE.plusDays(1))).thenReturn(specialdaysRulesEngineResult);
 		
 		
 		final  CalendarRuleImpl calendarRule = new CalendarRuleImpl(specialdayService, () -> DATE);
@@ -69,8 +77,8 @@ public class CalendarRuleTest {
 	@Test
 	void calculateCalendarHoliday() {
 		
-		//Mockito.when(specialdayService.specialdays(Year.of(DATE.getYear()))).thenReturn(Arrays.asList(specialday));
-		Mockito.when(specialdayService.typeOfDay(DATE)).thenReturn(new SimpleImmutableEntry<>(DayType.NonWorkingDay, null));
+		Mockito.doReturn(DayType.NonWorkingDay).when(specialdaysRulesEngineResult).dayType();
+		Mockito.when(specialdayService.specialdaysRulesEngineResult(DATE)).thenReturn(specialdaysRulesEngineResult);
 		
 		
 		final  CalendarRuleImpl calendarRule = new CalendarRuleImpl(specialdayService, () -> DATE);
@@ -85,8 +93,8 @@ public class CalendarRuleTest {
 	
 	@Test
 	void timeWinterBeforeSummer() {
-		
-		Mockito.when(specialdayService.typeOfDay(DATE.plusDays(1))).thenReturn(new SimpleImmutableEntry<>(DayType.WorkingDay, null));
+		Mockito.doReturn(DayType.WorkingDay).when(specialdaysRulesEngineResult).dayType();
+		Mockito.when(specialdayService.specialdaysRulesEngineResult(DATE.plusDays(1))).thenReturn(specialdaysRulesEngineResult);
 		final  CalendarRuleImpl calendarRule = new CalendarRuleImpl(specialdayService, () -> DATE);
 		
 		calendarRule.calculateCalendar(ruleInput, calendar);
@@ -97,8 +105,8 @@ public class CalendarRuleTest {
 	@Test
 	void timeSummer() {
 		
-		
-		Mockito.when(specialdayService.typeOfDay(DATE.plusDays(2))).thenReturn(new SimpleImmutableEntry<>(DayType.WorkingDay, null));
+		Mockito.doReturn(DayType.WorkingDay).when(specialdaysRulesEngineResult).dayType();
+		Mockito.when(specialdayService.specialdaysRulesEngineResult(DATE.plusDays(2))).thenReturn(specialdaysRulesEngineResult);
 		final  CalendarRuleImpl calendarRule = new CalendarRuleImpl(specialdayService, () -> DATE.plusDays(1));
 		
 		calendarRule.calculateCalendar(ruleInput, calendar);
@@ -108,7 +116,8 @@ public class CalendarRuleTest {
 	
 	@Test
 	void timeSummerBeforeWinter() {
-		Mockito.when(specialdayService.typeOfDay(LocalDate.of(2019, 10, 26))).thenReturn(new SimpleImmutableEntry<>(DayType.WorkingDay, null));
+		Mockito.doReturn(DayType.WorkingDay).when(specialdaysRulesEngineResult).dayType();
+		Mockito.when(specialdayService.specialdaysRulesEngineResult(LocalDate.of(2019, 10, 26))).thenReturn(specialdaysRulesEngineResult);
 		final  CalendarRuleImpl calendarRule = new CalendarRuleImpl(specialdayService, () -> LocalDate.of(2019, 10, 25));
 		
 		calendarRule.calculateCalendar(ruleInput, calendar);
@@ -119,7 +128,8 @@ public class CalendarRuleTest {
 	
 	@Test
 	void timeWinter() {
-		Mockito.when(specialdayService.typeOfDay(LocalDate.of(2019, 10, 27))).thenReturn(new SimpleImmutableEntry<>(DayType.WorkingDay, null));
+		Mockito.doReturn(DayType.WorkingDay).when(specialdaysRulesEngineResult).dayType();
+		Mockito.when(specialdayService.specialdaysRulesEngineResult(LocalDate.of(2019, 10, 27))).thenReturn(specialdaysRulesEngineResult);
 		final  CalendarRuleImpl calendarRule = new CalendarRuleImpl(specialdayService, () -> LocalDate.of(2019, 10, 26));
 		
 		calendarRule.calculateCalendar(ruleInput, calendar);
@@ -130,7 +140,8 @@ public class CalendarRuleTest {
 	
 	@Test
 	void date() {
-		Mockito.when(specialdayService.typeOfDay(DATE.plusDays(1))).thenReturn(new SimpleImmutableEntry<>(DayType.WorkingDay, null));
+		Mockito.doReturn(DayType.WorkingDay).when(specialdaysRulesEngineResult).dayType();
+		Mockito.when(specialdayService.specialdaysRulesEngineResult(DATE.plusDays(1))).thenReturn(specialdaysRulesEngineResult);
 		final  CalendarRuleImpl calendarRule = new CalendarRuleImpl(specialdayService, () -> DATE);
 		
 		calendarRule.calculateCalendar(ruleInput, calendar);
