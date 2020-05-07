@@ -11,7 +11,7 @@
 	<url>http://maven.apache.org</url>
 
 	<properties>
-		<java.version>13</java.version>
+		<java.version>14</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit-platform-surefire-provider-version>1.0.1</junit-platform-surefire-provider-version>
 		<junit-launcher-version>1.0.1</junit-launcher-version>
@@ -20,7 +20,7 @@
 		<spring-version>5.0.4.RELEASE</spring-version>
 
 		<maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
-		<jacoco.version>0.8.4</jacoco.version>
+		<jacoco.version>0.8.5</jacoco.version>
 		<surefire-plugin-version>2.19.1</surefire-plugin-version>
 		<surefire-provider-version>1.0.1</surefire-provider-version>
 		<mockito-version>2.25.0</mockito-version>

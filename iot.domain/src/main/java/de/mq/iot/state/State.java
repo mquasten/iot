@@ -50,10 +50,7 @@ public interface State<T> {
 	 * Function of a State
 	 * @return States Function
 	 */
-	default Optional<String> function() {
-		return Optional.empty();
-		
-	}
+	Optional<String> function(); 
 	/**
 	 * Assign a function to a State
 	 * @param function sttaes function
