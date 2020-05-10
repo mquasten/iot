@@ -130,6 +130,10 @@
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
+					<compilerArgs>
+						<arg>--enable-preview</arg>
+						<arg>-Xlint:all</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -148,6 +152,9 @@
 						<version>${junit-jupiter-version}</version>
 					</dependency>
 				</dependencies>
+				<configuration>
+					<argLine>${argLine} --enable-preview</argLine>
+				</configuration>
 			</plugin>
 
 			<plugin>
