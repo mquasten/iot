@@ -2,7 +2,7 @@ package de.mq.iot.synonym;
 
 import java.util.Collection;
 
-import de.mq.iot.synonym.Synonym;
+
 
 /**
  * Service for Synonyms
