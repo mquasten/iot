@@ -130,10 +130,11 @@
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
-					<compilerArgs>
-						<arg>--enable-preview</arg>
+					<!-- Achtung doppeltes - vor enable, XML is the most f...ing sheet ever -->
+					<!-- compilerArgs>
+						<arg>-enable-preview</arg>
 						<arg>-Xlint:all</arg>
-					</compilerArgs>
+					</compilerArgs-->
 				</configuration>
 			</plugin>
 			<plugin>
@@ -152,9 +153,10 @@
 						<version>${junit-jupiter-version}</version>
 					</dependency>
 				</dependencies>
-				<configuration>
-					<argLine>${argLine} --enable-preview</argLine>
-				</configuration>
+				<!-- Achtung doppeltes - vor enable, XML is the most f...ing sheet ever -->
+				<!-- configuration>
+					<argLine>${argLine} -enable-preview</argLine>
+				</configuration-->
 			</plugin>
 
 			<plugin>
