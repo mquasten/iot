@@ -162,11 +162,11 @@
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
-					<!-- Achtung doppeltes - vor enable, XML is the most f...ing sheet ever -->
-					<!-- compilerArgs>
-						<arg>-enable-preview</arg>
+				
+					<compilerArgs>
+						<arg>--enable-preview</arg>
 						<arg>-Xlint:all</arg>
-					</compilerArgs-->
+					</compilerArgs>
 
 				</configuration>
 			</plugin>
@@ -199,10 +199,10 @@
 						<version>${junit-platform-surefire-provider-version}</version>
 					</dependency>
 				</dependencies>
-				<!-- Achtung doppeltes - vor enable, XML is the most f...ing sheet ever -->
-				<!-- configuration>
-					<argLine>${argLine} -enable-preview</argLine>
-				</configuration-->
+			
+				<configuration>
+					<argLine>${argLine} --enable-preview</argLine>
+				</configuration>
 			</plugin>
 
 

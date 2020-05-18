@@ -48,12 +48,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- dependency>
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-launcher</artifactId>
-			<version>${junit-launcher-version}</version>
-			<scope>test</scope>
-		</dependency-->
 
 		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
 		<dependency>
@@ -102,11 +96,6 @@
 		</dependency>
 
 
-		<!-- https://mvnrepository.com/artifact/org.springframework.ws/spring-ws-core -->
-		<!-- dependency> <groupId>org.springframework.ws</groupId> <artifactId>spring-ws-core</artifactId> 
-			<version>3.0.0.RELEASE</version> </dependency -->
-
-
 
 		<!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
 		<dependency>
@@ -130,11 +119,10 @@
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
-					<!-- Achtung doppeltes - vor enable, XML is the most f...ing sheet ever -->
-					<!-- compilerArgs>
-						<arg>-enable-preview</arg>
+					<compilerArgs>
+						<arg>--enable-preview</arg>
 						<arg>-Xlint:all</arg>
-					</compilerArgs-->
+					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -153,10 +141,9 @@
 						<version>${junit-jupiter-version}</version>
 					</dependency>
 				</dependencies>
-				<!-- Achtung doppeltes - vor enable, XML is the most f...ing sheet ever -->
-				<!-- configuration>
-					<argLine>${argLine} -enable-preview</argLine>
-				</configuration-->
+				<configuration>
+					<argLine>${argLine} --enable-preview</argLine>
+				</configuration>
 			</plugin>
 
 			<plugin>
