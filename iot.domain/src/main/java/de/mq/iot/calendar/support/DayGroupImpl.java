@@ -1,14 +1,10 @@
 package de.mq.iot.calendar.support;
 
-
-
-
-import org.springframework.data.annotation.Id;
 import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.DayGroup;
 
-record DayGroupImpl(@Id() String name, int priority) implements DayGroup {
+record DayGroupImpl(String name, int priority) implements DayGroup {
 	
 	public DayGroupImpl {
 		Assert.hasText(name, "Name is mandatory.");
