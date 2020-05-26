@@ -3,11 +3,13 @@ package de.mq.iot.calendar.support;
 
 import java.time.LocalDate;
 
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.DayGroup;
 
-public class GaussDayImpl extends AbstractDay {
+@Document(collection="Specialday")
+public class GaussDayImpl<LocaleDate> extends AbstractDay<LocalDate> {
 
 	static final String TO_STRING_PATTERN = "Gauss: offset=%s, dayGroup=%s";
 	private final Integer  offset;
@@ -21,6 +23,11 @@ public class GaussDayImpl extends AbstractDay {
 	public boolean evaluate(final LocalDate date) {
 		Assert.notNull(date, "Date is required.");
 		return date.equals(easterdate(date.getYear()).plusDays(offset));
+	}
+
+	@Override
+	public LocalDate value() {
+		return easterdate(yearMonth().getYear()).plusDays(offset);
 	}
 
 	@Override
@@ -43,6 +50,8 @@ public class GaussDayImpl extends AbstractDay {
 		return LocalDate.of(year, 3, 1).minusDays(1).plusDays(daysFromFirstOfMarch);
 			
 	}
+
+	
 	
 	
 }
