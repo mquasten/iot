@@ -21,21 +21,21 @@ public class FixedDayImpl<Localdate> extends AbstractDay<LocalDate> {
 	}
 
 	@Override
-	public boolean evaluate(final LocalDate date) {
+	public final  boolean evaluate(final LocalDate date) {
 		Assert.notNull(date, "Date is required.");
 		return date.equals(LocalDate.of(date.getYear(), month, dayOfMonth));
 		
 	}
 
 	@Override
-	public LocalDate value() {
+	public final LocalDate value() {
 		return LocalDate.of(yearMonth().getYear(), month, dayOfMonth);
 		
 	}
 
 	
 	@Override
-	public String toString() {
+	public final String toString() {
 		return String.format(TO_STRING_PATTERN ,month, dayOfMonth, dayGroup().name());
 	}
 }

@@ -20,18 +20,18 @@ public class GaussDayImpl<LocaleDate> extends AbstractDay<LocalDate> {
 	}
 
 	@Override
-	public boolean evaluate(final LocalDate date) {
+	public final boolean evaluate(final LocalDate date) {
 		Assert.notNull(date, "Date is required.");
 		return date.equals(easterdate(date.getYear()).plusDays(offset));
 	}
 
 	@Override
-	public LocalDate value() {
+	public final LocalDate value() {
 		return easterdate(yearMonth().getYear()).plusDays(offset);
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return String.format(TO_STRING_PATTERN , offset, dayGroup().name());
 	}
 

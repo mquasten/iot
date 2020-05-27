@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
-import java.time.MonthDay;
-import java.time.Year;
 import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.UUID;
@@ -19,40 +17,43 @@ import org.springframework.test.util.ReflectionTestUtils;
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
 
-class FixedDayTest {
-	private final DayGroup dayGroup = new DayGroupImpl("Feiertag", 2);
-	private final MonthDay monthDay =  MonthDay.of(5, 28);
-	private final Day<LocalDate> day = new FixedDayImpl<>(dayGroup,monthDay);
+class LocalDateDayTest {
 	
-	private final Supplier<YearMonth> yearMonth = () -> YearMonth.of(2020, 1);
+	private static final int PRIORITY = 2;
+
+	private final DayGroup dayGroup = new DayGroupImpl("Feiertag", PRIORITY);
+	private LocalDate date = LocalDate.of(2020, 5, 28);
+	private Day<LocalDate> day = new LocalDateDayImpl(dayGroup, date);
+	private final Supplier<YearMonth> yearMonth = () -> YearMonth.of(date.getYear(), 1);
+
 	
 	@BeforeEach
 	void setup() {
 		Arrays.asList(AbstractDay.class.getDeclaredFields()).stream().filter(field -> field.getType()==Supplier.class ).forEach(field -> ReflectionTestUtils.setField(day, field.getName(), yearMonth));
 	}
-
-	@Test
-	void id() {
-		assertEquals(new UUID(FixedDayImpl.class.hashCode(), monthDay.hashCode()).toString(), day.id());
-	}
 	
 	@Test
+	void id() {
+		assertEquals(new UUID(LocalDateDayImpl.class.hashCode(), date.hashCode()).toString(), day.id());
+	}
+	@Test
 	void evaluate() {
-		assertTrue(day.evaluate(LocalDate.of(yearMonth.get().getYear(), monthDay.getMonth(), monthDay.getDayOfMonth())));
-		assertFalse(day.evaluate(LocalDate.of(Year.now().getValue(), 1, 1)));
+		assertTrue(day.evaluate(date));
+		assertFalse(day.evaluate(date.plusDays(1)));
 	}
 	@Test
 	void value() {
-		assertEquals(LocalDate.of(yearMonth.get().getYear(), monthDay.getMonth(), monthDay.getDayOfMonth()), day.value());
+		assertEquals(date, day.value());
 	}
 	@Test
 	void string() {
-		assertEquals(String.format(FixedDayImpl.TO_STRING_PATTERN, monthDay.getMonth().getValue(), monthDay.getDayOfMonth(), dayGroup.name()), day.toString());
+		assertEquals(String.format(LocalDateDayImpl.TO_STRING_PATTERN, date,dayGroup.name()), day.toString());
 	}
 	
 	@Test
-	void frequency() {
+	void  frequency() {
 		assertEquals(AbstractDay.FREQUENCY_ONCE_PER_YEAR, day.frequency());
 	}
+	
 
 }

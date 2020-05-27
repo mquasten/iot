@@ -77,5 +77,9 @@ class GaussDayTest {
 	void value() {
 		assertEquals(goodFriday, day.value());
 	}
+	@Test
+	void frequency() {
+		assertEquals(AbstractDay.FREQUENCY_ONCE_PER_YEAR, day.frequency());
+	}
 
 }

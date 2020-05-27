@@ -14,6 +14,8 @@ import de.mq.iot.calendar.DayGroup;
 
 
  abstract class AbstractDay<T>   implements Day<T>{
+	 static final int FREQUENCY_ONCE_PER_YEAR = 1;
+
 	@Id
 	private final String id;
 	
@@ -41,14 +43,20 @@ import de.mq.iot.calendar.DayGroup;
 	
 
 	@Override
-	public int compareTo(final Day<T> other) {
-		return dayGroup.priority() - other.dayGroup().priority(); 
-		
+	public int compareTo(final Day<?> other) {
+		final int result = dayGroup.priority() - other.dayGroup().priority(); 
+		if (result==0) {
+			return frequency() -other.frequency();
+		}
+		return result;
 	}
 	
 	YearMonth yearMonth() {
 		return yearMonth.get();
 	}
 	
+	public int frequency() {
+		return FREQUENCY_ONCE_PER_YEAR;
+	}
 	
 }

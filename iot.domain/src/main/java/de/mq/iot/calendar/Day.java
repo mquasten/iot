@@ -2,7 +2,7 @@ package de.mq.iot.calendar;
 
 import java.time.LocalDate;
 
-public interface Day<T>  extends  Comparable<Day<T>> {
+public interface Day<T>  extends  Comparable<Day<?>> {
 	
 	String id();
 	
@@ -11,5 +11,6 @@ public interface Day<T>  extends  Comparable<Day<T>> {
 	boolean evaluate(final LocalDate date);
 
 	T value();
+	int frequency();
 	
 }
