@@ -3,11 +3,15 @@ package de.mq.iot.calendar.support;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.DayGroup;
 
-public class DayOfWeekImpl extends  AbstractDay<DayOfWeek> {
+@Document(collection=GaussDayImpl.DAY_COLLECTION_NAME)
+class DayOfWeekImpl extends  AbstractDay<DayOfWeek,DayOfWeek> {
+	static final int KEY_PREFIX = 4;
+
 	static final int FREQUENCY_ONCE_PER_WEEK = 51;
 
 	static final String TO_STRING_PATTERN = " DayOfWeek: day=%s, dayGroup=%s";
@@ -15,7 +19,7 @@ public class DayOfWeekImpl extends  AbstractDay<DayOfWeek> {
 	private Integer dayOfWeek;
 	
 	DayOfWeekImpl(final DayGroup dayGroup, final DayOfWeek dayOfWeek) {
-		super(dayGroup, dayOfWeek.hashCode());
+		super(dayGroup, dayOfWeek);
 		Assert.notNull(dayOfWeek, "DayOfWeek is required.");
 		this.dayOfWeek=dayOfWeek.getValue();
 	}
@@ -36,6 +40,11 @@ public class DayOfWeekImpl extends  AbstractDay<DayOfWeek> {
 	
 	public int frequency() {
 		return FREQUENCY_ONCE_PER_WEEK;
+	}
+
+	@Override
+	long keyPrefix() {
+		return KEY_PREFIX;
 	}
 
 }

@@ -33,7 +33,7 @@ class FixedDayTest {
 
 	@Test
 	void id() {
-		assertEquals(new UUID(FixedDayImpl.class.hashCode(), monthDay.hashCode()).toString(), day.id());
+		assertEquals(new UUID(FixedDayImpl.KEY_PREFIX, monthDay.hashCode()).toString(), day.id());
 	}
 	
 	@Test
@@ -53,6 +53,11 @@ class FixedDayTest {
 	@Test
 	void frequency() {
 		assertEquals(AbstractDay.FREQUENCY_ONCE_PER_YEAR, day.frequency());
+	}
+	
+	@Test
+	void keyPrefix() {
+		assertEquals(FixedDayImpl.KEY_PREFIX, ((AbstractDay<?, ?>) day).keyPrefix()); 
 	}
 
 }

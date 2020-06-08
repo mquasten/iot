@@ -8,9 +8,11 @@ import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.DayGroup;
 
-@Document(collection="Specialday")
-public class GaussDayImpl<LocaleDate> extends AbstractDay<LocalDate> {
+@Document(collection=GaussDayImpl.DAY_COLLECTION_NAME)
+class GaussDayImpl<LocaleDate> extends AbstractDay<LocalDate,Integer> {
 
+	static final String DAY_COLLECTION_NAME = "Specialday";
+	static final int KEY_PREFIX = 1;
 	static final String TO_STRING_PATTERN = "Gauss: offset=%s, dayGroup=%s";
 	private final Integer  offset;
 	
@@ -49,6 +51,11 @@ public class GaussDayImpl<LocaleDate> extends AbstractDay<LocalDate> {
 		final int daysFromFirstOfMarch = og+oe;
 		return LocalDate.of(year, 3, 1).minusDays(1).plusDays(daysFromFirstOfMarch);
 			
+	}
+
+	@Override
+	long keyPrefix() {
+		return KEY_PREFIX;
 	}
 
 	

@@ -36,7 +36,7 @@ public class ApplicationConfiguration {
 	
 	@Bean
 	@Lazy
-	ReactiveMongoOperations reactiveMongoTemplate(@Value( "${mongo.url:mongodb://localhost:27017}" ) String mongoUrl, @Value( "${mongo.db:iot}" ) String dbName ) {
+	ReactiveMongoOperations reactiveMongoTemplate(@Value( "${mongo.url:mongodb://localhost:27017}" ) String mongoUrl, @Value( "${mongo.db:iot2}" ) String dbName ) {
 	
 		 return new ReactiveMongoTemplate( MongoClients.create(mongoUrl), dbName);
 		

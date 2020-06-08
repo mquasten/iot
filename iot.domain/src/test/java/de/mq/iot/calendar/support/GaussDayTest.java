@@ -36,7 +36,7 @@ class GaussDayTest {
 	
 	@Test
 	void id() {
-		assertEquals(new UUID(GaussDayImpl.class.hashCode(), OFFSET).toString(), day.id());
+		assertEquals(new UUID(GaussDayImpl.KEY_PREFIX, OFFSET).toString(), day.id());
 		
 	}
 	
@@ -80,6 +80,11 @@ class GaussDayTest {
 	@Test
 	void frequency() {
 		assertEquals(AbstractDay.FREQUENCY_ONCE_PER_YEAR, day.frequency());
+	}
+	
+	@Test
+	void keyPrefix() {
+		assertEquals(GaussDayImpl.KEY_PREFIX, ((AbstractDay<?, ?>) day).keyPrefix()); 
 	}
 
 }
