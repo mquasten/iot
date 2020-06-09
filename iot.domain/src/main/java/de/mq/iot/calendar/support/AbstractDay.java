@@ -26,7 +26,7 @@ import de.mq.iot.calendar.DayGroup;
 	AbstractDay(final DayGroup dayGroup, final K key) {
 		Assert.notNull(key, "Key is required.");
 		Assert.notNull(dayGroup, "DayGroup is required.");
-		this.id = new UUID(keyPrefix(), key.hashCode()).toString();
+		this.id = new UUID(keyPrefix(),(long) key.hashCode()).toString();
 		this.dayGroup = dayGroup;
 	}
 
