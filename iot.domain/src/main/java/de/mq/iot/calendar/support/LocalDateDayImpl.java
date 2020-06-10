@@ -1,13 +1,14 @@
 package de.mq.iot.calendar.support;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.DayGroup;
 @Document(collection=GaussDayImpl.DAY_COLLECTION_NAME)
-class LocalDateDayImpl extends AbstractDay<LocalDate,LocalDate> {
+class LocalDateDayImpl extends AbstractDay<LocalDate> {
 
 	static final int KEY_PREFIX = 3;
 
@@ -19,9 +20,10 @@ class LocalDateDayImpl extends AbstractDay<LocalDate,LocalDate> {
 	
 	private final Integer year;
 	
-	LocalDateDayImpl(DayGroup dayGroup, LocalDate date) {
-		super(dayGroup, date);
+	LocalDateDayImpl(final DayGroup dayGroup, final LocalDate date) {
+		super(dayGroup);
 		Assert.notNull(date, "LocalDate is required.");
+		assign(new UUID(KEY_PREFIX, date.getDayOfMonth() + 100 * date.getMonthValue() + 10000*date.getYear()));
 		dayOfMonth=date.getDayOfMonth();
 		month=date.getMonthValue();
 		year=date.getYear();
@@ -44,9 +46,5 @@ class LocalDateDayImpl extends AbstractDay<LocalDate,LocalDate> {
 		return String.format(TO_STRING_PATTERN ,value(), dayGroup().name());
 	}
 
-	@Override
-	long keyPrefix() {
-		return KEY_PREFIX;
-	}
 
 }

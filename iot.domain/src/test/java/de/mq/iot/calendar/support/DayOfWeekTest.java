@@ -28,7 +28,7 @@ class DayOfWeekTest {
 	
 	@Test
 	void id() {
-		assertEquals(new UUID(DayOfWeekImpl.KEY_PREFIX, dayOfWeek.hashCode()).toString(), day.id());
+		assertEquals(new UUID(DayOfWeekImpl.KEY_PREFIX, dayOfWeek.getValue()).toString(), day.id());
 	}
 	
 	@Test
@@ -61,10 +61,6 @@ class DayOfWeekTest {
 		Collections.sort(days);
 		assertEquals(otherDay, days.get(0));
 		
-	}
-	@Test
-	void keyPrefix() {
-		assertEquals(DayOfWeekImpl.KEY_PREFIX, ((AbstractDay<?, ?>) day).keyPrefix()); 
 	}
 	
 }

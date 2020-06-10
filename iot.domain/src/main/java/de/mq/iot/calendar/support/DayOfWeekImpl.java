@@ -2,6 +2,7 @@ package de.mq.iot.calendar.support;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.UUID;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.Assert;
@@ -9,7 +10,7 @@ import org.springframework.util.Assert;
 import de.mq.iot.calendar.DayGroup;
 
 @Document(collection=GaussDayImpl.DAY_COLLECTION_NAME)
-class DayOfWeekImpl extends  AbstractDay<DayOfWeek,DayOfWeek> {
+class DayOfWeekImpl extends  AbstractDay<DayOfWeek> {
 	static final int KEY_PREFIX = 4;
 
 	static final int FREQUENCY_ONCE_PER_WEEK = 51;
@@ -19,8 +20,9 @@ class DayOfWeekImpl extends  AbstractDay<DayOfWeek,DayOfWeek> {
 	private Integer dayOfWeek;
 	
 	DayOfWeekImpl(final DayGroup dayGroup, final DayOfWeek dayOfWeek) {
-		super(dayGroup, dayOfWeek);
+		super(dayGroup);
 		Assert.notNull(dayOfWeek, "DayOfWeek is required.");
+		assign(new UUID(KEY_PREFIX, dayOfWeek.getValue()));
 		this.dayOfWeek=dayOfWeek.getValue();
 	}
 
@@ -42,9 +44,6 @@ class DayOfWeekImpl extends  AbstractDay<DayOfWeek,DayOfWeek> {
 		return FREQUENCY_ONCE_PER_WEEK;
 	}
 
-	@Override
-	long keyPrefix() {
-		return KEY_PREFIX;
-	}
+	
 
 }

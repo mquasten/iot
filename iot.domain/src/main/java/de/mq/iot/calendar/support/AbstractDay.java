@@ -14,19 +14,17 @@ import de.mq.iot.calendar.DayGroup;
 
 
 @Document(collection=GaussDayImpl.DAY_COLLECTION_NAME)
- abstract class AbstractDay<T,K>   implements Day<T>{
+ abstract class AbstractDay<T>   implements Day<T>{
 	 static final int FREQUENCY_ONCE_PER_YEAR = 1;
 
 	@Id
-	private final String id;
+	private String id;
 	
 	@Transient
 	private final Supplier<YearMonth> yearMonth = () -> YearMonth.now();
 	
-	AbstractDay(final DayGroup dayGroup, final K key) {
-		Assert.notNull(key, "Key is required.");
+	AbstractDay(final DayGroup dayGroup) {
 		Assert.notNull(dayGroup, "DayGroup is required.");
-		this.id = new UUID(keyPrefix(),(long) key.hashCode()).toString();
 		this.dayGroup = dayGroup;
 	}
 
@@ -59,6 +57,36 @@ import de.mq.iot.calendar.DayGroup;
 	public int frequency() {
 		return FREQUENCY_ONCE_PER_YEAR;
 	}
-	abstract long keyPrefix();
+	
+	void assign(final UUID id) {
+		Assert.notNull(id, "Id is required.");
+		this.id=id.toString();
+	}
+
+	
+
+	@Override
+	public int hashCode() {
+		return id != null ? id.hashCode(): super.hashCode(); 
+		
+	}
+
+	@Override
+	public boolean equals(final Object other) {
+		if (!(other instanceof AbstractDay)) {
+			 return super.equals(other);
+			
+		}
+		if(id == null) {
+			return  super.equals(other);
+		}
+		final AbstractDay<?> day=  (AbstractDay<?>) other;
+		if(day.id==null) {
+			return  super.equals(other);
+		}
+		return id.equals(day.id);
+	}
+	
+	
 	
 }

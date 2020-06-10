@@ -2,6 +2,7 @@ package de.mq.iot.calendar.support;
 
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.Assert;
@@ -9,16 +10,17 @@ import org.springframework.util.Assert;
 import de.mq.iot.calendar.DayGroup;
 
 @Document(collection=GaussDayImpl.DAY_COLLECTION_NAME)
-class GaussDayImpl<LocaleDate> extends AbstractDay<LocalDate,Integer> {
+class GaussDayImpl<LocaleDate> extends AbstractDay<LocalDate> {
 
 	static final String DAY_COLLECTION_NAME = "Specialday";
-	static final int KEY_PREFIX = 1;
+	static final long KEY_PREFIX = 1;
 	static final String TO_STRING_PATTERN = "Gauss: offset=%s, dayGroup=%s";
 	private final Integer  offset;
 	
 	GaussDayImpl(final DayGroup dayGroup, final int offset) {
-		super(dayGroup, offset);
+		super(dayGroup);
 		this.offset=offset;
+		assign(new UUID(KEY_PREFIX, offset));
 	}
 
 	@Override
@@ -53,10 +55,7 @@ class GaussDayImpl<LocaleDate> extends AbstractDay<LocalDate,Integer> {
 			
 	}
 
-	@Override
-	long keyPrefix() {
-		return KEY_PREFIX;
-	}
+	
 
 	
 	

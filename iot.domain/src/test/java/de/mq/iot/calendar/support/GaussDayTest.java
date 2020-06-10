@@ -23,9 +23,9 @@ import de.mq.iot.calendar.DayGroup;
 class GaussDayTest {
 	
 	private static final int PRIORITY = 1;
-	private static final long OFFSET = -2L;
+	private static final int OFFSET = -2;
 	private final DayGroup dayGroup = new DayGroupImpl("Feiertag", 2);
-	private Day<LocalDate> day = new GaussDayImpl<>(dayGroup, -2);
+	private Day<LocalDate> day = new GaussDayImpl<>(dayGroup, OFFSET);
 	private final Supplier<YearMonth> yearMonth = () -> YearMonth.of(2020, 1);
 	private LocalDate goodFriday = LocalDate.of(2020, 4, 10);
 	
@@ -81,10 +81,23 @@ class GaussDayTest {
 	void frequency() {
 		assertEquals(AbstractDay.FREQUENCY_ONCE_PER_YEAR, day.frequency());
 	}
-	
 	@Test
-	void keyPrefix() {
-		assertEquals(GaussDayImpl.KEY_PREFIX, ((AbstractDay<?, ?>) day).keyPrefix()); 
+	void hash() {
+		assertEquals(new UUID(GaussDayImpl.KEY_PREFIX, OFFSET).toString().hashCode(), day.hashCode());
+		ReflectionTestUtils.setField(day, "id", null);
+		assertEquals(System.identityHashCode(day), day.hashCode());
 	}
+	@SuppressWarnings("unlikely-arg-type")
+	@Test
+	void equals() {
+		assertFalse(day.equals(""));
+		final Day<?> dayWithNoId = new GaussDayImpl<>(dayGroup, 0);
+		ReflectionTestUtils.setField(dayWithNoId, "id", null);
+		assertFalse(day.equals(dayWithNoId));
+		assertFalse(dayWithNoId.equals(day));
+		assertTrue(dayWithNoId.equals(dayWithNoId));
+		assertTrue(day.equals(new GaussDayImpl<>(dayGroup, OFFSET)));
+	}
+	
 
 }

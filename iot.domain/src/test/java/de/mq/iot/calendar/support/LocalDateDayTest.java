@@ -26,7 +26,7 @@ class LocalDateDayTest {
 	
 	@Test
 	void id() {
-		assertEquals(new UUID(LocalDateDayImpl.KEY_PREFIX, date.hashCode()).toString(), day.id());
+		assertEquals(new UUID(LocalDateDayImpl.KEY_PREFIX, 20200528).toString(), day.id());
 	}
 	@Test
 	void evaluate() {
@@ -47,10 +47,7 @@ class LocalDateDayTest {
 		assertEquals(AbstractDay.FREQUENCY_ONCE_PER_YEAR, day.frequency());
 	}
 	
-	@Test
-	void keyPrefix() {
-		assertEquals(LocalDateDayImpl.KEY_PREFIX, ((AbstractDay<?, ?>) day).keyPrefix()); 
-	}
+	
 	
 
 }
