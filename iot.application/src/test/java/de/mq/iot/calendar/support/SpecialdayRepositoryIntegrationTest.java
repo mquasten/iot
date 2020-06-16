@@ -24,6 +24,7 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
+@Disabled
 class SpecialdayRepositoryIntegrationTest {
 	
 	private static final int YEAR = 2018;

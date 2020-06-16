@@ -31,7 +31,7 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
-
+@Disabled
 class StateRepositoryIntegrationTest {
 	private static final String TYPE_BOOLEAN = "2";
 	private static final String NAME_WORKINGDAY = "Workingday";

@@ -19,7 +19,7 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
-
+@Disabled
 class StateServiceIntegrationTest {
 	
 	private static final String WORKINGDAY_STATE = "Workingday";

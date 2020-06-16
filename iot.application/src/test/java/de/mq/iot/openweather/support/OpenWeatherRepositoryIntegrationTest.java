@@ -27,7 +27,7 @@ import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { ApplicationConfiguration.class })
-
+@Disabled
 class OpenWeatherRepositoryIntegrationTest {
 	
 	@Autowired

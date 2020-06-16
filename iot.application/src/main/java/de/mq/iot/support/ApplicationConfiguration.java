@@ -34,6 +34,7 @@ import com.mongodb.reactivestreams.client.MongoClients;
 
 public class ApplicationConfiguration {
 	
+	
 	@Bean
 	@Lazy
 	ReactiveMongoOperations reactiveMongoTemplate(@Value( "${mongo.url:mongodb://localhost:27017}" ) String mongoUrl, @Value( "${mongo.db:iot2}" ) String dbName ) {
@@ -53,6 +54,8 @@ public class ApplicationConfiguration {
 	XPath xpath() {
 		return XPathFactory.newInstance().newXPath();
 	}
+	
+	
 	
 
 }
