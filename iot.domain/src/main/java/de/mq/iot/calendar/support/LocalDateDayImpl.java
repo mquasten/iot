@@ -29,6 +29,14 @@ class LocalDateDayImpl extends AbstractDay<LocalDate> {
 		year=date.getYear();
 		
 	}
+	
+	@SuppressWarnings("unused")
+	private LocalDateDayImpl() {
+		super();
+		this.dayOfMonth = null;
+		this.month = null;
+		this.year=null;
+	}
 
 	@Override
 	public final boolean evaluate(final LocalDate date) {

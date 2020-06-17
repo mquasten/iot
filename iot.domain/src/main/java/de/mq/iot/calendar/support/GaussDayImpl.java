@@ -22,6 +22,12 @@ class GaussDayImpl<LocaleDate> extends AbstractDay<LocalDate> {
 		this.offset=offset;
 		assign(new UUID(KEY_PREFIX, offset));
 	}
+	
+	@SuppressWarnings("unused")
+	private GaussDayImpl() {
+		super();
+		this.offset = null;
+	}
 
 	@Override
 	public final boolean evaluate(final LocalDate date) {

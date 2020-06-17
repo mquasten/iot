@@ -1,8 +1,10 @@
 package de.mq.iot.calendar.support;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.time.DayOfWeek;
 import java.time.Duration;
-
+import java.time.LocalDate;
 import java.time.MonthDay;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
+import de.mq.iot.calendar.SpecialdayService.DayType;
 import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)
@@ -28,9 +31,11 @@ class DayRepositoryIntegrationTest {
 
 	@Autowired
 	private DayRepository dayRepository;
+	@Autowired
+	private DayService dayService;
 	
 	private final List<Day<?>> nonWorkingDays= new ArrayList<>(); 
-	private final DayGroup dayGroup = new DayGroupImpl("NonWorkingDay", 1);
+	private final DayGroup dayGroup = new DayGroupImpl(DayType.NonWorkingDay.name(), 1);
 	
 	@BeforeEach
 	void setup() {
@@ -58,10 +63,17 @@ class DayRepositoryIntegrationTest {
 	}
 
 	@Test
+	@Disabled
 	void save() {
 		
 		IntStream.range(0, 1000).forEach(i -> nonWorkingDays.forEach(day -> dayRepository.save(day).block(Duration.ofMillis(500))));
 		
+	}
+	
+	@Test
+	void dayGoup() {
+		assertEquals(DayType.NonWorkingDay.name(), dayService.dayGroup(LocalDate.of(2020, 5, 1)).name());
+		assertEquals(DayType.WorkingDay.name(), dayService.dayGroup(LocalDate.of(2020, 6, 17)).name());
 	}
 	
 	

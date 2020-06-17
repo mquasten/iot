@@ -28,6 +28,9 @@ import de.mq.iot.calendar.DayGroup;
 		this.dayGroup = dayGroup;
 	}
 
+	AbstractDay() {
+		dayGroup=null;
+	}
 	private final DayGroup dayGroup;
 	
 	

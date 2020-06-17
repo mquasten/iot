@@ -25,6 +25,13 @@ class FixedDayImpl<Localdate> extends AbstractDay<LocalDate> {
 		month=monthDay.getMonthValue();
 		dayOfMonth=monthDay.getDayOfMonth();
 	}
+	
+	@SuppressWarnings("unused")
+	private FixedDayImpl() {
+		super();
+		month=null;
+		dayOfMonth=null;
+	}
 
 	@Override
 	public final  boolean evaluate(final LocalDate date) {

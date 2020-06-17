@@ -25,6 +25,10 @@ class DayOfWeekImpl extends  AbstractDay<DayOfWeek> {
 		assign(new UUID(KEY_PREFIX, dayOfWeek.getValue()));
 		this.dayOfWeek=dayOfWeek.getValue();
 	}
+	@SuppressWarnings("unused")
+	private DayOfWeekImpl() {
+	
+	}
 
 	@Override
 	public final boolean evaluate(final LocalDate date) {
