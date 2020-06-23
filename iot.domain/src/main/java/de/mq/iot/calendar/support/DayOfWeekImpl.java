@@ -27,7 +27,7 @@ class DayOfWeekImpl extends  AbstractDay<DayOfWeek> {
 	}
 	@SuppressWarnings("unused")
 	private DayOfWeekImpl() {
-	
+		super();
 	}
 
 	@Override

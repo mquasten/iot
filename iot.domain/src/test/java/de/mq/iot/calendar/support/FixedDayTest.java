@@ -2,6 +2,7 @@ package de.mq.iot.calendar.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.BeanUtils;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.calendar.Day;
@@ -54,7 +56,9 @@ class FixedDayTest {
 	void frequency() {
 		assertEquals(AbstractDay.FREQUENCY_ONCE_PER_YEAR, day.frequency());
 	}
-	
-	
+	@Test
+	void privateConstructor() throws NoSuchMethodException, SecurityException {
+		assertNotNull(BeanUtils.instantiateClass(FixedDayImpl.class.getDeclaredConstructor()));
+	}
 
 }

@@ -2,8 +2,10 @@ package de.mq.iot.calendar.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Constructor;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.BeanUtils;
 
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
@@ -61,6 +64,12 @@ class DayOfWeekTest {
 		Collections.sort(days);
 		assertEquals(otherDay, days.get(0));
 		
+	}
+	
+	@Test
+	void privateConstructor() throws NoSuchMethodException, SecurityException {
+		final Constructor<?> constructor =DayOfWeekImpl.class.getDeclaredConstructor();
+		assertNotNull(BeanUtils.instantiateClass(constructor));
 	}
 	
 }
