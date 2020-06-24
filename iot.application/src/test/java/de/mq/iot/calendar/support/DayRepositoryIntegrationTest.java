@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -71,10 +72,16 @@ class DayRepositoryIntegrationTest {
 	}
 	
 	@Test
+	@Disabled
 	void dayGoup() {
 		assertEquals(DayType.NonWorkingDay.name(), dayService.dayGroup(LocalDate.of(2020, 5, 1)).name());
 		assertEquals(DayType.WorkingDay.name(), dayService.dayGroup(LocalDate.of(2020, 6, 17)).name());
 	}
 	
-	
+	@Test
+	@Disabled
+	void findByDayGroupName() {
+		Collection<Day<?>> results = dayRepository.findByDayGroupName(dayGroup.name()).collectList().block(Duration.ofMillis(500));
+		assertEquals(14, results.size());
+	}
 }

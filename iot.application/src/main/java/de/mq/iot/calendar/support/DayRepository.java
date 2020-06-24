@@ -2,6 +2,7 @@ package de.mq.iot.calendar.support;
 
 
 
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.RepositoryDefinition;
 
 import de.mq.iot.calendar.Day;
@@ -19,6 +20,7 @@ public interface DayRepository {
 	
 	Flux<Day<?>> findAll();
 	
-	
+	@Query("{  \"dayGroup.name\": { $eq: ?0 } }")
+	Flux<Day<?>> findByDayGroupName(final String groupName); 
 	
 }
