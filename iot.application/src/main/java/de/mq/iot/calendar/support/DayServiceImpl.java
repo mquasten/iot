@@ -3,6 +3,7 @@ package de.mq.iot.calendar.support;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,8 +37,17 @@ class DayServiceImpl implements DayService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<Day<LocalDate>> localDateDaysBeforeOrEquals(final LocalDate date) {
-		dayRepository.findAll().collectList().block(duration).stream().filter(day -> day.getClass().equals(LocalDateDayImpl.class)).filter( day  -> ! ((LocalDate) day.value()).isAfter(date)).map(day -> (Day<LocalDate>)day);
-		return null;
+		return dayRepository.findAll().collectList().block(duration).stream().filter(day -> day.getClass().equals(LocalDateDayImpl.class)).filter( day  -> ! ((LocalDate) day.value()).isAfter(date)).map(day -> (Day<LocalDate>)day).collect(Collectors.toSet());
+		
+	}
+	@Override
+	public void save(final Day<?> day) {
+		dayRepository.save(day).block(duration);
+	}
+	
+	@Override
+	public void delete(final Day<?> day) {
+		dayRepository.delete(day).block(duration);
 	}
 	
 	

@@ -22,4 +22,16 @@ interface DayService {
 	 */
 	Collection<Day<LocalDate>> localDateDaysBeforeOrEquals(final LocalDate date);
 
+	/**
+	 * save the given day in mongo db
+	 * @param day the day that should be saved.
+	 */
+	void save(final Day<?> day);
+
+	/**
+	 * Delete the given day from mongo db
+	 * @param day the day that should be deleted.
+	 */
+	void delete(Day<?> day);
+
 }
