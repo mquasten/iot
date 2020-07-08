@@ -84,4 +84,12 @@ class DayRepositoryIntegrationTest {
 		Collection<Day<?>> results = dayRepository.findByDayGroupName(dayGroup.name()).collectList().block(Duration.ofMillis(500));
 		assertEquals(14, results.size());
 	}
+	
+	@Test
+	@Disabled
+	void test() {
+		final Collection<Day<LocalDate>> results = dayService.newLocalDateDay(dayGroup, LocalDate.of(2020, 6, 27),  LocalDate.of(2020, 7, 12));
+		//results.forEach(day -> System.out.println(day.value()));
+		assertEquals(10, results.size());
+	}
 }

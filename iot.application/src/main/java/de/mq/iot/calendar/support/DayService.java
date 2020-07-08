@@ -34,4 +34,14 @@ interface DayService {
 	 */
 	void delete(Day<?> day);
 
+	/**
+	 * Create a transient Collection of Days for every day between beginDate and endDate, if the day not exists in the database.
+	 * The days will not be stored in the database.
+	 * @param dayGroup the DayGroup, for that the days should be created.
+	 * @param beginDate the begin of the dateRange.
+	 * @param endDate the begin of the dateRange.
+	 * @return the days between beginDate and endDate , if the day doesn't  exist.
+	 */
+	Collection<Day<LocalDate>> newLocalDateDay(final DayGroup dayGroup, final LocalDate beginDate, final LocalDate endDate);
+
 }
