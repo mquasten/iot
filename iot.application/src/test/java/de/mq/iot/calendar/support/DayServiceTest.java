@@ -1,12 +1,19 @@
 package de.mq.iot.calendar.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.MonthDay;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -88,5 +95,41 @@ class DayServiceTest {
 		Mockito.verify(mono).block(Duration.ofMillis(TIMEOUT));
 	}
 	
+	@Test
+	void newLocalDateDay() {
+		Mockito.when(dayRepository.findAll()).thenReturn(Flux.just(new DayOfWeekImpl(nonWorkingDayGroup, DayOfWeek.SATURDAY) , new DayOfWeekImpl(nonWorkingDayGroup, DayOfWeek.SUNDAY) ));
+		final Collection<Day<LocalDate>> results =dayService.newLocalDateDay(nonWorkingDayGroup, LocalDate.of(2020, 6, 27), LocalDate.of(2020, 7, 12));
+		assertEquals(10, results.size());
+		final Collection<LocalDate> expected = new ArrayList<>();
+		expected.addAll( days(YearMonth.of(2020, 6), 29,30));
+		expected.addAll( days(YearMonth.of(2020, 7), 1,3));
+		expected.addAll( days(YearMonth.of(2020, 7), 6,10));
+		
+		assertEquals(expected, results.stream().map(day -> day.value()).collect(Collectors.toList()));
+	}
 	
+	@Test
+	void newLocalDateDayDifferentGroups() {
+		Mockito.when(dayRepository.findAll()).thenReturn(Flux.just(new DayOfWeekImpl(specialWorkinDayGroup, DayOfWeek.SATURDAY) , new DayOfWeekImpl(specialWorkinDayGroup, DayOfWeek.SUNDAY) ));
+		final Collection<Day<LocalDate>> results =dayService.newLocalDateDay(nonWorkingDayGroup, LocalDate.of(2020, 6, 27), LocalDate.of(2020, 7, 12));
+		assertEquals(16, results.size());
+		final Collection<LocalDate> expected = new ArrayList<>();
+		
+		expected.addAll( days(YearMonth.of(2020, 6), 27,30));
+		expected.addAll( days(YearMonth.of(2020, 7), 1,12));
+		
+		
+		assertEquals(expected, results.stream().map(day -> day.value()).collect(Collectors.toList()));
+	}
+	
+	@Test
+	void newLocalDateDayWrongDates() {
+		assertThrows(IllegalArgumentException.class, () -> dayService.newLocalDateDay(nonWorkingDayGroup, LocalDate.of(2020, 7, 12), LocalDate.of(2020, 6, 27)));
+	}
+
+
+	private List<LocalDate> days(final YearMonth yearMonth, final int start, final int stop  ) {
+		
+		return IntStream.rangeClosed(start, stop).mapToObj(i -> LocalDate.of(yearMonth.getYear(), yearMonth.getMonth(), i)).collect(Collectors.toList());
+	}
 }
