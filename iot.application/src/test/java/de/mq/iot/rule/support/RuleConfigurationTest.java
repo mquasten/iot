@@ -23,7 +23,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.MapBindingResult;
 import org.springframework.validation.Validator;
 
-import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.calendar.support.DayService;
 import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.state.StateService;
@@ -31,7 +31,7 @@ import de.mq.iot.support.SunDownCalculationService;
 
 class RuleConfigurationTest {
 
-	private static final int HOUR = 5;
+	private static final int HOUR = 5; 
 	private static final int MINUTES = 15;
 	private final RuleConfiguration ruleConfiguration = new RuleConfiguration();
 
@@ -49,7 +49,7 @@ class RuleConfigurationTest {
 	@Test
 	void rulesAggregate() throws Exception {
 		final ConversionService conversionService = Mockito.mock(ConversionService.class);
-		final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
+		final DayService specialdayService = Mockito.mock(DayService.class);
 		final StateService stateService = Mockito.mock(StateService.class);
 		final MeteorologicalDataService meteorologicalDataService = Mockito.mock(MeteorologicalDataService.class);
 		final SunDownCalculationService sunDownCalculationService = Mockito.mock(SunDownCalculationService.class);

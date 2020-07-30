@@ -12,11 +12,11 @@ import java.time.Year;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import de.mq.iot.calendar.SpecialdayService.DayType;
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.rule.support.Calendar.Time;
 import de.mq.iot.support.SunDownCalculationService;
 
-class TimerEventsRuleTest {
+class TimerEventsRuleTest { 
 	
 
 	private static final LocalTime SUN_DOWNTIME = LocalTime.of(23 ,59);
@@ -38,6 +38,7 @@ class TimerEventsRuleTest {
 	
 	private final Calendar calendar = new Calendar();
 
+	private final DayGroup dayGroup = Mockito.mock(DayGroup.class);
 	
 	
 @Test
@@ -49,7 +50,8 @@ class TimerEventsRuleTest {
 	private void vaidCalendar(Calendar calendar) {
 		calendar.assignDate(date);
 		calendar.assignTime(Time.Summer);
-		calendar.assignDayType(DayType.WorkingDay);
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.WORKINGDAY_GROUP_NAME);
+		calendar.assignDayGroup(dayGroup);
 	}
 	
 	@Test
@@ -101,8 +103,9 @@ class TimerEventsRuleTest {
 		vaidCalendar(calendar);
 		Mockito.when(sunDownCalculationService.sunUpTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_UPTIME);
 		Mockito.when(sunDownCalculationService.sunDownTime(calendar.dayOfYear(), Time.Summer.offset())).thenReturn(SUN_DOWNTIME);
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
 		
-		calendar.assignDayType(DayType.NonWorkingDay);
+		calendar.assignDayGroup(dayGroup);
 		
 		timerEventsRule.calculateEvents(calendar, ruleInput);
 		

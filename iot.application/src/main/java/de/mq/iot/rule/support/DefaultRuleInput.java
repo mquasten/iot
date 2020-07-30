@@ -1,14 +1,13 @@
 package de.mq.iot.rule.support;
 
 import java.time.LocalTime;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-import de.mq.iot.calendar.SpecialdayService.DayType;
+import de.mq.iot.calendar.DayGroup;
 
 class DefaultRuleInput implements ValidFieldValues {
 	
@@ -48,14 +47,14 @@ class DefaultRuleInput implements ValidFieldValues {
 		this.testMode=true;
 	}
 	
-	final LocalTime alarmTime(final DayType dayType) {
-		Assert.notNull(dayType, "DayType is required.");
-		final Map<DayType,LocalTime> alarmTimes = new HashMap<>();
-		alarmTimes.put(DayType.NonWorkingDay, holidayAlarmTime);
-		alarmTimes.put(DayType.WorkingDay, workingdayAlarmTime);
-		alarmTimes.put(DayType.SpecialWorkingDay, specialWorkingdayAlarmTime);
-		Assert.isTrue(alarmTimes.containsKey(dayType), "Alarmtime not found for: " + dayType.name());
-		return alarmTimes.get(dayType);
+	final LocalTime alarmTime(final DayGroup dayGroup) {
+		Assert.notNull(dayGroup, "DayGroup is required.");
+		final Map<String,LocalTime> alarmTimes = new HashMap<>();
+		alarmTimes.put(DayGroup.NON_WORKINGDAY_GROUP_NAME, holidayAlarmTime);
+		alarmTimes.put(DayGroup.WORKINGDAY_GROUP_NAME, workingdayAlarmTime);
+		alarmTimes.put(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, specialWorkingdayAlarmTime);
+		Assert.isTrue(alarmTimes.containsKey(dayGroup.name()), "Alarmtime not found for: " + dayGroup.name());
+		return alarmTimes.get(dayGroup.name());
 	}
 
 	final boolean isUpdateMode() {

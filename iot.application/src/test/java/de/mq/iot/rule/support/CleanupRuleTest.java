@@ -15,8 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import de.mq.iot.calendar.Specialday;
-import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.calendar.Day;
+
+import de.mq.iot.calendar.support.DayService;
 
 class CleanupRuleTest {
 	
@@ -25,18 +26,20 @@ class CleanupRuleTest {
 	private static final int DAYS_BACK = 60;
 	private final EndOfDayRuleInput ruleInput = new EndOfDayRuleInput(FIRST_IP,MAX_IP_COUNT,DAYS_BACK,false, false);
 	
-	private final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
-	private final CleanupRuleImpl rule = new CleanupRuleImpl(specialdayService);
+	private final DayService dayService = Mockito.mock(DayService.class);
+	private final CleanupRuleImpl rule = new CleanupRuleImpl(dayService);
 	
 	private final Collection<String> results = new ArrayList<>();
 	
-	private  final Specialday first = Mockito.mock(Specialday.class);
-	private final Specialday second = Mockito.mock(Specialday.class);
-	private final Collection<Specialday> specialdays = Arrays.asList(first,second);
+	private  final Day<?> first = Mockito.mock( Day.class);
+	private final Day<?> second = Mockito.mock(Day.class);
+	private final Collection<Day<?>> specialdays = Arrays.asList(first,second);
+	
+	
 	
 	@BeforeEach
 	void setup() {
-		Mockito.doReturn(specialdays).when(specialdayService).vacationsOrSpecialWorkingDatesBeforeEquals(LocalDate.now().minusDays(DAYS_BACK));
+		Mockito.doReturn(specialdays).when(dayService).localDateDaysBeforeOrEquals(LocalDate.now().minusDays(DAYS_BACK));
 	}
 	
 	@Test
@@ -65,8 +68,8 @@ class CleanupRuleTest {
 		
 		assertResults(CleanupRuleImpl.SUCCESS_MESSAGE);
 		
-		Mockito.verify(specialdayService).delete(first);
-		Mockito.verify(specialdayService).delete(second);
+		Mockito.verify(dayService).delete(first);
+		Mockito.verify(dayService).delete(second);
 	}
 
 	private void assertResults(final String pattern) {
@@ -84,7 +87,7 @@ class CleanupRuleTest {
 		
 		assertResults(CleanupRuleImpl.SUCCESS_MESSAGE_TEST);
 		
-		Mockito.verify(specialdayService,Mockito.never()).delete(first);
-		Mockito.verify(specialdayService, Mockito.never()).delete(second);
+		Mockito.verify(dayService,Mockito.never()).delete(first);
+		Mockito.verify(dayService, Mockito.never()).delete(second);
 	}
 }

@@ -10,13 +10,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import de.mq.iot.calendar.SpecialdayService.DayType;
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.rule.RulesDefinition;
 
 class InputDataMappingRuleTest {
 	
-	
+
 	
 	private static final Integer DAYS_BACK = 60;
 
@@ -54,6 +55,8 @@ class InputDataMappingRuleTest {
 	
 	private final DefaultRuleInput ruleInput = new DefaultRuleInput();
 	
+	private final DayGroup dayGroup =  Mockito.mock(DayGroup.class);
+	
 	
 	
 	@Test
@@ -70,10 +73,14 @@ class InputDataMappingRuleTest {
 	void mappingDefaultDailyIotBatch() {
 		inputDataMappingRule.mapping(RulesDefinition.Id.DefaultDailyIotBatch, newValidMapDefaultDailyIotBatch(true), ruleInput);
 		
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.WORKINGDAY_GROUP_NAME);
+		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin), ruleInput.alarmTime(dayGroup));	
+
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
+		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.alarmTime(dayGroup));
 		
-		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin), ruleInput.alarmTime(DayType.WorkingDay));
-		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.alarmTime(DayType.NonWorkingDay));
-		assertEquals(LocalTime.of(specialWorkingdayAlarmHour, specialWorkingdayAlarmMin), ruleInput.alarmTime(DayType.SpecialWorkingDay));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
+		assertEquals(LocalTime.of(specialWorkingdayAlarmHour, specialWorkingdayAlarmMin), ruleInput.alarmTime(dayGroup));
 		
 		assertEquals(LocalTime.of(minSunDownHour, minSunDownMin), ruleInput.minSunDownTime());
 		assertTrue(ruleInput.isTestMode());
@@ -88,10 +95,14 @@ class InputDataMappingRuleTest {
 		newValidMap.remove(RulesDefinition.MIN_SUN_DOWN_TIME_KEY);
 		inputDataMappingRule.mapping(RulesDefinition.Id.DefaultDailyIotBatch, newValidMap, ruleInput);
 		
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.WORKINGDAY_GROUP_NAME);
+		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin),ruleInput.alarmTime(dayGroup));
 		
-		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin),ruleInput.alarmTime(DayType.WorkingDay));
-		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.alarmTime(DayType.NonWorkingDay));
-		assertEquals(LocalTime.of(specialWorkingdayAlarmHour, specialWorkingdayAlarmMin), ruleInput.alarmTime(DayType.SpecialWorkingDay));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
+		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.alarmTime(dayGroup));
+		
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
+		assertEquals(LocalTime.of(specialWorkingdayAlarmHour, specialWorkingdayAlarmMin), ruleInput.alarmTime(dayGroup));
 		
 		assertEquals(LocalTime.MIDNIGHT, ruleInput.minSunDownTime());
 		
@@ -123,10 +134,14 @@ class InputDataMappingRuleTest {
 	void mappingWithoutBooleans() {
 		inputDataMappingRule.mapping(RulesDefinition.Id.DefaultDailyIotBatch, newValidMapDefaultDailyIotBatch(false), ruleInput);
 		
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.WORKINGDAY_GROUP_NAME);
+		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin), ruleInput.alarmTime(dayGroup));
 		
-		assertEquals(LocalTime.of(workingdayAlarmHour, workingdayAlarmMin), ruleInput.alarmTime(DayType.WorkingDay));
-		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.alarmTime(DayType.NonWorkingDay));
-		assertEquals(LocalTime.of(specialWorkingdayAlarmHour, specialWorkingdayAlarmMin), ruleInput.alarmTime(DayType.SpecialWorkingDay));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
+		assertEquals(LocalTime.of(holidayAlarmHour, holidayAlarmMin), ruleInput.alarmTime(dayGroup));
+		
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
+		assertEquals(LocalTime.of(specialWorkingdayAlarmHour, specialWorkingdayAlarmMin), ruleInput.alarmTime(dayGroup));
 		
 		assertFalse(ruleInput.isTestMode());
 		assertFalse(ruleInput.isUpdateMode());

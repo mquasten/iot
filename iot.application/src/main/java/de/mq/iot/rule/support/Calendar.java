@@ -2,14 +2,14 @@ package de.mq.iot.rule.support;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Map.Entry;
 import java.util.AbstractMap;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-import de.mq.iot.calendar.SpecialdayService.DayType;
+import de.mq.iot.calendar.DayGroup;
 
 class Calendar implements ValidFieldValues{
 	
@@ -33,7 +33,9 @@ class Calendar implements ValidFieldValues{
 		}
 	}
 	
-	private DayType dayType;
+
+	
+	private DayGroup dayGroup;
 	
 	private LocalDate date;
 	
@@ -63,19 +65,16 @@ class Calendar implements ValidFieldValues{
 		this.date = date;
 	}
 
-	final boolean workingDay() {
-		Assert.notNull(dayType, "DayType not set.");
-		return dayType!=DayType.NonWorkingDay;
-		
+	
+	
+	final void assignDayGroup(final DayGroup dayGroup) {
+		this.dayGroup=dayGroup;
 	}
 
-	final void assignDayType(final DayType dayType) {
-		this.dayType = dayType;
+	final DayGroup dayGroup() {
+		return dayGroup;
 	}
-
-	final DayType dayType() {
-		return dayType;
-	}
+	
 	
 	final void assignTime(final Time time) {
 		this.time=time;
@@ -103,6 +102,13 @@ class Calendar implements ValidFieldValues{
 	
 	final Optional<Entry<String,String>> events() {
 		return	 Optional.ofNullable(events);
+		
+	}
+	
+	final boolean workingDay() {
+		Assert.notNull(dayGroup, "DayGroup not set.");
+		return ! dayGroup.name().equals(DayGroup.NON_WORKINGDAY_GROUP_NAME);
+		//return dayType!=DayType.NonWorkingDay;
 		
 	}
 }

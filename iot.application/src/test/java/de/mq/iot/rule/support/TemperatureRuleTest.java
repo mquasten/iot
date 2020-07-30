@@ -11,12 +11,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import de.mq.iot.calendar.SpecialdayService.DayType;
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.openweather.MeteorologicalData;
 import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.rule.support.Calendar.Time;
 
-class TemperatureRuleTest {
+class TemperatureRuleTest { 
 	
 	private static final double TEMPERATURE = 25.0d;
 
@@ -25,6 +25,8 @@ class TemperatureRuleTest {
 	private final TemperatureRuleImpl temperatureRule = new TemperatureRuleImpl(meteorologicalDataService);
 	
 	private final MeteorologicalData meteorologicalData = Mockito.mock(MeteorologicalData.class);
+	
+	private final DayGroup dayGroup = Mockito.mock(DayGroup.class);
 	
 	@BeforeEach
 	void setup() {
@@ -43,7 +45,10 @@ class TemperatureRuleTest {
 		
 		calendar.assignDate(LocalDate.now());
 		calendar.assignTime(Time.Summer);
-		calendar.assignDayType(DayType.WorkingDay);
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.WORKINGDAY_GROUP_NAME);
+		
+		
+		calendar.assignDayGroup(dayGroup);
 		assertTrue(temperatureRule.evaluate(calendar));
 		
 		calendar.assignTime(Time.Winter);
@@ -57,7 +62,8 @@ class TemperatureRuleTest {
 		
 		calendar.assignDate(LocalDate.now());
 		calendar.assignTime(Time.Summer);
-		calendar.assignDayType(DayType.SpecialWorkingDay);
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
+		calendar.assignDayGroup(dayGroup);
 		
 		temperatureRule.forecast(calendar);
 	

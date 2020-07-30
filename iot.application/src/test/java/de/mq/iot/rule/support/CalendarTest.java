@@ -5,19 +5,21 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import java.time.LocalDate;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import de.mq.iot.calendar.SpecialdayService.DayType;
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.rule.support.Calendar.Time;
 
 class CalendarTest {
 	
 	private final Calendar calendar = new Calendar();
 	private final LocalDate now = LocalDate.now();
+	
+	private final DayGroup dayGroup = Mockito.mock(DayGroup.class);
 	
 	@Test
 	void timeKeys() {
@@ -68,13 +70,15 @@ class CalendarTest {
 	void workingDay() {
 		assertThrows(IllegalArgumentException.class, () -> calendar.workingDay());
 		
-		calendar.assignDayType(DayType.WorkingDay);
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.WORKINGDAY_GROUP_NAME);
+		calendar.assignDayGroup(dayGroup);
 		assertTrue(calendar.workingDay());
 		
-		calendar.assignDayType(DayType.SpecialWorkingDay);
+	
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
 		assertTrue(calendar.workingDay());
 		
-		calendar.assignDayType(DayType.NonWorkingDay);
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
 		assertFalse(calendar.workingDay());
 	}
 	
@@ -95,7 +99,7 @@ class CalendarTest {
 		
 		assertFalse(calendar.valid());
 		
-		calendar.assignDayType(DayType.WorkingDay);
+		calendar.assignDayGroup(dayGroup);
 		
 		assertFalse(calendar.valid());
 		

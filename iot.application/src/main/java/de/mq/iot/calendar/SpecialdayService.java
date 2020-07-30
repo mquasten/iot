@@ -27,11 +27,11 @@ public interface SpecialdayService {
 
 	Collection<Specialday> vacationsOrSpecialWorkingDatesBeforeEquals(final LocalDate minDate);
 
-	//Entry<DayType, String> typeOfDay(LocalDate date);
+	
 
 	Collection<Specialday> specialdays(Collection<Type> types);
 
-	SpecialdaysRulesEngineResult specialdaysRulesEngineResult(LocalDate date);
+	SpecialdaysRulesEngineResult specialdaysRulesEngineResult(LocalDate date);  
 
 	
 

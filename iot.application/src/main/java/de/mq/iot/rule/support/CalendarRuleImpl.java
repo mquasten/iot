@@ -12,15 +12,17 @@ import org.jeasy.rules.annotation.Condition;
 import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Rule;
 
-import de.mq.iot.calendar.SpecialdayService;
-import de.mq.iot.calendar.support.SpecialdaysRulesEngineResult;
+import de.mq.iot.calendar.DayGroup;
+import de.mq.iot.calendar.support.DayService;
 
 @Rule(name="calendarRule", priority=1)
 public class CalendarRuleImpl {
-	private final SpecialdayService specialdayService;
+	
 	private final Supplier<LocalDate> dateSupplier;
-	public CalendarRuleImpl(final SpecialdayService specialdayService, final Supplier<LocalDate> dateSupplier) {
-		this.specialdayService=specialdayService;
+	
+	private  final DayService dayService;
+	public CalendarRuleImpl(final DayService dayService, final Supplier<LocalDate> dateSupplier) {
+		this.dayService=dayService;
 		this.dateSupplier=dateSupplier;
 	}
 	
@@ -38,9 +40,12 @@ public class CalendarRuleImpl {
 		final int offset = ruleInput.isUpdateMode() ? 0 : 1;
 		
 		calendar.assignDate(dateSupplier.get().plusDays(offset));
-		final SpecialdaysRulesEngineResult specialdaysRulesEngineResult = specialdayService.specialdaysRulesEngineResult(calendar.date());
-		calendar.assignDayType(specialdaysRulesEngineResult.dayType());
-		System.out.println("SpecialdaysRulesEngineResult :" + specialdaysRulesEngineResult.description());
+		
+		final DayGroup dayGroup = dayService.dayGroup(calendar.date());
+		//final SpecialdaysRulesEngineResult specialdaysRulesEngineResult = specialdayService.specialdaysRulesEngineResult(calendar.date());
+		//calendar.assignDayType(specialdaysRulesEngineResult.dayType());
+		calendar.assignDayGroup(dayGroup);
+		System.out.println("DayGroup :" + dayGroup);
 		calendar.assignTime(time(calendar.date()));
 	 }
 	 

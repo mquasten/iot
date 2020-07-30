@@ -32,7 +32,7 @@ public class TimerEventsRule {
 		
 		
 		
-		final LocalTime alarmTime = ruleInput.alarmTime(calendar.dayType());
+		final LocalTime alarmTime = ruleInput.alarmTime(calendar.dayGroup());
 		
 		final LocalTime uptime = sunDownCalculationService.sunUpTime(calendar.dayOfYear(), calendar.time().offset());
 		

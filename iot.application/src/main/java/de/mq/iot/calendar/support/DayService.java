@@ -6,7 +6,7 @@ import java.util.Collection;
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
 
-interface DayService {
+public interface DayService {
 
 	/**
 	 * Read the DayGroup with the lowest priority.

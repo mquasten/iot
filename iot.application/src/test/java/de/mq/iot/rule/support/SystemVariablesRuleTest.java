@@ -17,13 +17,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import de.mq.iot.calendar.SpecialdayService.DayType;
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.rule.support.Calendar.Time;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.support.ItemList;
 
-class SystemVariablesRuleTest {
+class SystemVariablesRuleTest { 
 	
 	private static final String EVENTS = "EVENTS";
 
@@ -51,8 +51,11 @@ class SystemVariablesRuleTest {
 	
 	private final List<State<?>> results = new ArrayList<>();
 	
+	private final DayGroup dayGroup = Mockito.mock(DayGroup.class);
+	
 	@BeforeEach
 	void setup( ) {
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.WORKINGDAY_GROUP_NAME);
 		Mockito.doReturn(Arrays.asList(timeState,monthState,workingdayState,lastupdateState, temperatureState)).when(stateService).states();
 		Mockito.doReturn(SystemVariablesRuleImpl.TIME_STATE_NAME).when(timeState).name();
 		
@@ -68,7 +71,9 @@ class SystemVariablesRuleTest {
 		calendar.assignTime(Time.Summer);
 		final LocalDate now = LocalDate.now();
 		calendar.assignDate(now);
-		calendar.assignDayType(DayType.WorkingDay);
+		
+		
+		calendar.assignDayGroup(dayGroup);
 		
 		calendar.assignTemperature(TEMPERATURE_VALUE);
 		 
@@ -111,7 +116,7 @@ class SystemVariablesRuleTest {
 		calendar.assignTime(Time.Summer);
 		final LocalDate now = LocalDate.now();
 		calendar.assignDate(now);
-		calendar.assignDayType(DayType.WorkingDay);
+		calendar.assignDayGroup(dayGroup);
 		calendar.assignTemperature(TEMPERATURE_VALUE); 
 		calendar.assignEvents(SystemVariablesRuleImpl.DAILY_EVENTS , EVENTS);
 		
@@ -135,7 +140,7 @@ class SystemVariablesRuleTest {
 		
 		calendar.assignDate(LocalDate.now());
 		calendar.assignTime(Time.Summer);
-		calendar.assignDayType(DayType.WorkingDay);
+		calendar.assignDayGroup(dayGroup);
 		assertTrue(systemVariablesRule.evaluate(calendar));
 	}
 

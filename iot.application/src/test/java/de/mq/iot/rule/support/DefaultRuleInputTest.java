@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import de.mq.iot.calendar.SpecialdayService.DayType;
+import de.mq.iot.calendar.DayGroup;
 
 class DefaultRuleInputTest {
 	
@@ -28,20 +29,25 @@ class DefaultRuleInputTest {
 	
 	private final DefaultRuleInput ruleInput = new DefaultRuleInput(workingdayAlarmTime, holidayAlarmTime, specialWorkingdayTime, minSunDownTime);
 	
+	private final DayGroup dayGroup = Mockito.mock(DayGroup.class);
+	
 	@Test
 	void workingdayAlarmTime() {
-		assertEquals(workingdayAlarmTime, ruleInput.alarmTime(DayType.WorkingDay));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.WORKINGDAY_GROUP_NAME);
+		assertEquals(workingdayAlarmTime, ruleInput.alarmTime(dayGroup));
 	}
 	
 	
 	@Test
 	void holidayAlarmTime() {
-		assertEquals(holidayAlarmTime, ruleInput.alarmTime(DayType.NonWorkingDay));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
+		assertEquals(holidayAlarmTime, ruleInput.alarmTime(dayGroup));
 	}
 	
 	@Test
 	void specialWorkingdayAlarmTime() {
-		assertEquals(specialWorkingdayTime, ruleInput.alarmTime(DayType.SpecialWorkingDay));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
+		assertEquals(specialWorkingdayTime, ruleInput.alarmTime(dayGroup));
 	}
 	@Test
 	void alarmTimeDayTypeMissing() {
