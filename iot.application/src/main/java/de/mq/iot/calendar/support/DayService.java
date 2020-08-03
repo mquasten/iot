@@ -43,5 +43,11 @@ public interface DayService {
 	 * @return the days between beginDate and endDate , if the day doesn't  exist.
 	 */
 	Collection<Day<LocalDate>> newLocalDateDay(final DayGroup dayGroup, final LocalDate beginDate, final LocalDate endDate);
+	
+	/**
+	 * Selects all days stored in the database
+	 * @return days stored in the database.
+	 */
+	Collection<Day<?>> days();
 
 }

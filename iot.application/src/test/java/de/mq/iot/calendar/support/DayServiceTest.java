@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +21,7 @@ import org.mockito.Mockito;
 
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
-import de.mq.iot.calendar.SpecialdayService.DayType;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,8 +31,8 @@ class DayServiceTest {
 	private final DayRepository dayRepository = Mockito.mock(DayRepository.class);
 	private final DayGroup defaultDayGroup = new DayConfiguration().defaultDayGroup();
 
-	private final DayGroup nonWorkingDayGroup = new DayGroupImpl(DayType.NonWorkingDay.name(), 1);
-	private final DayGroup specialWorkinDayGroup = new DayGroupImpl(DayType.SpecialWorkingDay.name(), 0);
+	private final DayGroup nonWorkingDayGroup = new DayGroupImpl(DayGroup.NON_WORKINGDAY_GROUP_NAME, 1);
+	private final DayGroup specialWorkinDayGroup = new DayGroupImpl(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, 0);
 
 	private final DayService dayService = new DayServiceImpl(dayRepository, defaultDayGroup, TIMEOUT);
 	
@@ -131,5 +132,15 @@ class DayServiceTest {
 	private List<LocalDate> days(final YearMonth yearMonth, final int start, final int stop  ) {
 		
 		return IntStream.rangeClosed(start, stop).mapToObj(i -> LocalDate.of(yearMonth.getYear(), yearMonth.getMonth(), i)).collect(Collectors.toList());
+	}
+	
+	@Test
+	void days() {
+		
+		final Day<?>[] days = new Day<?>[] { new LocalDateDayImpl(nonWorkingDayGroup, DATE), new LocalDateDayImpl(specialWorkinDayGroup, DATE)};
+		Mockito.when(dayRepository.findAll()).thenReturn(Flux.just(days));
+		
+	
+		assertEquals(Arrays.asList(days), dayService.days());
 	}
 }

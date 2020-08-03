@@ -19,7 +19,7 @@ import java.util.stream.LongStream;
 import org.jeasy.rules.api.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -28,7 +28,7 @@ import de.mq.iot.calendar.Specialday.Type;
 import de.mq.iot.calendar.SpecialdayService;
 
 
-@Service
+//@Service
 class SpecialdayServiceImpl implements SpecialdayService {
 	
 	static final String VACATION_OR_PUBLIC_HOLIDAY_INFO = "Vacation or public holiday";
@@ -72,13 +72,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		
 	}
 	
-	@Override
-	public SpecialdaysRulesEngineResult specialdaysRulesEngineResult(LocalDate date) {
-		final Collection<Specialday> specialdays = specialdaysRepository.findByTypeIn(Arrays.asList(Type.values())).collectList().block(duration);
-		
-		return new SpecialdaysRulesEngineBuilder().withRules(rules).withSpecialdays(specialdays).execute(date);
-		
-	}
+	
 	
 	@Override
 	public Collection<Specialday> specialdays(final Collection<Type> types){

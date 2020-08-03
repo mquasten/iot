@@ -75,6 +75,11 @@ class DayServiceImpl implements DayService {
 		}
 		return true;
 	}
+
+	@Override
+	public Collection<Day<?>> days() {
+		return dayRepository.findAll().collectList().block(duration);
+	}
 	
 	
 	

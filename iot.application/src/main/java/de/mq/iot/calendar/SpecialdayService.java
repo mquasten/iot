@@ -5,7 +5,7 @@ import java.time.Year;
 import java.util.Collection;
 
 import de.mq.iot.calendar.Specialday.Type;
-import de.mq.iot.calendar.support.SpecialdaysRulesEngineResult;
+
 
 public interface SpecialdayService {
 	
@@ -31,7 +31,7 @@ public interface SpecialdayService {
 
 	Collection<Specialday> specialdays(Collection<Type> types);
 
-	SpecialdaysRulesEngineResult specialdaysRulesEngineResult(LocalDate date);  
+	
 
 	
 

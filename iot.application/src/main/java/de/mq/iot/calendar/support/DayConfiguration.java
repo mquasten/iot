@@ -5,12 +5,11 @@ import org.springframework.context.annotation.Configuration;
 
 
 import de.mq.iot.calendar.DayGroup;
-import de.mq.iot.calendar.SpecialdayService.DayType;
 
 @Configuration
 class DayConfiguration {
 	
-	static final DayGroup defaultDayGroup = new DayGroupImpl(DayType.WorkingDay.name(), 2);
+	static final DayGroup defaultDayGroup = new DayGroupImpl(DayGroup.WORKINGDAY_GROUP_NAME, 2);
 
 	@Bean()
 	DayGroup defaultDayGroup() {
