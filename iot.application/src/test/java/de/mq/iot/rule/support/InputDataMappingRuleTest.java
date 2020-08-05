@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +32,7 @@ class InputDataMappingRuleTest {
 	private final RuleConfiguration configuration = new RuleConfiguration();
 	
 	
-	private InputDataMappingRuleImpl inputDataMappingRule=  new InputDataMappingRuleImpl(configuration.conversionService(), configuration.validationFactory(configuration.conversionService()));;
+	private InputDataMappingRuleImpl inputDataMappingRule=  new InputDataMappingRuleImpl(configuration.conversionService(Collections.emptyList()), configuration.validationFactory(configuration.conversionService(Collections.emptyList())));;
 	
 	
 	private final int workingdayAlarmHour = 5;

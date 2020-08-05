@@ -57,7 +57,7 @@ class DayOfWeekTest {
 	void compare() {
 		final List<Day<?>> days = new ArrayList<>();
 		
-		final Day<LocalDate> otherDay = new GaussDayImpl<>(dayGroup, 0);
+		final Day<LocalDate> otherDay = new GaussDayImpl(dayGroup, 0);
 		days.add(day);
 		days.add(otherDay);
 		

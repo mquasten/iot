@@ -67,7 +67,7 @@ class DayServiceTest {
 	@Test
 	void localDateDaysBeforeOrEquals() {
 		final Day<?> day = new LocalDateDayImpl(specialWorkinDayGroup, DATE);
-		Mockito.when(dayRepository.findAll()).thenReturn(Flux.just(day, new FixedDayImpl<>(nonWorkingDayGroup, MonthDay.of(DATE.getMonth(), DATE.getDayOfMonth()))));
+		Mockito.when(dayRepository.findAll()).thenReturn(Flux.just(day, new FixedDayImpl(nonWorkingDayGroup, MonthDay.of(DATE.getMonth(), DATE.getDayOfMonth()))));
 
 		final Collection<Day<LocalDate>> results = dayService.localDateDaysBeforeOrEquals(DATE);
 		assertEquals(1, results.size());

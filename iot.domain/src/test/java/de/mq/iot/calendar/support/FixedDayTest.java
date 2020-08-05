@@ -24,7 +24,7 @@ import de.mq.iot.calendar.DayGroup;
 class FixedDayTest {
 	private final DayGroup dayGroup = new DayGroupImpl("Feiertag", 2);
 	private final MonthDay monthDay =  MonthDay.of(5, 28);
-	private final Day<LocalDate> day = new FixedDayImpl<>(dayGroup,monthDay);
+	private final Day<LocalDate> day = new FixedDayImpl(dayGroup,monthDay);
 	
 	private final Supplier<YearMonth> yearMonth = () -> YearMonth.of(2020, 1);
 	

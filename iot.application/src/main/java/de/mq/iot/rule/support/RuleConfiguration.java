@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
-
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.calendar.support.DayService;
 import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.rule.RulesDefinition;
@@ -29,7 +29,7 @@ class RuleConfiguration {
 	private final static String DNS = "8.8.8.8"; 
 	
 	@Bean
-	ConversionService conversionService() {
+	ConversionService conversionService(final Collection<DayGroup> dayGroups) {
 	DefaultConversionService conversionService= new DefaultConversionService();
 			conversionService.addConverter(String.class, LocalTime.class, stringValue -> {
 				String[] values = TimeValidatorImpl.splitTimeString(stringValue);
@@ -38,6 +38,8 @@ class RuleConfiguration {
 				}
 				return LocalTime.of(conversionService.convert(values[0], Integer.class), conversionService.convert(values[1], Integer.class));
 			});
+			
+			conversionService.addConverter(DayGroup.class, String.class, dayGroup ->  dayGroup.name());
 		return conversionService;
 	}
 	

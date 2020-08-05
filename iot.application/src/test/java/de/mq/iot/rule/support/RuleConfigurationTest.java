@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +38,7 @@ class RuleConfigurationTest {
 
 	@Test
 	void conversionService() {
-		final ConversionService conversionService = ruleConfiguration.conversionService();
+		final ConversionService conversionService = ruleConfiguration.conversionService(Collections.emptyList());
 		final LocalTime result = conversionService.convert(String.format("%s:%s", HOUR, MINUTES), LocalTime.class);
 
 		assertEquals(HOUR, result.getHour());

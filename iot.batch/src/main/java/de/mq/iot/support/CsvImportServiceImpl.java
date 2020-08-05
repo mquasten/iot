@@ -26,7 +26,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.stereotype.Service;
+
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -44,7 +44,7 @@ import de.mq.iot.state.Commands;
 import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.SynonymService;
 
-@Service
+//@Service
 public class CsvImportServiceImpl {
 	
 	private final Function<String, BufferedReader> supplier = name -> newReader(Paths.get(name));

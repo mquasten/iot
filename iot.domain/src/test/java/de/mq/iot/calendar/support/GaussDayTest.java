@@ -27,7 +27,7 @@ class GaussDayTest {
 	private static final int PRIORITY = 1;
 	private static final int OFFSET = -2;
 	private final DayGroup dayGroup = new DayGroupImpl("Feiertag", 2);
-	private Day<LocalDate> day = new GaussDayImpl<>(dayGroup, OFFSET);
+	private Day<LocalDate> day = new GaussDayImpl(dayGroup, OFFSET);
 	private final Supplier<YearMonth> yearMonth = () -> YearMonth.of(2020, 1);
 	private LocalDate goodFriday = LocalDate.of(2020, 4, 10);
 	
@@ -51,7 +51,7 @@ class GaussDayTest {
 	void compare() {
 		final List<Day<LocalDate>> days = new ArrayList<>();
 		days.add(day);
-		final Day<LocalDate> otherDay = new GaussDayImpl<>(new DayGroupImpl(dayGroup.name(), 0), 0);
+		final Day<LocalDate> otherDay = new GaussDayImpl(new DayGroupImpl(dayGroup.name(), 0), 0);
 		days.add(otherDay);
 		
 		assertEquals(day, days.get(0));
@@ -72,7 +72,7 @@ class GaussDayTest {
 	
 	@Test
 	void yearMonth() {
-		assertEquals(YearMonth.now(), new GaussDayImpl<>(dayGroup, PRIORITY).yearMonth());
+		assertEquals(YearMonth.now(), new GaussDayImpl(dayGroup, PRIORITY).yearMonth());
 	}
 	
 	@Test
@@ -93,12 +93,12 @@ class GaussDayTest {
 	@Test
 	void equals() {
 		assertFalse(day.equals(""));
-		final Day<?> dayWithNoId = new GaussDayImpl<>(dayGroup, 0);
+		final Day<?> dayWithNoId = new GaussDayImpl(dayGroup, 0);
 		ReflectionTestUtils.setField(dayWithNoId, "id", null);
 		assertFalse(day.equals(dayWithNoId));
 		assertFalse(dayWithNoId.equals(day));
 		assertTrue(dayWithNoId.equals(dayWithNoId));
-		assertTrue(day.equals(new GaussDayImpl<>(dayGroup, OFFSET)));
+		assertTrue(day.equals(new GaussDayImpl(dayGroup, OFFSET)));
 	}
 	
 	@Test

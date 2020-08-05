@@ -46,21 +46,21 @@ class DayRepositoryIntegrationTest {
 		nonWorkingDays.add(new DayOfWeekImpl(dayGroup,DayOfWeek.SATURDAY ));
 		nonWorkingDays.add(new DayOfWeekImpl(dayGroup,DayOfWeek.SUNDAY ));
 		
-		nonWorkingDays.add(new GaussDayImpl<>(dayGroup, -2));
-		nonWorkingDays.add(new GaussDayImpl<>(dayGroup, 0));
-		nonWorkingDays.add(new GaussDayImpl<>(dayGroup, 1));
-		nonWorkingDays.add(new GaussDayImpl<>(dayGroup, 39));
-		nonWorkingDays.add(new GaussDayImpl<>(dayGroup, 50));
-		nonWorkingDays.add(new GaussDayImpl<>(dayGroup, 60));
+		nonWorkingDays.add(new GaussDayImpl(dayGroup, -2));
+		nonWorkingDays.add(new GaussDayImpl(dayGroup, 0));
+		nonWorkingDays.add(new GaussDayImpl(dayGroup, 1));
+		nonWorkingDays.add(new GaussDayImpl(dayGroup, 39));
+		nonWorkingDays.add(new GaussDayImpl(dayGroup, 50));
+		nonWorkingDays.add(new GaussDayImpl(dayGroup, 60));
 		
 		
-		nonWorkingDays.add(new FixedDayImpl<>(dayGroup, MonthDay.of(1, 1)));
+		nonWorkingDays.add(new FixedDayImpl(dayGroup, MonthDay.of(1, 1)));
 		
-		nonWorkingDays.add(new FixedDayImpl<>(dayGroup, MonthDay.of(5,1)));
-		nonWorkingDays.add(new FixedDayImpl<>(dayGroup,MonthDay.of(10,3)));
-		nonWorkingDays.add(new FixedDayImpl<>(dayGroup,MonthDay.of(11,1)));
-		nonWorkingDays.add(new FixedDayImpl<>(dayGroup,MonthDay.of(12,25)));
-		nonWorkingDays.add(new FixedDayImpl<>(dayGroup,MonthDay.of(12,26))); 
+		nonWorkingDays.add(new FixedDayImpl(dayGroup, MonthDay.of(5,1)));
+		nonWorkingDays.add(new FixedDayImpl(dayGroup,MonthDay.of(10,3)));
+		nonWorkingDays.add(new FixedDayImpl(dayGroup,MonthDay.of(11,1)));
+		nonWorkingDays.add(new FixedDayImpl(dayGroup,MonthDay.of(12,25)));
+		nonWorkingDays.add(new FixedDayImpl(dayGroup,MonthDay.of(12,26))); 
 		
 	}
 

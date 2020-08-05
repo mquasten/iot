@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
 import de.mq.iot.calendar.DayGroup;
 
 @Document(collection=GaussDayImpl.DAY_COLLECTION_NAME)
-class FixedDayImpl<Localdate> extends AbstractDay<LocalDate> {
+class FixedDayImpl extends AbstractDay<LocalDate> {
 
 	static final int KEY_PREFIX = 2;
 

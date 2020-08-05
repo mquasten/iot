@@ -37,8 +37,9 @@ import org.springframework.util.StringUtils;
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.AuthentificationService;
 import de.mq.iot.authentication.support.TestAuthentication;
-import de.mq.iot.calendar.Specialday;
-import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.calendar.Day;
+
+import de.mq.iot.calendar.support.DayService;
 import de.mq.iot.calendar.support.TestSpecialday;
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
@@ -61,7 +62,7 @@ class CsvExportServiceTest {
 
 	private final AuthentificationService authentificationService = Mockito.mock(AuthentificationService.class);
 
-	private final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
+	private final DayService specialdayService = Mockito.mock(DayService.class);
 
 	private final ResourceIdentifierRepository resourceIdentifierRepository = Mockito.mock(ResourceIdentifierRepository.class);
 
@@ -172,8 +173,8 @@ class CsvExportServiceTest {
 
 	@Test
 	void specialdays() {
-		Specialday specialday = TestSpecialday.specialday();
-		Mockito.when(specialdayService.specialdays()).thenReturn(Arrays.asList(specialday));
+		Day<LocalDate> specialday = TestSpecialday.gaussDay();
+		Mockito.when(specialdayService.days()).thenReturn(Arrays.asList(specialday));
 		csvService.export("Specialday", "export.csv");
 		final List<List<String>> results = lines();
 
