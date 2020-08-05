@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 import de.mq.iot.authentication.AuthentificationService;
-import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.calendar.support.DayService;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
 import de.mq.iot.rule.support.RulesDefinitionRepository;
 import de.mq.iot.state.Command;
@@ -38,12 +38,13 @@ public class CsvExportServiceImpl {
 	private Map<CsvType, Supplier<Collection<?>>> suppliers = new HashMap<>();
 
 	private final ConversionService conversionService;
+	
 
 	@Autowired
-	public CsvExportServiceImpl(final SynonymService synonymService, final AuthentificationService authentificationService, final SpecialdayService specialdayService, final ResourceIdentifierRepository resourceIdentifierRepository, final ConversionService conversionService, final RulesDefinitionRepository rulesDefinitionRepository) {
+	public CsvExportServiceImpl(final SynonymService synonymService, final AuthentificationService authentificationService, final DayService specialdayService, final ResourceIdentifierRepository resourceIdentifierRepository, final ConversionService conversionService, final RulesDefinitionRepository rulesDefinitionRepository) {
 		suppliers.put(CsvType.Synonym, () -> synonymService.deviveSynonyms());
 		suppliers.put(CsvType.User, () -> authentificationService.authentifications());
-		suppliers.put(CsvType.Specialday, () -> specialdayService.specialdays());
+		suppliers.put(CsvType.Specialday, () -> specialdayService.days());
 		suppliers.put(CsvType.RulesDefinition, () -> rulesDefinitionRepository.findAll().collectList().block());
 		suppliers.put(CsvType.ResourceIdentifier, () -> resourceIdentifierRepository.findAll().collectList().block());
 		
@@ -75,7 +76,7 @@ public class CsvExportServiceImpl {
 		final Collection<Field> fields = type.fields();
 
 		Assert.isTrue(suppliers.containsKey(type), String.format("CsvType not supported: %s", type));
-		final Collection<?> exportedObjects = suppliers.get(type).get();
+		final Collection<?> exportedObjects = suppliers.get(type).get().stream().filter(entity -> entity.getClass()==type.target()).collect(Collectors.toList());
 
 		try (final CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(fields.stream().map(Field::getName).collect(Collectors.toList()).toArray(new String[fields.size()])).withQuoteMode(QuoteMode.MINIMAL).withDelimiter(';'))) {
 			process(fields, exportedObjects, csvPrinter);
@@ -87,6 +88,7 @@ public class CsvExportServiceImpl {
 	private void process(final Collection<Field> fields, final Collection<?> exportedObjects, final CSVPrinter csvPrinter) throws IOException {
 
 		for (Object entity : exportedObjects) {
+			
 			final Collection<String> values = fields.stream().map(field -> {
 				field.setAccessible(true);
 				return ReflectionUtils.getField(field, entity);
