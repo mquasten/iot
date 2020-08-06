@@ -17,7 +17,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 import java.time.LocalDate;
-import java.time.Year;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +28,7 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -38,9 +38,8 @@ import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.AuthentificationService;
 import de.mq.iot.authentication.support.TestAuthentication;
 import de.mq.iot.calendar.Day;
-
 import de.mq.iot.calendar.support.DayService;
-import de.mq.iot.calendar.support.TestSpecialday;
+import de.mq.iot.calendar.support.TestDays;
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
@@ -56,6 +55,12 @@ import reactor.core.publisher.Flux;
 
 class CsvExportServiceTest {
 
+	private static final String DAY_GROUP_FIELD = "dayGroup";
+
+	private static final String OFFSET_FIELD = "offset";
+
+	private static final String ID_FIELD = "id";
+
 	private static final String FILENAME = "filename.csv";
 
 	private final SynonymService synonymService = Mockito.mock(SynonymService.class);
@@ -67,8 +72,9 @@ class CsvExportServiceTest {
 	private final ResourceIdentifierRepository resourceIdentifierRepository = Mockito.mock(ResourceIdentifierRepository.class);
 
 	private final RulesDefinitionRepository rulesDefinitionRepository = Mockito.mock(RulesDefinitionRepository.class);
+	
 
-	private final CsvExportServiceImpl csvService = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, resourceIdentifierRepository, new DefaultConversionService(), rulesDefinitionRepository);
+	private final CsvExportServiceImpl csvService = new CsvExportServiceImpl(synonymService, authentificationService, specialdayService, resourceIdentifierRepository, TestRulesDefinition.conversionService(), rulesDefinitionRepository);
 
 	private final StringWriter writer = new StringWriter();
 
@@ -172,27 +178,25 @@ class CsvExportServiceTest {
 	}
 
 	@Test
-	void specialdays() {
-		Day<LocalDate> specialday = TestSpecialday.gaussDay();
+	void gaussDays() {
+		final Day<LocalDate> specialday = TestDays.gaussDay();
 		Mockito.when(specialdayService.days()).thenReturn(Arrays.asList(specialday));
-		csvService.export("Specialday", "export.csv");
+		csvService.export("GaussDay", "export.csv");
 		final List<List<String>> results = lines();
 
-		assertEquals(7, results.get(0).size());
-		assertEquals(7, results.get(1).size());
+		assertEquals(3, results.get(0).size());
+		assertEquals(3, results.get(1).size());
 
 		final Map<String, String> map = new HashMap<>();
-		IntStream.range(0, 7).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
+		IntStream.range(0, 3).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
 		
-		CsvType.Specialday.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
+		CsvType.GaussDay.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
 
-		assertEquals(ReflectionTestUtils.getField(specialday, "id"), map.get("id"));
-		assertEquals("Vacation", map.get("type"));
-		assertFalse(StringUtils.hasText(map.get("offset")));
-		assertEquals(LocalDate.now().getDayOfMonth(), (int) Integer.valueOf(map.get("dayOfMonth")));
-		assertEquals(LocalDate.now().getMonthValue(), (int) Integer.valueOf(map.get("month")));
-		assertEquals(Year.now().getValue(), (int) Integer.valueOf(map.get("year")));
-		assertFalse(StringUtils.hasText(map.get("dayOfWeek")));
+		assertEquals(ReflectionTestUtils.getField(specialday, ID_FIELD), map.get(ID_FIELD));
+		
+		assertEquals("" +ReflectionTestUtils.getField(specialday, OFFSET_FIELD), map.get(OFFSET_FIELD));
+		assertEquals(specialday.dayGroup().name(), map.get(DAY_GROUP_FIELD));
+	
 	}
 
 	@Test
@@ -244,7 +248,7 @@ class CsvExportServiceTest {
 		assertEquals(3, results.get(1).size());
 		final Map<String, String> map = new HashMap<>();
 		IntStream.range(0, 3).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
-		assertEquals(ResourceType.XmlApi.name(), map.get("id"));
+		assertEquals(ResourceType.XmlApi.name(), map.get(ID_FIELD));
 		assertEquals(TestResourceIdentifier.URI, map.get("uri"));
 
 		assertEquals(String.format("%s=%s,%s=%s", TestResourceIdentifier.HOST_KEY, TestResourceIdentifier.HOST_VALUE, TestResourceIdentifier.PORT_KEY, TestResourceIdentifier.PORT_VALUE), map.get("parameters"));
@@ -270,7 +274,7 @@ class CsvExportServiceTest {
 
 		CsvType.RulesDefinition.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
 
-		assertEquals(rulesDefinition.id().name(), map.get("id"));
+		assertEquals(rulesDefinition.id().name(), map.get(ID_FIELD));
 
 		final Map<String, String> inputData = new HashMap<>();
 		Arrays.asList(map.get("inputData").split("[,]")).stream().forEach(line -> {

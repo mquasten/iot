@@ -44,7 +44,7 @@ public class CsvExportServiceImpl {
 	public CsvExportServiceImpl(final SynonymService synonymService, final AuthentificationService authentificationService, final DayService specialdayService, final ResourceIdentifierRepository resourceIdentifierRepository, final ConversionService conversionService, final RulesDefinitionRepository rulesDefinitionRepository) {
 		suppliers.put(CsvType.Synonym, () -> synonymService.deviveSynonyms());
 		suppliers.put(CsvType.User, () -> authentificationService.authentifications());
-		suppliers.put(CsvType.Specialday, () -> specialdayService.days());
+		suppliers.put(CsvType.GaussDay, () -> specialdayService.days());
 		suppliers.put(CsvType.RulesDefinition, () -> rulesDefinitionRepository.findAll().collectList().block());
 		suppliers.put(CsvType.ResourceIdentifier, () -> resourceIdentifierRepository.findAll().collectList().block());
 		

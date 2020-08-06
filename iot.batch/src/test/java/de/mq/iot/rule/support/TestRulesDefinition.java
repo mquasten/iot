@@ -1,5 +1,8 @@
 package de.mq.iot.rule.support;
 
+import org.springframework.core.convert.ConversionService;
+
+import de.mq.iot.calendar.support.TestDays;
 import de.mq.iot.rule.RulesDefinition;
 
 public interface TestRulesDefinition {
@@ -19,5 +22,11 @@ public interface TestRulesDefinition {
 	
 		return rulesDefinition;
 	}
+	
+	public static  ConversionService conversionService() {
+		 final RuleConfiguration ruleConfiguration = new RuleConfiguration();
+		 return ruleConfiguration.conversionService(TestDays.dayGroups());
+	}
+
 
 }

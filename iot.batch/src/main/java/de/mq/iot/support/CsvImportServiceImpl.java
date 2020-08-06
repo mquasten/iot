@@ -58,7 +58,7 @@ public class CsvImportServiceImpl {
 		this.conversionService = conversionService;
 		consumers.put(CsvType.Synonym, synonym -> synonymService.save((Synonym) synonym));
 		
-		consumers.put(CsvType.Specialday, specialday -> specialdayService.save((Specialday)specialday));
+		consumers.put(CsvType.GaussDay, specialday -> specialdayService.save((Specialday)specialday));
 		
 		consumers.put(CsvType.User, user -> authenticationRepository.save((Authentication) user).block(Duration.ofMillis(timeout)));
 		

@@ -129,7 +129,7 @@ public class CsvImportServiceTest {
 				String.format("%s;Fix;0;%s;%s;;\r\n%s;Gauss;%s;;;;", firstId, dayOfMonth, month, secondId, offset)));
 		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
 		
-		csvImportService.importCsv(CsvType.Specialday.name(), "egal");
+		csvImportService.importCsv(CsvType.GaussDay.name(), "egal");
 		final ArgumentCaptor<Specialday> specialdaysCaptor = ArgumentCaptor.forClass(Specialday.class);
 		
 		Mockito.verify(specialdayService, Mockito.times(2)).save(specialdaysCaptor.capture());

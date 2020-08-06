@@ -15,7 +15,7 @@ import org.springframework.util.ClassUtils;
 enum CsvType {
 	Synonym("de.mq.iot.synonym.support.SynonymImpl"), 
 	User("de.mq.iot.authentication.support.UserAuthenticationImpl", "authorities"), 
-	Specialday("de.mq.iot.calendar.support.GaussDayImpl", "dayGroup"),
+	GaussDay("de.mq.iot.calendar.support.GaussDayImpl", "dayGroup"),
 	ResourceIdentifier("de.mq.iot.resource.support.ResourceIdentifierImpl", "parameters"),
 	RulesDefinition("de.mq.iot.rule.support.RulesDefinitionImpl", "inputData", "optionalRules");
 
