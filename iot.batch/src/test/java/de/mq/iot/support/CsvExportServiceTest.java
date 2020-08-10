@@ -55,6 +55,12 @@ import reactor.core.publisher.Flux;
 
 class CsvExportServiceTest {
 
+	private static final String FILE_NAME = "export.csv";
+
+	private static final String DAY_OF_MONTH_FIELD = "dayOfMonth";
+
+	private static final String MONTH_FIELD = "month";
+
 	private static final String DAY_GROUP_FIELD = "dayGroup";
 
 	private static final String OFFSET_FIELD = "offset";
@@ -88,7 +94,7 @@ class CsvExportServiceTest {
 	void synonyms() {
 		final Synonym synonym = TestSynonym.synonym();
 		Mockito.when(synonymService.deviveSynonyms()).thenReturn(Arrays.asList(synonym));
-		csvService.export("Synonym", "export.csv");
+		csvService.export("Synonym", FILE_NAME);
 
 		final List<List<String>> results = lines();
 		assertEquals(2, results.size());
@@ -112,7 +118,7 @@ class CsvExportServiceTest {
 	void authentication() {
 		final Authentication authentication = TestAuthentication.authentication();
 		Mockito.when(authentificationService.authentifications()).thenReturn(Arrays.asList(authentication));
-		csvService.export("User", "export.csv");
+		csvService.export("User", FILE_NAME);
 		final List<List<String>> results = lines();
 
 		assertEquals(3, results.get(0).size());
@@ -140,7 +146,7 @@ class CsvExportServiceTest {
 
 		Mockito.doThrow(RuntimeException.class).when(supplier).apply(Mockito.any());
 
-		assertThrows(IllegalStateException.class, () -> csvService.export("Synonym", "export.csv"));
+		assertThrows(IllegalStateException.class, () -> csvService.export("Synonym", FILE_NAME));
 	}
 
 	@Test
@@ -150,7 +156,7 @@ class CsvExportServiceTest {
 
 		Mockito.doThrow(IOException.class).when(writer).append(Mockito.anyChar());
 
-		assertThrows(IllegalStateException.class, () -> csvService.export("Synonym", "export.csv"));
+		assertThrows(IllegalStateException.class, () -> csvService.export("Synonym", FILE_NAME));
 	}
 
 	@Test
@@ -181,7 +187,7 @@ class CsvExportServiceTest {
 	void gaussDays() {
 		final Day<LocalDate> specialday = TestDays.gaussDay();
 		Mockito.when(specialdayService.days()).thenReturn(Arrays.asList(specialday));
-		csvService.export("GaussDay", "export.csv");
+		csvService.export(CsvType.GaussDay.name(), FILE_NAME);
 		final List<List<String>> results = lines();
 
 		assertEquals(3, results.get(0).size());
@@ -197,6 +203,30 @@ class CsvExportServiceTest {
 		assertEquals("" +ReflectionTestUtils.getField(specialday, OFFSET_FIELD), map.get(OFFSET_FIELD));
 		assertEquals(specialday.dayGroup().name(), map.get(DAY_GROUP_FIELD));
 	
+	}
+	
+	
+	@Test
+	void fixedDays() {
+		final Day<LocalDate> specialday = TestDays.fixedDay();
+		Mockito.when(specialdayService.days()).thenReturn(Arrays.asList(specialday));
+		csvService.export(CsvType.FixedDay.name(), FILE_NAME);
+		final List<List<String>> results = lines();
+		
+		assertEquals(4, results.get(0).size());
+		assertEquals(4, results.get(1).size());
+		
+		final Map<String, String> map = new HashMap<>();
+		IntStream.range(0, 4).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
+		
+		CsvType.FixedDay.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
+		
+		assertEquals(ReflectionTestUtils.getField(specialday, ID_FIELD), map.get(ID_FIELD));
+		
+		assertEquals("" +ReflectionTestUtils.getField(specialday, MONTH_FIELD), map.get(MONTH_FIELD));
+		
+		assertEquals("" +ReflectionTestUtils.getField(specialday, DAY_OF_MONTH_FIELD), map.get(DAY_OF_MONTH_FIELD));
+		assertEquals(specialday.dayGroup().name(), map.get(DAY_GROUP_FIELD));
 	}
 
 	@Test
@@ -241,7 +271,7 @@ class CsvExportServiceTest {
 	void resourceIdentifier() {
 		final ResourceIdentifier resourceIdentifier = TestResourceIdentifier.resourceIdentifier();
 		Mockito.when(resourceIdentifierRepository.findAll()).thenReturn(Flux.just(resourceIdentifier));
-		csvService.export("ResourceIdentifier", "export.csv");
+		csvService.export("ResourceIdentifier", FILE_NAME);
 
 		final List<List<String>> results = lines();
 		assertEquals(3, results.get(0).size());
@@ -261,7 +291,7 @@ class CsvExportServiceTest {
 		final RulesDefinition rulesDefinition = TestRulesDefinition.rulesDefinition();
 		Mockito.when(rulesDefinitionRepository.findAll()).thenReturn(Flux.just(rulesDefinition));
 
-		csvService.export("RulesDefinition", "export.csv");
+		csvService.export("RulesDefinition", FILE_NAME);
 
 		final List<List<String>> results = lines();
 		assertEquals(2, results.size());

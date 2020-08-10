@@ -1,6 +1,7 @@
 package de.mq.iot.calendar.support;
 
 import java.time.LocalDate;
+import java.time.MonthDay;
 import java.util.Collection;
 
 import de.mq.iot.calendar.Day;
@@ -11,6 +12,11 @@ public interface TestDays {
 	
 	public static Day<LocalDate> gaussDay() {
 		return new GaussDayImpl(new DayGroupImpl(DayGroup.NON_WORKINGDAY_GROUP_NAME,2),  -2);
+		
+	}
+	
+	public static Day<LocalDate> fixedDay() {
+		return new FixedDayImpl(new DayGroupImpl(DayGroup.NON_WORKINGDAY_GROUP_NAME,2),  MonthDay.of(5, 28));
 		
 	}
 	
