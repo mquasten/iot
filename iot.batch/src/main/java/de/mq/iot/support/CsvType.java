@@ -17,6 +17,8 @@ enum CsvType {
 	User("de.mq.iot.authentication.support.UserAuthenticationImpl", "authorities"), 
 	GaussDay("de.mq.iot.calendar.support.GaussDayImpl", "dayGroup"),
 	FixedDay("de.mq.iot.calendar.support.FixedDayImpl", "dayGroup"),
+	DayOfWeek("de.mq.iot.calendar.support.DayOfWeekImpl", "dayGroup"),
+	LocalDateDay("de.mq.iot.calendar.support.LocalDateDayImpl", "dayGroup"),
 	ResourceIdentifier("de.mq.iot.resource.support.ResourceIdentifierImpl", "parameters"),
 	RulesDefinition("de.mq.iot.rule.support.RulesDefinitionImpl", "inputData", "optionalRules");
 

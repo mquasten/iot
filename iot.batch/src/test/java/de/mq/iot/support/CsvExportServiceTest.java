@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -54,6 +55,10 @@ import de.mq.iot.synonym.support.TestSynonym;
 import reactor.core.publisher.Flux;
 
 class CsvExportServiceTest {
+
+	private static final String YEAR_FIELD = "year";
+
+	private static final String DAY_OF_WEEK_FIELD = "dayOfWeek";
 
 	private static final String FILE_NAME = "export.csv";
 
@@ -226,6 +231,52 @@ class CsvExportServiceTest {
 		assertEquals("" +ReflectionTestUtils.getField(specialday, MONTH_FIELD), map.get(MONTH_FIELD));
 		
 		assertEquals("" +ReflectionTestUtils.getField(specialday, DAY_OF_MONTH_FIELD), map.get(DAY_OF_MONTH_FIELD));
+		assertEquals(specialday.dayGroup().name(), map.get(DAY_GROUP_FIELD));
+	}
+	
+	@Test
+	void dayOfWeek() {
+		final Day<DayOfWeek> specialday = TestDays.dayOfWeek();
+		Mockito.when(specialdayService.days()).thenReturn(Arrays.asList(specialday));
+		csvService.export(CsvType.DayOfWeek.name(), FILE_NAME);
+		final List<List<String>> results = lines();
+		
+		assertEquals(3, results.get(0).size());
+		assertEquals(3, results.get(1).size());
+		
+		final Map<String, String> map = new HashMap<>();
+		IntStream.range(0, 3).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
+		
+		CsvType.DayOfWeek.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
+		
+		assertEquals(ReflectionTestUtils.getField(specialday, ID_FIELD), map.get(ID_FIELD));
+		
+		
+		
+		assertEquals("" +ReflectionTestUtils.getField(specialday, DAY_OF_WEEK_FIELD), map.get(DAY_OF_WEEK_FIELD));
+		assertEquals(specialday.dayGroup().name(), map.get(DAY_GROUP_FIELD));
+	}
+	
+	@Test
+	void localDateDay() {
+		final Day<LocalDate> specialday = TestDays.localDateDay();
+		Mockito.when(specialdayService.days()).thenReturn(Arrays.asList(specialday));
+		csvService.export(CsvType.LocalDateDay.name(), FILE_NAME);
+		final List<List<String>> results = lines();
+		
+		assertEquals(5, results.get(0).size());
+		assertEquals(5, results.get(1).size());
+		
+		final Map<String, String> map = new HashMap<>();
+		IntStream.range(0, 5).forEach(i -> map.put(results.get(0).get(i).trim(), results.get(1).get(i).trim()));
+		
+		CsvType.LocalDateDay.fields().stream().map(Field::getName).forEach(field -> assertTrue(map.containsKey(field)));
+		
+		assertEquals(ReflectionTestUtils.getField(specialday, ID_FIELD), map.get(ID_FIELD));
+		
+		assertEquals("" +ReflectionTestUtils.getField(specialday, MONTH_FIELD), map.get(MONTH_FIELD));
+		assertEquals("" +ReflectionTestUtils.getField(specialday, DAY_OF_MONTH_FIELD), map.get(DAY_OF_MONTH_FIELD));
+		assertEquals("" +ReflectionTestUtils.getField(specialday, YEAR_FIELD), map.get(YEAR_FIELD));
 		assertEquals(specialday.dayGroup().name(), map.get(DAY_GROUP_FIELD));
 	}
 
