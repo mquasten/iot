@@ -5,16 +5,20 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rules;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.calendar.support.DayService;
@@ -29,7 +33,10 @@ class RuleConfiguration {
 	private final static String DNS = "8.8.8.8"; 
 	
 	@Bean
-	ConversionService conversionService(final Collection<DayGroup> dayGroups) {
+	ConversionService conversionService(@Qualifier(value="dayGroups")  final Collection<DayGroup> dayGroups) {
+		
+	final Map<String, DayGroup> groups = dayGroups.stream().collect(Collectors.toMap(group  -> group.name(), group -> group));	
+	
 	DefaultConversionService conversionService= new DefaultConversionService();
 			conversionService.addConverter(String.class, LocalTime.class, stringValue -> {
 				String[] values = TimeValidatorImpl.splitTimeString(stringValue);
@@ -40,6 +47,13 @@ class RuleConfiguration {
 			});
 			
 			conversionService.addConverter(DayGroup.class, String.class, dayGroup ->  dayGroup.name());
+			
+			conversionService.addConverter(String.class, DayGroup.class, key -> {
+				Assert.isTrue(groups.containsKey(key), String.format("Daygroup %s doesn't exist.", key));
+				return groups.get(key);
+			});
+			
+			
 		return conversionService;
 	}
 	

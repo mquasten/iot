@@ -26,15 +26,15 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
-
+import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.support.AuthenticationRepository;
-import de.mq.iot.calendar.Specialday;
-import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.calendar.Day;
+import de.mq.iot.calendar.support.DayService;
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
 import de.mq.iot.rule.RulesDefinition;
@@ -44,7 +44,7 @@ import de.mq.iot.state.Commands;
 import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.SynonymService;
 
-//@Service
+@Service
 public class CsvImportServiceImpl {
 	
 	private final Function<String, BufferedReader> supplier = name -> newReader(Paths.get(name));
@@ -54,17 +54,18 @@ public class CsvImportServiceImpl {
 	
 	private final Map<CsvType,Consumer<Object>> consumers = new HashMap<>();
 	
-	CsvImportServiceImpl(final ConversionService conversionService, final SynonymService synonymService,final SpecialdayService specialdayService, final AuthenticationRepository authenticationRepository, final ResourceIdentifierRepository resourceIdentifierRepository, final RulesDefinitionRepository rulesDefinitionRepository, @Value("${mongo.timeout:500}") final Integer timeout) {
+	CsvImportServiceImpl(final ConversionService conversionService, final SynonymService synonymService,final DayService specialdayService, final AuthenticationRepository authenticationRepository, final ResourceIdentifierRepository resourceIdentifierRepository, final RulesDefinitionRepository rulesDefinitionRepository, @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.conversionService = conversionService;
 		consumers.put(CsvType.Synonym, synonym -> synonymService.save((Synonym) synonym));
 		
-		consumers.put(CsvType.GaussDay, specialday -> specialdayService.save((Specialday)specialday));
+		consumers.put(CsvType.GaussDay, specialday -> specialdayService.save((Day<?>)specialday));
 		
 		consumers.put(CsvType.User, user -> authenticationRepository.save((Authentication) user).block(Duration.ofMillis(timeout)));
 		
 		consumers.put(CsvType.ResourceIdentifier, resourceIdentifier -> resourceIdentifierRepository.save((ResourceIdentifier) resourceIdentifier).block(Duration.ofMillis(timeout)) );
 		
 		consumers.put(CsvType.RulesDefinition, rulesDefinition -> rulesDefinitionRepository.save((RulesDefinition)rulesDefinition).block(Duration.ofMillis(timeout)));
+		
 		
 	}
 
