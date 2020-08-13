@@ -2,7 +2,6 @@ package de.mq.iot.support;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,8 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
+import java.time.DayOfWeek;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.Year;
 import java.util.Arrays;
 import java.util.Map;
@@ -38,8 +37,7 @@ import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
 import de.mq.iot.authentication.support.AuthenticationRepository;
 import de.mq.iot.calendar.Day;
-import de.mq.iot.calendar.Specialday;
-import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.calendar.support.DayService;
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
@@ -55,11 +53,22 @@ import reactor.core.publisher.Mono;
 
 public class CsvImportServiceTest {
 	
+	private static final String YEAR_FIELD = "year";
+
+	private static final String DAY_OF_WEEK_FIELD = "dayOfWeek";
+
+	private static final String DAY_OF_MONTH_FIELD = "dayOfMonth";
+
+	private static final String MONTH_FIELD = "month";
+
+	private static final String OFFSET_FIELD = "offset";
+
+	private static final int PRIORITY = 2;
+
 	private static final String FILENAME = "filename";
 
 	private static final int TIMEOUT = 500;
 
-	private static final LocalDate EASTER_2019 = LocalDate.of(2019, 4, 19);
 
 	private final SynonymService synonymService = Mockito.mock(SynonymService.class);
 	
@@ -70,7 +79,7 @@ public class CsvImportServiceTest {
 	private final RulesDefinitionRepository rulesDefinitionRepository = Mockito.mock(RulesDefinitionRepository.class);
 	
 	private final ResourceIdentifierRepository resourceIdentifierRepository = Mockito.mock(ResourceIdentifierRepository.class);
-	private final CsvImportServiceImpl csvImportService = new CsvImportServiceImpl(new DefaultConversionService(), synonymService, specialdayService,authenticationRepository, resourceIdentifierRepository, rulesDefinitionRepository,TIMEOUT);
+	private final CsvImportServiceImpl csvImportService = new CsvImportServiceImpl(TestRulesDefinition.conversionService(), synonymService, specialdayService,authenticationRepository, resourceIdentifierRepository, rulesDefinitionRepository,TIMEOUT);
 	
 	private final String firstKey = "HMW-LC-Bl1-DR OEQ2305342:3";
 	
@@ -82,9 +91,12 @@ public class CsvImportServiceTest {
 	
 	
 	private final String firstId="00000000-0001-13f5-0000-000000000041";
-	private final String dayOfMonth="25";
-	private final String month="12";
-	private final String offset="-2";
+	private final Integer dayOfMonth1=25;
+	private final Integer dayOfMonth2=25;
+	private final Integer month=12;
+	private final Integer year= Year.now().getValue();
+	private final Integer offset1=-2;
+	private final Integer offset2=-0;
 	private final String secondId="00000000-0416-625b-ffff-fffffffffffe";
 	
 	private final String user="mquasten";
@@ -126,33 +138,122 @@ public class CsvImportServiceTest {
 	}
 	
 	@Test
-	final void specialDays() {
-		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("id;type;offset;dayOfMonth;month;year;dayOfWeek\r\n" + 
-				String.format("%s;Fix;0;%s;%s;;\r\n%s;Gauss;%s;;;;", firstId, dayOfMonth, month, secondId, offset)));
+	final void gauss() {
+		
+		
+		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("offset;id;dayGroup\r\n" + 
+				String.format("%s;%s;%s\r\n%s;%s;%s", offset1, firstId, DayGroup.WORKINGDAY_GROUP_NAME, offset2, secondId, DayGroup.WORKINGDAY_GROUP_NAME)));
 		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
 		
 		csvImportService.importCsv(CsvType.GaussDay.name(), "egal");
-		final ArgumentCaptor<Day<?>> specialdaysCaptor = ArgumentCaptor.forClass(Day.class);
+		final ArgumentCaptor<Day<?>> daysCaptor = ArgumentCaptor.forClass(Day.class);
 		
-		Mockito.verify(specialdayService, Mockito.times(2)).save(specialdaysCaptor.capture());
-		assertEquals(2, specialdaysCaptor.getAllValues().size());
+		Mockito.verify(specialdayService, Mockito.times(2)).save(daysCaptor.capture());
+		assertEquals(2, daysCaptor.getAllValues().size());
 		
-		final Day<?> fixHoliday =  specialdaysCaptor.getAllValues().get(0);
-	//	assertFalse(fixHoliday.isVacation());
+		final Day<?> easterFriday = daysCaptor.getAllValues().get(0);
+	
+		assertEquals(firstId, easterFriday.id());
+		assertEquals(offset1, ReflectionTestUtils.getField(easterFriday, OFFSET_FIELD));
+		assertEquals( DayGroup.WORKINGDAY_GROUP_NAME, easterFriday.dayGroup().name());
+		assertEquals(PRIORITY, easterFriday.dayGroup().priority());
 		
-		//final LocalDate fixDate= fixHoliday.date(Year.now().getValue());
-		//assertEquals(Integer.valueOf(dayOfMonth).intValue(), fixDate.getDayOfMonth());
-		//assertEquals(Integer.valueOf(month).intValue(), fixDate.getMonthValue());
-		assertEquals(firstId, ReflectionTestUtils.getField(fixHoliday, "id"));
+		final Day<?> easterSunday =  daysCaptor.getAllValues().get(1);
 		
-		final Day<?> offsetEasterHoliday =  specialdaysCaptor.getAllValues().get(1);
+		assertEquals(secondId, easterSunday.id());
+		assertEquals(offset2, ReflectionTestUtils.getField(easterSunday, OFFSET_FIELD));
+		assertEquals( DayGroup.WORKINGDAY_GROUP_NAME, easterSunday.dayGroup().name());
+		assertEquals(PRIORITY, easterSunday.dayGroup().priority());
 		
-		//assertFalse(offsetEasterHoliday.isVacation());
+	}
+	@Test
+	final void fixed() {
 		
-		//final LocalDate fixDateOffsetEaster= offsetEasterHoliday.date(EASTER_2019.getYear());
+		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("month;dayOfMonth;id;dayGroup\r\n" + 
+				String.format("%s;%s;%s;%s\r\n%s;%s;%s;%s", month, dayOfMonth1, firstId, DayGroup.WORKINGDAY_GROUP_NAME, month,  dayOfMonth2, secondId, DayGroup.WORKINGDAY_GROUP_NAME)));
+		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
 		
-		//assertEquals(EASTER_2019, fixDateOffsetEaster);
+		csvImportService.importCsv(CsvType.FixedDay.name(), "egal");
+		final ArgumentCaptor<Day<?>> daysCaptor = ArgumentCaptor.forClass(Day.class);
 		
+		Mockito.verify(specialdayService, Mockito.times(2)).save(daysCaptor.capture());
+		assertEquals(2, daysCaptor.getAllValues().size());
+		
+		final Day<?> day1 = daysCaptor.getAllValues().get(0);
+	
+		assertEquals(firstId, day1.id());
+		assertEquals(month, ReflectionTestUtils.getField(day1, MONTH_FIELD));
+		assertEquals(dayOfMonth1, ReflectionTestUtils.getField(day1, DAY_OF_MONTH_FIELD));
+		assertEquals( DayGroup.WORKINGDAY_GROUP_NAME, day1.dayGroup().name());
+		assertEquals(PRIORITY, day1.dayGroup().priority());
+		
+		final Day<?> day2 =  daysCaptor.getAllValues().get(1);
+		
+		assertEquals(secondId, day2.id());
+		assertEquals(month, ReflectionTestUtils.getField(day2, MONTH_FIELD));
+		assertEquals(dayOfMonth2, ReflectionTestUtils.getField(day1, DAY_OF_MONTH_FIELD));
+		assertEquals( DayGroup.WORKINGDAY_GROUP_NAME, day2.dayGroup().name());
+		assertEquals(PRIORITY, day2.dayGroup().priority());
+	}
+	
+	@Test
+	final void dayOfweek() {
+		
+		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("dayOfWeek;id;dayGroup\r\n" + 
+				String.format("%s;%s;%s\r\n%s;%s;%s", DayOfWeek.SATURDAY.ordinal(), firstId, DayGroup.WORKINGDAY_GROUP_NAME, DayOfWeek.SATURDAY.ordinal(), secondId, DayGroup.WORKINGDAY_GROUP_NAME)));
+		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
+		
+		csvImportService.importCsv(CsvType.DayOfWeek.name(), "egal");
+		final ArgumentCaptor<Day<?>> daysCaptor = ArgumentCaptor.forClass(Day.class);
+		
+		Mockito.verify(specialdayService, Mockito.times(2)).save(daysCaptor.capture());
+		assertEquals(2, daysCaptor.getAllValues().size());
+		
+		final Day<?> day1 = daysCaptor.getAllValues().get(0);
+	
+		assertEquals(firstId, day1.id());
+		assertEquals(DayOfWeek.SATURDAY.ordinal(), ReflectionTestUtils.getField(day1, DAY_OF_WEEK_FIELD));
+		assertEquals( DayGroup.WORKINGDAY_GROUP_NAME, day1.dayGroup().name());
+		assertEquals(PRIORITY, day1.dayGroup().priority());
+		
+		final Day<?> day2 =  daysCaptor.getAllValues().get(1);
+		
+		assertEquals(secondId, day2.id());
+		assertEquals(DayOfWeek.SATURDAY.ordinal(), ReflectionTestUtils.getField(day2, DAY_OF_WEEK_FIELD));
+		assertEquals( DayGroup.WORKINGDAY_GROUP_NAME, day2.dayGroup().name());
+		assertEquals(PRIORITY, day2.dayGroup().priority());
+	}
+	
+	@Test
+	final void localDateDay() {
+	
+		final Function<String, BufferedReader> supplier = name -> new BufferedReader(new StringReader("dayOfMonth;month;year;id;dayGroup\r\n" + 
+				String.format("%s;%s;%s;%s;%s\r\n%s;%s;%s;%s;%s", dayOfMonth1, month, year, firstId, DayGroup.WORKINGDAY_GROUP_NAME, dayOfMonth2,month, year, secondId, DayGroup.WORKINGDAY_GROUP_NAME)));
+		ReflectionTestUtils.setField(csvImportService, "supplier",  supplier);
+		
+		csvImportService.importCsv(CsvType.LocalDateDay.name(), "egal");
+		final ArgumentCaptor<Day<?>> daysCaptor = ArgumentCaptor.forClass(Day.class);
+		
+		Mockito.verify(specialdayService, Mockito.times(2)).save(daysCaptor.capture());
+		assertEquals(2, daysCaptor.getAllValues().size());
+		
+		final Day<?> day1 = daysCaptor.getAllValues().get(0);
+	
+		assertEquals(firstId, day1.id());
+		assertEquals(month, ReflectionTestUtils.getField(day1, MONTH_FIELD));
+		assertEquals(year, ReflectionTestUtils.getField(day1, YEAR_FIELD));
+		assertEquals(dayOfMonth1, ReflectionTestUtils.getField(day1, DAY_OF_MONTH_FIELD));
+		assertEquals( DayGroup.WORKINGDAY_GROUP_NAME, day1.dayGroup().name());
+		assertEquals(PRIORITY, day1.dayGroup().priority());
+		
+		final Day<?> day2 =  daysCaptor.getAllValues().get(1);
+		
+		assertEquals(secondId, day2.id());
+		assertEquals(month, ReflectionTestUtils.getField(day2, MONTH_FIELD));
+		assertEquals(dayOfMonth2, ReflectionTestUtils.getField(day1, DAY_OF_MONTH_FIELD));
+		assertEquals(year, ReflectionTestUtils.getField(day1, YEAR_FIELD));
+		assertEquals( DayGroup.WORKINGDAY_GROUP_NAME, day2.dayGroup().name());
+		assertEquals(PRIORITY, day2.dayGroup().priority());
 	}
 	
 	

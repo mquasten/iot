@@ -39,8 +39,8 @@ import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
 import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.rule.support.RulesDefinitionRepository;
-import de.mq.iot.state.Command;
 import de.mq.iot.state.Commands;
+import de.mq.iot.state.Command;
 import de.mq.iot.synonym.Synonym;
 import de.mq.iot.synonym.SynonymService;
 
@@ -59,6 +59,9 @@ public class CsvImportServiceImpl {
 		consumers.put(CsvType.Synonym, synonym -> synonymService.save((Synonym) synonym));
 		
 		consumers.put(CsvType.GaussDay, specialday -> specialdayService.save((Day<?>)specialday));
+		consumers.put(CsvType.FixedDay, specialday -> specialdayService.save((Day<?>)specialday));
+		consumers.put(CsvType.DayOfWeek, specialday -> specialdayService.save((Day<?>)specialday));
+		consumers.put(CsvType.LocalDateDay, specialday -> specialdayService.save((Day<?>)specialday));
 		
 		consumers.put(CsvType.User, user -> authenticationRepository.save((Authentication) user).block(Duration.ofMillis(timeout)));
 		
