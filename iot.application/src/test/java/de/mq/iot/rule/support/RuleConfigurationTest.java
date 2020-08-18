@@ -1,6 +1,7 @@
 package de.mq.iot.rule.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -8,9 +9,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
 import java.util.stream.Collectors;
 
 import org.jeasy.rules.api.Facts;
@@ -20,11 +21,14 @@ import org.mockito.Mockito;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.MapBindingResult;
 import org.springframework.validation.Validator;
 
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.calendar.support.DayService;
+import de.mq.iot.calendar.support.TestDays;
 import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.state.StateService;
@@ -38,13 +42,21 @@ class RuleConfigurationTest {
 
 	@Test
 	void conversionService() {
-		final ConversionService conversionService = ruleConfiguration.conversionService(Collections.emptyList());
+		
+		final ConversionService conversionService = ruleConfiguration.conversionService(TestDays.dayGroups());
 		final LocalTime result = conversionService.convert(String.format("%s:%s", HOUR, MINUTES), LocalTime.class);
 
 		assertEquals(HOUR, result.getHour());
 		assertEquals(MINUTES, result.getMinute());
 
 		assertNull(conversionService.convert(String.format("%s", HOUR), LocalTime.class));
+		
+		assertEquals(DayGroup.NON_WORKINGDAY_GROUP_NAME, conversionService.convert(DayGroup.NON_WORKINGDAY_GROUP_NAME, DayGroup.class).name());
+		assertFalse(CollectionUtils.isEmpty(TestDays.dayGroups()));
+		TestDays.dayGroups().forEach(dayGroup -> assertEquals(dayGroup.name(), conversionService.convert(dayGroup, String.class)));
+		
+		
+		
 	}
 
 	@Test
