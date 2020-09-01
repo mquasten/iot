@@ -99,4 +99,11 @@ class DayRepositoryIntegrationTest {
 	void days() {
 		assertTrue(dayService.days().size()>0);
 	}
+	@Test
+	@Disabled
+	void createSpecialDay() {
+		Day<?> day = new LocalDateDayImpl(dayGroup, LocalDate.of(2020, 5, 28));
+		
+		dayService.save(day);
+	}
 }
