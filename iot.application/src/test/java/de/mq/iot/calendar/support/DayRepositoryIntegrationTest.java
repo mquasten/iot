@@ -102,8 +102,15 @@ class DayRepositoryIntegrationTest {
 	@Test
 	@Disabled
 	void createSpecialDay() {
-		Day<?> day = new LocalDateDayImpl(dayGroup, LocalDate.of(2020, 5, 28));
+		final Day<?> vacation = new LocalDateDayImpl(dayGroup, LocalDate.of(2020, 5, 29));
 		
-		dayService.save(day);
+		dayService.save(vacation);
+		
+		
+		final Day<?> specialWorkingDate = new LocalDateDayImpl(new DayGroupImpl(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, 2), LocalDate.of(2020, 5, 28));
+		dayService.save(specialWorkingDate);
+		
+		final Day<?> specialWorkingDay = new DayOfWeekImpl(new DayGroupImpl(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, 2), DayOfWeek.FRIDAY);
+		dayService.save(specialWorkingDay);
 	}
 }

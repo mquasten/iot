@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.springframework.context.MessageSource;
 
@@ -25,7 +26,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
-import de.mq.iot.calendar.Specialday;
+import de.mq.iot.calendar.Day;
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.support.CalendarModel.Events;
 import de.mq.iot.calendar.support.CalendarModel.Filter;
@@ -72,7 +74,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	
 	private ComboBox<Filter> filtersComboBox =  new ComboBox<Filter>();
 	
-	private final Grid<Specialday> grid = new Grid<>();
+	private final Grid<Day<?>> grid = new Grid<>();
 
 	private final FormLayout formLayout = new FormLayout();
 
@@ -82,20 +84,20 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	
 	private Map<ValidationErrors, String> validationErrors = new HashMap<>();
 
-	CalendarView(final CalendarModel calendarModel, final SpecialdayService specialdayService, final MessageSource messageSource, final ButtonBox buttonBox) {
+	CalendarView(final CalendarModel calendarModel, final DayService dayService, final SpecialdayService specialdayService,  final MessageSource messageSource, final ButtonBox buttonBox) {
 
 		this.messageSource = messageSource;
 
 		this.calendarModel = calendarModel;
 
-		createUI(specialdayService, buttonBox);
+		createUI(dayService,specialdayService, buttonBox);
 
 		calendarModel.notifyObservers(CalendarModel.Events.ChangeLocale);
 		
 
 	}
 
-	private void createUI(final SpecialdayService specialdayService, final ButtonBox buttonBox) {
+	private void createUI(final DayService dayService, final SpecialdayService specialdayService, final ButtonBox buttonBox) {
 
 		dayOfWeekComboBox.setVisible(false);
 		dayOfWeekLabel.setVisible(false);
@@ -218,7 +220,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		});
 		
 		calendarModel.register(CalendarModel.Events.DatesChanged, () -> {
-			grid.setItems(readDates(specialdayService));
+			grid.setItems(readDates(dayService));
 			setEditorFieldsVisible(calendarModel.isDayOfWeek());
 			
 		});
@@ -233,10 +235,10 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		});
 		
 		
-		deleteButton.addClickListener(event -> process(specialday -> specialdayService.delete(specialday), specialdayService));
+		deleteButton.addClickListener(event -> process(specialday -> dayService.delete(specialday), dayService));
 		
 		
-		saveButton.addClickListener(event -> process(specialday -> specialdayService.save(specialday), specialdayService)); 
+		saveButton.addClickListener(event -> process(specialday -> dayService.save(specialday), dayService)); 
 		calendarModel.assign(CalendarModel.Filter.Vacation);
 			
 	}
@@ -255,9 +257,11 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		stateInfoLabel.setVisible(calendarModel.isChangeCalendarAllowed());
 	}
 
-	private void process(final Consumer<Specialday> consumer, final SpecialdayService specialdayService) {
+	private void process(final Consumer<Day<?>> consumer, final DayService dayService) {
 		
 		final ValidationErrors error = calendarModel.vaidate(60);
+		
+	
 		
 		if ( error != ValidationErrors.Ok ) {
 			toTextField.setErrorMessage(validationErrors.get(error));
@@ -271,7 +275,9 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		if(calendarModel.isDayOfWeek()) {
 			consumer.accept(calendarModel.dayOfWeek());
 		} else {
-			specialdayService.vacationOrSpecialWorkingDates(calendarModel.from(),  calendarModel.to(), calendarModel.isSpecialWorkingDate()).forEach(day -> consumer.accept(day));
+			
+			dayService.newLocalDateDay(calendarModel.dayGroup(DayGroup.NON_WORKINGDAY_GROUP_NAME), calendarModel.from(), calendarModel.to()).forEach(day -> consumer.accept(day));
+			//specialdayService.vacationOrSpecialWorkingDates(calendarModel.from(),  calendarModel.to(), calendarModel.isSpecialWorkingDate()).forEach(day -> consumer.accept(day));
 		}
 		
 	
@@ -298,18 +304,18 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		calendarModel.assignTo(null);
 	}
 
-	private Collection<Specialday> readDates(final SpecialdayService specialdayService) {
-	
-		return specialdayService.specialdays(calendarModel.filter());
+	private Collection<Day<?>> readDates(final DayService dayService) {
+		
+		return dayService.days().stream().filter(calendarModel.filter()).collect(Collectors.toList());
 		
 	}
 	
-	ValueProvider<Specialday, String> dateValueProvider() {
-		return specialday -> calendarModel.convert(specialday, Year.now());
+	ValueProvider<Day<?>, String> dateValueProvider() {
+		return day -> calendarModel.convert(day, Year.now());
 	}
 	
-	ValueProvider<Specialday, String> typeValueProvider() {
-		return specialday -> specialday.type().name();
+	ValueProvider<Day<?>, String> typeValueProvider() {
+		return day -> day.getClass().getSimpleName();
 	}
 
 	

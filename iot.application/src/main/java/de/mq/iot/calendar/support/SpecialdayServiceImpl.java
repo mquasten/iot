@@ -19,7 +19,7 @@ import java.util.stream.LongStream;
 import org.jeasy.rules.api.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
+import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -28,7 +28,7 @@ import de.mq.iot.calendar.Specialday.Type;
 import de.mq.iot.calendar.SpecialdayService;
 
 
-//@Service
+@Service
 class SpecialdayServiceImpl implements SpecialdayService {
 	
 	static final String VACATION_OR_PUBLIC_HOLIDAY_INFO = "Vacation or public holiday";
@@ -40,7 +40,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 
 	
 	@Autowired
-	SpecialdayServiceImpl(final SpecialdayRepository specialdaysRepository, final Collection<Rule> rules,  @Value("${mongo.timeout:500}") final Integer timeout) {
+	SpecialdayServiceImpl(final SpecialdayRepository specialdaysRepository,  @Value("${mongo.timeout:500}") final Integer timeout) {
 		this.specialdaysRepository=specialdaysRepository;
 		this.duration=Duration.ofMillis(timeout);
 		this.rules.addAll(rules);
@@ -49,13 +49,13 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	/* (non-Javadoc)
 	 * @see de.mq.iot.calendar.support.SpecialdaysService#save(de.mq.iot.calendar.Specialday)
 	 */
-	@Override
+	//@Override
 	public final void save(final Specialday specialday) {
 		specialdaysRepository.save(specialday).block(duration);
 	}
 	
 	
-	@Override
+	//@Override
 	public final void delete(final Specialday specialday) {
 		specialdaysRepository.delete(specialday).block(duration);
 	}
@@ -63,7 +63,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	/* (non-Javadoc)
 	 * @see de.mq.iot.calendar.support.SpecialdaysService#specialdays(java.time.Year)
 	 */
-	@Override
+	//@Override
 	public final Collection<Specialday> specialdays(final Year year) {
 		final Collection<Specialday> results = new ArrayList<>();
 		results.addAll(specialdaysRepository.findByTypeIn(Arrays.asList(Type.Fix, Type.Gauss)).collectList().block(duration));	
@@ -74,7 +74,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	
 	
 	
-	@Override
+	//@Override
 	public Collection<Specialday> specialdays(final Collection<Type> types){
 		
 		if( CollectionUtils.isEmpty(types)) {
@@ -109,7 +109,7 @@ class SpecialdayServiceImpl implements SpecialdayService {
 	 * (non-Javadoc)
 	 * @see de.mq.iot.calendar.SpecialdayService#vacation(java.time.LocalDate, java.time.LocalDate)
 	 */
-	@Override
+	//@Override
 	public final Collection<Specialday>vacationOrSpecialWorkingDates(final LocalDate begin, final LocalDate end, final boolean specialWorkingDate) {
 		Assert.isTrue(!begin.isAfter(end), "Begin should be before or equals end.");
 		final Collection<LocalDate> publicHolidays = new HashSet<>();
@@ -143,12 +143,12 @@ class SpecialdayServiceImpl implements SpecialdayService {
 		return true;
 	}
 
-	@Override
+	//@Override
 	public Collection<Specialday> specialdays() {
 		return specialdaysRepository.findByTypeIn(Arrays.asList(Type.values())).collectList().block(duration);
 	}
 	
-	@Override
+	//@Override
 	public Collection<Specialday> vacationsOrSpecialWorkingDatesBeforeEquals(final LocalDate date) {
 	 return specialdaysRepository.findByTypeIn(Arrays.asList(Type.Vacation, Type.SpecialWorkingDate)).collectList().block(duration).stream().filter(sd -> ! sd.date(1).isAfter(date)).collect(Collectors.toList());
 		

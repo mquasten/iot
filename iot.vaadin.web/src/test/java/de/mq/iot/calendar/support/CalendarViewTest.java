@@ -36,6 +36,8 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
 
+import de.mq.iot.calendar.Day;
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.Specialday.Type;
 import de.mq.iot.calendar.SpecialdayService;
@@ -66,6 +68,7 @@ class CalendarViewTest {
 	private final CalendarModel calendarModel = Mockito.mock(CalendarModel.class);
 	
 	private final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
+	private final DayService dayService = Mockito.mock(DayService.class);
 	
 	private final MessageSource messageSource = Mockito.mock(MessageSource.class);
 	
@@ -73,7 +76,11 @@ class CalendarViewTest {
 	
 	private final Map<String, Object> fields = new HashMap<>();
 	
-	private final Specialday  specialday = Mockito.mock(Specialday.class);
+	
+	@SuppressWarnings("rawtypes")
+	private final Day  specialday = Mockito.mock(Day.class);
+	
+	private final DayGroup dayGroup = Mockito.mock(DayGroup.class);
 	
 	private final Map<CalendarModel.Events, Observer> observers = new HashMap<>();
 	
@@ -104,12 +111,13 @@ class CalendarViewTest {
 		   
 		
 		
-		Mockito.when(specialday.date(Year.now().getValue())).thenReturn(LocalDate.of(1968, Month.MAY, 28));
-		Mockito.when(specialdayService.specialdays(Mockito.anyCollection())).thenReturn(Arrays.asList(specialday));
+		Mockito.when(specialday.value()).thenReturn(LocalDate.of(1968, Month.MAY, 28));
+	
+		Mockito.when(dayService.days()).thenReturn(Arrays.asList(specialday));
 		
 		
 		
-		calendarView = new CalendarView(calendarModel, specialdayService, messageSource,  new ButtonBox());
+		calendarView = new CalendarView(calendarModel, dayService, specialdayService, messageSource,  new ButtonBox());
 		
 		Arrays.asList(CalendarView.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> fields.put(field.getName(), ReflectionTestUtils.getField(calendarView, field.getName())));
 	
@@ -136,7 +144,8 @@ class CalendarViewTest {
 		final Grid<?> grid = (Grid<?>) fields.get("grid");
 		final ListDataProvider<?>  dates = (ListDataProvider<?>) grid.getDataProvider();
 		assertEquals(1, dates.getItems().size());
-		assertNotNull(specialday.date(Year.now().getValue()));
+	
+		assertNotNull(specialday.value());
 		assertEquals(specialday, dates.getItems().stream().findFirst().get());
 		
 		
@@ -329,7 +338,7 @@ class CalendarViewTest {
 		
 		listener.onComponentEvent(null);
 		
-		Mockito.verify(specialdayService).delete(specialday);
+		Mockito.verify(dayService).delete(specialday);
 		
 		Mockito.verify(calendarModel, Mockito.times(2)).notifyObservers(CalendarModel.Events.DatesChanged);
 		
@@ -346,7 +355,7 @@ class CalendarViewTest {
 		
 		listener.onComponentEvent(null);
 		
-		Mockito.verify(specialdayService, Mockito.never()).delete(specialday);
+		Mockito.verify(dayService, Mockito.never()).delete(specialday);
 		
 		Mockito.verify(calendarModel, Mockito.never()).notifyObservers(CalendarModel.Events.DatesChanged);
 		
@@ -360,8 +369,9 @@ class CalendarViewTest {
 		
 		Mockito.when(calendarModel.from()).thenReturn(from);
 		Mockito.when(calendarModel.to()).thenReturn(to);
+		Mockito.when(dayService.newLocalDateDay(dayGroup , from, to)).thenReturn(Arrays.asList(specialday));;
 		
-		Mockito.when(specialdayService.vacationOrSpecialWorkingDates(from, to, false)).thenReturn(Arrays.asList(specialday));
+		//Mockito.when(specialdayService.vacationOrSpecialWorkingDates(from, to, false)).thenReturn(Arrays.asList(specialday));
 		
 		
 		Mockito.when(calendarModel.vaidate(Mockito.anyInt())).thenReturn(error);
@@ -386,7 +396,7 @@ class CalendarViewTest {
 		
 		listener.onComponentEvent(null);
 		
-		Mockito.verify(specialdayService).save(specialday);
+		Mockito.verify(dayService).save(specialday);
 		
 		Mockito.verify(calendarModel, Mockito.times(2)).notifyObservers(CalendarModel.Events.DatesChanged);
 		
@@ -407,7 +417,7 @@ class CalendarViewTest {
 		
 		listener.onComponentEvent(null);
 		
-		Mockito.verify(specialdayService).save(specialday);
+		Mockito.verify(dayService).save(specialday);
 		
 		Mockito.verify(calendarModel, Mockito.times(2)).notifyObservers(CalendarModel.Events.DatesChanged);
 		
@@ -425,7 +435,7 @@ class CalendarViewTest {
 		
 		listener.onComponentEvent(null);
 		
-		Mockito.verify(specialdayService, Mockito.never()).save(specialday);
+		Mockito.verify(dayService, Mockito.never()).save(specialday);
 		
 		Mockito.verify(calendarModel, Mockito.never()).notifyObservers(CalendarModel.Events.DatesChanged);
 		
@@ -433,7 +443,7 @@ class CalendarViewTest {
 	@Test
 	void dateValueProvider() {
 		final LocalDate  date = LocalDate.now();
-		final Specialday specialday = Mockito.mock(Specialday.class);
+		final Day<?> specialday = Mockito.mock(Day.class);
 		
 		final String expectedDateString = date.format(DateTimeFormatter.ofPattern(CalendarModelImpl.DATE_PATTERN));
 		Mockito.when(calendarModel.convert(specialday, Year.of(date.getYear()))).thenReturn(expectedDateString);
@@ -443,8 +453,8 @@ class CalendarViewTest {
 	
 	@Test
 	void typeValueProvider() {
-		final Specialday specialday = Mockito.mock(Specialday.class);
-		Mockito.when(specialday.type()).thenReturn(Type.Vacation);
+		final Day<?> specialday = Mockito.mock(Day.class);
+		//Mockito.when(specialday.type()).thenReturn(Type.Vacation);
 		
 		assertEquals(Type.Vacation.name(),  calendarView.typeValueProvider().apply(specialday));
 		

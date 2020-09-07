@@ -5,22 +5,22 @@ import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-
 
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
-import de.mq.iot.calendar.Specialday;
+import de.mq.iot.calendar.Day;
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
@@ -41,7 +41,7 @@ class CalendarModelImpl  implements CalendarModel  {
 
 	private Optional<LocalDate> from = Optional.empty();
 	
-	private final Map<CalendarModel.Filter, Collection<Specialday.Type>> filters = new HashMap<>();
+	private final Map<CalendarModel.Filter, Predicate<Day<?>>> filters = new HashMap<>();
 
 	private CalendarModel.Filter filter = CalendarModel.Filter.Vacation;
 	
@@ -50,16 +50,19 @@ class CalendarModelImpl  implements CalendarModel  {
 	
 	private Optional<DayOfWeek> dayOfWeek = Optional.empty();
 	
-	private Collection<Specialday.Type> typesWithDayOfWeek = Arrays.asList(Specialday.Type.SpecialWorkingDay, Specialday.Type.Weekend);
 
 
-	CalendarModelImpl(final Subject<Events, CalendarModel> subject) {
+	
+	private final Map<String, DayGroup> dayGroups = new HashMap<>();
+
+	CalendarModelImpl(final Subject<Events, CalendarModel> subject, Collection<DayGroup> dayGroups) {
 		this.subject = subject;
 	
+		this.dayGroups.putAll(dayGroups.stream().collect(Collectors.toMap(DayGroup::name, dayGroup -> dayGroup)));
 		
-		filters.put(CalendarModel.Filter.Vacation, Arrays.asList(Specialday.Type.Vacation));
-		filters.put(CalendarModel.Filter.WorkingDate,  Arrays.asList(Specialday.Type.SpecialWorkingDate) );
-		filters.put(CalendarModel.Filter.WorkingDay, Arrays.asList(Specialday.Type.SpecialWorkingDay));
+		filters.put(CalendarModel.Filter.Vacation, day-> day.dayGroup().name().equals(DayGroup.NON_WORKINGDAY_GROUP_NAME)&&day.getClass().equals(LocalDateDayImpl.class));
+		filters.put(CalendarModel.Filter.WorkingDate,  day -> day.dayGroup().name().equals(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME)&&day.getClass().equals(LocalDateDayImpl.class) );
+		filters.put(CalendarModel.Filter.WorkingDay, day -> day.dayGroup().name().equals(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME)&&day.getClass().equals(DayOfWeekImpl.class) );
 
 	}
 
@@ -216,7 +219,10 @@ class CalendarModelImpl  implements CalendarModel  {
 	
 	
 	@Override
-	public Collection<Specialday.Type> filter() {
+	public Predicate<Day<?>> filter() {
+		if( filter == null) {
+			return day -> false;
+		}
 		return filters.get(filter);
 	}
 	
@@ -249,14 +255,16 @@ class CalendarModelImpl  implements CalendarModel  {
 	}
 	
 	@Override
-	public final String convert(final Specialday specialday, final Year year) {
-		if( typesWithDayOfWeek.contains(specialday.type())){
-			final DayOfWeek dayOfWeek = specialday.dayOfWeek();
+	public final String convert(final Day<?> day, final Year year) {
+		
+		if (day.value() instanceof DayOfWeek) {
+			final DayOfWeek dayOfWeek = (DayOfWeek) day.value();
 			return dayOfWeek.getDisplayName(STYLE_DAY_OF_WEEK, locale());
 			
 		}
 		
-		final LocalDate  date = specialday.date(year.getValue());
+		
+		final LocalDate  date = (LocalDate) day.value();
 		
 		return date.format(DateTimeFormatter.ofPattern( DATE_PATTERN, locale()));
 	}
@@ -266,9 +274,15 @@ class CalendarModelImpl  implements CalendarModel  {
 		return IntStream.range(1, 6).mapToObj(DayOfWeek::of).collect(Collectors.toList());	
 	}
 	@Override
-	public final Specialday dayOfWeek() {
+	public final Day<?> dayOfWeek() {
 		dayOfWeek.orElseThrow(() -> new IllegalArgumentException("DayOfWeek is missing."));
-		return new SpecialdayImpl(this.dayOfWeek.get());
+		return new DayOfWeekImpl(dayGroup(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME), this.dayOfWeek.get());
+	}
+	
+	@Override
+	public final DayGroup dayGroup(final String name) {
+		Assert.isTrue(dayGroups.containsKey(name), String.format("DayGroup %s not aware", name));
+		return dayGroups.get(name);
 	}
 	
 

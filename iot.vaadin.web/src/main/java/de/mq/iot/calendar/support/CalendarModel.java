@@ -4,9 +4,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Year;
 import java.util.Collection;
+import java.util.function.Predicate;
 
-import de.mq.iot.calendar.Specialday;
-import de.mq.iot.calendar.Specialday.Type;
+import de.mq.iot.calendar.Day;
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.model.LocaleAware;
 import de.mq.iot.model.Subject;
 
@@ -51,14 +52,14 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 
 	LocalDate to();
 
-	Collection<Type> filter();
+	Predicate<Day<?>> filter();
 
 	void assign(Filter filter);
 
 	boolean isChangeCalendarAllowed();
 
 
-	String convert(final Specialday specialday, final Year year);
+	String convert(final Day<?> specialday, final Year year);
 
 	boolean isDayOfWeek();
 
@@ -68,9 +69,11 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 
 	void assignDayOfWeek(final DayOfWeek dayOfWeek);
 
-	Specialday dayOfWeek();
+	Day<?> dayOfWeek();
 
 	boolean isSpecialWorkingDate();
+
+	DayGroup dayGroup(String name);
 
 
 }

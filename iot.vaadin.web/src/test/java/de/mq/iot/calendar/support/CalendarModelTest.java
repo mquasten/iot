@@ -26,6 +26,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
+import de.mq.iot.calendar.Day;
+import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.Specialday.Type;
 import de.mq.iot.calendar.support.CalendarModel.Events;
@@ -45,14 +47,17 @@ class CalendarModelTest {
 	@SuppressWarnings("unchecked")
 	private final Subject<Events, CalendarModel>   subject = Mockito.mock( Subject.class);
 	
-	private final CalendarModel calendarModel = new CalendarModelImpl(subject);
+	private final CalendarModel calendarModel = new CalendarModelImpl(subject, new DayConfiguration().dayGroups());
 	
 	private Observer observer = Mockito.mock(Observer.class);
 	
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 	
+	
+	
 	@Test
 	public final void create() {
+		
 		final Map<Class<?>, Object> dependencies = new HashMap<>();
 		Arrays.asList(calendarModel.getClass().getDeclaredFields()).stream().filter( field -> ! Modifier.isStatic(field.getModifiers())).filter(field -> ! field.getType().equals(Optional.class)).forEach(field -> dependencies.put(field.getType(), ReflectionTestUtils.getField(calendarModel, field.getName())));
 	
@@ -261,11 +266,11 @@ class CalendarModelTest {
 	
 	@Test
 	public final void filter() {
-		assertEquals(1, calendarModel.filter().size());
-		assertEquals(Specialday.Type.Vacation, calendarModel.filter().stream().findAny().get());
+		assertNotNull(calendarModel.filter());
+		assertEquals(Specialday.Type.Vacation, calendarModel.filter());
 		calendarModel.assign(CalendarModel.Filter.WorkingDate);
-		assertEquals(1, calendarModel.filter().size());
-		assertEquals(Specialday.Type.SpecialWorkingDate, calendarModel.filter().stream().findAny().get());
+		assertNotNull(calendarModel.filter());
+		assertEquals(Specialday.Type.SpecialWorkingDate, calendarModel.filter());
 		
 		Mockito.verify(subject).notifyObservers(Events.DatesChanged);
 	}
@@ -288,12 +293,14 @@ class CalendarModelTest {
 	}
 	@Test
     final void convertDate() {
+		final DayGroup dayGroup =  Mockito.mock(DayGroup.class);
 		final LocalDate expectedDate = LocalDate.of(1968, 5, 28);
-		assertEquals(expectedDate.format(DateTimeFormatter.ofPattern(CalendarModelImpl.DATE_PATTERN)), calendarModel.convert(new SpecialdayImpl(expectedDate), Year.of(1)));
+		assertEquals(expectedDate.format(DateTimeFormatter.ofPattern(CalendarModelImpl.DATE_PATTERN)), calendarModel.convert(new LocalDateDayImpl(dayGroup, expectedDate), Year.of(1)));
 	}
 	@Test
 	final void convertDayOfWeek() {
-		assertEquals(DayOfWeek.FRIDAY.getDisplayName(CalendarModelImpl.STYLE_DAY_OF_WEEK, Locale.GERMAN), calendarModel.convert(new SpecialdayImpl(DayOfWeek.FRIDAY), Year.of(1)));
+		final DayGroup dayGroup =  Mockito.mock(DayGroup.class);
+		assertEquals(DayOfWeek.FRIDAY.getDisplayName(CalendarModelImpl.STYLE_DAY_OF_WEEK, Locale.GERMAN), calendarModel.convert(new DayOfWeekImpl(dayGroup, DayOfWeek.FRIDAY), Year.of(1)));
 	}
 	@Test
 	final void validateDayOfWeek() {
@@ -342,8 +349,8 @@ class CalendarModelTest {
 	@Test
 	void dayOfWeek() {
 		calendarModel.assignDayOfWeek(DayOfWeek.FRIDAY);
-		final Specialday result = calendarModel.dayOfWeek();
-		assertEquals(DayOfWeek.FRIDAY, result.dayOfWeek());
+		final Day<?> result = calendarModel.dayOfWeek();
+		assertEquals(DayOfWeek.FRIDAY, result.value());
 	}
 	
 	@Test
