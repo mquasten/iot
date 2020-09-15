@@ -27,7 +27,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import de.mq.iot.calendar.Day;
-import de.mq.iot.calendar.DayGroup;
+
 import de.mq.iot.calendar.SpecialdayService;
 import de.mq.iot.calendar.support.CalendarModel.Events;
 import de.mq.iot.calendar.support.CalendarModel.Filter;
@@ -276,7 +276,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 			consumer.accept(calendarModel.dayOfWeek());
 		} else {
 			
-			dayService.newLocalDateDay(calendarModel.dayGroup(DayGroup.NON_WORKINGDAY_GROUP_NAME), calendarModel.from(), calendarModel.to()).forEach(day -> consumer.accept(day));
+			dayService.newLocalDateDay(calendarModel.dayGroup(), calendarModel.from(), calendarModel.to()).forEach(day -> consumer.accept(day));
 			//specialdayService.vacationOrSpecialWorkingDates(calendarModel.from(),  calendarModel.to(), calendarModel.isSpecialWorkingDate()).forEach(day -> consumer.accept(day));
 		}
 		

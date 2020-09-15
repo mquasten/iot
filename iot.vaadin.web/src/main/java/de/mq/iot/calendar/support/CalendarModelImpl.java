@@ -276,13 +276,15 @@ class CalendarModelImpl  implements CalendarModel  {
 	@Override
 	public final Day<?> dayOfWeek() {
 		dayOfWeek.orElseThrow(() -> new IllegalArgumentException("DayOfWeek is missing."));
-		return new DayOfWeekImpl(dayGroup(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME), this.dayOfWeek.get());
+		return new DayOfWeekImpl(dayGroup(), this.dayOfWeek.get());
 	}
 	
 	@Override
-	public final DayGroup dayGroup(final String name) {
-		Assert.isTrue(dayGroups.containsKey(name), String.format("DayGroup %s not aware", name));
-		return dayGroups.get(name);
+	public final DayGroup dayGroup() {
+		Assert.notNull(filter, "Filter is required.");
+		
+		Assert.isTrue(dayGroups.containsKey(filter.group()), String.format("DayGroup %s not aware", filter.group()));
+		return dayGroups.get(filter.group());
 	}
 	
 
