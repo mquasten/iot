@@ -35,7 +35,7 @@ class FixedDayTest {
 
 	@Test
 	void id() {
-		assertEquals(new UUID(FixedDayImpl.KEY_PREFIX, 528).toString(), day.id());
+		assertEquals(new UUID(dayGroup.name().hashCode()*100 +FixedDayImpl.KEY_PREFIX, 528).toString(), day.id());
 	}
 	
 	@Test

@@ -90,6 +90,9 @@ import de.mq.iot.calendar.DayGroup;
 		return id.equals(day.id);
 	}
 	
-	
+	final long mostSigBits(final int key) {
+		Assert.hasText(dayGroup.name(), "DayGroup name is required.");
+		return 100L*dayGroup.name().hashCode()+key;
+	}
 	
 }

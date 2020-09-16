@@ -31,7 +31,7 @@ class DayOfWeekTest {
 	
 	@Test
 	void id() {
-		assertEquals(new UUID(DayOfWeekImpl.KEY_PREFIX, dayOfWeek.getValue()).toString(), day.id());
+		assertEquals(new UUID(dayGroup.name().hashCode()*100 + DayOfWeekImpl.KEY_PREFIX, dayOfWeek.getValue()).toString(), day.id());
 	}
 	
 	@Test

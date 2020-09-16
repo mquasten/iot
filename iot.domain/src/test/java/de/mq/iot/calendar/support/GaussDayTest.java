@@ -38,7 +38,7 @@ class GaussDayTest {
 	
 	@Test
 	void id() {
-		assertEquals(new UUID(GaussDayImpl.KEY_PREFIX, OFFSET).toString(), day.id());
+		assertEquals(new UUID( dayGroup.name().hashCode()*100 + GaussDayImpl.KEY_PREFIX, OFFSET).toString(), day.id());
 		
 	}
 	
@@ -85,7 +85,7 @@ class GaussDayTest {
 	}
 	@Test
 	void hash() {
-		assertEquals(new UUID(GaussDayImpl.KEY_PREFIX, OFFSET).toString().hashCode(), day.hashCode());
+		assertEquals(new UUID(dayGroup.name().hashCode()*100 + GaussDayImpl.KEY_PREFIX, OFFSET).toString().hashCode(), day.hashCode());
 		ReflectionTestUtils.setField(day, "id", null);
 		assertEquals(System.identityHashCode(day), day.hashCode());
 	}
@@ -99,6 +99,12 @@ class GaussDayTest {
 		assertFalse(dayWithNoId.equals(day));
 		assertTrue(dayWithNoId.equals(dayWithNoId));
 		assertTrue(day.equals(new GaussDayImpl(dayGroup, OFFSET)));
+	}
+	
+	@Test
+	void most() {
+		final long mostSigBits = new GaussDayImpl(dayGroup, OFFSET).mostSigBits(GaussDayImpl.KEY_PREFIX);
+		assertEquals(dayGroup.name().hashCode()*100 + GaussDayImpl.KEY_PREFIX , mostSigBits);
 	}
 	
 	@Test

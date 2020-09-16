@@ -13,14 +13,14 @@ import de.mq.iot.calendar.DayGroup;
 class GaussDayImpl extends AbstractDay<LocalDate> {
 
 	static final String DAY_COLLECTION_NAME = "Specialday";
-	static final long KEY_PREFIX = 1;
+	static final int KEY_PREFIX = 1;
 	static final String TO_STRING_PATTERN = "Gauss: offset=%s, dayGroup=%s";
 	private final Integer  offset;
 	
 	GaussDayImpl(final DayGroup dayGroup, final int offset) {
 		super(dayGroup);
 		this.offset=offset;
-		assign(new UUID(KEY_PREFIX, offset));
+		assign(new UUID(mostSigBits(KEY_PREFIX), offset));
 	}
 	
 	@SuppressWarnings("unused")

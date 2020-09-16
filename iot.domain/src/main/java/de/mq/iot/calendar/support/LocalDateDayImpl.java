@@ -23,7 +23,7 @@ class LocalDateDayImpl extends AbstractDay<LocalDate> {
 	LocalDateDayImpl(final DayGroup dayGroup, final LocalDate date) {
 		super(dayGroup);
 		Assert.notNull(date, "LocalDate is required.");
-		assign(new UUID(KEY_PREFIX, date.getDayOfMonth() + 100 * date.getMonthValue() + 10000*date.getYear()));
+		assign(new UUID(mostSigBits(KEY_PREFIX), date.getDayOfMonth() + 100 * date.getMonthValue() + 10000*date.getYear()));
 		dayOfMonth=date.getDayOfMonth();
 		month=date.getMonthValue();
 		year=date.getYear();

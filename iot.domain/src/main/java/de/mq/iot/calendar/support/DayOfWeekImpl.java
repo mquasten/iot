@@ -22,7 +22,7 @@ class DayOfWeekImpl extends  AbstractDay<DayOfWeek> {
 	DayOfWeekImpl(final DayGroup dayGroup, final DayOfWeek dayOfWeek) {
 		super(dayGroup);
 		Assert.notNull(dayOfWeek, "DayOfWeek is required.");
-		assign(new UUID(KEY_PREFIX, dayOfWeek.getValue()));
+		assign(new UUID(mostSigBits(KEY_PREFIX), dayOfWeek.getValue()));
 		this.dayOfWeek=dayOfWeek.getValue();
 	}
 	@SuppressWarnings("unused")

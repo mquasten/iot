@@ -21,7 +21,7 @@ class FixedDayImpl extends AbstractDay<LocalDate> {
 	FixedDayImpl(final DayGroup dayGroup, final MonthDay monthDay) {
 		super(dayGroup);
 		Assert.notNull(monthDay, "MonthDay is required.");
-		assign(new UUID(KEY_PREFIX,100* monthDay.getMonthValue() + monthDay.getDayOfMonth()));
+		assign(new UUID(mostSigBits(KEY_PREFIX),100* monthDay.getMonthValue() + monthDay.getDayOfMonth()));
 		month=monthDay.getMonthValue();
 		dayOfMonth=monthDay.getDayOfMonth();
 	}

@@ -28,7 +28,7 @@ class LocalDateDayTest {
 	
 	@Test
 	void id() {
-		assertEquals(new UUID(LocalDateDayImpl.KEY_PREFIX, 20200528).toString(), day.id());
+		assertEquals(new UUID(dayGroup.name().hashCode()*100 + LocalDateDayImpl.KEY_PREFIX, 20200528).toString(), day.id());
 	}
 	@Test
 	void evaluate() {
@@ -53,5 +53,6 @@ class LocalDateDayTest {
 	void privateConstructor() throws NoSuchMethodException, SecurityException {
 		assertNotNull(BeanUtils.instantiateClass(LocalDateDayImpl.class.getDeclaredConstructor()));
 	}
+	
 	
 }
