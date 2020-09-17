@@ -27,7 +27,7 @@ import org.springframework.validation.MapBindingResult;
 import org.springframework.validation.Validator;
 
 import de.mq.iot.calendar.DayGroup;
-import de.mq.iot.calendar.support.DayService;
+import de.mq.iot.calendar.DayService;
 import de.mq.iot.calendar.support.TestDays;
 import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.rule.RulesDefinition;

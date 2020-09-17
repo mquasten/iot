@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.calendar.DayGroup;
-import de.mq.iot.calendar.support.DayService;
+import de.mq.iot.calendar.DayService;
 import de.mq.iot.rule.support.Calendar.Time;
 
 public class CalendarRuleTest {

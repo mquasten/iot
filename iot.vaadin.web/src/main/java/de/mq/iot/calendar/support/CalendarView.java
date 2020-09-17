@@ -27,8 +27,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import de.mq.iot.calendar.Day;
-
-import de.mq.iot.calendar.SpecialdayService;
+import de.mq.iot.calendar.DayService;
 import de.mq.iot.calendar.support.CalendarModel.Events;
 import de.mq.iot.calendar.support.CalendarModel.Filter;
 import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
@@ -84,20 +83,20 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	
 	private Map<ValidationErrors, String> validationErrors = new HashMap<>();
 
-	CalendarView(final CalendarModel calendarModel, final DayService dayService, final SpecialdayService specialdayService,  final MessageSource messageSource, final ButtonBox buttonBox) {
+	CalendarView(final CalendarModel calendarModel, final DayService dayService,   final MessageSource messageSource, final ButtonBox buttonBox) {
 
 		this.messageSource = messageSource;
 
 		this.calendarModel = calendarModel;
 
-		createUI(dayService,specialdayService, buttonBox);
+		createUI(dayService,buttonBox);
 
 		calendarModel.notifyObservers(CalendarModel.Events.ChangeLocale);
 		
 
 	}
 
-	private void createUI(final DayService dayService, final SpecialdayService specialdayService, final ButtonBox buttonBox) {
+	private void createUI(final DayService dayService, final ButtonBox buttonBox) {
 
 		dayOfWeekComboBox.setVisible(false);
 		dayOfWeekLabel.setVisible(false);

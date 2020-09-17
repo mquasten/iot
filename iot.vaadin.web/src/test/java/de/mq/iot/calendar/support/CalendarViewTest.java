@@ -38,9 +38,10 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
+import de.mq.iot.calendar.DayService;
 import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.Specialday.Type;
-import de.mq.iot.calendar.SpecialdayService;
+
 import de.mq.iot.calendar.support.CalendarModel.Events;
 import de.mq.iot.calendar.support.CalendarModel.Filter;
 import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
@@ -67,7 +68,7 @@ class CalendarViewTest {
 
 	private final CalendarModel calendarModel = Mockito.mock(CalendarModel.class);
 	
-	private final SpecialdayService specialdayService = Mockito.mock(SpecialdayService.class);
+
 	private final DayService dayService = Mockito.mock(DayService.class);
 	
 	private final MessageSource messageSource = Mockito.mock(MessageSource.class);
@@ -117,7 +118,7 @@ class CalendarViewTest {
 		
 		
 		
-		calendarView = new CalendarView(calendarModel, dayService, specialdayService, messageSource,  new ButtonBox());
+		calendarView = new CalendarView(calendarModel, dayService, messageSource,  new ButtonBox());
 		
 		Arrays.asList(CalendarView.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> fields.put(field.getName(), ReflectionTestUtils.getField(calendarView, field.getName())));
 	
@@ -139,7 +140,7 @@ class CalendarViewTest {
 	
 	@Test
 	void init() {
-		Mockito.verify(specialdayService).specialdays(Arrays.asList(Type.Vacation));
+		//Mockito.verify(specialdayService).specialdays(Arrays.asList(Type.Vacation));
 		
 		final Grid<?> grid = (Grid<?>) fields.get("grid");
 		final ListDataProvider<?>  dates = (ListDataProvider<?>) grid.getDataProvider();

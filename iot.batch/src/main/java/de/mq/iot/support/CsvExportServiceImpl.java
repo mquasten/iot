@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 import de.mq.iot.authentication.AuthentificationService;
-import de.mq.iot.calendar.support.DayService;
+import de.mq.iot.calendar.DayService;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
 import de.mq.iot.rule.support.RulesDefinitionRepository;
 import de.mq.iot.state.Command;

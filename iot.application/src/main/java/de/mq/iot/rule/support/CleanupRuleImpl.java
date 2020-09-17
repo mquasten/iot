@@ -9,7 +9,7 @@ import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Rule;
 
 import de.mq.iot.calendar.Day;
-import de.mq.iot.calendar.support.DayService;
+import de.mq.iot.calendar.DayService;
 import de.mq.iot.rule.RulesDefinition;
 
 @Rule(name = RulesDefinition.CLEANUP_RULE_NAME, priority = 2)

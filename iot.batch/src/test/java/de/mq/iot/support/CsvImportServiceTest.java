@@ -38,7 +38,7 @@ import de.mq.iot.authentication.Authority;
 import de.mq.iot.authentication.support.AuthenticationRepository;
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
-import de.mq.iot.calendar.support.DayService;
+import de.mq.iot.calendar.DayService;
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.ResourceIdentifier.ResourceType;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;

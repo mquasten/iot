@@ -21,7 +21,7 @@ import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.DayGroup;
-import de.mq.iot.calendar.support.DayService;
+import de.mq.iot.calendar.DayService;
 import de.mq.iot.openweather.MeteorologicalDataService;
 import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.state.State;

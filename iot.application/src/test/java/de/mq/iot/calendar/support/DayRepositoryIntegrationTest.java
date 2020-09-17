@@ -22,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
+import de.mq.iot.calendar.DayService;
 import de.mq.iot.support.ApplicationConfiguration;
 
 @ExtendWith(SpringExtension.class)

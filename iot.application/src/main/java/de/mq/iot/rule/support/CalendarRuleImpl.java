@@ -13,7 +13,7 @@ import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Rule;
 
 import de.mq.iot.calendar.DayGroup;
-import de.mq.iot.calendar.support.DayService;
+import de.mq.iot.calendar.DayService;
 
 @Rule(name="calendarRule", priority=1)
 public class CalendarRuleImpl {

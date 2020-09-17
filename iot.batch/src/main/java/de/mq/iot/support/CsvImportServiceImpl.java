@@ -34,7 +34,7 @@ import org.springframework.util.StringUtils;
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.support.AuthenticationRepository;
 import de.mq.iot.calendar.Day;
-import de.mq.iot.calendar.support.DayService;
+import de.mq.iot.calendar.DayService;
 import de.mq.iot.resource.ResourceIdentifier;
 import de.mq.iot.resource.support.ResourceIdentifierRepository;
 import de.mq.iot.rule.RulesDefinition;

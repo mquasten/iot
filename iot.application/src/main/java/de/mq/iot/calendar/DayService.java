@@ -1,10 +1,8 @@
-package de.mq.iot.calendar.support;
+package de.mq.iot.calendar;
 
 import java.time.LocalDate;
 import java.util.Collection;
 
-import de.mq.iot.calendar.Day;
-import de.mq.iot.calendar.DayGroup;
 
 public interface DayService {
 

@@ -16,8 +16,7 @@ import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.mq.iot.calendar.Day;
-
-import de.mq.iot.calendar.support.DayService;
+import de.mq.iot.calendar.DayService;
 
 class CleanupRuleTest {
 	
