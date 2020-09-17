@@ -1,6 +1,7 @@
 package de.mq.iot.calendar.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -142,5 +143,20 @@ class DayServiceTest {
 		
 	
 		assertEquals(Arrays.asList(days), dayService.days());
+	}
+	
+	@Test
+	void daysWithoutClassAndDayGroup() {
+		LocalDateDayImpl nonWorkingDayLocalDateDay = new LocalDateDayImpl(nonWorkingDayGroup, DATE);
+		final Day<?> specialWorkingDayLocalDateDay = new LocalDateDayImpl(specialWorkinDayGroup, DATE);
+		final Day<?> nonWorkingDayFixedDay =new FixedDayImpl(nonWorkingDayGroup, MonthDay.now());
+		
+		Mockito.when(dayRepository.findAll()).thenReturn(Flux.just(nonWorkingDayLocalDateDay, specialWorkingDayLocalDateDay,nonWorkingDayFixedDay));
+		
+		final Collection<Day<?>> results = ((DayServiceImpl) dayService).daysWithoutClassAndDayGroup(LocalDateDayImpl.class, nonWorkingDayGroup.name());
+		assertEquals(2, results.size());
+		assertTrue(results.contains(specialWorkingDayLocalDateDay));
+		assertTrue(results.contains(nonWorkingDayFixedDay));
+		assertFalse(results.contains(nonWorkingDayLocalDateDay));
 	}
 }

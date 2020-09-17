@@ -58,14 +58,19 @@ class DayServiceImpl implements DayService {
 	@Override
 	public final Collection<Day<LocalDate>>newLocalDateDay(final DayGroup dayGroup, final LocalDate beginDate, final LocalDate endDate) {
 		Assert.notNull(dayGroup, "DayGroup is mandatory.");
+		Assert.notNull(dayGroup.name(), "Name of dayGroup is mandatory.");
 		Assert.notNull(beginDate, "BeginDate is mandatory.");
 		Assert.notNull(endDate, "EndDate is mandatory.");
 		Assert.isTrue(!beginDate.isAfter(endDate), "Begin should be before or equals end.");
 		final long daysOffset = ChronoUnit.DAYS.between(beginDate, endDate);
 		
-		final Collection<Day<?>> existingDays = dayRepository.findAll().collectList().block(duration).stream().collect(Collectors.toList());
+		final Collection<Day<?>> existingDays = daysWithoutClassAndDayGroup(LocalDateDayImpl.class, dayGroup.name());
 		
 		return LongStream.rangeClosed(0, daysOffset).mapToObj(i ->  beginDate.plusDays(i)).filter(date -> exists(existingDays, dayGroup, date)).map(date -> new LocalDateDayImpl(dayGroup, date)).sorted().collect(Collectors.toList());
+	}
+	
+	Collection<Day<?>>daysWithoutClassAndDayGroup(final Class<? extends Day<?>> class1, final String dayGroup) {
+		return dayRepository.findAll().collectList().block(duration).stream().filter(day -> !((day.getClass()== class1) && (day.dayGroup().name().equals(dayGroup)))).sorted().collect(Collectors.toList());
 	}
 	
 	private boolean exists(final Collection<Day<?>> existingDays, final DayGroup dayGroup, final LocalDate date ) {
