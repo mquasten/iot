@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.Year;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -303,9 +304,10 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		calendarModel.assignTo(null);
 	}
 
+	@SuppressWarnings("unchecked")
 	private Collection<Day<?>> readDates(final DayService dayService) {
 		
-		return dayService.days().stream().filter(calendarModel.filter()).collect(Collectors.toList());
+		return dayService.days().stream().filter(calendarModel.filter()).sorted((Comparator<Day<?>>) (d1, d2) ->  ((Comparable<Object>) d1.value()).compareTo((Comparable<?>) (Comparable<?>) d2.value())).collect(Collectors.toList());
 		
 	}
 	
@@ -314,7 +316,8 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	}
 	
 	ValueProvider<Day<?>, String> typeValueProvider() {
-		return day -> day.getClass().getSimpleName();
+		return day -> calendarModel.filter(day).name();
+		//return day -> day.getClass().getSimpleName();
 	}
 
 	

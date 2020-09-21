@@ -31,18 +31,27 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 	}
 	
 	enum Filter {
-		Vacation(DayGroup.NON_WORKINGDAY_GROUP_NAME),
-		WorkingDate(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME),
-		WorkingDay(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
+		Vacation(LocalDateDayImpl.class, DayGroup.NON_WORKINGDAY_GROUP_NAME),
+		WorkingDate(LocalDateDayImpl.class, DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME),
+		WorkingDay(DayOfWeekImpl.class, DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
 		
 		private final String group;
-		Filter(final String group){
+		
+		private final Class<?> clazz;
+ 		Filter( final Class<?> clazz , final String group){
+ 			this.clazz=clazz;
 			this.group=group;
 		}
 		
-		final String group() {
+		String group() {
 			return group;
 		}
+		
+		Class<?> type() {
+			return clazz;
+		}
+		
+		
 	}
 	
 	ValidationErrors validateFrom(final String from);
@@ -83,6 +92,8 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 	boolean isSpecialWorkingDate();
 
 	DayGroup dayGroup();
+
+	Filter filter(final Day<?> day);
 
 
 }

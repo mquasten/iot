@@ -5,6 +5,7 @@ import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
@@ -285,6 +286,20 @@ class CalendarModelImpl  implements CalendarModel  {
 		
 		Assert.isTrue(dayGroups.containsKey(filter.group()), String.format("DayGroup %s not aware", filter.group()));
 		return dayGroups.get(filter.group());
+	}
+	
+	@Override
+	public Filter filter (final Day<?> day) {
+		final Map<String, Filter> filters =  Arrays.asList(Filter.values()).stream().collect(Collectors.toMap(value -> key(value.type(), value.group()), value -> value));
+		
+		final String key= key(day.getClass(), day.dayGroup().name());
+		Assert.isTrue(filters.containsKey(key), String.format("Invalid Combination %s %s", day.getClass().getSimpleName() , day.dayGroup().name()));
+		return filters.get(key);
+	}
+	
+	
+	private String key(final Class<?> clazz , final String group) {
+		return clazz.getSimpleName()+ "-"  + group;
 	}
 	
 
