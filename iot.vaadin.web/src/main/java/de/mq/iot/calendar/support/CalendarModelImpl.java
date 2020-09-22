@@ -7,6 +7,7 @@ import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -300,6 +301,12 @@ class CalendarModelImpl  implements CalendarModel  {
 	
 	private String key(final Class<?> clazz , final String group) {
 		return clazz.getSimpleName()+ "-"  + group;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Comparator<Day<?>> comparator() {
+		return   ((d1, d2) ->  ( (Comparable<Object>)  d1.value()).compareTo( d2.value()));
 	}
 	
 

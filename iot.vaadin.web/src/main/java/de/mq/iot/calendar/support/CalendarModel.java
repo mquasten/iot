@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Year;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.function.Predicate;
 
 import de.mq.iot.calendar.Day;
@@ -94,6 +95,8 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 	DayGroup dayGroup();
 
 	Filter filter(final Day<?> day);
+
+	Comparator<? super Day<?>> comparator();
 
 
 }
