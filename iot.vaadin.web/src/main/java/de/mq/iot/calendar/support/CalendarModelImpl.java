@@ -53,7 +53,8 @@ class CalendarModelImpl  implements CalendarModel  {
 	private Optional<DayOfWeek> dayOfWeek = Optional.empty();
 	
 
-
+	@SuppressWarnings("unchecked")
+	private final  Comparator<Day<?>> comparator =  ((d1, d2) ->  ( (Comparable<Object>)  d1.value()).compareTo( d2.value()));
 	
 	private final Map<String, DayGroup> dayGroups = new HashMap<>();
 
@@ -302,11 +303,10 @@ class CalendarModelImpl  implements CalendarModel  {
 	private String key(final Class<?> clazz , final String group) {
 		return clazz.getSimpleName()+ "-"  + group;
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
 	public Comparator<Day<?>> comparator() {
-		return   ((d1, d2) ->  ( (Comparable<Object>)  d1.value()).compareTo( d2.value()));
+		return   comparator;
 	}
 	
 
