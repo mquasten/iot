@@ -67,6 +67,8 @@ class CalendarModelImpl  implements CalendarModel  {
 		filters.put(CalendarModel.Filter.WorkingDate,  day -> day.dayGroup().name().equals(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME)&&day.getClass().equals(LocalDateDayImpl.class) );
 		filters.put(CalendarModel.Filter.WorkingDay, day -> day.dayGroup().name().equals(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME)&&day.getClass().equals(DayOfWeekImpl.class) );
 
+	
+		
 	}
 
 

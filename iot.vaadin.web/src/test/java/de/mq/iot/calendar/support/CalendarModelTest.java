@@ -7,7 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Year;
@@ -19,6 +21,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,7 +32,7 @@ import de.mq.iot.authentication.Authority;
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.calendar.Specialday;
-import de.mq.iot.calendar.Specialday.Type;
+
 import de.mq.iot.calendar.support.CalendarModel.Events;
 import de.mq.iot.calendar.support.CalendarModel.Filter;
 import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
@@ -59,25 +62,64 @@ class CalendarModelTest {
 	public final void create() {
 		
 		final Map<Class<?>, Object> dependencies = new HashMap<>();
-		Arrays.asList(calendarModel.getClass().getDeclaredFields()).stream().filter( field -> ! Modifier.isStatic(field.getModifiers())).filter(field -> ! field.getType().equals(Optional.class)).forEach(field -> dependencies.put(field.getType(), ReflectionTestUtils.getField(calendarModel, field.getName())));
+		Arrays.asList(calendarModel.getClass().getDeclaredFields()).stream().filter( field -> ! Modifier.isStatic(field.getModifiers())).filter(field -> ! field.getType().equals(Optional.class)).forEach(field -> addDependencies(dependencies, field));
 	
+		
+		
 	    assertEquals(4, dependencies.size());
 	    assertEquals(subject, dependencies.get(Subject.class));
 	    assertEquals(CalendarModel.Filter.Vacation ,  dependencies.get(CalendarModel.Filter.class));
 	    
-	    @SuppressWarnings("unchecked")
-		final Map<CalendarModel.Filter, Collection<Filter>> filters =  (Map<Filter,  Collection<Filter>>) dependencies.get(Map.class);
-	    assertEquals(3, filters.size());
-	    assertEquals(Arrays.asList(Specialday.Type.Vacation), filters.get(CalendarModel.Filter.Vacation));
-	    assertEquals(Arrays.asList(Specialday.Type.SpecialWorkingDate), filters.get(CalendarModel.Filter.WorkingDate));
-	    assertEquals(Arrays.asList(Specialday.Type.SpecialWorkingDay), filters.get(CalendarModel.Filter.WorkingDay));
-	   
-	 
-	    final Collection<?> typesForDayOfWeek = (Collection<?>) dependencies.get(Collection.class);
-	    assertEquals(2, typesForDayOfWeek.size());
-	    assertTrue(typesForDayOfWeek.contains(Type.SpecialWorkingDay));
-	    assertTrue(typesForDayOfWeek.contains(Type.Weekend));
+	    final Map<?,?> mapDependencies =  (Map<?,  ?>) dependencies.get(Map.class);
+	    assertEquals(2, mapDependencies.size());
 	    
+	   
+	    
+	    
+	    @SuppressWarnings("unchecked")
+		final Map<CalendarModel.Filter, Collection<Filter>> filters =  (Map<Filter,  Collection<Filter>>) mapDependencies.get(CalendarModel.Filter.class);
+	    assertEquals(3, filters.size());
+	  
+	   
+	    assertTrue(filters.get(CalendarModel.Filter.Vacation) instanceof  Predicate);
+	    assertTrue(filters.get(CalendarModel.Filter.WorkingDate) instanceof  Predicate);
+	    assertTrue(filters.get(CalendarModel.Filter.WorkingDay) instanceof  Predicate);
+	    
+		@SuppressWarnings("unchecked")
+		final Map<String, DayGroup> dayGoups =  (Map<String, DayGroup>) mapDependencies.get(String.class);
+		assertEquals(3, dayGoups.size());
+		
+		dayGoups.entrySet().stream().forEach(entry -> assertEquals(entry.getKey(),  entry.getValue().name()));
+	 
+	   
+	    
+	}
+
+
+	private void addDependencies(final Map<Class<?>, Object> dependencies, Field field) {
+		if( field.getType()== Map.class) { 
+			map(dependencies).put(clazz(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]), ReflectionTestUtils.getField(calendarModel, field.getName()) );		
+		} else {
+			dependencies.put(field.getType(), ReflectionTestUtils.getField(calendarModel, field.getName()));
+		}
+	}
+
+
+	private Class<?> clazz(java.lang.reflect.Type key) {
+		try {
+			return Class.forName(key.getTypeName());
+		} catch (ClassNotFoundException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+
+	@SuppressWarnings("unchecked")
+	private Map<Class<?>, Object> map(final Map<Class<?>, Object> dependencies) {
+		if(! dependencies.containsKey(Map.class)) {
+			dependencies.put(Map.class, new HashMap<>());
+		}
+		return  (Map<Class<?>, Object>) dependencies.get(Map.class);
 	}
 	
 	
@@ -295,11 +337,13 @@ class CalendarModelTest {
     final void convertDate() {
 		final DayGroup dayGroup =  Mockito.mock(DayGroup.class);
 		final LocalDate expectedDate = LocalDate.of(1968, 5, 28);
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
 		assertEquals(expectedDate.format(DateTimeFormatter.ofPattern(CalendarModelImpl.DATE_PATTERN)), calendarModel.convert(new LocalDateDayImpl(dayGroup, expectedDate), Year.of(1)));
 	}
 	@Test
 	final void convertDayOfWeek() {
 		final DayGroup dayGroup =  Mockito.mock(DayGroup.class);
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
 		assertEquals(DayOfWeek.FRIDAY.getDisplayName(CalendarModelImpl.STYLE_DAY_OF_WEEK, Locale.GERMAN), calendarModel.convert(new DayOfWeekImpl(dayGroup, DayOfWeek.FRIDAY), Year.of(1)));
 	}
 	@Test
