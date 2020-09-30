@@ -17,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -31,7 +32,7 @@ import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
-import de.mq.iot.calendar.Specialday;
+
 
 import de.mq.iot.calendar.support.CalendarModel.Events;
 import de.mq.iot.calendar.support.CalendarModel.Filter;
@@ -61,8 +62,7 @@ class CalendarModelTest {
 	@Test
 	public final void create() {
 		
-		final Map<Class<?>, Object> dependencies = new HashMap<>();
-		Arrays.asList(calendarModel.getClass().getDeclaredFields()).stream().filter( field -> ! Modifier.isStatic(field.getModifiers())).filter(field -> ! field.getType().equals(Optional.class)).forEach(field -> addDependencies(dependencies, field));
+		final Map<Class<?>, Object> dependencies = dependencies();
 	
 		
 		
@@ -77,7 +77,7 @@ class CalendarModelTest {
 	    
 	    
 	    @SuppressWarnings("unchecked")
-		final Map<CalendarModel.Filter, Collection<Filter>> filters =  (Map<Filter,  Collection<Filter>>) mapDependencies.get(CalendarModel.Filter.class);
+		final Map<CalendarModel.Filter, Predicate<Day<?>>> filters =  (Map<Filter,  Predicate<Day<?>>>) mapDependencies.get(CalendarModel.Filter.class);
 	    assertEquals(3, filters.size());
 	  
 	   
@@ -93,6 +93,76 @@ class CalendarModelTest {
 	 
 	   
 	    
+	}
+
+	private Map<Class<?>, Object> dependencies() {
+		final Map<Class<?>, Object> dependencies = new HashMap<>();
+		Arrays.asList(calendarModel.getClass().getDeclaredFields()).stream().filter( field -> ! Modifier.isStatic(field.getModifiers())).filter(field -> ! field.getType().equals(Optional.class)).forEach(field -> addDependencies(dependencies, field));
+		return dependencies;
+	}
+	
+	@Test
+	void filterVacation() {
+		
+		final Predicate<Day<?>> filter = filterFromFields(Filter.Vacation);
+	  
+	   
+	    final DayGroup dayGroup = Mockito.mock(DayGroup.class);
+	    Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
+	   
+		assertTrue(filter.test((Day<?>) new LocalDateDayImpl(dayGroup, LocalDate.now())));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.WORKINGDAY_GROUP_NAME);
+		assertFalse(filter.test((Day<?>) new LocalDateDayImpl(dayGroup, LocalDate.now())));
+		assertFalse(filter.test((Day<?>) new DayOfWeekImpl(dayGroup, DayOfWeek.MONDAY)));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
+		assertFalse(filter.test((Day<?>) new DayOfWeekImpl(dayGroup, DayOfWeek.MONDAY)));
+	  
+	}
+	
+	@Test
+	void filterWorkingDate() {
+		
+		final Predicate<Day<?>> filter = filterFromFields(Filter.WorkingDate);
+	  
+	   
+	    final DayGroup dayGroup = Mockito.mock(DayGroup.class);
+	    Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
+	   
+		assertTrue(filter.test((Day<?>) new LocalDateDayImpl(dayGroup, LocalDate.now())));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.WORKINGDAY_GROUP_NAME);
+		assertFalse(filter.test((Day<?>) new LocalDateDayImpl(dayGroup, LocalDate.now())));
+		assertFalse(filter.test((Day<?>) new DayOfWeekImpl(dayGroup, DayOfWeek.MONDAY)));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
+		assertFalse(filter.test((Day<?>) new DayOfWeekImpl(dayGroup, DayOfWeek.MONDAY)));
+	  
+	}
+	
+	@Test
+	void filterWorkingDay() {
+		
+		final Predicate<Day<?>> filter = filterFromFields(Filter.WorkingDay);
+	  
+	   
+	    final DayGroup dayGroup = Mockito.mock(DayGroup.class);
+	    Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
+	   
+		assertTrue(filter.test((Day<?>) new DayOfWeekImpl(dayGroup, DayOfWeek.FRIDAY)));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.WORKINGDAY_GROUP_NAME);
+		assertFalse(filter.test((Day<?>) new DayOfWeekImpl(dayGroup, DayOfWeek.FRIDAY)));
+		assertFalse(filter.test((Day<?>) new LocalDateDayImpl(dayGroup, LocalDate.now())));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
+		assertFalse(filter.test((Day<?>) new LocalDateDayImpl(dayGroup, LocalDate.now())));
+	  
+	}
+
+	private Predicate<Day<?>> filterFromFields(final Filter filter ) {
+		final Map<Class<?>, Object> dependencies = dependencies();
+	    final Map<?,?> mapDependencies =   (Map<?, ?>) dependencies.get(Map.class);
+	    @SuppressWarnings("unchecked")
+		final Map<CalendarModel.Filter, Predicate<Day<?>>> filters = (Map<Filter, Predicate<Day<?>>>) mapDependencies.get(CalendarModel.Filter.class);
+	    assertNotNull(filters);
+	    assertTrue(filters.containsKey(filter));
+	    return filters.get(filter);
 	}
 
 
@@ -309,12 +379,16 @@ class CalendarModelTest {
 	@Test
 	public final void filter() {
 		assertNotNull(calendarModel.filter());
-		assertEquals(Specialday.Type.Vacation, calendarModel.filter());
+		assertTrue(calendarModel.filter().test((Day<?>) new LocalDateDayImpl(new DayGroupImpl(DayGroup.NON_WORKINGDAY_GROUP_NAME,0), LocalDate.now())));
+		
 		calendarModel.assign(CalendarModel.Filter.WorkingDate);
 		assertNotNull(calendarModel.filter());
-		assertEquals(Specialday.Type.SpecialWorkingDate, calendarModel.filter());
 		
+		assertTrue(calendarModel.filter().test((Day<?>) new LocalDateDayImpl(new DayGroupImpl(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME,0), LocalDate.now())));
 		Mockito.verify(subject).notifyObservers(Events.DatesChanged);
+		
+		calendarModel.assign(null);
+		assertFalse(calendarModel.filter().test(Mockito.mock(Day.class)));
 	}
 	
 	@Test
