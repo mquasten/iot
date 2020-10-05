@@ -364,6 +364,7 @@ class CalendarViewTest {
 
 
 
+	@SuppressWarnings("unchecked")
 	private void prepareForButtons(ValidationErrors error) {
 		final LocalDate from = LocalDate.now();
 		final LocalDate to = LocalDate.now().plusDays(1);
@@ -404,6 +405,7 @@ class CalendarViewTest {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	void saveDayOfWeek() {
 		prepareForButtons(ValidationErrors.Ok);

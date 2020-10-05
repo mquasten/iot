@@ -295,6 +295,8 @@ class CalendarModelImpl  implements CalendarModel  {
 	@Override
 	public Filter filter (final Day<?> day) {
 		final Map<String, Filter> filters =  Arrays.asList(Filter.values()).stream().collect(Collectors.toMap(value -> key(value.type(), value.group()), value -> value));
+		Assert.notNull(day.dayGroup() , "DayGroup is mandatory." );
+		Assert.notNull(day.dayGroup().name() , "Name is mandatory." );
 		
 		final String key= key(day.getClass(), day.dayGroup().name());
 		Assert.isTrue(filters.containsKey(key), String.format("Invalid Combination %s %s", day.getClass().getSimpleName() , day.dayGroup().name()));

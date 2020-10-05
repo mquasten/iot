@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -163,6 +163,23 @@ class CalendarModelTest {
 	    assertNotNull(filters);
 	    assertTrue(filters.containsKey(filter));
 	    return filters.get(filter);
+	}
+	
+	@Test
+	void comparator() {
+		
+		final Comparator<? super Day<?>>    comparator =  calendarModel.comparator();
+	   
+	    assertNotNull(comparator);
+	    final DayGroup dayGroup = Mockito.mock(DayGroup.class);
+	    Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
+	    final Day<?> day1 = new LocalDateDayImpl(dayGroup, LocalDate.now());
+	    final Day<?> day2 = new LocalDateDayImpl(dayGroup, LocalDate.now().minusDays(1));
+	    
+	    assertEquals(1, comparator.compare(day1,day2));
+	    assertEquals(-1,comparator.compare(day2,day1));
+	    assertEquals(0, comparator.compare(day1,day1));
+	    assertEquals(0, comparator.compare(day2,day2));
 	}
 
 
@@ -474,6 +491,25 @@ class CalendarModelTest {
 	@Test
 	void dayOfWeekMissing() {
 		assertThrows(IllegalArgumentException.class, () -> calendarModel.dayOfWeek());
+	}
+	@Test
+	void filterDay() {
+		final DayGroup dayGroup = Mockito.mock(DayGroup.class);
+	
+		Mockito.doReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME).when(dayGroup).name();
+		assertEquals(Filter.Vacation, calendarModel.filter((Day<?>) new LocalDateDayImpl(dayGroup, LocalDate.now())));
+		
+		Mockito.doReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME).when(dayGroup).name();
+		assertEquals(Filter.WorkingDate, calendarModel.filter((Day<?>)new LocalDateDayImpl(dayGroup,  LocalDate.now())));
+		
+		assertEquals(Filter.WorkingDay, calendarModel.filter((Day<?>)new DayOfWeekImpl(dayGroup, DayOfWeek.FRIDAY)));
+		
+	}
+	@Test
+	void filterDayInvalid() {
+		final DayGroup dayGroup = Mockito.mock(DayGroup.class);
+		Mockito.doReturn("Unkown").when(dayGroup).name();
+		assertThrows(IllegalArgumentException.class, () -> calendarModel.filter((Day<?>) new LocalDateDayImpl(dayGroup, LocalDate.now())));
 	}
 	
 }
