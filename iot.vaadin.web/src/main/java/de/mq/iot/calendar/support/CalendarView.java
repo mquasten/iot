@@ -238,6 +238,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		
 		
 		saveButton.addClickListener(event -> process(specialday -> dayService.save(specialday), dayService)); 
+		
 		calendarModel.assign(CalendarModel.Filter.Vacation);
 			
 	}
@@ -258,6 +259,8 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 	private void process(final Consumer<Day<?>> consumer, final DayService dayService) {
 		
+		
+		
 		final ValidationErrors error = calendarModel.vaidate(60);
 		
 	
@@ -271,10 +274,11 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 			return;
 		} 
 		
+		
+		
 		if(calendarModel.isDayOfWeek()) {
 			consumer.accept(calendarModel.dayOfWeek());
 		} else {
-			
 			dayService.newLocalDateDay(calendarModel.dayGroup(), calendarModel.from(), calendarModel.to()).forEach(day -> consumer.accept(day));
 			//specialdayService.vacationOrSpecialWorkingDates(calendarModel.from(),  calendarModel.to(), calendarModel.isSpecialWorkingDate()).forEach(day -> consumer.accept(day));
 		}
@@ -314,8 +318,9 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	}
 	
 	ValueProvider<Day<?>, String> typeValueProvider() {
+		
 		return day -> calendarModel.filter(day).name();
-		//return day -> day.getClass().getSimpleName();
+	
 	}
 
 	

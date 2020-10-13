@@ -14,12 +14,13 @@ import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.context.MessageSource;
@@ -40,7 +41,6 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.calendar.DayService;
-import de.mq.iot.calendar.Specialday;
 import de.mq.iot.calendar.Specialday.Type;
 
 import de.mq.iot.calendar.support.CalendarModel.Events;
@@ -50,7 +50,7 @@ import de.mq.iot.model.Observer;
 import de.mq.iot.support.ButtonBox;
 
 
-@Disabled
+
 class CalendarViewTest {
 	
 	private static final String I18N_CALENDAR_VALIDATION = "calendar_validation_";
@@ -90,14 +90,13 @@ class CalendarViewTest {
 	
 	@BeforeEach
 	void setup() {
-		
+		Mockito.when(dayService.days()).thenReturn(Arrays.asList(specialday));
 		Mockito.when(calendarModel.isChangeCalendarAllowed()).thenReturn(true);
 		Mockito.when(calendarModel.locale()).thenReturn(Locale.GERMAN);
 		Mockito.when(calendarModel.daysOfWeek()).thenReturn(Arrays.asList(DayOfWeek.values()));
 		Arrays.asList(I18N_CALENDAR_DELETE_RANGE, I18N_CALENDAR_ADD_RANGE, I18N_CALENDAR_TABLE_HEADER, I18N_CALENDAR_INFO, I18N_CALENDAR_RANGE_FROM,I18N_CALENDAR_RANGE_TO, I18N_CALENDAR_DAY_OF_WEEK , I18N_CALENDAR_VALIDATION + ValidationErrors.Invalid.name().toLowerCase()).forEach(key -> Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN));
-		
-		 Mockito.doReturn(Arrays.asList(Specialday.Type.Vacation)).when(calendarModel).filter();
-		
+		Mockito.doReturn((Predicate<Day<?>>) day -> true).when(calendarModel).filter();
+		Mockito.doReturn(Mockito.mock(Comparator.class)).when(calendarModel).comparator();
 		Mockito.doAnswer(answer -> {
 
 			final CalendarModel.Events event = (CalendarModel.Events ) answer.getArguments()[0];
@@ -143,7 +142,9 @@ class CalendarViewTest {
 	
 	@Test
 	void init() {
-		//Mockito.verify(specialdayService).specialdays(Arrays.asList(Type.Vacation));
+		Mockito.verify(dayService).days();
+		
+	
 		
 		final Grid<?> grid = (Grid<?>) fields.get("grid");
 		final ListDataProvider<?>  dates = (ListDataProvider<?>) grid.getDataProvider();
@@ -390,8 +391,14 @@ class CalendarViewTest {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	void saveVactions() {
+		
+		Mockito.when(calendarModel.dayGroup()).thenReturn(dayGroup);
+		
+		
+		Mockito.when(dayService.newLocalDateDay(dayGroup, LocalDate.now(), LocalDate.now().plusDays(1))).thenReturn(Arrays.asList(specialday));
 		prepareForButtons(ValidationErrors.Ok);
 		
 		final Button saveButton = (Button) fields.get("saveButton");
@@ -460,7 +467,7 @@ class CalendarViewTest {
 	@Test
 	void typeValueProvider() {
 		final Day<?> specialday = Mockito.mock(Day.class);
-		//Mockito.when(specialday.type()).thenReturn(Type.Vacation);
+		Mockito.when(calendarModel.filter(specialday)).thenReturn(Filter.Vacation);
 		
 		assertEquals(Type.Vacation.name(),  calendarView.typeValueProvider().apply(specialday));
 		
