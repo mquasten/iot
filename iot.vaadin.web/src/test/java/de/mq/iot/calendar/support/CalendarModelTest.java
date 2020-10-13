@@ -511,5 +511,26 @@ class CalendarModelTest {
 		Mockito.doReturn("Unkown").when(dayGroup).name();
 		assertThrows(IllegalArgumentException.class, () -> calendarModel.filter((Day<?>) new LocalDateDayImpl(dayGroup, LocalDate.now())));
 	}
+	@Test
+	void events() {
+		assertEquals(3, Events.values().length);
+	}
+	
+	@Test
+	void validationErrors() {
+		assertEquals(6, ValidationErrors.values().length);
+	}
+	@Test
+	void filterEnum() {
+		assertEquals(3, Filter.values().length);
+		assertEquals(DayGroup.NON_WORKINGDAY_GROUP_NAME, Filter.Vacation.group());
+		assertEquals(LocalDateDayImpl.class,  Filter.Vacation.type());
+		
+		assertEquals(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, Filter.WorkingDate.group());
+		assertEquals(LocalDateDayImpl.class,  Filter.WorkingDate.type());
+		
+		assertEquals(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, Filter.WorkingDay.group());
+		assertEquals(DayOfWeekImpl.class,  Filter.WorkingDay.type());
+	}
 	
 }

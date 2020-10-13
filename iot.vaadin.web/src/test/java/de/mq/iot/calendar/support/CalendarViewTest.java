@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.context.MessageSource;
@@ -48,6 +49,8 @@ import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
 import de.mq.iot.model.Observer;
 import de.mq.iot.support.ButtonBox;
 
+
+@Disabled
 class CalendarViewTest {
 	
 	private static final String I18N_CALENDAR_VALIDATION = "calendar_validation_";
