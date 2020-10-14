@@ -332,8 +332,13 @@ class CalendarViewTest {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	void deleteVactions() {
+		Mockito.when(calendarModel.dayGroup()).thenReturn(dayGroup);
+		
+		Mockito.when(dayService.newLocalDateDay(dayGroup, LocalDate.now(), LocalDate.now().plusDays(1))).thenReturn(Arrays.asList(specialday));
+		
 		prepareForButtons(ValidationErrors.Ok);
 		
 		final Button deleteButton = (Button) fields.get("deleteButton");
