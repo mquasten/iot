@@ -15,7 +15,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>14</java.version>
 		<maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
-		<jacoco.version>0.8.5</jacoco.version>
+		<jacoco.version>0.8.6</jacoco.version>
 		<surefire-plugin-version>2.19.1</surefire-plugin-version>
 		<junit-platform-surefire-provider-version>1.0.1</junit-platform-surefire-provider-version>
 		<junit-launcher-version>1.0.1</junit-launcher-version>
