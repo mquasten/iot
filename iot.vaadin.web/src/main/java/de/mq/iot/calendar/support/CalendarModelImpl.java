@@ -66,7 +66,7 @@ class CalendarModelImpl  implements CalendarModel  {
 		filters.put(CalendarModel.Filter.Vacation, day-> day.dayGroup().name().equals(DayGroup.NON_WORKINGDAY_GROUP_NAME)&&day.getClass().equals(LocalDateDayImpl.class));
 		filters.put(CalendarModel.Filter.WorkingDate,  day -> day.dayGroup().name().equals(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME)&&day.getClass().equals(LocalDateDayImpl.class) );
 		filters.put(CalendarModel.Filter.WorkingDay, day -> day.dayGroup().name().equals(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME)&&day.getClass().equals(DayOfWeekImpl.class) );
-
+		filters.put(CalendarModel.Filter.Holiday , day -> day.dayGroup().name().equals(DayGroup.NON_WORKINGDAY_GROUP_NAME)&&(day.getClass().equals(GaussDayImpl.class)||day.getClass().equals(FixedDayImpl.class) ) );
 	
 		
 	}
@@ -294,7 +294,12 @@ class CalendarModelImpl  implements CalendarModel  {
 	
 	@Override
 	public Filter filter (final Day<?> day) {
-		final Map<String, Filter> filters =  Arrays.asList(Filter.values()).stream().collect(Collectors.toMap(value -> key(value.type(), value.group()), value -> value));
+		final Map<String, Filter> filters =  new HashMap<>();
+		Arrays.asList(Filter.values()).forEach(filter -> filter.types().forEach(type -> filters.put(key(type, filter.group()), filter)));
+				
+				//Arrays.asList(Filter.values()).stream().collect(Collectors.toMap(value -> key(value.type(), value.group()), value -> value));
+		
+		
 		Assert.notNull(day.dayGroup() , "DayGroup is mandatory." );
 		Assert.notNull(day.dayGroup().name() , "Name is mandatory." );
 		

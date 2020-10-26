@@ -3,9 +3,13 @@ package de.mq.iot.calendar.support;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Year;
+import java.util.Arrays;
 import java.util.Collection;
+
 import java.util.Comparator;
 import java.util.function.Predicate;
+
+import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
@@ -32,15 +36,18 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 	}
 	
 	enum Filter {
-		Vacation(LocalDateDayImpl.class, DayGroup.NON_WORKINGDAY_GROUP_NAME),
-		WorkingDate(LocalDateDayImpl.class, DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME),
-		WorkingDay(DayOfWeekImpl.class, DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
+		Vacation(DayGroup.NON_WORKINGDAY_GROUP_NAME, LocalDateDayImpl.class),
+		WorkingDate(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, LocalDateDayImpl.class),
+		WorkingDay(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, DayOfWeekImpl.class),
+		Holiday(DayGroup.NON_WORKINGDAY_GROUP_NAME,GaussDayImpl.class, FixedDayImpl.class);
 		
 		private final String group;
 		
-		private final Class<?> clazz;
- 		Filter( final Class<?> clazz , final String group){
- 			this.clazz=clazz;
+		private final Collection<Class<?>> classes;
+ 		Filter(final String group, final Class<?>...classes){
+ 			Assert.hasText(group, "Group is required.");
+ 			Assert.notEmpty(classes, "Al least one Class isrequired.");
+ 			this.classes=Arrays.asList(classes);
 			this.group=group;
 		}
 		
@@ -48,8 +55,8 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 			return group;
 		}
 		
-		Class<?> type() {
-			return clazz;
+		Collection<Class<?>> types() {
+			return classes;
 		}
 		
 		
