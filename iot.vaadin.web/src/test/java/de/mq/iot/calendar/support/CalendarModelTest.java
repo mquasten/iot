@@ -12,6 +12,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.MonthDay;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -78,12 +79,13 @@ class CalendarModelTest {
 	    
 	    @SuppressWarnings("unchecked")
 		final Map<CalendarModel.Filter, Predicate<Day<?>>> filters =  (Map<Filter,  Predicate<Day<?>>>) mapDependencies.get(CalendarModel.Filter.class);
-	    assertEquals(3, filters.size());
+	    assertEquals(4, filters.size());
 	  
 	   
 	    assertTrue(filters.get(CalendarModel.Filter.Vacation) instanceof  Predicate);
 	    assertTrue(filters.get(CalendarModel.Filter.WorkingDate) instanceof  Predicate);
 	    assertTrue(filters.get(CalendarModel.Filter.WorkingDay) instanceof  Predicate);
+	    assertTrue(filters.get(CalendarModel.Filter.Holiday) instanceof  Predicate);
 	    
 		@SuppressWarnings("unchecked")
 		final Map<String, DayGroup> dayGoups =  (Map<String, DayGroup>) mapDependencies.get(String.class);
@@ -152,6 +154,25 @@ class CalendarModelTest {
 		assertFalse(filter.test((Day<?>) new LocalDateDayImpl(dayGroup, LocalDate.now())));
 		Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
 		assertFalse(filter.test((Day<?>) new LocalDateDayImpl(dayGroup, LocalDate.now())));
+	  
+	}
+	
+	@Test
+	void filterHoliday() {
+		
+		final Predicate<Day<?>> filter = filterFromFields(Filter.Holiday);
+	  
+	   
+	    final DayGroup dayGroup = Mockito.mock(DayGroup.class);
+	    Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
+		assertTrue(filter.test((Day<?>) new GaussDayImpl(dayGroup, -1)));
+		assertTrue(filter.test((Day<?>) new FixedDayImpl(dayGroup, MonthDay.now())));
+		
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.WORKINGDAY_GROUP_NAME);
+		assertFalse(filter.test((Day<?>) new GaussDayImpl(dayGroup, -1)));
+		assertFalse(filter.test((Day<?>) new DayOfWeekImpl(dayGroup, DayOfWeek.MONDAY)));
+		Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
+		assertFalse(filter.test((Day<?>) new DayOfWeekImpl(dayGroup, DayOfWeek.MONDAY)));
 	  
 	}
 
@@ -404,6 +425,8 @@ class CalendarModelTest {
 		assertTrue(calendarModel.filter().test((Day<?>) new LocalDateDayImpl(new DayGroupImpl(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME,0), LocalDate.now())));
 		Mockito.verify(subject).notifyObservers(Events.DatesChanged);
 		
+		
+		
 		calendarModel.assign(null);
 		assertFalse(calendarModel.filter().test(Mockito.mock(Day.class)));
 	}
@@ -522,15 +545,51 @@ class CalendarModelTest {
 	}
 	@Test
 	void filterEnum() {
-		assertEquals(3, Filter.values().length);
+		assertEquals(4, Filter.values().length);
 		assertEquals(DayGroup.NON_WORKINGDAY_GROUP_NAME, Filter.Vacation.group());
-		assertEquals(LocalDateDayImpl.class,  Filter.Vacation.type());
+		assertEquals(1,  Filter.Vacation.types().size());
+		assertEquals(Optional.of(LocalDateDayImpl.class),  Filter.Vacation.types().stream().findAny());
 		
 		assertEquals(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, Filter.WorkingDate.group());
-		assertEquals(LocalDateDayImpl.class,  Filter.WorkingDate.type());
+		assertEquals(1,  Filter.WorkingDate.types().size());
+		assertEquals(Optional.of(LocalDateDayImpl.class),  Filter.WorkingDate.types().stream().findAny());
+		
 		
 		assertEquals(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, Filter.WorkingDay.group());
-		assertEquals(DayOfWeekImpl.class,  Filter.WorkingDay.type());
+		assertEquals(1,  Filter.WorkingDay.types().size());
+		assertEquals(Optional.of(DayOfWeekImpl.class),  Filter.WorkingDay.types().stream().findAny());
+		
+		assertEquals(DayGroup.NON_WORKINGDAY_GROUP_NAME, Filter.Holiday.group());
+		assertEquals(2,  Filter.Holiday.types().size());
+		assertTrue(Filter.Holiday.types().contains(GaussDayImpl.class));
+		assertTrue(Filter.Holiday.types().contains(FixedDayImpl.class));
+	}
+	
+	@Test
+	void editableVacation() {
+		assertTrue(Filter.Vacation.editable());
+	}
+	
+	@Test
+	void editableWorkingDate() {
+		assertTrue(Filter.WorkingDate.editable());
+	}
+	
+	@Test
+	void editableWorkingDay() {
+		assertTrue(Filter.WorkingDay.editable());
+	}
+	
+	@Test
+	void editableHoliday() {
+		assertFalse(Filter.Holiday.editable());
+	}
+	@Test
+	void editable() {
+		calendarModel.assign(null);
+		assertFalse(calendarModel.editable());
+		calendarModel.assign(Filter.WorkingDay);
+		assertTrue(calendarModel.editable());
 	}
 	
 }

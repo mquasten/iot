@@ -36,27 +36,34 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 	}
 	
 	enum Filter {
-		Vacation(DayGroup.NON_WORKINGDAY_GROUP_NAME, LocalDateDayImpl.class),
-		WorkingDate(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, LocalDateDayImpl.class),
-		WorkingDay(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, DayOfWeekImpl.class),
-		Holiday(DayGroup.NON_WORKINGDAY_GROUP_NAME,GaussDayImpl.class, FixedDayImpl.class);
+		Vacation(DayGroup.NON_WORKINGDAY_GROUP_NAME, true, LocalDateDayImpl.class),
+		WorkingDate(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME,true, LocalDateDayImpl.class),
+		WorkingDay(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME, true, DayOfWeekImpl.class),
+		Holiday(DayGroup.NON_WORKINGDAY_GROUP_NAME,false, GaussDayImpl.class, FixedDayImpl.class);
 		
 		private final String group;
 		
+		private boolean editable;
+		
 		private final Collection<Class<?>> classes;
- 		Filter(final String group, final Class<?>...classes){
+ 		Filter(final String group, final boolean editable, final Class<?>...classes){
  			Assert.hasText(group, "Group is required.");
  			Assert.notEmpty(classes, "Al least one Class isrequired.");
  			this.classes=Arrays.asList(classes);
 			this.group=group;
+			this.editable=editable;
 		}
 		
-		String group() {
+		final String group() {
 			return group;
 		}
 		
-		Collection<Class<?>> types() {
+		final Collection<Class<?>> types() {
 			return classes;
+		}
+		
+		final boolean editable() {
+			return editable;
 		}
 		
 		
@@ -105,5 +112,6 @@ public interface CalendarModel extends Subject<CalendarModel.Events, CalendarMod
 
 	Comparator<? super Day<?>> comparator();
 
+	boolean editable();
 
 }

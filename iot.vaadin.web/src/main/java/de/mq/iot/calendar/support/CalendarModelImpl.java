@@ -296,9 +296,6 @@ class CalendarModelImpl  implements CalendarModel  {
 	public Filter filter (final Day<?> day) {
 		final Map<String, Filter> filters =  new HashMap<>();
 		Arrays.asList(Filter.values()).forEach(filter -> filter.types().forEach(type -> filters.put(key(type, filter.group()), filter)));
-				
-				//Arrays.asList(Filter.values()).stream().collect(Collectors.toMap(value -> key(value.type(), value.group()), value -> value));
-		
 		
 		Assert.notNull(day.dayGroup() , "DayGroup is mandatory." );
 		Assert.notNull(day.dayGroup().name() , "Name is mandatory." );
@@ -316,6 +313,15 @@ class CalendarModelImpl  implements CalendarModel  {
 	@Override
 	public Comparator<Day<?>> comparator() {
 		return   comparator;
+	}
+
+
+	@Override
+	public boolean editable() {
+		if (filter == null) {
+			return false;
+		}
+		return filter.editable();
 	}
 	
 

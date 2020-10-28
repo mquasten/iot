@@ -9,8 +9,6 @@ import org.springframework.context.MessageSource;
 
 import com.vaadin.flow.component.HasText;
 
-import de.mq.iot.model.LocalizeView;
-
 public class LocalizeViewTest {
 
 	private static final String TRANSLATED_NAME = "Translated name";
