@@ -229,6 +229,9 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 			
 			calendarModel.assign(event.getValue());
 			resetModelAndEditor();
+		
+			
+			
 			//grid.setItems(readDates(specialdayService));
 			
 		});
@@ -293,6 +296,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	}
 
 	private void resetModelAndEditor() {
+		
 		dayOfWeekComboBox.setValue(null);
 		dayOfWeekComboBox.setInvalid(false);;
 		dayOfWeekComboBox.setErrorMessage("");
@@ -305,6 +309,9 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		fromTextField.setErrorMessage("");
 		calendarModel.assignFrom(null);
 		calendarModel.assignTo(null);
+		fromTextField.setEnabled(calendarModel.editable());
+		toTextField.setEnabled(calendarModel.editable());
+		dayOfWeekComboBox.setEnabled(calendarModel.editable());
 	}
 
 	private Collection<Day<?>> readDates(final DayService dayService) {
