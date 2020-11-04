@@ -332,6 +332,33 @@ class CalendarViewTest {
 		
 	}
 	
+	
+	@Test
+	void enableEditorFields() {
+		
+		@SuppressWarnings("unchecked")
+		final ComboBox<Filter> filtersComboBox =  (ComboBox<Filter>) fields.get("filtersComboBox");
+		final TextField from = (TextField) fields.get("fromTextField");
+		final TextField to = (TextField) fields.get("toTextField");
+		
+		assertEquals(Filter.Vacation, filtersComboBox.getValue());
+
+		
+		filtersComboBox.setValue(null);
+		assertFalse(from.isEnabled());
+		assertFalse(to.isEnabled());
+		
+		Arrays.asList(Filter.values()).forEach(value -> {
+			Mockito.when(calendarModel.editable()).thenReturn(value.editable());
+			filtersComboBox.setValue(value);
+			
+			assertEquals(value.editable(), from.isEnabled());
+			assertEquals(value.editable(), to.isEnabled());
+		});
+		
+		
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Test
 	void deleteVactions() {

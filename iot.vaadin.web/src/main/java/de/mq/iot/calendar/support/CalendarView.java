@@ -296,7 +296,6 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	}
 
 	private void resetModelAndEditor() {
-		
 		dayOfWeekComboBox.setValue(null);
 		dayOfWeekComboBox.setInvalid(false);;
 		dayOfWeekComboBox.setErrorMessage("");
