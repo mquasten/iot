@@ -41,7 +41,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
 import de.mq.iot.calendar.DayService;
-import de.mq.iot.calendar.Specialday.Type;
+
 
 import de.mq.iot.calendar.support.CalendarModel.Events;
 import de.mq.iot.calendar.support.CalendarModel.Filter;
@@ -68,6 +68,11 @@ class CalendarViewTest {
 	private static final String I18N_CALENDAR_RANGE_FROM ="calendar_range_from";
 	private static final String I18N_CALENDAR_RANGE_TO ="calendar_range_to";
 	private static final String I18N_CALENDAR_DAY_OF_WEEK ="calendar_dayofweek";
+	
+	private static final String I18N_DAYTYPE_VACATION="calendar_daytype_vacation" ;
+	private static final String I18N_DAYTYPE_WORKINGDATE="calendar_daytype_workingdate"; 
+	private static final String I18N_DAYTYPE_WORKINGDAY="calendar_daytype_workingday";
+	private static final String I18N_DAYTYPE_HOLIDAY="calendar_daytype_holiday";
 
 	private final CalendarModel calendarModel = Mockito.mock(CalendarModel.class);
 	
@@ -94,7 +99,7 @@ class CalendarViewTest {
 		Mockito.when(calendarModel.isChangeCalendarAllowed()).thenReturn(true);
 		Mockito.when(calendarModel.locale()).thenReturn(Locale.GERMAN);
 		Mockito.when(calendarModel.daysOfWeek()).thenReturn(Arrays.asList(DayOfWeek.values()));
-		Arrays.asList(I18N_CALENDAR_DELETE_RANGE, I18N_CALENDAR_ADD_RANGE, I18N_CALENDAR_TABLE_HEADER, I18N_CALENDAR_INFO, I18N_CALENDAR_RANGE_FROM,I18N_CALENDAR_RANGE_TO, I18N_CALENDAR_DAY_OF_WEEK , I18N_CALENDAR_VALIDATION + ValidationErrors.Invalid.name().toLowerCase()).forEach(key -> Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN));
+		Arrays.asList(I18N_DAYTYPE_VACATION,I18N_DAYTYPE_WORKINGDATE, I18N_DAYTYPE_WORKINGDAY,I18N_DAYTYPE_HOLIDAY, I18N_CALENDAR_DELETE_RANGE, I18N_CALENDAR_ADD_RANGE, I18N_CALENDAR_TABLE_HEADER, I18N_CALENDAR_INFO, I18N_CALENDAR_RANGE_FROM,I18N_CALENDAR_RANGE_TO, I18N_CALENDAR_DAY_OF_WEEK , I18N_CALENDAR_VALIDATION + ValidationErrors.Invalid.name().toLowerCase()).forEach(key -> Mockito.doReturn(key).when(messageSource).getMessage(key, null, "???", Locale.GERMAN));
 		Mockito.doReturn((Predicate<Day<?>>) day -> true).when(calendarModel).filter();
 		Mockito.doReturn(Mockito.mock(Comparator.class)).when(calendarModel).comparator();
 		Mockito.doAnswer(answer -> {
@@ -124,7 +129,7 @@ class CalendarViewTest {
 		
 		Arrays.asList(CalendarView.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> fields.put(field.getName(), ReflectionTestUtils.getField(calendarView, field.getName())));
 	
-	    assertEquals(16, fields.size() ); 
+	    assertEquals(21, fields.size() ); 
 	    
 	    
 	    
@@ -173,16 +178,24 @@ class CalendarViewTest {
 		final Label dayOfWeek =  (Label) fields.get("dayOfWeekLabel");
 		final TextField from = (TextField) fields.get("fromTextField");
 		final TextField to = (TextField) fields.get("toTextField");
+		final Label dayTypeVacation = (Label) fields.get("typeVacation");
+		final Label dayTypeWorkingDate = (Label) fields.get("typeWorkingDate");
+		final Label dayTypeWorkingDay = (Label) fields.get("typeWorkingDay");
+		final Label dayTypeHoliday = (Label) fields.get("typeHoliday");
 		final ComboBox<?> dayOfWeekComboBox = (ComboBox<?>) fields.get("dayOfWeekComboBox");
 		assertEquals(I18N_CALENDAR_DELETE_RANGE, deleteButton.getText());
 		assertEquals(I18N_CALENDAR_ADD_RANGE, saveButton.getText());
-		
+		assertEquals(I18N_DAYTYPE_VACATION, dayTypeVacation.getText());
+		assertEquals(I18N_DAYTYPE_WORKINGDATE, dayTypeWorkingDate.getText());
+		assertEquals(I18N_DAYTYPE_WORKINGDAY, dayTypeWorkingDay.getText());
+		assertEquals(I18N_DAYTYPE_HOLIDAY, dayTypeHoliday.getText());
 		
 		assertEquals(I18N_CALENDAR_TABLE_HEADER, typeColumLabel.getText());
 		assertEquals(I18N_CALENDAR_INFO, stateInfoLabel.getText());
 		assertEquals(I18N_CALENDAR_RANGE_FROM, fromLabel.getText());
 		assertEquals(I18N_CALENDAR_RANGE_TO, toLabel.getText());
 		assertEquals(I18N_CALENDAR_DAY_OF_WEEK, dayOfWeek.getText());
+		
 		assertTrue(fromLabel.isVisible());
 		assertTrue(toLabel.isVisible());
 		assertFalse(dayOfWeek.isVisible());
@@ -499,9 +512,18 @@ class CalendarViewTest {
 	@Test
 	void typeValueProvider() {
 		final Day<?> specialday = Mockito.mock(Day.class);
-		Mockito.when(calendarModel.filter(specialday)).thenReturn(Filter.Vacation);
 		
-		assertEquals(Type.Vacation.name(),  calendarView.typeValueProvider().apply(specialday));
+		Mockito.when(calendarModel.filter(specialday)).thenReturn(Filter.Vacation);
+		assertEquals(I18N_DAYTYPE_VACATION,  calendarView.typeValueProvider().apply(specialday));
+		
+		Mockito.when(calendarModel.filter(specialday)).thenReturn(Filter.Holiday);
+		assertEquals(I18N_DAYTYPE_HOLIDAY,  calendarView.typeValueProvider().apply(specialday));
+		
+		Mockito.when(calendarModel.filter(specialday)).thenReturn(Filter.WorkingDate);
+		assertEquals(I18N_DAYTYPE_WORKINGDATE,  calendarView.typeValueProvider().apply(specialday));
+		
+		Mockito.when(calendarModel.filter(specialday)).thenReturn(Filter.WorkingDay);
+		assertEquals(I18N_DAYTYPE_WORKINGDAY,  calendarView.typeValueProvider().apply(specialday));
 		
 	}
 	

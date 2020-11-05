@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.context.MessageSource;
 
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -68,8 +69,17 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	private final Label typeColumnLabel = new Label();
 
 	
+	@I18NKey("daytype_vacation")
+	private final Label typeVacation = new Label();
 	
+	@I18NKey("daytype_workingdate")
+	private final Label typeWorkingDate = new Label();
 	
+	@I18NKey("daytype_workingday")
+	private final Label typeWorkingDay = new Label();
+	
+	@I18NKey("daytype_holiday")
+	private final Label typeHoliday= new Label();
 	
 	private ComboBox<Filter> filtersComboBox =  new ComboBox<Filter>();
 	
@@ -81,14 +91,20 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 	private final MessageSource messageSource;
 	
-	private Map<ValidationErrors, String> validationErrors = new HashMap<>();
+	private final Map<ValidationErrors, String> validationErrors = new HashMap<>();
+	
+	private final Map<Filter,Label> filterTexte = new HashMap<>();
 
 	CalendarView(final CalendarModel calendarModel, final DayService dayService,   final MessageSource messageSource, final ButtonBox buttonBox) {
 
 		this.messageSource = messageSource;
 
 		this.calendarModel = calendarModel;
-
+		 
+		filterTexte.put(Filter.Holiday, typeHoliday);
+		filterTexte.put(Filter.Vacation, typeVacation);
+		filterTexte.put(Filter.WorkingDate, typeWorkingDate);
+		filterTexte.put(Filter.WorkingDay, typeWorkingDay);
 		createUI(dayService,buttonBox);
 
 		calendarModel.notifyObservers(CalendarModel.Events.ChangeLocale);
@@ -107,9 +123,15 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	
 		filtersComboBox.setItems(Arrays.asList(Filter.values()));
 		filtersComboBox.setAllowCustomValue(false);
-	
+		//filtersComboBox.setItemLabelGenerator( value ->  filterTexte.get(value).getText());
 		filtersComboBox.setValue(Filter.Vacation);
-
+		
+		
+		
+			
+		
+		
+		
 		final HorizontalLayout layout = new HorizontalLayout(grid);
 		grid.getElement().getStyle().set("overflow", "auto");
 
@@ -205,7 +227,6 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 		calendarModel.register(CalendarModel.Events.ChangeLocale, () -> {
 			localize(messageSource, calendarModel.locale());
-			
 			Arrays.asList(ValidationErrors.values()).stream().filter(validationError -> validationError!= ValidationErrors.Ok).forEach(validationError -> validationErrors.put( validationError, messageSource.getMessage("calendar_validation_" + validationError.name().toLowerCase() , null, "???", calendarModel.locale())));
 			
 		});
@@ -320,12 +341,12 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	}
 	
 	ValueProvider<Day<?>, String> dateValueProvider() {
+		
 		return day -> calendarModel.convert(day, Year.now());
 	}
 	
 	ValueProvider<Day<?>, String> typeValueProvider() {
-		
-		return day -> calendarModel.filter(day).name();
+		return day -> filterTexte.get(calendarModel.filter(day)).getText();
 	
 	}
 
