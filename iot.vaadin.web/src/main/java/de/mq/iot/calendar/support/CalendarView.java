@@ -109,6 +109,8 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 		calendarModel.notifyObservers(CalendarModel.Events.ChangeLocale);
 		
+		filtersComboBox.setValue(Filter.Vacation);
+		
 
 	}
 
@@ -120,11 +122,11 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		deleteButton.setEnabled(false);
 
 		dayOfWeekComboBox.setItems(calendarModel.daysOfWeek());
-	
+		filtersComboBox.setSizeFull();
 		filtersComboBox.setItems(Arrays.asList(Filter.values()));
 		filtersComboBox.setAllowCustomValue(false);
-		//filtersComboBox.setItemLabelGenerator( value ->  filterTexte.get(value).getText());
-		filtersComboBox.setValue(Filter.Vacation);
+		filtersComboBox.setItemLabelGenerator( value ->  filterTexte.get(value).getText());
+		
 		
 		
 		
@@ -263,7 +265,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		
 		saveButton.addClickListener(event -> process(specialday -> dayService.save(specialday), dayService)); 
 		
-		calendarModel.assign(CalendarModel.Filter.Vacation);
+		
 			
 	}
 
@@ -335,7 +337,6 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 	}
 
 	private Collection<Day<?>> readDates(final DayService dayService) {
-		
 		return dayService.days().stream().filter(calendarModel.filter()).sorted(calendarModel.comparator()).collect(Collectors.toList());
 		
 	}
