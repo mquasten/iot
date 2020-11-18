@@ -2,6 +2,7 @@ package de.mq.iot.calendar.support;
 
 import java.time.DayOfWeek;
 import java.time.Year;
+import java.time.format.TextStyle;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -120,7 +121,8 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		dayOfWeekLabel.setVisible(false);
 		saveButton.setEnabled(false);
 		deleteButton.setEnabled(false);
-
+	
+		dayOfWeekComboBox.setItemLabelGenerator(value -> value.getDisplayName(TextStyle.FULL, calendarModel.locale()));
 		dayOfWeekComboBox.setItems(calendarModel.daysOfWeek());
 		filtersComboBox.setSizeFull();
 		filtersComboBox.setItems(Arrays.asList(Filter.values()));

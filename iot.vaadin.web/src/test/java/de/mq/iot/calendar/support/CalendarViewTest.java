@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -37,6 +38,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
+
 
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
@@ -159,8 +161,8 @@ class CalendarViewTest {
 		assertEquals(specialday, dates.getItems().stream().findFirst().get());
 		
 		
-		@SuppressWarnings("unchecked")
-		final ComboBox<Filter> vacationOnlyCheckbox   = (ComboBox<Filter>) fields.get("filtersComboBox");
+		
+		final ComboBox<Filter> vacationOnlyCheckbox   = filterComboBox();
 		assertEquals(Filter.Vacation, vacationOnlyCheckbox.getValue());
 		
 		
@@ -329,8 +331,7 @@ class CalendarViewTest {
 	@Test
 	void filtersComboBox() {
 		
-		@SuppressWarnings("unchecked")
-		final ComboBox<Filter> filtersComboBox =  (ComboBox<Filter>) fields.get("filtersComboBox");
+		final ComboBox<Filter> filtersComboBox =  filterComboBox();
 		assertEquals(Filter.Vacation, filtersComboBox.getValue());
 
 		
@@ -345,12 +346,42 @@ class CalendarViewTest {
 		
 	}
 	
+	@Test
+	void filtersComboBoxLabels() {
+		
+		
+		final ComboBox<Filter> filtersComboBox =  filterComboBox();
+		assertEquals(I18N_DAYTYPE_HOLIDAY, filtersComboBox.getItemLabelGenerator().apply(Filter.Holiday));
+		assertEquals(I18N_DAYTYPE_VACATION, filtersComboBox.getItemLabelGenerator().apply(Filter.Vacation));
+		assertEquals(I18N_DAYTYPE_WORKINGDATE, filtersComboBox.getItemLabelGenerator().apply(Filter.WorkingDate));
+		assertEquals(I18N_DAYTYPE_WORKINGDAY, filtersComboBox.getItemLabelGenerator().apply(Filter.WorkingDay));
+		
+		
+	}
+
+	@SuppressWarnings("unchecked")
+	private ComboBox<Filter> filterComboBox() {
+		return (ComboBox<Filter>) fields.get("filtersComboBox");
+	}
+	@Test
+	void daysOfWeekLabels() {
+		
+		final ComboBox<DayOfWeek> dayOfWeekComboBox =   dayOfWeekComboBox();
+		Arrays.asList(DayOfWeek.values()).stream().forEach(value -> assertEquals(value.getDisplayName(TextStyle.FULL, Locale.GERMAN), dayOfWeekComboBox.getItemLabelGenerator().apply(value)));
+		
+	}
+
+	@SuppressWarnings("unchecked")
+	private ComboBox<DayOfWeek> dayOfWeekComboBox() {
+		return (ComboBox<DayOfWeek>) fields.get("dayOfWeekComboBox");
+	}
+	
 	
 	@Test
 	void enableEditorFields() {
 		
-		@SuppressWarnings("unchecked")
-		final ComboBox<Filter> filtersComboBox =  (ComboBox<Filter>) fields.get("filtersComboBox");
+	
+		final ComboBox<Filter> filtersComboBox =  filterComboBox();
 		final TextField from = (TextField) fields.get("fromTextField");
 		final TextField to = (TextField) fields.get("toTextField");
 		
@@ -532,8 +563,8 @@ class CalendarViewTest {
 	void dayOfWeekComboBoxListenerValidationError() {
 		Mockito.when(calendarModel.validateDayofWeek(DayOfWeek.MONDAY)).thenReturn(CalendarModel.ValidationErrors.Invalid);
 		
-		@SuppressWarnings("unchecked")
-		final ComboBox<DayOfWeek> dayOfWeekComboBox =  (ComboBox<DayOfWeek>) fields.get("dayOfWeekComboBox");
+	
+		final ComboBox<DayOfWeek> dayOfWeekComboBox =  dayOfWeekComboBox();
 		
 		dayOfWeekComboBox.setValue(DayOfWeek.MONDAY);
 		
@@ -547,8 +578,8 @@ class CalendarViewTest {
 	void dayOfWeekComboBoxListenerValidationOk() {
 		Mockito.when(calendarModel.validateDayofWeek(DayOfWeek.MONDAY)).thenReturn(CalendarModel.ValidationErrors.Ok);
 		
-		@SuppressWarnings("unchecked")
-		final ComboBox<DayOfWeek> dayOfWeekComboBox =  (ComboBox<DayOfWeek>) fields.get("dayOfWeekComboBox");
+		
+		final ComboBox<DayOfWeek> dayOfWeekComboBox =  dayOfWeekComboBox();
 		dayOfWeekComboBox.setInvalid(true);
 		dayOfWeekComboBox.setErrorMessage(I18N_CALENDAR_VALIDATION);
 		
