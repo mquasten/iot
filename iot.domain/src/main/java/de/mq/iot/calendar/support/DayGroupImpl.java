@@ -4,6 +4,7 @@ import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.DayGroup;
 
+@SuppressWarnings("preview")
 record DayGroupImpl(String name, int priority) implements DayGroup {
 	
 	public DayGroupImpl {
