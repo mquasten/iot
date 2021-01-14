@@ -3,8 +3,6 @@ package de.mq.iot.authentication;
 import java.util.Collection;
 import java.util.Optional;
 
-
-
 public interface AuthentificationService {
 
 	Optional<Authentication> authentification(String username);
