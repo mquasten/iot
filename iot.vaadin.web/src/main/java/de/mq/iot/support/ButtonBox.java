@@ -71,7 +71,7 @@ public class ButtonBox extends HorizontalLayout {
 		languageDeButton.setIcon(new Image("de.png", "de"));
 		add(languageDeButton);
 		
-		languageEnButton.setIcon(new Image("en.png", ""));
+		languageEnButton.setIcon(new Image("en.png", "en"));
 		add(languageEnButton);
 		
 		closeButton.setIcon(VaadinIcons.CLOSE.create());
