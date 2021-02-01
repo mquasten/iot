@@ -3,6 +3,7 @@ package de.mq.iot.support;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcons;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
@@ -23,6 +24,10 @@ public class ButtonBox extends HorizontalLayout {
 	private final Button rulesButton = new Button();
 	
 	private final Button usersButton = new Button();
+	
+	private final Button languageDeButton = new Button();
+	
+	private final Button languageEnButton = new Button();
 	
 	public ButtonBox () {
 	
@@ -62,6 +67,12 @@ public class ButtonBox extends HorizontalLayout {
 		usersButton.addClickListener( event ->  ((Component) event.getSource()).getUI().ifPresent(ui -> ui.navigate("users")) ); 
 		
 		add(usersButton);
+		
+		languageDeButton.setIcon(new Image("de.png", "de"));
+		add(languageDeButton);
+		
+		languageEnButton.setIcon(new Image("en.png", ""));
+		add(languageEnButton);
 		
 		closeButton.setIcon(VaadinIcons.CLOSE.create());
 		add(closeButton);
