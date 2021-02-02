@@ -37,6 +37,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
 
 import de.mq.iot.model.Observer;
+import de.mq.iot.model.Subject;
 import de.mq.iot.rule.RulesDefinition;
 import de.mq.iot.rule.support.RuleDefinitionModel.Events;
 import de.mq.iot.support.ButtonBox;
@@ -84,6 +85,8 @@ class RulesDefinitionViewTest {
 	
 	
 	private final SimpleAggrgationResultsDialog simpleAggrgationResultsDialog = Mockito.mock(SimpleAggrgationResultsDialog.class);
+	
+	private final Subject<?, ?> subject = Mockito.mock(Subject.class);
 
 	@BeforeEach
 	void setup() {
@@ -108,7 +111,7 @@ class RulesDefinitionViewTest {
 
 		}).when(ruleDefinitionModel).register(Mockito.any(), Mockito.any());
 
-		rulesDefinitionView = new RulesDefinitionView(ruleDefinitionModel, rulesService, new ButtonBox(), messageSource, simpleAggrgationResultsDialog);
+		rulesDefinitionView = new RulesDefinitionView(ruleDefinitionModel, rulesService, new ButtonBox(subject), messageSource, simpleAggrgationResultsDialog);
 
 		fields.putAll(Arrays.asList(rulesDefinitionView.getClass().getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).collect(Collectors.toMap(Field::getName, field -> ReflectionTestUtils.getField(rulesDefinitionView, field.getName()))));
 	}
@@ -165,7 +168,7 @@ class RulesDefinitionViewTest {
 		
 		
 		Mockito.when(ruleDefinitionModel.isChangeAndExecuteRules()).thenReturn(true);
-		rulesDefinitionView = new RulesDefinitionView(ruleDefinitionModel, rulesService, new ButtonBox(), messageSource, simpleAggrgationResultsDialog);
+		rulesDefinitionView = new RulesDefinitionView(ruleDefinitionModel, rulesService, new ButtonBox(subject), messageSource, simpleAggrgationResultsDialog);
 		fields.clear();
 		fields.putAll(Arrays.asList(rulesDefinitionView.getClass().getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).collect(Collectors.toMap(Field::getName, field -> ReflectionTestUtils.getField(rulesDefinitionView, field.getName()))));
 		final List<?> footerLayouts = (List<?>) fields.get("footerLayouts");

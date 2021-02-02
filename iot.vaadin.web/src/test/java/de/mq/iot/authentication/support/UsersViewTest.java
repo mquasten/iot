@@ -39,6 +39,7 @@ import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.AuthentificationService;
 import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
+import de.mq.iot.model.Subject;
 import de.mq.iot.state.support.SimpleNotificationDialog;
 import de.mq.iot.support.ButtonBox;
 
@@ -79,6 +80,8 @@ class UsersViewTest {
 	private final Authentication user = Mockito.mock(Authentication.class);
 
 	private final Authentication otherUser = Mockito.mock(Authentication.class);
+	
+	private final Subject<?, ?> subject = Mockito.mock(Subject.class);
 
 	@BeforeEach
 	void setup() {
@@ -97,7 +100,7 @@ class UsersViewTest {
 
 		}).when(userModel).register(Mockito.any(), Mockito.any());
 
-		userView = new UsersView(authentificationService, userModel, messageSource, new ButtonBox(),
+		userView = new UsersView(authentificationService, userModel, messageSource, new ButtonBox(subject),
 				notificationDialog);
 
 		assignFields();
@@ -184,7 +187,7 @@ class UsersViewTest {
 
 		Mockito.doReturn(false).when(userModel).isAdmin();
 
-		userView = new UsersView(authentificationService, userModel, messageSource, new ButtonBox(),
+		userView = new UsersView(authentificationService, userModel, messageSource, new ButtonBox(subject),
 				notificationDialog);
 
 		assignFields();

@@ -4,12 +4,11 @@ import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import de.mq.iot.model.LocaleAware;
 import de.mq.iot.model.Subject;
 import de.mq.iot.rule.RulesDefinition;
 
 
-public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events, RuleDefinitionModel> , LocaleAware {
+public interface RuleDefinitionModel extends Subject<RuleDefinitionModel.Events, RuleDefinitionModel>  {
 		
 		enum Events {
 			AssignRuleDefinition,

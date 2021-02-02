@@ -7,6 +7,8 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcons;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
+import de.mq.iot.model.Subject;
+
 public class ButtonBox extends HorizontalLayout {
 
 	
@@ -29,7 +31,7 @@ public class ButtonBox extends HorizontalLayout {
 	
 	private final Button languageEnButton = new Button();
 	
-	public ButtonBox () {
+	public ButtonBox (final Subject<?, ?> subject) {
 	
 		
 		systemsVariablesButton.setIcon(VaadinIcons.ABACUS.create());
@@ -78,6 +80,16 @@ public class ButtonBox extends HorizontalLayout {
 		add(closeButton);
 		
 		closeButton.addClickListener( event -> ((Component) event.getSource()).getUI().ifPresent(ui -> invalidateSession(ui)));
+		
+		languageDeButton.addClickListener(event -> {
+			System.out.println("***DE***");
+			
+		});
+		
+		languageEnButton.addClickListener( event -> {
+			System.out.println("***En***");
+		});
+		
 	}
 	
 	private void invalidateSession(final UI ui) {

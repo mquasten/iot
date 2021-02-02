@@ -5,10 +5,10 @@ import java.util.Optional;
 
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
-import de.mq.iot.model.LocaleAware;
+
 import de.mq.iot.model.Subject;
 
-interface UserModel extends Subject<UserModel.Events, LoginModel>, LocaleAware{
+interface UserModel extends Subject<UserModel.Events, LoginModel>{
 	
 	enum Events {
 		ChangeLocale,

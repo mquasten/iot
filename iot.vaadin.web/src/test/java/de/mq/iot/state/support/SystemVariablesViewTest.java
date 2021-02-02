@@ -35,6 +35,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
 
 import de.mq.iot.model.Observer;
+import de.mq.iot.model.Subject;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.support.StateModel.Events;
@@ -74,6 +75,8 @@ class SystemVariablesViewTest {
 	private final Map<StateModel.Events, Observer> observers = new HashMap<>();
 
 	private final SimpleNotificationDialog notificationDialog = Mockito.mock(SimpleNotificationDialog.class);
+	
+	private final Subject<?, ?> subject = Mockito.mock(Subject.class);
 
 	
 	
@@ -106,7 +109,7 @@ class SystemVariablesViewTest {
 
 		
 		
-		systemVariablesView = new SystemVariablesView(stateService, stateModel, converter, messageSource, notificationDialog,  new ButtonBox());;
+		systemVariablesView = new SystemVariablesView(stateService, stateModel, converter, messageSource, notificationDialog,  new ButtonBox(subject));;
 
 		Arrays.asList(SystemVariablesView.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> fields.put(field.getName(), ReflectionTestUtils.getField(systemVariablesView, field.getName())));
 

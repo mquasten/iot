@@ -37,6 +37,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
 
 import de.mq.iot.model.Observer;
+import de.mq.iot.model.Subject;
 import de.mq.iot.state.Room;
 import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
@@ -84,6 +85,7 @@ class DeviceViewTest {
 	private final Room room = new RoomImpl("Schlafzimmer");
 
 	private final Map<DeviceModel.Events, Observer> observers = new HashMap<>();
+	private final Subject<?, ?> subject = Mockito.mock(Subject.class);
 
 	@BeforeEach
 	final void setup() {
@@ -107,7 +109,7 @@ class DeviceViewTest {
 
 		}).when(deviceModel).register(Mockito.any(), Mockito.any());
 
-		deviceView = new DeviceView(stateService, synonymService, deviceModel, messageSource, new ButtonBox());
+		deviceView = new DeviceView(stateService, synonymService, deviceModel, messageSource, new ButtonBox(subject));
 		fields.putAll(Arrays.asList(deviceView.getClass().getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).collect(Collectors.toMap(Field::getName, field -> ReflectionTestUtils.getField(deviceView, field.getName()))));
 
 		Arrays.asList(I18N_DEVICES_CHANGE, I18N_DEVICES_INFO, I18N_DEVICES_DEVICES_VALUE, I18N_DEVICES_DEVICES, I18N_DEVICES_VALUE, I18N_DEVICES_INVALID_VALUE_LEVEL, I18N_DEVICES_INVALID_VALUE_STATE, I18N_DEVICES_TYPE_STATE, I18N_DEVICES_TYPE_LEVEL).forEach(key -> {

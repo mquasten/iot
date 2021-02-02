@@ -3,6 +3,7 @@ package de.mq.iot.model.support;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -42,6 +43,15 @@ public class SubjectImpl<Key, Model> implements Subject<Key, Model> {
 	@Override
 	public Optional<Authentication> currentUser() {
 		return securityContext.authentication();
+	}
+	
+	void assign(final Locale locale) {
+		securityContext.assign(locale);
+	}
+
+	@Override
+	public Locale locale() {
+		return securityContext.locale();
 	}
 
 }

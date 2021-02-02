@@ -90,8 +90,8 @@ class StateModelConfiguration  {
 	
 	@Bean
 	@UIScope
-	ButtonBox buttonBox() {
-		return new ButtonBox();
+	ButtonBox buttonBox(final Subject<?, ?> subject) {
+		return new ButtonBox(subject);
 	}
 	
    

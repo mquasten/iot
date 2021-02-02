@@ -2,13 +2,12 @@ package de.mq.iot.state.support;
 
 import java.util.Optional;
 
-import de.mq.iot.model.LocaleAware;
 import de.mq.iot.model.Subject;
 import de.mq.iot.state.State;
 
 
 
-interface StateModel extends Subject<StateModel.Events, StateModel> , LocaleAware {
+interface StateModel extends Subject<StateModel.Events, StateModel>  {
 	
 	enum Events {
 		AssignState,

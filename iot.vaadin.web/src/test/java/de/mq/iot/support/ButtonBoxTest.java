@@ -24,11 +24,13 @@ import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedHttpSession;
 
+import de.mq.iot.model.Subject;
+
 
 
 class ButtonBoxTest {
-	
-	private final ButtonBox buttonBox = new ButtonBox();
+	private final Subject<?, ?> subject = Mockito.mock(Subject.class);
+	private final ButtonBox buttonBox = new ButtonBox(subject);
 	
 	private final Map<String, Button> fields = new HashMap<>();
 	

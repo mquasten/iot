@@ -117,7 +117,7 @@ class StateModelConfigurationTest {
 	
 	@Test
 	void buttonBox() {
-		assertNotNull(stateModelConfiguration.buttonBox());
+		assertNotNull(stateModelConfiguration.buttonBox(subject));
 	}
 	
 	

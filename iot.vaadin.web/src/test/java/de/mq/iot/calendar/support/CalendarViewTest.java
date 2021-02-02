@@ -49,6 +49,7 @@ import de.mq.iot.calendar.support.CalendarModel.Events;
 import de.mq.iot.calendar.support.CalendarModel.Filter;
 import de.mq.iot.calendar.support.CalendarModel.ValidationErrors;
 import de.mq.iot.model.Observer;
+import de.mq.iot.model.Subject;
 import de.mq.iot.support.ButtonBox;
 
 
@@ -95,6 +96,8 @@ class CalendarViewTest {
 	
 	private final Map<CalendarModel.Events, Observer> observers = new HashMap<>();
 	
+	private final Subject<?, ?> subject = Mockito.mock(Subject.class);
+	
 	@BeforeEach
 	void setup() {
 		Mockito.when(dayService.days()).thenReturn(Arrays.asList(specialday));
@@ -127,7 +130,7 @@ class CalendarViewTest {
 		
 		
 		
-		calendarView = new CalendarView(calendarModel, dayService, messageSource,  new ButtonBox());
+		calendarView = new CalendarView(calendarModel, dayService, messageSource,  new ButtonBox(subject));
 		
 		Arrays.asList(CalendarView.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> fields.put(field.getName(), ReflectionTestUtils.getField(calendarView, field.getName())));
 	

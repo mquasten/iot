@@ -13,11 +13,10 @@ import org.springframework.util.Assert;
 
 import de.mq.iot.calendar.Day;
 import de.mq.iot.calendar.DayGroup;
-import de.mq.iot.model.LocaleAware;
 import de.mq.iot.model.Subject;
 
 
-public interface CalendarModel extends Subject<CalendarModel.Events, CalendarModel> , LocaleAware  {
+public interface CalendarModel extends Subject<CalendarModel.Events, CalendarModel>   {
 
 	enum Events {
 	
