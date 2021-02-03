@@ -30,6 +30,7 @@ import de.mq.iot.model.Subject;
 import de.mq.iot.model.support.SubjectImpl;
 import de.mq.iot.state.State;
 import de.mq.iot.state.support.DeviceModel.Events;
+import de.mq.iot.support.ButtonBox;
 
 
 class StateModelConfigurationTest {
@@ -117,7 +118,12 @@ class StateModelConfigurationTest {
 	
 	@Test
 	void buttonBox() {
-		assertNotNull(stateModelConfiguration.buttonBox(subject));
+		final ButtonBox buttonBox = stateModelConfiguration.buttonBox(subject);
+		assertNotNull(buttonBox);
+		assertTrue(DataAccessUtils.requiredSingleResult(Arrays.asList(ButtonBox.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(Subject.class)).map(field -> ReflectionTestUtils.getField(buttonBox, field.getName())).collect(Collectors.toSet()))  instanceof Subject);
+		
+		
+		
 	}
 	
 	

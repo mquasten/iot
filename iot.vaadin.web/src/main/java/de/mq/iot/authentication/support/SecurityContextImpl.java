@@ -36,6 +36,7 @@ public class SecurityContextImpl implements SecurityContext, LocaleAware {
 	@Override
 	public void assign(final Locale locale) {
 		Assert.notNull(locale, "Locale is mandatory.");
+		this.locale=locale;
 		
 	}
 

@@ -36,7 +36,7 @@ class ButtonBoxTest {
 	
 	@BeforeEach
 	void setup() {
-		Arrays.asList(ButtonBox.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> fields.put(field.getName(), (Button) ReflectionTestUtils.getField(buttonBox, field.getName())));
+		Arrays.asList(ButtonBox.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())&& field.getType().equals(Button.class)).forEach(field -> fields.put(field.getName(), (Button) ReflectionTestUtils.getField(buttonBox, field.getName())));
 
 	}
 	

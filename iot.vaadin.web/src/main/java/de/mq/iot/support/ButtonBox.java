@@ -31,9 +31,10 @@ public class ButtonBox extends HorizontalLayout {
 	
 	private final Button languageEnButton = new Button();
 	
+	private final Subject<?, ?> subject;
 	public ButtonBox (final Subject<?, ?> subject) {
 	
-		
+		this.subject=subject;
 		systemsVariablesButton.setIcon(VaadinIcons.ABACUS.create());
 		systemsVariablesButton.addClickListener( event ->  ((Component) event.getSource()).getUI().ifPresent(ui -> {
 			ui.navigate("");
@@ -83,12 +84,15 @@ public class ButtonBox extends HorizontalLayout {
 		
 		languageDeButton.addClickListener(event -> {
 			System.out.println("***DE***");
-			
+			System.out.println(this.subject);
 		});
 		
 		languageEnButton.addClickListener( event -> {
 			System.out.println("***En***");
+			System.out.println(this.subject);
 		});
+		
+		
 		
 	}
 	
