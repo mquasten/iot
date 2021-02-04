@@ -49,15 +49,7 @@ class UserModelIml implements UserModel {
 		subject.notifyObservers(key);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.mq.iot.model.LocaleAware#locale()
-	 */
-	@Override
-	public Locale locale() {
-		return Locale.GERMAN;
-	}
+	
 
 	/*
 	 * (non-Javadoc)
@@ -228,6 +220,22 @@ class UserModelIml implements UserModel {
 		}
 		Assert.isTrue(authentication.isPresent(), "Authentication should be aware.");
 		return currentUser.get().equals(authentication.get());
+	}
+
+	@Override
+	public void assign(final Locale locale) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.mq.iot.model.LocaleAware#locale()
+	 */
+	@Override
+	public Locale locale() {
+		return Locale.GERMAN;
 	}
 
 }

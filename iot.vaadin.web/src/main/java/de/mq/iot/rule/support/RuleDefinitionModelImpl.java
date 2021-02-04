@@ -110,10 +110,6 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 
 	}
 
-	@Override
-	public Locale locale() {
-		return Locale.GERMAN;
-	}
 
 	@Override
 	public Collection<String> optionalRules() {
@@ -266,6 +262,17 @@ class RuleDefinitionModelImpl implements RuleDefinitionModel {
 		}
 
 		return authentication.get().hasRole(Authority.Rules);
+	}
+
+	@Override
+	public void assign(final Locale locale) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public Locale locale() {
+		return Locale.GERMAN;
 	}
 
 }

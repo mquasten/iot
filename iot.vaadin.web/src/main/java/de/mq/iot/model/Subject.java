@@ -1,11 +1,10 @@
 package de.mq.iot.model;
 
-import java.util.Locale;
 import java.util.Optional;
 
 import de.mq.iot.authentication.Authentication;
 
-public interface Subject<Key,Model> {
+public interface Subject<Key,Model>  extends LocaleAware{
 	
 	Observer register(final Key key, final Observer observer);
 
@@ -15,7 +14,7 @@ public interface Subject<Key,Model> {
 		return Optional.empty();
 	}
 	
-	Locale locale();
+	
 	
 
 }

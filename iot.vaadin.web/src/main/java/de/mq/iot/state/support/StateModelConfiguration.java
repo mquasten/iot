@@ -36,8 +36,9 @@ class StateModelConfiguration  {
 	private final Class<? extends Dialog> dialogClass = Dialog.class; 
 
 	@Bean
-	//@UIScope
-	@Scope("prototype")
+	// Should be UIScope, not Prototype: subject must be reused.
+	@UIScope
+	//@Scope("prototype")
 	Subject<?, ?> subject(final SecurityContext securityContext) {
 		return new SubjectImpl<>(securityContext);
 	}

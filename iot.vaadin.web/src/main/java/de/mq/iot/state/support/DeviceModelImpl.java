@@ -86,16 +86,6 @@ private final ConversionService conversionService;
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.mq.iot.model.LocaleAware#locale()
-	 */
-	@Override
-	public Locale locale() {
-		return Locale.GERMAN;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see de.mq.iot.state.support.DeviceModel#assign(de.mq.iot.state.Room,
 	 * java.util.Collection)
 	 */
@@ -283,6 +273,22 @@ private final ConversionService conversionService;
 		}
 		
 		return authentication.get().hasRole(Authority.Devices);
+	}
+
+	@Override
+	public void assign(final Locale locale) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.mq.iot.model.LocaleAware#locale()
+	 */
+	@Override
+	public Locale locale() {
+		return Locale.GERMAN;
 	}
 	
 	

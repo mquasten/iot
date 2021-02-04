@@ -3,6 +3,7 @@ package de.mq.iot.model.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -32,9 +33,12 @@ class SubjectTest {
 	 
 	 private final Authentication currentUser =  Mockito.mock(Authentication.class);
 	 
+	 final Observer observerLocaleCanged = Mockito.mock(Observer.class);
+	 
 	 @BeforeEach
 	 void setup() {
 		 Mockito.when(securityContext.authentication()).thenReturn(Optional.of(currentUser));
+		 subject.register(Event.ChangeLocale, observerLocaleCanged);
 	 }
 	 
 	 
@@ -73,7 +77,7 @@ class SubjectTest {
 	 @Test
 	 void notifyObserversNotCalled() {
 		 subject.register(Event.UpdateModel, observer);
-		 subject.notifyObservers(Event.UpdateI18N);
+		 subject.notifyObservers(Event.ChangeLocale);
 		 Mockito.verify(observer, Mockito.never()).process();
 		 
 	 }
@@ -87,6 +91,24 @@ class SubjectTest {
 		 assertEquals(Optional.of(currentUser), subject.currentUser());
 	 }
 	 
+	 @Test
+	 void locale() {
+		 Mockito.doReturn(Locale.GERMAN).when(securityContext).locale();
+		 assertEquals(Locale.GERMAN, subject.locale());
+		 
+		 Mockito.doReturn(Locale.ENGLISH).when(securityContext).locale();
+		 assertEquals(Locale.ENGLISH, subject.locale());
+	 }
+	 
+	 @Test
+	 void assign() {
+		subject.assign(Locale.ENGLISH);
+		
+		Mockito.verify(securityContext, Mockito.times(1)).assign(Locale.ENGLISH);
+		
+		Mockito.verify(observerLocaleCanged).process();
+	 }
+	 
 	
 
 }
@@ -95,5 +117,5 @@ class SubjectTest {
 enum Event {
 	
 	UpdateModel,
-	UpdateI18N;
+	ChangeLocale;
 }

@@ -114,6 +114,7 @@ class  SystemVariablesView extends VerticalLayout implements LocalizeView {
 			
 			 localize(messageSource, stateModel.locale());
 			 loacalizeStateInfoLabel(stateModel);
+			 System.out.println("*** SystemVariablesView: ChangeLocale ***");
 			
 		});
 		initDialogMessageKeys();

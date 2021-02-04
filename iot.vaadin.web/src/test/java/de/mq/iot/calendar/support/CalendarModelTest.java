@@ -383,7 +383,7 @@ class CalendarModelTest {
 		calendarModel.assignDayOfWeek(DayOfWeek.MONDAY);
 		assertTrue(calendarModel.valid());
 		
-		calendarModel.assign(null);
+		calendarModel.assign((Filter) null);
 		calendarModel.assignDayOfWeek(null);
 		assertFalse(calendarModel.valid());
 		
@@ -427,7 +427,7 @@ class CalendarModelTest {
 		
 		
 		
-		calendarModel.assign(null);
+		calendarModel.assign((Filter) null);
 		assertFalse(calendarModel.filter().test(Mockito.mock(Day.class)));
 	}
 	
@@ -476,7 +476,7 @@ class CalendarModelTest {
 		calendarModel.assign(Filter.WorkingDay);
 		assertTrue(calendarModel.isDayOfWeek());
 		
-		calendarModel.assign(null);
+		calendarModel.assign((Filter) null);
 		assertFalse(calendarModel.isDayOfWeek());
 		
 		calendarModel.assign(Filter.Vacation);
@@ -586,7 +586,7 @@ class CalendarModelTest {
 	}
 	@Test
 	void editable() {
-		calendarModel.assign(null);
+		calendarModel.assign((Filter) null);
 		assertFalse(calendarModel.editable());
 		calendarModel.assign(Filter.WorkingDay);
 		assertTrue(calendarModel.editable());

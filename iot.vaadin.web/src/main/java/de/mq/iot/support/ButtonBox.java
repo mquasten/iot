@@ -1,5 +1,7 @@
 package de.mq.iot.support;
 
+import java.util.Locale;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -85,11 +87,13 @@ public class ButtonBox extends HorizontalLayout {
 		languageDeButton.addClickListener(event -> {
 			System.out.println("***DE***");
 			System.out.println(this.subject);
+			subject.assign(Locale.GERMAN);
 		});
 		
 		languageEnButton.addClickListener( event -> {
 			System.out.println("***En***");
 			System.out.println(this.subject);
+			subject.assign(Locale.ENGLISH);
 		});
 		
 		

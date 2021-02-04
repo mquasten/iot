@@ -7,12 +7,16 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.util.Assert;
+
 import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.SecurityContext;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
 
 public class SubjectImpl<Key, Model> implements Subject<Key, Model> {
+
+	private static final String LOCALE_CHANGED_PATTERN = ".*locale.*";
 
 	final Map<Key, Collection<Observer>> observers = new HashMap<>();
 	
@@ -45,13 +49,28 @@ public class SubjectImpl<Key, Model> implements Subject<Key, Model> {
 		return securityContext.authentication();
 	}
 	
-	void assign(final Locale locale) {
+	@Override
+	public void assign(final Locale locale) {
+		Assert.notNull(locale, "Locale is mandatory.");
 		securityContext.assign(locale);
+		notifyLocaleChangedObservers();
+		
+	}
+	
+	private void notifyLocaleChangedObservers() {
+		observers.keySet().stream().filter(key -> key.toString().toLowerCase().matches(LOCALE_CHANGED_PATTERN)).forEach(key -> notifyObservers(key));
+		
 	}
 
 	@Override
 	public Locale locale() {
 		return securityContext.locale();
+	}
+	
+	
+	public void reset() {
+		observers.clear();
+		
 	}
 
 }

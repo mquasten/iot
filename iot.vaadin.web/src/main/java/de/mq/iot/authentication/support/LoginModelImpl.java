@@ -69,4 +69,11 @@ class LoginModelImpl  implements LoginModel{
 		return Locale.GERMAN;
 	}
 
+
+	@Override
+	public void assign(final Locale locale) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -17,6 +17,7 @@ import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
+import de.mq.iot.model.support.SubjectImpl;
 import de.mq.iot.state.State;
 
 class StateModelImpl implements StateModel {
@@ -29,6 +30,7 @@ class StateModelImpl implements StateModel {
 	StateModelImpl(final Subject<Events, StateModel> subject, final ConversionService conversionService) {
 		this.subject = subject;
 		this.conversionService = conversionService;
+		((SubjectImpl<?, ?>)subject).reset();
 	}
 
 	@Override
@@ -147,10 +149,6 @@ class StateModelImpl implements StateModel {
 		return new String[] { state.value().getClass().getSimpleName(), "" + state.id(), builder.toString() };
 	}
 
-	@Override
-	public Locale locale() {
-		return Locale.GERMAN;
-	}
 	
 	@Override
 	public boolean isChangeVariableAllowed() {
@@ -161,6 +159,16 @@ class StateModelImpl implements StateModel {
 		}
 		
 		return authentication.get().hasRole(Authority.Systemvariables);
+	}
+
+	@Override
+	public void assign(final Locale locale) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public Locale locale() {
+		return Locale.GERMAN;
 	}
 
 

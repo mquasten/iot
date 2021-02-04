@@ -84,11 +84,6 @@ class CalendarModelImpl  implements CalendarModel  {
 	}
 
 
-	@Override
-	public Locale locale() {
-		return Locale.GERMAN;
-	}
-
 
 	@Override
 	public ValidationErrors validateFrom(final String date) {
@@ -322,6 +317,18 @@ class CalendarModelImpl  implements CalendarModel  {
 			return false;
 		}
 		return filter.editable();
+	}
+
+
+	@Override
+	public void assign(final Locale locale) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public Locale locale() {
+		return Locale.GERMAN;
 	}
 	
 
