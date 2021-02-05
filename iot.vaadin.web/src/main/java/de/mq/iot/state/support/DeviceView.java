@@ -134,6 +134,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 			localize(messageSource, deviveModel.locale());
 			stateValueField.localize(valueLabel.getText());
 			devicesValueColumn.forEach(column -> column.setHeader(deviceValueLabel.getText()));
+			System.out.println("*** DeviceView: ChangeLocale ***");
 
 		});
 

@@ -11,9 +11,13 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 import de.mq.iot.model.Subject;
 
+
 public class ButtonBox extends HorizontalLayout {
+	
 
 	
+	private static final String CHANGE_LOCALE_EVENT = "ChangeLocale";
+
 	private static final long serialVersionUID = 1L;
 	
 	private final Button systemsVariablesButton = new Button();
@@ -33,10 +37,12 @@ public class ButtonBox extends HorizontalLayout {
 	
 	private final Button languageEnButton = new Button();
 	
-	private final Subject<?, ?> subject;
-	public ButtonBox (final Subject<?, ?> subject) {
+	private final Subject<String, Subject<?,?>> subject;
 	
-		this.subject=subject;
+	
+	public ButtonBox (final Subject<?,?> subject) {
+	
+		this.subject=subject(subject);
 		systemsVariablesButton.setIcon(VaadinIcons.ABACUS.create());
 		systemsVariablesButton.addClickListener( event ->  ((Component) event.getSource()).getUI().ifPresent(ui -> {
 			ui.navigate("");
@@ -84,22 +90,28 @@ public class ButtonBox extends HorizontalLayout {
 		
 		closeButton.addClickListener( event -> ((Component) event.getSource()).getUI().ifPresent(ui -> invalidateSession(ui)));
 		
-		languageDeButton.addClickListener(event -> {
-			System.out.println("***DE***");
-			System.out.println(this.subject);
-			subject.assign(Locale.GERMAN);
-		});
+		languageDeButton.addClickListener(event -> subject.assign(Locale.GERMAN));
 		
-		languageEnButton.addClickListener( event -> {
-			System.out.println("***En***");
-			System.out.println(this.subject);
-			subject.assign(Locale.ENGLISH);
-		});
+		languageEnButton.addClickListener( event -> subject.assign(Locale.ENGLISH));
 		
 		
-		
+		this.subject.register(CHANGE_LOCALE_EVENT , () -> setLanguageButtonsVisible(subject));
+		setLanguageButtonsVisible(subject);
+	}
+
+
+	private void setLanguageButtonsVisible(final Subject<?, ?> subject) {
+		languageEnButton.setVisible(subject.locale()!=Locale.ENGLISH);
+		languageDeButton.setVisible(subject.locale()!=Locale.GERMAN);
 	}
 	
+	
+	
+	@SuppressWarnings("unchecked")
+	Subject<String, Subject<?,?>> subject(final Subject<?,?> subject){
+		return  (Subject<String, Subject<?, ?>>) subject;
+		
+	}
 	private void invalidateSession(final UI ui) {
 		ui.getSession().getSession().invalidate();
 		ui.getPage().reload();

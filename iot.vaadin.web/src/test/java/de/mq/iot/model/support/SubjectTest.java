@@ -29,7 +29,7 @@ class SubjectTest {
 	
 	private final SecurityContext securityContext = Mockito.mock(SecurityContext.class);
 
-	 private final Subject<Event, Object> subject = new SubjectImpl<>(securityContext);
+	 private final Subject<Event, Object> subject = new SubjectImpl<>(securityContext, true);
 	 
 	 private final Authentication currentUser =  Mockito.mock(Authentication.class);
 	 

@@ -40,7 +40,7 @@ class StateModelConfigurationTest {
 	final SecurityContext securityContext = Mockito.mock(SecurityContext.class);
 	private final ConversionService conversionService = Mockito.mock(ConversionService.class);
 	
-	private final Subject<StateModel.Events, StateModel> subject = new SubjectImpl<>(securityContext);
+	private final Subject<StateModel.Events, StateModel> subject = new SubjectImpl<>(securityContext,true);
 	
 	@Test
 	void subject() {
@@ -118,6 +118,7 @@ class StateModelConfigurationTest {
 	
 	@Test
 	void buttonBox() {
+		
 		final ButtonBox buttonBox = stateModelConfiguration.buttonBox(subject);
 		assertNotNull(buttonBox);
 		assertTrue(DataAccessUtils.requiredSingleResult(Arrays.asList(ButtonBox.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(Subject.class)).map(field -> ReflectionTestUtils.getField(buttonBox, field.getName())).collect(Collectors.toSet()))  instanceof Subject);

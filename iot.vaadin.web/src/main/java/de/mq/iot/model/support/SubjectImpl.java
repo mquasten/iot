@@ -22,14 +22,20 @@ public class SubjectImpl<Key, Model> implements Subject<Key, Model> {
 	
 	private SecurityContext securityContext;
 	
-	public SubjectImpl(final SecurityContext securityContext){
+	private final boolean singleEvents;
+	
+	public SubjectImpl(final SecurityContext securityContext, final boolean singleEvents){
 		this.securityContext=securityContext;
+		this.singleEvents=singleEvents;
 	}
 
 	@Override
 	public Observer register(final Key key, final Observer observer) {
 		if (!observers.containsKey(key)) {
 			observers.put(key, new HashSet<>());
+		} 
+		if( singleEvents) {
+			observers.get(key).clear();
 		}
 		observers.get(key).add(observer);
 		return observers.get(key).stream().filter(existingObjerver -> observer.equals(existingObjerver)).findFirst().get();
@@ -68,9 +74,6 @@ public class SubjectImpl<Key, Model> implements Subject<Key, Model> {
 	}
 	
 	
-	public void reset() {
-		observers.clear();
-		
-	}
+	
 
 }

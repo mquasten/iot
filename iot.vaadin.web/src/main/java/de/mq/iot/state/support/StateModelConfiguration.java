@@ -40,7 +40,7 @@ class StateModelConfiguration  {
 	@UIScope
 	//@Scope("prototype")
 	Subject<?, ?> subject(final SecurityContext securityContext) {
-		return new SubjectImpl<>(securityContext);
+		return new SubjectImpl<>(securityContext,true);
 	}
 	
 	

@@ -17,7 +17,6 @@ import de.mq.iot.authentication.Authentication;
 import de.mq.iot.authentication.Authority;
 import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
-import de.mq.iot.model.support.SubjectImpl;
 import de.mq.iot.state.State;
 
 class StateModelImpl implements StateModel {
@@ -30,7 +29,6 @@ class StateModelImpl implements StateModel {
 	StateModelImpl(final Subject<Events, StateModel> subject, final ConversionService conversionService) {
 		this.subject = subject;
 		this.conversionService = conversionService;
-		((SubjectImpl<?, ?>)subject).reset();
 	}
 
 	@Override
@@ -168,7 +166,7 @@ class StateModelImpl implements StateModel {
 	}
 	@Override
 	public Locale locale() {
-		return Locale.GERMAN;
+		return subject.locale();
 	}
 
 
