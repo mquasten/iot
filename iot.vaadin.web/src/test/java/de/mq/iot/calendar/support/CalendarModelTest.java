@@ -591,5 +591,10 @@ class CalendarModelTest {
 		calendarModel.assign(Filter.WorkingDay);
 		assertTrue(calendarModel.editable());
 	}
+	@Test
+	void assign() {
+		calendarModel.assign(Locale.GERMAN);
+		Mockito.verify(subject).assign(Locale.GERMAN);
+	}
 	
 }

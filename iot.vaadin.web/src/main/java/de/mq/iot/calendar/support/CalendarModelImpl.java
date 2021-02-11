@@ -322,7 +322,7 @@ class CalendarModelImpl  implements CalendarModel  {
 
 	@Override
 	public void assign(final Locale locale) {
-		// TODO Auto-generated method stub
+		subject.assign(locale);
 		
 	}
 	

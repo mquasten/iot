@@ -161,7 +161,7 @@ class StateModelImpl implements StateModel {
 
 	@Override
 	public void assign(final Locale locale) {
-		// TODO Auto-generated method stub
+		subject.assign(locale);
 		
 	}
 	@Override

@@ -1,13 +1,14 @@
 package de.mq.iot.model.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +30,7 @@ class SubjectTest {
 	
 	private final SecurityContext securityContext = Mockito.mock(SecurityContext.class);
 
-	 private final Subject<Event, Object> subject = new SubjectImpl<>(securityContext, true);
+	 private final Subject<Event, Object> subject = new SubjectImpl<>(securityContext, false);
 	 
 	 private final Authentication currentUser =  Mockito.mock(Authentication.class);
 	 
@@ -46,24 +47,33 @@ class SubjectTest {
 	 void register() {
 		 assertEquals(observer, subject.register(Event.UpdateModel, observer));
 		
-		final Map<Event,Set<Consumer<Object>>> observers = observersMap();
+		final Map<Event,Set<Observer>> observers = observersMap();
 	 
 		assertEquals(1, observers.get(Event.UpdateModel).size());
-		assertEquals(1, observers.get(Event.UpdateModel).size());
+		assertEquals(1, observers.get(Event.ChangeLocale).size());
 		assertEquals(observer, observers.get(Event.UpdateModel).stream().findFirst().get());
 		
 		
-		assertEquals(observer, subject.register(Event.UpdateModel, observer));
+		Observer newChangeLocaleObserver = Mockito.mock(Observer.class);
+		final Observer newObserver = newChangeLocaleObserver;
+		assertEquals(newObserver, subject.register(Event.UpdateModel, newObserver));
 		
-		assertEquals(1, observers.get(Event.UpdateModel).size());
-		assertEquals(1, observers.get(Event.UpdateModel).size());
-		assertEquals(observer, observers.get(Event.UpdateModel).stream().findFirst().get());
+		assertEquals(2, observers.get(Event.UpdateModel).size());
+	
+		assertTrue(observers.get(Event.UpdateModel).contains(observer));
+		assertTrue(observers.get(Event.UpdateModel).contains(newObserver));
+		
+		Arrays.asList(SubjectImpl.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(boolean.class)).forEach(field ->  ReflectionTestUtils.setField(subject, field.getName(), Boolean.TRUE));
+		
+		
+		assertEquals(newChangeLocaleObserver, subject.register(Event.ChangeLocale, newChangeLocaleObserver));
+		assertEquals(1, observers.get(Event.ChangeLocale).size());
 	 }
 
 	 
 	 @SuppressWarnings("unchecked")
-	 private  Map<Event,Set<Consumer<Object>>> observersMap() {
-		return  (Map<Event, Set<Consumer<Object>>>) DataAccessUtils.requiredSingleResult(Arrays.asList(SubjectImpl.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(Map.class)).map(field -> ReflectionTestUtils.getField(subject, field.getName())).collect(Collectors.toList()));
+	 private  Map<Event,Set<Observer>> observersMap() {
+		return  (Map<Event, Set<Observer>>) DataAccessUtils.requiredSingleResult(Arrays.asList(SubjectImpl.class.getDeclaredFields()).stream().filter(field -> field.getType().equals(Map.class)).map(field -> ReflectionTestUtils.getField(subject, field.getName())).collect(Collectors.toList()));
 		
 	 }
 	 
@@ -76,8 +86,10 @@ class SubjectTest {
 	 
 	 @Test
 	 void notifyObserversNotCalled() {
-		 subject.register(Event.UpdateModel, observer);
-		 subject.notifyObservers(Event.ChangeLocale);
+		
+		 subject.notifyObservers(Event.UpdateModel);
+		 final Map<Event,Set<Observer>> observers = observersMap();
+		 assertFalse(observers.containsKey(Event.UpdateModel));
 		 Mockito.verify(observer, Mockito.never()).process();
 		 
 	 }

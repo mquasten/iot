@@ -197,4 +197,10 @@ class UserModelTest {
 
 		assertTrue(userModel.isPasswordChangeAllowed());
 	}
+	
+	@Test
+	void assignLocale() {
+		userModel.assign(Locale.GERMAN);
+		Mockito.verify(subject).assign(Locale.GERMAN);
+	}
 }

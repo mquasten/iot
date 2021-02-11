@@ -68,7 +68,9 @@ class StateModelTest {
 
 	@Test
 	void locale() {
-		assertEquals(Locale.GERMAN, stateModel.locale());
+		
+		Mockito.doReturn(Locale.CHINESE).when(subject).locale();
+		assertEquals(Locale.CHINESE, stateModel.locale());
 	}
 
 	@Test
@@ -264,6 +266,11 @@ class StateModelTest {
 		
 		assertFalse(stateModel.isChangeVariableAllowed());
 		
+	}
+	@Test
+	void assignLocale() {
+		stateModel.assign(Locale.GERMAN);
+		Mockito.verify(subject).assign(Locale.GERMAN);
 	}
 
 }

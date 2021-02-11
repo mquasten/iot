@@ -352,5 +352,10 @@ class RuleDefinitionModelTest {
 		Mockito.when(subject.currentUser()).thenReturn(Optional.empty());
 		assertFalse(ruleDefinitionModel.isChangeAndExecuteRules());
 	}
+	@Test
+	final void assign() {
+		ruleDefinitionModel.assign(Locale.GERMAN);
+		Mockito.verify(subject).assign(Locale.GERMAN);
+	}
 	
 }

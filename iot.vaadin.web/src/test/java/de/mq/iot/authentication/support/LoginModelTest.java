@@ -69,5 +69,11 @@ class LoginModelTest {
 	 void curentUserDefault() {
 		assertEquals(Optional.empty(), loginModel.currentUser());
 	 }
+	 
+	 @Test
+	 void assign() {
+		 loginModel.assign(Locale.GERMAN);
+		 Mockito.verify(subject).assign(Locale.GERMAN);
+	 }
 
 }

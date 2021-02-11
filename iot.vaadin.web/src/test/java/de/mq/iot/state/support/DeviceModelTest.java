@@ -354,4 +354,10 @@ class DeviceModelTest {
 		
 		assertFalse(deviceModel.isChangeDeviceAllowed());
 	}
+	
+	@Test
+	final void assignLocale() {
+		deviceModel.assign(Locale.GERMAN);
+		Mockito.verify(subject).assign(Locale.GERMAN);
+	}
 }
