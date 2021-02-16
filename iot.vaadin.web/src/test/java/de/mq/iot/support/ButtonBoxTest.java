@@ -1,11 +1,14 @@
 package de.mq.iot.support;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,14 +33,17 @@ import de.mq.iot.model.Subject;
 
 class ButtonBoxTest {
 	private final Subject<?, ?> subject = Mockito.mock(Subject.class);
-	private final ButtonBox buttonBox = new ButtonBox(subject);
+	private  ButtonBox buttonBox;
 	
 	private final Map<String, Button> fields = new HashMap<>();
 	
 	@BeforeEach
 	void setup() {
+		Mockito.when(subject.locale()).thenReturn(Locale.GERMAN);
+		buttonBox = new ButtonBox(subject);
 		Arrays.asList(ButtonBox.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())&& field.getType().equals(Button.class)).forEach(field -> fields.put(field.getName(), (Button) ReflectionTestUtils.getField(buttonBox, field.getName())));
-
+		
+		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -76,6 +82,33 @@ class ButtonBoxTest {
 		
 		Mockito.verify(event.getSource().getUI().get()).navigate("devices");
 		
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	void assignLanguageDe() {
+		final Button languageDeButton =  languageDeButton();
+		
+	
+		@SuppressWarnings("rawtypes")
+		final ComponentEventListener listener = listener(languageDeButton);
+		final Button.ClickEvent<?> event = Mockito.mock(Button.ClickEvent.class);
+		listener.onComponentEvent(event);
+		Mockito.verify(subject).assign(Locale.GERMAN);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	void assignLanguageEn() {
+		final Button languageDeButton =  languageEnButton();
+		
+	
+		@SuppressWarnings("rawtypes")
+		final ComponentEventListener listener = listener(languageDeButton);
+		final Button.ClickEvent<?> event = Mockito.mock(Button.ClickEvent.class);
+		listener.onComponentEvent(event);
+		Mockito.verify(subject).assign(Locale.ENGLISH);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -167,6 +200,23 @@ class ButtonBoxTest {
 		listener.onComponentEvent(event);
 		
 		Mockito.verify(event.getSource().getUI().get()).navigate("users");
+	}
+	@Test	
+	void defaultLangue() {
+		assertFalse(languageDeButton().isVisible());
+		assertTrue(languageEnButton().isVisible());
+	}
+
+	private Button languageEnButton() {
+		final Button result = fields.get("languageEnButton");
+		assertNotNull(result);
+		return result;
+	}
+
+	private Button languageDeButton() {
+		final Button result = fields.get("languageDeButton");
+		assertNotNull(result);
+		return result;
 	}
 	
 	
