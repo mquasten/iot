@@ -16,7 +16,7 @@ public class ButtonBox extends HorizontalLayout {
 	
 
 	
-	private static final String CHANGE_LOCALE_EVENT = "ChangeLocale";
+	static final String CHANGE_LOCALE_EVENT = "ChangeLocale";
 
 	private static final long serialVersionUID = 1L;
 	
@@ -103,6 +103,7 @@ public class ButtonBox extends HorizontalLayout {
 	private void setLanguageButtonsVisible(final Subject<?, ?> subject) {
 		languageEnButton.setVisible(subject.locale()!=Locale.ENGLISH);
 		languageDeButton.setVisible(subject.locale()!=Locale.GERMAN);
+		
 	}
 	
 	
