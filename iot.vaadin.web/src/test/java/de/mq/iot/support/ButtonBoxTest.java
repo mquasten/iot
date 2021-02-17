@@ -1,5 +1,6 @@
 package de.mq.iot.support;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +28,9 @@ import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedHttpSession;
 
+import de.mq.iot.model.Observer;
 import de.mq.iot.model.Subject;
+
 
 
 
@@ -37,12 +40,26 @@ class ButtonBoxTest {
 	
 	private final Map<String, Button> fields = new HashMap<>();
 	
+	private final Map<Object,Observer> observers = new HashMap<>(); 
+	
 	@BeforeEach
 	void setup() {
 		Mockito.when(subject.locale()).thenReturn(Locale.GERMAN);
+		Mockito.doAnswer(answer -> {
+
+			final Object event =  answer.getArguments()[0];
+			final Observer observer = (Observer) answer.getArguments()[1];
+			observers.put(event, observer);
+			return null;
+
+		}).when(subject).register(Mockito.any(), Mockito.any());
+		
 		buttonBox = new ButtonBox(subject);
 		Arrays.asList(ButtonBox.class.getDeclaredFields()).stream().filter(field -> !Modifier.isStatic(field.getModifiers())&& field.getType().equals(Button.class)).forEach(field -> fields.put(field.getName(), (Button) ReflectionTestUtils.getField(buttonBox, field.getName())));
 		
+		
+		
+
 		
 	}
 	
@@ -219,6 +236,21 @@ class ButtonBoxTest {
 		return result;
 	}
 	
-	
+	@Test
+	void languageButtonsVisible() {
+		assertEquals(observers.size(), 1);
+		assertEquals(Optional.of(ButtonBox.CHANGE_LOCALE_EVENT), observers.keySet().stream().findAny());
+		final Observer observer =observers.get(ButtonBox.CHANGE_LOCALE_EVENT);
+		final Button languageDe= languageDeButton();
+		final Button languageEn= languageEnButton();
+		assertFalse(languageDe.isVisible());
+		assertTrue(languageEn.isVisible());
+		
+		Mockito.when(subject.locale()).thenReturn(Locale.ENGLISH);
+		observer.process();
+		
+		assertTrue(languageDe.isVisible());
+		assertFalse(languageEn.isVisible());
+	}
 	
 }
