@@ -328,7 +328,7 @@ class CalendarModelImpl  implements CalendarModel  {
 	
 	@Override
 	public Locale locale() {
-		return Locale.GERMAN;
+		return subject.locale();
 	}
 	
 

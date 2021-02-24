@@ -247,7 +247,11 @@ class CalendarModelTest {
 	
 	@Test
 	public final void locale() {
+		Mockito.when(subject.locale()).thenReturn(Locale.GERMAN);
 		assertEquals(Locale.GERMAN, calendarModel.locale());
+		
+		Mockito.when(subject.locale()).thenReturn(Locale.ENGLISH);
+		assertEquals(Locale.ENGLISH, calendarModel.locale());
 	}
 	
 	
@@ -449,6 +453,7 @@ class CalendarModelTest {
 	}
 	@Test
     final void convertDate() {
+		Mockito.when(subject.locale()).thenReturn(Locale.GERMAN);
 		final DayGroup dayGroup =  Mockito.mock(DayGroup.class);
 		final LocalDate expectedDate = LocalDate.of(1968, 5, 28);
 		Mockito.when(dayGroup.name()).thenReturn(DayGroup.NON_WORKINGDAY_GROUP_NAME);
@@ -456,6 +461,7 @@ class CalendarModelTest {
 	}
 	@Test
 	final void convertDayOfWeek() {
+		Mockito.when(subject.locale()).thenReturn(Locale.GERMAN);
 		final DayGroup dayGroup =  Mockito.mock(DayGroup.class);
 		Mockito.when(dayGroup.name()).thenReturn(DayGroup.SPECIAL_WORKINGDAY_GROUP_NAME);
 		assertEquals(DayOfWeek.FRIDAY.getDisplayName(CalendarModelImpl.STYLE_DAY_OF_WEEK, Locale.GERMAN), calendarModel.convert(new DayOfWeekImpl(dayGroup, DayOfWeek.FRIDAY), Year.of(1)));

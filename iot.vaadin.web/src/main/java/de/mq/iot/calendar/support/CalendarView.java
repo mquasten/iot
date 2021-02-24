@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.context.MessageSource;
 
-
+import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -127,7 +127,7 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		filtersComboBox.setSizeFull();
 		filtersComboBox.setItems(Arrays.asList(Filter.values()));
 		filtersComboBox.setAllowCustomValue(false);
-		filtersComboBox.setItemLabelGenerator( value ->  filterTexte.get(value).getText());
+		filtersComboBox.setItemLabelGenerator( filterTexteLabelGenerator());
 		
 		
 		
@@ -231,6 +231,12 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 
 		calendarModel.register(CalendarModel.Events.ChangeLocale, () -> {
 			localize(messageSource, calendarModel.locale());
+			
+			final Filter value = filtersComboBox.getValue();
+			filtersComboBox.setItems(Filter.values());
+			filtersComboBox.setValue(value);
+		
+			
 			Arrays.asList(ValidationErrors.values()).stream().filter(validationError -> validationError!= ValidationErrors.Ok).forEach(validationError -> validationErrors.put( validationError, messageSource.getMessage("calendar_validation_" + validationError.name().toLowerCase() , null, "???", calendarModel.locale())));
 			
 		});
@@ -269,6 +275,10 @@ class CalendarView extends VerticalLayout implements LocalizeView {
 		
 		
 			
+	}
+
+	private ItemLabelGenerator<Filter> filterTexteLabelGenerator() {
+		return value ->  filterTexte.get(value).getText();
 	}
 
 	private void setEditorFieldsVisible(final boolean isDayOfWeek) {

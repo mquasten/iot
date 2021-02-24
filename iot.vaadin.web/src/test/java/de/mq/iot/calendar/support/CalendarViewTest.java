@@ -152,7 +152,7 @@ class CalendarViewTest {
 	
 	@Test
 	void init() {
-		Mockito.verify(dayService).days();
+		Mockito.verify(dayService, Mockito.atLeastOnce()).days();
 		
 	
 		
