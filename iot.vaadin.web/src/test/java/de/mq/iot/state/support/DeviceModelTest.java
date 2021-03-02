@@ -86,6 +86,7 @@ class DeviceModelTest {
 
 	@Test
 	void locale() {
+		Mockito.when(deviceModel.locale()).thenReturn(Locale.GERMAN);
 		assertEquals(Locale.GERMAN, deviceModel.locale());
 	}
 

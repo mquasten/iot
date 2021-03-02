@@ -288,7 +288,7 @@ private final ConversionService conversionService;
 	 */
 	@Override
 	public Locale locale() {
-		return Locale.GERMAN;
+		return subject.locale();
 	}
 	
 	

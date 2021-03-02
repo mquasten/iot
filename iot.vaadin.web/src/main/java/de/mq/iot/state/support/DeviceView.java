@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.context.MessageSource;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -81,6 +80,8 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 	private Map<DeviceType, Label> typeLabels = new HashMap<>();
 
 	private Map<DeviceType, Label> errorMessages = new HashMap<>();
+	
+	
 
 	DeviceView(final StateService stateService, final SynonymService synonymService, final DeviceModel deviveModel, final MessageSource messageSource, final ButtonBox buttonBox) {
 
@@ -132,8 +133,27 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 		deviveModel.register(DeviceModel.Events.ChangeLocale, () -> {
 			localize(messageSource, deviveModel.locale());
+			
+			
+			
+			
+		
+			
 			stateValueField.localize(valueLabel.getText());
+			
+			
 			devicesValueColumn.forEach(column -> column.setHeader(deviceValueLabel.getText()));
+			
+			comboBox.setItemLabelGenerator(value -> typeLabels.get(value).getText());
+
+			
+			
+		
+			
+			
+		
+			
+		
 			System.out.println("*** DeviceView: ChangeLocale ***");
 
 		});
@@ -216,6 +236,8 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		grid.setHeightByRows(true);
 
 	}
+
+
 
 	private void setEditorVisisble(final HorizontalLayout editorLayout, final DeviceModel deviceModel) {
 		
