@@ -20,7 +20,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventBus;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.selection.MultiSelectionEvent;
 import com.vaadin.flow.function.SerializableFunction;
@@ -41,11 +41,11 @@ public class DeviceStateComponentRendererFunctionTest {
 
 	private final DeviceModel deviceModel = Mockito.mock(DeviceModel.class);
 	
+	private final Label label =  Mockito.mock(Label.class);
 	
+	private final Collection<Label> columns = new ArrayList<>();
 	
-	private final Collection<Column<?>> columns = new ArrayList<>();
-	
-	private final SerializableFunction<Room,Grid<State<Object>>>  function = new DeviceStateComponentRendererFunction(deviceModel,columns); 
+	private final SerializableFunction<Room,Grid<State<Object>>>  function = new DeviceStateComponentRendererFunction(deviceModel,columns, label); 
 	
 	private final Room room = Mockito.mock(Room.class);
 	private final State<?> firstState = Mockito.mock(State.class);
@@ -78,15 +78,20 @@ public class DeviceStateComponentRendererFunctionTest {
 		
 		
 	}
+
 	@Test
 	final void columnAttacheListener() {
-		
-		function.apply(room);
+		Mockito.when(label.getText()).thenReturn("Wert");
+
+		final Grid<State<Object>> devices = function.apply(room);
+		devices.getColumns();
+		assertEquals(2, devices.getColumns().size());
+
+		listener(devices.getColumns().get(1)).onComponentEvent(null);
+
 		assertEquals(1, columns.size());
-		listener(columns.iterator().next()).onComponentEvent(null);
-		
-		
-		Mockito.verify(deviceModel).notifyObservers(DeviceModel.Events.ChangeLocale);
+		assertEquals(label.getText(), columns.stream().findAny().get().getText());
+
 	}
 	
 	@SuppressWarnings("unchecked")

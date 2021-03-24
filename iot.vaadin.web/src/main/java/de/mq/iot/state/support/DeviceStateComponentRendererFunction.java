@@ -7,6 +7,7 @@ import org.springframework.util.CollectionUtils;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;
 
@@ -17,14 +18,18 @@ class DeviceStateComponentRendererFunction  implements SerializableFunction<Room
 
 	private static final long serialVersionUID = 1L;
 	private final DeviceModel deviceModel;
-	private final  Collection<Column<?>> devicesValueColumn;
+	private final  Collection<Label> devicesValueColumns; 
 	
 	private final ValueProvider<State<Object>, String>stateNameProvider;
 	private final ValueProvider<State<Object>, String> stateValueProvider;
+	private final Label label;
 	
-	DeviceStateComponentRendererFunction(DeviceModel deviceModel, Collection<Column<?>> devicesValueColumn) {
+	
+	
+	DeviceStateComponentRendererFunction(final DeviceModel deviceModel,  final Collection<Label> devicesValueColumns, final Label label ) {
 		this.deviceModel = deviceModel;
-		this.devicesValueColumn = devicesValueColumn;
+		this.label=label;
+		this.devicesValueColumns=devicesValueColumns;
 		stateValueProvider = (ValueProvider<State<Object>, String>) state -> deviceModel.convert(state);
 		stateNameProvider = (ValueProvider<State<Object>, String>) state -> deviceModel.synonym(state);
 	}
@@ -45,8 +50,13 @@ class DeviceStateComponentRendererFunction  implements SerializableFunction<Room
 
 		
 		final Column<State<Object>> column = devices.addColumn(stateValueProvider);
-		devicesValueColumn.add(column);
-		column.addAttachListener(event -> deviceModel.notifyObservers(DeviceModel.Events.ChangeLocale));
+		final Label columnLabel = new Label();
+		column.setHeader(columnLabel);
+		
+		devicesValueColumns.add(columnLabel);
+	
+		
+		column.addAttachListener(event -> columnLabel.setText(label.getText()));
 
 		devices.setItems((Collection<State<Object>>) room.states());
 

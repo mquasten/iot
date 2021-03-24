@@ -31,7 +31,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.Grid.Column;
+
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
@@ -193,8 +193,8 @@ class DeviceViewTest {
 	}
 	
 	@SuppressWarnings("unchecked")
-	final Collection<Column<?>> devicesValueColumn() {
-		return  (Collection<Column<?>>) fields.get("devicesValueColumn");
+	final Collection<Label> devicesValueColumn() {
+		return  (Collection<Label>) fields.get("devicesValueColumns");
 	}
 
 	private Label invalidLevelValueLabel() {
@@ -322,8 +322,8 @@ class DeviceViewTest {
 	final void i18n() {
 		final Observer observer = observers.get(DeviceModel.Events.ChangeLocale);
 
-		Collection<Column<?>> columns =  devicesValueColumn();
-		Column<?> column =  Mockito.mock(Column.class);
+		Collection<Label> columns =  devicesValueColumn();
+		Label column =  Mockito.mock(Label.class);
 		columns.add(column);
 		
 		assertNotNull(observer);
@@ -355,7 +355,7 @@ class DeviceViewTest {
 		assertEquals(I18N_DEVICES_VALUE,textLabel(stateValueField).getText());
 		
 
-		Mockito.verify(column).setHeader(I18N_DEVICES_DEVICES_VALUE);
+		Mockito.verify(column).setText(I18N_DEVICES_DEVICES_VALUE);
 	}
 	
 	

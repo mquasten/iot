@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.context.MessageSource;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -31,7 +32,6 @@ import de.mq.iot.state.State;
 import de.mq.iot.state.StateService;
 import de.mq.iot.state.StateService.DeviceType;
 import de.mq.iot.support.ButtonBox;
-
 import de.mq.iot.synonym.SynonymService;
 
 @Route("devices")
@@ -68,7 +68,6 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 	private Column<?> devicesColumn;
 
-	private Collection<Column<?>> devicesValueColumn = new ArrayList<>();
 
 	private final ComboBox<DeviceType> comboBox = new ComboBox<>();
 
@@ -82,7 +81,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 	private Map<DeviceType, Label> errorMessages = new HashMap<>();
 	
 	
-
+	private final  Collection<Label> devicesValueColumns = new ArrayList<>();
 	DeviceView(final StateService stateService, final SynonymService synonymService, final DeviceModel deviveModel, final MessageSource messageSource, final ButtonBox buttonBox) {
 
 		deviveModel.assign(synonymService.deviveSynonyms());
@@ -142,15 +141,17 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 			stateValueField.localize(valueLabel.getText());
 			
 			
-			devicesValueColumn.forEach(column -> column.setHeader(deviceValueLabel.getText()));
+			
 			
 			comboBox.setItemLabelGenerator(value -> typeLabels.get(value).getText());
 
 			
 			
+			
+			
 		
 			
-			
+			devicesValueColumns.forEach(label -> label.setText(deviceValueLabel.getText()));
 		
 			
 		
@@ -166,8 +167,12 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		comboBox.setItems(stateService.deviceTypes());
 
 		comboBox.getDataProvider().fetch(new Query<>()).findFirst().ifPresent(value -> comboBox.setValue(value));
+		
+		
 
 	}
+
+	
 
 	private void update(final StateService stateService, final DeviceModel deviveModel) {
 		final Collection<State<Object>> states = deviveModel.changedValues();
@@ -181,7 +186,7 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 
 	private void createUI(final StateService stateService, final DeviceModel deviceModel, final ButtonBox buttonBox) {
 
-	
+		
 		
 		saveButton.setEnabled(false);
 
@@ -228,12 +233,14 @@ class DeviceView extends VerticalLayout implements LocalizeView {
 		grid.setHeight("50vH");
 
 		grid.setSelectionMode(SelectionMode.SINGLE);
-
-		devicesValueColumn.clear();
-		devicesColumn = grid.addColumn(new ComponentRenderer<>(new DeviceStateComponentRendererFunction(deviceModel,devicesValueColumn)));
-
+		devicesValueColumns.clear();
+		devicesColumn = grid.addColumn(new ComponentRenderer<>(new DeviceStateComponentRendererFunction(deviceModel, devicesValueColumns, deviceValueLabel)));
+		
+		
 		devicesColumn.setHeader(searchLayout);
 		grid.setHeightByRows(true);
+		
+		
 
 	}
 
