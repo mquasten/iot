@@ -1,0 +1,39 @@
+/* 1 */
+{
+    "_id" : "HMW-LC-Bl1-DR OEQ2305342:3",
+    "type" : "Devive",
+    "value" : "Fenster",
+    "_class" : "de.mq.iot.synonym.support.SynonymImpl"
+}
+
+/* 2 */
+{
+    "_id" : "HMW-LC-Bl1-DR NEQ1415509:3",
+    "type" : "Devive",
+    "value" : "Fenster links",
+    "_class" : "de.mq.iot.synonym.support.SynonymImpl"
+}
+
+/* 3 */
+{
+    "_id" : "HMW-LC-Bl1-DR OEQ0281682:3",
+    "type" : "Devive",
+    "value" : "Fenster rechts",
+    "_class" : "de.mq.iot.synonym.support.SynonymImpl"
+}
+
+/* 4 */
+{
+    "_id" : "HM-LC-Sw1-Pl-DN-R1 PEQ0088080:1",
+    "type" : "Devive",
+    "value" : "Stehlampe",
+    "_class" : "de.mq.iot.synonym.support.SynonymImpl"
+}
+
+/* 5 */
+{
+    "_id" : "HMW-LC-Bl1-DR OEQ2304458:3",
+    "type" : "Devive",
+    "value" : "Fenster vorne",
+    "_class" : "de.mq.iot.synonym.support.SynonymImpl"
+}

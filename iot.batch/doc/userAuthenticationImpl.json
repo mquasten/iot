@@ -1,0 +1,13 @@
+/* 1 */
+{
+    "_id" : "mquasten",
+    "credentials" : "0b6bff8b997f50c48bfaea170eab7ce7",
+    "authorities" : [ 
+        "Systemvariables", 
+        "Users", 
+        "Calendar", 
+        "Rules", 
+        "Devices"
+    ],
+    "_class" : "de.mq.iot.authentication.support.UserAuthenticationImpl"
+}

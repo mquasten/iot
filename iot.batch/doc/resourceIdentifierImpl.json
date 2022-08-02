@@ -1,0 +1,23 @@
+/* 1 */
+{
+    "_id" : "XmlApi",
+    "uri" : "http://{host}:{port}/addons/xmlapi/{resource}",
+    "parameters" : {
+        "host" : "192.168.2.104",
+        "port" : "80"
+    },
+    "_class" : "de.mq.iot.resource.support.ResourceIdentifierImpl"
+}
+
+/* 2 */
+{
+    "_id" : "OpenWeather",
+    "uri" : "http://api.openweathermap.org/data/{version}/{resource}?q={city},{country}&appid={key}&units=metric",
+    "parameters" : {
+        "country" : "de",
+        "city" : "Wegberg",
+        "version" : "2.5",
+        "key" : "607cd43d4d9b17d8a96df387fe4ede62"
+    },
+    "_class" : "de.mq.iot.resource.support.ResourceIdentifierImpl"
+}

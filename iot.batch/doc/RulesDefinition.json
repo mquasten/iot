@@ -1,0 +1,25 @@
+
+{
+    "_id" : "EndOfDayBatch",
+    "inputData" : {
+        "maxIpCount" : "10",
+        "daysBack" : "30",
+        "firstIp" : "100"
+    },
+    "_class" : "de.mq.iot.rule.support.RulesDefinitionImpl"
+}
+
+/* 2 */
+{
+    "_id" : "DefaultDailyIotBatch",
+    "inputData" : {
+        "workingdayAlarmTime" : "5:30",
+        "holidayAlarmTime" : "7:15",
+        "minSunDownTime" : "17:15",
+        "specialWorkingdayAlarmTime" : "4:15"
+    },
+    "optionalRules" : [ 
+        "temperatureRule"
+    ],
+    "_class" : "de.mq.iot.rule.support.RulesDefinitionImpl"
+}
